@@ -5,7 +5,7 @@
 
 export const siteConfig = {
   // Branding
-  name: "Next.js Ecommerce Starter",
+  name: "Boo Shop",
   tagline: "A free, open-source Next.js ecommerce template.",
   description:
     "A free, production-ready Next.js ecommerce starter template built with Tailwind CSS and shadcn/ui. Responsive, accessible, SEO optimized, and ready to connect to any checkout system. Built by Epic Design Labs.",
@@ -18,7 +18,7 @@ export const siteConfig = {
 
   // Contact
   contact: {
-    email: "support@epicdesignlabs.com",
+    email: "boospace7@gmail.com",
     phone: "",
     address: {
       street: "",
