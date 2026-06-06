@@ -338,6 +338,7 @@ export const supabaseBlogRepository = {
 
 export async function createSupabaseOrder(order: Order): Promise<Order> {
   const supabase = createSupabaseServerClient()
+
   const { data, error } = await supabase
     .from("ecommerce_orders")
     .insert({
@@ -353,7 +354,11 @@ export async function createSupabaseOrder(order: Order): Promise<Order> {
     .single()
 
   if (error) {
-    throw new Error(`Failed to create order: ${error.message}`)
+    console.error("SUPABASE ORDER ERROR:", error)
+
+    throw new Error(
+      `Failed to create order: ${error.message}`
+    )
   }
 
   return (data as { data: Order }).data
