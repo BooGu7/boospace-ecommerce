@@ -126,6 +126,18 @@ export default function CheckoutPage() {
       updatedAt: new Date().toISOString(),
     }
 
+    const response = await fetch("/api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(order),
+    })
+
+    if (!response.ok) {
+      setLoading(false)
+      toast.error("Could not save the order. Please try again.")
+      return
+    }
+
     addOrder(order)
     clearCart()
     toast.success("Order placed successfully!")

@@ -1,9 +1,34 @@
-// Re-export the JSON-backed repositories as the default implementations.
-// To swap backends (database, CMS, API), implement the same interfaces
-// and change these exports.
+// JSON stays as the local fallback. When Supabase env vars are present, the
+// app reads catalog, CMS, and blog data from Supabase instead.
 
-export { jsonProductRepository as productRepository } from "./json-product-repository"
-export { jsonCategoryRepository as categoryRepository } from "./json-category-repository"
-export { jsonBrandRepository as brandRepository } from "./json-brand-repository"
-export { jsonPageRepository as pageRepository } from "./json-page-repository"
-export { jsonBlogRepository as blogRepository } from "./json-blog-repository"
+import { hasSupabaseConfig } from "@/lib/supabase/server"
+import { jsonProductRepository } from "./json-product-repository"
+import { jsonCategoryRepository } from "./json-category-repository"
+import { jsonBrandRepository } from "./json-brand-repository"
+import { jsonPageRepository } from "./json-page-repository"
+import { jsonBlogRepository } from "./json-blog-repository"
+import {
+  supabaseBlogRepository,
+  supabaseBrandRepository,
+  supabaseCategoryRepository,
+  supabasePageRepository,
+  supabaseProductRepository,
+} from "./supabase-repositories"
+
+const useSupabase = hasSupabaseConfig()
+
+export const productRepository = useSupabase
+  ? supabaseProductRepository
+  : jsonProductRepository
+export const categoryRepository = useSupabase
+  ? supabaseCategoryRepository
+  : jsonCategoryRepository
+export const brandRepository = useSupabase
+  ? supabaseBrandRepository
+  : jsonBrandRepository
+export const pageRepository = useSupabase
+  ? supabasePageRepository
+  : jsonPageRepository
+export const blogRepository = useSupabase
+  ? supabaseBlogRepository
+  : jsonBlogRepository
