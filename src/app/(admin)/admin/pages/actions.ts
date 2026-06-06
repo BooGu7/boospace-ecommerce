@@ -1,21 +1,18 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseAdmin } from "@/lib/supabase/admin";
 
-export async function createPage(
-  formData: FormData
-) {
-  const supabase = createSupabaseServerClient();
+/**
+ * CREATE PAGE
+ */
+export async function createPage(formData: FormData) {
+  const supabase = getSupabaseAdmin();
 
   const title = String(formData.get("title"));
   const slug = String(formData.get("slug"));
-  const excerpt = String(
-    formData.get("excerpt") || ""
-  );
-  const body = String(
-    formData.get("body") || ""
-  );
+  const excerpt = String(formData.get("excerpt") || "");
+  const body = String(formData.get("body") || "");
 
   const id = `page-${Date.now()}`;
 
@@ -25,63 +22,47 @@ export async function createPage(
     title,
     excerpt,
     body,
-    publishedAt:
-      new Date().toISOString(),
+    publishedAt: new Date().toISOString(),
   };
 
-  const { error } = await supabase
-    .from("ecommerce_pages")
-    .insert({
-      id,
-      slug,
-      sort_order: 0,
-      data,
-      published_at:
-        new Date().toISOString(),
-    });
+  const { error } = await supabase.from("ecommerce_pages").insert({
+    id,
+    slug,
+    sort_order: 0,
+    data,
+    published_at: new Date().toISOString(),
+  });
 
   if (error) {
+    console.error("CREATE PAGE ERROR:", error);
     throw new Error(error.message);
   }
 
   revalidatePath("/admin/pages");
 }
 
-export async function updatePage(
-  id: string,
-  formData: FormData
-) {
-  const supabase =
-    createSupabaseServerClient();
+/**
+ * UPDATE PAGE
+ */
+export async function updatePage(id: string, formData: FormData) {
+  const supabase = getSupabaseAdmin();
 
-  const title = String(
-    formData.get("title")
-  );
+  const title = String(formData.get("title"));
+  const slug = String(formData.get("slug"));
+  const excerpt = String(formData.get("excerpt") || "");
+  const body = String(formData.get("body") || "");
 
-  const slug = String(
-    formData.get("slug")
-  );
+  const { data: page, error: fetchError } = await supabase
+    .from("ecommerce_pages")
+    .select("*")
+    .eq("id", id)
+    .single();
 
-  const excerpt = String(
-    formData.get("excerpt") || ""
-  );
-
-  const body = String(
-    formData.get("body") || ""
-  );
-
-  const { data: page } =
-    await supabase
-      .from("ecommerce_pages")
-      .select("*")
-      .eq("id", id)
-      .single();
-
-  if (!page) {
+  if (fetchError || !page) {
     throw new Error("Page not found");
   }
 
-  const json = page.data;
+  const json = page.data || {};
 
   json.title = title;
   json.slug = slug;
@@ -93,26 +74,24 @@ export async function updatePage(
     .update({
       slug,
       data: json,
-      updated_at:
-        new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     })
     .eq("id", id);
 
   if (error) {
+    console.error("UPDATE PAGE ERROR:", error);
     throw new Error(error.message);
   }
 
   revalidatePath("/admin/pages");
-  revalidatePath(
-    `/admin/pages/${id}`
-  );
+  revalidatePath(`/admin/pages/${id}`);
 }
 
-export async function deletePage(
-  id: string
-) {
-  const supabase =
-    createSupabaseServerClient();
+/**
+ * DELETE PAGE
+ */
+export async function deletePage(id: string) {
+  const supabase = getSupabaseAdmin();
 
   const { error } = await supabase
     .from("ecommerce_pages")
@@ -120,6 +99,7 @@ export async function deletePage(
     .eq("id", id);
 
   if (error) {
+    console.error("DELETE PAGE ERROR:", error);
     throw new Error(error.message);
   }
 

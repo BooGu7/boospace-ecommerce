@@ -1,12 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseAdmin } from "@/lib/supabase/admin";
 
-export async function createBlog(
-  formData: FormData
-) {
-  const supabase = createSupabaseServerClient();
+export async function createBlog(formData: FormData) {
+  const supabase = getSupabaseAdmin();
 
   const title = String(formData.get("title"));
   const slug = String(formData.get("slug"));
@@ -27,17 +25,16 @@ export async function createBlog(
     publishedAt: new Date().toISOString(),
   };
 
-  const { error } = await supabase
-    .from("ecommerce_blog_posts")
-    .insert({
-      id,
-      slug,
-      sort_order: 0,
-      data,
-      published_at: new Date().toISOString(),
-    });
+  const { error } = await supabase.from("ecommerce_blog_posts").insert({
+    id,
+    slug,
+    sort_order: 0,
+    data,
+    published_at: new Date().toISOString(),
+  });
 
   if (error) {
+    console.error("CREATE BLOG ERROR:", error);
     throw new Error(error.message);
   }
 
