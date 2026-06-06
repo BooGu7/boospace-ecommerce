@@ -5,8 +5,16 @@ export function getSupabaseAdmin() {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!url || !key) {
-    throw new Error("Missing Supabase env");
+    throw new Error(
+      `Missing Supabase env:
+      URL: ${!!url}
+      KEY: ${!!key}`
+    );
   }
 
-  return createClient(url, key);
+  return createClient(url, key, {
+    auth: {
+      persistSession: false,
+    },
+  });
 }
