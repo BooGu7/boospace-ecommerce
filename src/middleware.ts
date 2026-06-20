@@ -1,8 +1,21 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import {NextResponse} from "next/server";
+import type {NextRequest} from "next/server";
+import createMiddleware from "next-intl/middleware";
+
+// =========================
+// i18n MIDDLEWARE
+// =========================
+const intlMiddleware = createMiddleware({
+  locales: ["en", "vi"],
+  defaultLocale: "en"
+});
 
 export function middleware(request: NextRequest) {
-  const response = NextResponse.next();
+  // 1. xử lý i18n trước (quan trọng)
+  const intlResponse = intlMiddleware(request);
+
+  // nếu next-intl trả redirect (ví dụ / → /vi), dùng luôn
+  const response = intlResponse || NextResponse.next();
 
   // =========================
   // SECURITY HEADERS
@@ -23,12 +36,12 @@ export function middleware(request: NextRequest) {
 
   const csp = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // dev-safe
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob: https:",
     "font-src 'self' https://fonts.gstatic.com https:",
     "connect-src 'self' https: wss:",
-    "frame-ancestors 'none'",
+    "frame-ancestors 'none'"
   ].join("; ");
 
   if (isDev) {
@@ -38,7 +51,7 @@ export function middleware(request: NextRequest) {
   }
 
   // =========================
-  // HSTS ONLY IN PRODUCTION
+  // HSTS (production only)
   // =========================
   if (!isDev) {
     response.headers.set(
@@ -50,16 +63,77 @@ export function middleware(request: NextRequest) {
   return response;
 }
 
+// =========================
+// MATCHER CONFIG
+// =========================
 export const config = {
   matcher: [
-    /*
-      Apply only to app routes
-      Exclude:
-      - _next/static
-      - _next/image
-      - api routes (IMPORTANT for Supabase & upload)
-      - static assets
-    */
-    "/((?!_next/static|_next/image|api|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
-  ],
+    "/((?!_next/static|_next/image|api|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"
+  ]
 };
+
+// import { NextResponse } from "next/server";
+// import type { NextRequest } from "next/server";
+
+// export function middleware(request: NextRequest) {
+//   const response = NextResponse.next();
+
+//   // =========================
+//   // SECURITY HEADERS
+//   // =========================
+//   response.headers.set("X-Frame-Options", "DENY");
+//   response.headers.set("X-Content-Type-Options", "nosniff");
+//   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+//   response.headers.set("X-DNS-Prefetch-Control", "on");
+//   response.headers.set(
+//     "Permissions-Policy",
+//     "camera=(), microphone=(), geolocation=()"
+//   );
+
+//   // =========================
+//   // CSP (SAFE BASELINE)
+//   // =========================
+//   const isDev = process.env.NODE_ENV !== "production";
+
+//   const csp = [
+//     "default-src 'self'",
+//     "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // dev-safe
+//     "style-src 'self' 'unsafe-inline'",
+//     "img-src 'self' data: blob: https:",
+//     "font-src 'self' https://fonts.gstatic.com https:",
+//     "connect-src 'self' https: wss:",
+//     "frame-ancestors 'none'",
+//   ].join("; ");
+
+//   if (isDev) {
+//     response.headers.set("Content-Security-Policy-Report-Only", csp);
+//   } else {
+//     response.headers.set("Content-Security-Policy", csp);
+//   }
+
+//   // =========================
+//   // HSTS ONLY IN PRODUCTION
+//   // =========================
+//   if (!isDev) {
+//     response.headers.set(
+//       "Strict-Transport-Security",
+//       "max-age=63072000; includeSubDomains; preload"
+//     );
+//   }
+
+//   return response;
+// }
+
+// export const config = {
+//   matcher: [
+//     /*
+//       Apply only to app routes
+//       Exclude:
+//       - _next/static
+//       - _next/image
+//       - api routes (IMPORTANT for Supabase & upload)
+//       - static assets
+//     */
+//     "/((?!_next/static|_next/image|api|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+//   ],
+// };
