@@ -2,16 +2,18 @@ import { notFound } from "next/navigation";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import PostEditForm from "@/components/admin/post-edit-form";
 
+export const dynamic = "force-dynamic";
+
 interface PageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default async function EditPostPage({
   params,
 }: PageProps) {
-  const { id } = params;
+  const { id } = await params;
 
   const supabase = getSupabaseAdmin();
 

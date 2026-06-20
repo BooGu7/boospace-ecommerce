@@ -3,14 +3,6 @@ import type { Order } from "@/types";
 import { createSupabaseOrder } from "@/lib/repositories/supabase-repositories";
 
 export async function POST(request: Request) {
-  // ✅ FIX: check env trực tiếp (KHÔNG dùng hasSupabaseConfig)
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
-    return NextResponse.json(
-      { error: "Supabase is not configured" },
-      { status: 503 }
-    );
-  }
-
   const order = (await request.json()) as Order;
 
   if (!order.id || !order.customerEmail || !order.items?.length) {

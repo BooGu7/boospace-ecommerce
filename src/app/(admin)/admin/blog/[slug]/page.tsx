@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import DOMPurify from "isomorphic-dompurify";
 import { supabasePublic } from "@/lib/supabase/public-client";
 
 export const dynamic = "force-dynamic";
@@ -7,12 +6,14 @@ export const dynamic = "force-dynamic";
 export default async function BlogPost({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
+  const { slug } = await params;
+
   const { data: post, error } = await supabasePublic
     .from("posts")
     .select("*")
-    .eq("slug", params.slug)
+    .eq("slug", slug)
     .single();
 
   if (error || !post) {
@@ -29,7 +30,7 @@ export default async function BlogPost({
 
       <div
         dangerouslySetInnerHTML={{
-          __html: DOMPurify.sanitize(post.content || ""),
+          __html: post.content || "",
         }}
       />
     </article>
