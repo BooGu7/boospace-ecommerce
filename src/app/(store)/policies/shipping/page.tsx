@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Chính sách vận chuyển",
   description:
-    "Tìm hiểu về các lựa chọn vận chuyển, chi phí và thời gian giao hàng ✨",
+    "Thông tin về phạm vi giao hàng, thời gian vận chuyển và chính sách hỗ trợ khách hàng của BooSpace.",
 };
 
 export default function ShippingPolicyPage() {
@@ -15,33 +15,52 @@ export default function ShippingPolicyPage() {
 
       <div className="mt-8 space-y-6 text-muted-foreground">
         <h2 className="text-xl font-semibold text-foreground">
-          Vận chuyển trong nước
-        </h2>
-
-        <ul className="list-inside list-disc space-y-2">
-          <li>Giao hàng tiêu chuẩn (3–5 ngày làm việc): 25.000₫</li>
-          <li>Giao hàng nhanh (1–2 ngày làm việc): 45.000₫</li>
-          <li>Giao hàng hỏa tốc (trong ngày / nội thành): 90.000₫</li>
-          <li>Miễn phí vận chuyển cho đơn hàng từ 500.000₫ trở lên</li>
-        </ul>
-
-        <h2 className="text-xl font-semibold text-foreground">
-          Vận chuyển nội thành & ngoại tỉnh
+          Phạm vi giao hàng
         </h2>
 
         <p>
-          Chúng tôi giao hàng trên toàn quốc Việt Nam. Thời gian giao hàng nội
-          thành thường từ 1–2 ngày, ngoại tỉnh từ 3–5 ngày làm việc tùy khu vực.
-          Một số vùng xa có thể mất 5–7 ngày làm việc.
+          Boo Space phục vụ khách hàng trên toàn lãnh thổ Việt Nam. Hiện tại,
+          chúng tôi chưa hỗ trợ giao hàng quốc tế.
         </p>
 
         <h2 className="text-xl font-semibold text-foreground">
-          Xử lý đơn hàng
+          Đối tác vận chuyển
         </h2>
 
         <p>
-          Đơn hàng được xử lý trong vòng 24 giờ (ngày làm việc). Đơn đặt sau
-          17:00 hoặc vào cuối tuần sẽ được xử lý vào ngày làm việc tiếp theo.
+          Đơn hàng của bạn sẽ được giao thông qua đội ngũ vận chuyển của Boo
+          Space hoặc các đối tác uy tín như Viettel Post và Lalamove, tùy thuộc
+          vào khu vực giao hàng và hình thức vận chuyển phù hợp.
+        </p>
+
+        <p>
+          Sau khi đơn hàng được bàn giao cho đơn vị vận chuyển, quý khách sẽ
+          nhận được email hoặc tin nhắn chứa mã vận đơn để theo dõi trạng thái
+          giao hàng.
+        </p>
+
+        <h2 className="text-xl font-semibold text-foreground">
+          Thời gian giao hàng
+        </h2>
+
+        <ul className="list-inside list-disc space-y-2">
+          <li>
+            <strong>TP. Hồ Chí Minh:</strong> Thời gian giao hàng dự kiến từ 1–3
+            ngày làm việc (không bao gồm Thứ Bảy, Chủ Nhật và ngày lễ).
+          </li>
+          <li>
+            <strong>Các tỉnh thành khác:</strong> Thời gian giao hàng dự kiến từ
+            3–5 ngày làm việc (không bao gồm Thứ Bảy, Chủ Nhật và ngày lễ).
+          </li>
+        </ul>
+
+        <h2 className="text-xl font-semibold text-foreground">
+          Phí vận chuyển
+        </h2>
+
+        <p>
+          Boo Space áp dụng chính sách{" "}
+          <strong>miễn phí vận chuyển toàn quốc</strong> cho tất cả đơn hàng.
         </p>
 
         <h2 className="text-xl font-semibold text-foreground">
@@ -49,10 +68,26 @@ export default function ShippingPolicyPage() {
         </h2>
 
         <p>
-          Sau khi đơn hàng được gửi đi, bạn sẽ nhận được tin nhắn/email kèm mã
-          vận đơn để theo dõi. Bạn cũng có thể xem trạng thái đơn hàng trong mục
-          tài khoản của mình.
+          Quý khách có thể tra cứu tình trạng vận chuyển thông qua mã vận đơn
+          được gửi qua email. Đối với các đơn hàng được giao bởi Viettel Post,
+          vui lòng truy cập website của đơn vị vận chuyển để kiểm tra trạng thái
+          mới nhất.
         </p>
+
+        <h2 className="text-xl font-semibold text-foreground">
+          Hỗ trợ & khiếu nại
+        </h2>
+
+        <p>
+          Nếu có bất kỳ thắc mắc nào liên quan đến đơn hàng, chất lượng sản
+          phẩm, phí vận chuyển hoặc quá trình giao nhận, vui lòng liên hệ với
+          Boo Space để được hỗ trợ nhanh nhất.
+        </p>
+
+        <ul className="list-inside list-disc space-y-2">
+          <li>Email: boospace7@gmail.com</li>
+          <li>Fanpage: Boo Space</li>
+        </ul>
       </div>
     </div>
   );

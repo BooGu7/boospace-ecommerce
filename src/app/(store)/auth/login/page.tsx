@@ -38,7 +38,7 @@ export default function LoginPage() {
 
   return (
     <AuthCardLayout
-      title="Chào mừng bạn quay trở lại"
+      title="Chào mừng bạn"
       subtitle="Đăng nhập vào tài khoản để tiếp tục"
       footerText="Bạn chưa có tài khoản?"
       footerLinkText="Đăng ký"
@@ -75,10 +75,10 @@ export default function LoginPage() {
           />
         </div>
         <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? "Signing in..." : "Sign In"}
+          {loading ? "Đang đăng nhập..." : "Đăng nhập"}
         </Button>
       </form>
-      <div className="mt-4 rounded-md bg-neutral-50 p-3">
+      {/* <div className="mt-4 rounded-md bg-neutral-50 p-3">
         <p className="text-xs text-muted-foreground">
           <strong>Demo accounts:</strong>
           <br />
@@ -86,7 +86,7 @@ export default function LoginPage() {
           <br />
           demo@example.com / password123
         </p>
-      </div>
+      </div> */}
     </AuthCardLayout>
   );
 }

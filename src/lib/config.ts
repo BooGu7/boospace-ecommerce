@@ -41,7 +41,7 @@ export const siteConfig = {
   },
 
   // Shipping
-  freeShippingThreshold: 200000, // in VND (~200,000₫, tuỳ bạn chỉnh)
+  freeShippingThreshold: 0, // in VND (~200,000₫, tuỳ bạn chỉnh)
   taxRate: 0.0, // Việt Nam thường không set tax cố định trong frontend ecommerce nhỏ
 
   // Currency & locale

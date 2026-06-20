@@ -12,7 +12,7 @@ export default function ForgotPasswordPage() {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    toast.success("Reset link sent (demo)");
+    toast.success("Đã gửi link, hãy kiểm tra email 📨");
   }
 
   return (
@@ -37,7 +37,7 @@ export default function ForgotPasswordPage() {
         </div>
 
         <Button type="submit" className="w-full">
-          Gửi link đặt lại
+          Gửi link
         </Button>
       </form>
     </AuthCardLayout>

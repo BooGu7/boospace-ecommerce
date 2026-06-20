@@ -10,11 +10,11 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
-      <h1 className="text-3xl font-bold tracking-tight">Về BooSpace</h1>
+      <h1 className="text-3xl font-bold tracking-tight">Về Boo Space</h1>
 
       <div className="mt-8 space-y-6 text-muted-foreground">
         <p>
-          BooSpace là studio thiết kế không gian làm việc và sản phẩm DIY ứng
+          Boo Space là studio thiết kế không gian làm việc và sản phẩm DIY ứng
           dụng công nghệ in 3D hiện đại. Chúng tôi tạo ra các sản phẩm tùy chỉnh
           theo nhu cầu cá nhân, từ đồ trang trí, phụ kiện bàn làm việc cho đến
           các giải pháp tổ chức không gian sáng tạo.
@@ -22,7 +22,7 @@ export default function AboutPage() {
 
         <p>
           Với sự kết hợp giữa thiết kế tối giản, tư duy DIY và công nghệ in 3D,
-          BooSpace giúp biến ý tưởng của bạn thành sản phẩm thực tế. Mỗi sản
+          Boo Space giúp biến ý tưởng của bạn thành sản phẩm thực tế. Mỗi sản
           phẩm đều có thể được cá nhân hoá để phù hợp với phong cách, nhu cầu và
           không gian riêng của từng người dùng.
         </p>
@@ -33,7 +33,7 @@ export default function AboutPage() {
 
         <p>
           Chúng tôi tin rằng một không gian làm việc tốt không chỉ đẹp mà còn
-          phải truyền cảm hứng. Mỗi thiết kế của BooSpace đều hướng đến sự gọn
+          phải truyền cảm hứng. Mỗi thiết kế của Boo Space đều hướng đến sự gọn
           gàng, tối ưu công năng và mang dấu ấn cá nhân.
         </p>
 
@@ -50,7 +50,7 @@ export default function AboutPage() {
         </ul>
 
         <h2 className="!mt-12 text-xl font-semibold text-foreground">
-          Tại sao chọn BooSpace?
+          Tại sao chọn Boo Space?
         </h2>
 
         <p>
