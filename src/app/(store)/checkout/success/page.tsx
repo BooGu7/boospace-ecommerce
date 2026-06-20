@@ -1,21 +1,21 @@
-"use client"
+"use client";
 
-import { Suspense, useEffect, useState } from "react"
-import Link from "next/link"
-import { useSearchParams } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { CheckCircle } from "lucide-react"
-import { useOrdersStore } from "@/store/orders"
-import { formatPrice, formatDate } from "@/lib/utils"
+import { Suspense, useEffect, useState } from "react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { CheckCircle } from "lucide-react";
+import { useOrdersStore } from "@/store/orders";
+import { formatPrice, formatDate } from "@/lib/utils";
 
 export default function CheckoutSuccessPage() {
   return (
     <Suspense fallback={<CheckoutSuccessFallback />}>
       <CheckoutSuccessContent />
     </Suspense>
-  )
+  );
 }
 
 function CheckoutSuccessFallback() {
@@ -25,16 +25,16 @@ function CheckoutSuccessFallback() {
         <h1 className="text-3xl font-bold tracking-tight">Loading...</h1>
       </div>
     </div>
-  )
+  );
 }
 
 function CheckoutSuccessContent() {
-  const searchParams = useSearchParams()
-  const orderId = searchParams.get("order_id")
-  const getOrderById = useOrdersStore((s) => s.getOrderById)
+  const searchParams = useSearchParams();
+  const orderId = searchParams.get("order_id");
+  const getOrderById = useOrdersStore((s) => s.getOrderById);
 
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => setMounted(true), [])
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   if (!mounted) {
     return (
@@ -43,59 +43,73 @@ function CheckoutSuccessContent() {
           <h1 className="text-3xl font-bold tracking-tight">Loading...</h1>
         </div>
       </div>
-    )
+    );
   }
 
-  const order = orderId ? getOrderById(orderId) : undefined
+  const order = orderId ? getOrderById(orderId) : undefined;
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
       <div className="flex flex-col items-center text-center">
         <CheckCircle className="h-16 w-16 text-success" />
         <h1 className="mt-6 text-3xl font-bold tracking-tight">
-          Thank you for your order!
+          Cảm ơn bạn đã đặt hàng ✨
         </h1>
+
         <p className="mt-4 text-muted-foreground">
-          Your order has been confirmed. We&apos;ll send you an email with
-          tracking details once it ships.
+          Đơn hàng của bạn đã được ghi nhận thành công. Chúng tôi sẽ sớm liên hệ
+          để xác nhận và chuẩn bị giao hàng đến bạn trong thời gian sớm nhất.
         </p>
 
         {order && (
           <Card className="mt-8 w-full text-left">
             <CardContent className="pt-6 space-y-4">
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Order number</span>
+                <span className="text-muted-foreground">Mã đơn hàng</span>
                 <span className="font-medium">{order.orderNumber}</span>
               </div>
+
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Date</span>
+                <span className="text-muted-foreground">Ngày đặt</span>
                 <span>{formatDate(order.createdAt)}</span>
               </div>
+
               <Separator />
+
               {order.items.map((item) => (
                 <div key={item.id} className="flex justify-between text-sm">
                   <span className="text-muted-foreground">
-                    {item.name} &times; {item.quantity}
+                    {item.name} × {item.quantity}
                   </span>
                   <span>{formatPrice(item.total)}</span>
                 </div>
               ))}
+
               <Separator />
+
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Subtotal</span>
+                <span className="text-muted-foreground">Tạm tính</span>
                 <span>{formatPrice(order.subtotal)}</span>
               </div>
+
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Shipping</span>
-                <span>{order.shipping === 0 ? "Free" : formatPrice(order.shipping)}</span>
+                <span className="text-muted-foreground">Phí vận chuyển</span>
+                <span>
+                  {order.shipping === 0
+                    ? "Miễn phí"
+                    : formatPrice(order.shipping)}
+                </span>
               </div>
+
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Tax</span>
+                <span className="text-muted-foreground">Thuế</span>
                 <span>{formatPrice(order.tax)}</span>
               </div>
+
               <Separator />
+
               <div className="flex justify-between font-medium">
-                <span>Total</span>
+                <span>Tổng cộng</span>
                 <span>{formatPrice(order.total)}</span>
               </div>
             </CardContent>
@@ -104,13 +118,14 @@ function CheckoutSuccessContent() {
 
         <div className="mt-8 flex gap-4">
           <Button asChild>
-            <Link href="/account/orders">View Orders</Link>
+            <Link href="/account/orders">Xem đơn hàng</Link>
           </Button>
+
           <Button variant="outline" asChild>
-            <Link href="/shop">Continue Shopping</Link>
+            <Link href="/shop">Tiếp tục mua sắm</Link>
           </Button>
         </div>
       </div>
     </div>
-  )
+  );
 }

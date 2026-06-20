@@ -5,14 +5,16 @@
 
 export const siteConfig = {
   // Branding
-  name: "Boo Shop",
-  tagline: "A free, open-source Next.js ecommerce template.",
+  name: "Boo Space",
+  tagline:
+    "BooSpace — Studio thiết kế DIY & không gian làm việc in 3D theo yêu cầu",
+
   description:
-    "A free, production-ready Next.js ecommerce starter template built with Tailwind CSS and shadcn/ui. Responsive, accessible, SEO optimized, and ready to connect to any checkout system. Built by Epic Design Labs.",
+    "Boospace là cửa hàng sản phẩm in 3D theo yêu cầu dành cho workspace và DIY. Thiết kế tùy chỉnh, sản xuất theo ý tưởng riêng và biến mọi không gian làm việc trở nên độc đáo bằng công nghệ in 3D.",
 
   // Announcement bar (set to "" to hide)
-  announcement: "Free shipping on all orders over $75 — Shop now!",
-
+  announcement:
+    "Chào mừng bạn đến với Boo Space — nơi biến ý tưởng workspace của bạn thành hiện thực ✨",
   // URLs
   url: process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000",
 
@@ -31,23 +33,23 @@ export const siteConfig = {
 
   // Social links (set to "" to hide)
   social: {
-    twitter: "https://x.com/epicdesignlabs",
-    instagram: "https://instagram.com/epicdesignlabs",
-    facebook: "https://facebook.com/epicdesignlabs",
+    twitter: "",
+    instagram: "https://www.instagram.com/boospacestudio",
+    facebook: "https://www.facebook.com/boospace7",
     youtube: "",
-    tiktok: "",
+    tiktok: "https://www.tiktok.com/@boo.space",
   },
 
   // Shipping
-  freeShippingThreshold: 7500, // in cents ($75.00)
-  taxRate: 0.08, // 8%
+  freeShippingThreshold: 200000, // in VND (~200,000₫, tuỳ bạn chỉnh)
+  taxRate: 0.0, // Việt Nam thường không set tax cố định trong frontend ecommerce nhỏ
 
   // Currency & locale
-  currency: "USD",
-  locale: "en-US",
+  currency: "VND",
+  locale: "vi-VN",
 
   // Legal
   copyrightYear: new Date().getFullYear(),
-} as const
+} as const;
 
-export type SiteConfig = typeof siteConfig
+export type SiteConfig = typeof siteConfig;

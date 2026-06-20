@@ -1,54 +1,56 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { PageHeader } from "@/components/ui/page-header"
-import { Mail, Globe, GitFork } from "lucide-react"
-import { toast } from "sonner"
-import { contactFormSchema } from "@/lib/validators"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
+import { Mail, Globe, GitFork } from "lucide-react";
+import { toast } from "sonner";
+import { contactFormSchema } from "@/lib/validators";
 
 export default function ContactPage() {
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     name: "",
     email: "",
     subject: "",
     message: "",
-  })
+  });
 
   function handleChange(
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) {
-    setForm((f) => ({ ...f, [e.target.name]: e.target.value }))
+    setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
   }
 
   function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
+    e.preventDefault();
 
-    const result = contactFormSchema.safeParse(form)
+    const result = contactFormSchema.safeParse(form);
     if (!result.success) {
-      toast.error(result.error.issues[0].message)
-      return
+      toast.error(result.error.issues[0].message);
+      return;
     }
 
-    setLoading(true)
-    // In production, send to support@epicdesignlabs.com via API route or form service
+    setLoading(true);
+
     setTimeout(() => {
-      toast.success("Message sent! We'll get back to you soon.")
-      setForm({ name: "", email: "", subject: "", message: "" })
-      setLoading(false)
-    }, 500)
+      toast.success(
+        "Gửi tin nhắn thành công! Chúng tôi sẽ phản hồi bạn sớm nhất ✨",
+      );
+      setForm({ name: "", email: "", subject: "", message: "" });
+      setLoading(false);
+    }, 500);
   }
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
       <PageHeader
-        title="Contact Us"
-        description="Have a question about the starter template, need help with customization, or want to work with our team? We'd love to hear from you."
+        title="Liên hệ"
+        description="Bạn có câu hỏi về hỗ trợ tùy chỉnh, hoặc muốn hợp tác? Chúng tôi rất vui được lắng nghe bạn ✨"
       />
 
       <div className="mt-12 grid gap-8 lg:grid-cols-3">
@@ -63,13 +65,14 @@ export default function ContactPage() {
             </CardHeader>
             <CardContent>
               <a
-                href="mailto:support@epicdesignlabs.com"
+                href="mailto:boospace7@gmail.com"
                 className="text-sm text-muted-foreground hover:text-foreground hover:underline"
               >
-                support@epicdesignlabs.com
+                boospace7@gmail.com
               </a>
             </CardContent>
           </Card>
+
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-sm">
@@ -79,15 +82,16 @@ export default function ContactPage() {
             </CardHeader>
             <CardContent>
               <a
-                href="https://epicdesignlabs.com"
+                href="https://boospace.tech"
                 target="_blank"
                 rel="noopener"
                 className="text-sm text-muted-foreground hover:text-foreground hover:underline"
               >
-                epicdesignlabs.com
+                https://boospace.tech
               </a>
             </CardContent>
           </Card>
+          {/* 
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-sm">
@@ -102,10 +106,10 @@ export default function ContactPage() {
                 rel="noopener"
                 className="text-sm text-muted-foreground hover:text-foreground hover:underline"
               >
-                View on GitHub
+                Xem trên GitHub
               </a>
             </CardContent>
-          </Card>
+          </Card> */}
         </div>
 
         {/* Contact form */}
@@ -114,17 +118,18 @@ export default function ContactPage() {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Name</Label>
+                  <Label htmlFor="name">Tên</Label>
                   <Input
                     id="name"
                     name="name"
-                    placeholder="Your name"
+                    placeholder="Tên của bạn"
                     value={form.name}
                     onChange={handleChange}
                     required
                     aria-required="true"
                   />
                 </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
@@ -139,24 +144,26 @@ export default function ContactPage() {
                   />
                 </div>
               </div>
+
               <div className="space-y-2">
-                <Label htmlFor="subject">Subject</Label>
+                <Label htmlFor="subject">Chủ đề</Label>
                 <Input
                   id="subject"
                   name="subject"
-                  placeholder="Template question, customization help, or project inquiry"
+                  placeholder="Câu hỏi, hỗ trợ hoặc yêu cầu hợp tác"
                   value={form.subject}
                   onChange={handleChange}
                   required
                   aria-required="true"
                 />
               </div>
+
               <div className="space-y-2">
-                <Label htmlFor="message">Message</Label>
+                <Label htmlFor="message">Nội dung</Label>
                 <Textarea
                   id="message"
                   name="message"
-                  placeholder="Tell us about your project or question..."
+                  placeholder="Hãy chia sẻ chi tiết câu hỏi hoặc dự án của bạn..."
                   rows={5}
                   value={form.message}
                   onChange={handleChange}
@@ -164,13 +171,18 @@ export default function ContactPage() {
                   aria-required="true"
                 />
               </div>
-              <Button type="submit" className="w-full sm:w-auto" disabled={loading}>
-                {loading ? "Sending..." : "Send Message"}
+
+              <Button
+                type="submit"
+                className="w-full sm:w-auto"
+                disabled={loading}
+              >
+                {loading ? "Đang gửi..." : "Gửi tin nhắn"}
               </Button>
             </form>
           </CardContent>
         </Card>
       </div>
     </div>
-  )
+  );
 }

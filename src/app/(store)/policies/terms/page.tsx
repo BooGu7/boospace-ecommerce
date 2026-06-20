@@ -1,68 +1,78 @@
-import type { Metadata } from "next"
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Terms of Service",
-  description: "Terms and conditions for using our website and services.",
-}
+  title: "Điều khoản dịch vụ",
+  description:
+    "Các điều khoản và điều kiện khi sử dụng website và dịch vụ của chúng tôi ✨",
+};
 
 export default function TermsPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
-      <h1 className="text-3xl font-bold tracking-tight">Terms of Service</h1>
+      <h1 className="text-3xl font-bold tracking-tight">Điều khoản dịch vụ</h1>
+
       <p className="mt-4 text-sm text-muted-foreground">
-        Last updated: January 1, 2025
+        Cập nhật lần cuối: 01/01/2026
       </p>
+
       <div className="mt-8 space-y-6 text-muted-foreground">
         <h2 className="text-xl font-semibold text-foreground">
-          Acceptance of Terms
+          Chấp nhận điều khoản
         </h2>
+
         <p>
-          By accessing and using this website, you accept and agree to be bound
-          by these Terms of Service. If you do not agree, please do not use our
-          services.
+          Khi truy cập và sử dụng website này, bạn đồng ý bị ràng buộc bởi các
+          Điều khoản dịch vụ này. Nếu bạn không đồng ý, vui lòng không sử dụng
+          dịch vụ của chúng tôi.
         </p>
 
         <h2 className="text-xl font-semibold text-foreground">
-          Use of Service
+          Sử dụng dịch vụ
         </h2>
+
         <p>
-          You agree to use our services only for lawful purposes and in
-          accordance with these terms. You are responsible for maintaining the
-          confidentiality of your account credentials.
+          Bạn đồng ý chỉ sử dụng dịch vụ cho các mục đích hợp pháp và tuân thủ
+          các điều khoản này. Bạn có trách nhiệm bảo mật thông tin tài khoản của
+          mình.
         </p>
 
         <h2 className="text-xl font-semibold text-foreground">
-          Products and Pricing
+          Sản phẩm và giá cả
         </h2>
+
         <p>
-          We strive to display accurate product information and pricing.
-          However, errors may occur. We reserve the right to correct any errors
-          and to cancel orders placed at incorrect prices.
+          Chúng tôi luôn cố gắng hiển thị thông tin sản phẩm và giá chính xác.
+          Tuy nhiên, đôi khi vẫn có thể xảy ra sai sót. Chúng tôi có quyền chỉnh
+          sửa lỗi và hủy các đơn hàng được đặt với giá không chính xác.
         </p>
 
         <h2 className="text-xl font-semibold text-foreground">
-          Intellectual Property
+          Sở hữu trí tuệ
         </h2>
+
         <p>
-          All content on this website, including text, images, and logos, is
-          protected by intellectual property laws. You may not reproduce or
-          distribute any content without our written permission.
+          Toàn bộ nội dung trên website, bao gồm văn bản, hình ảnh và logo, đều
+          được bảo vệ bởi luật sở hữu trí tuệ. Bạn không được sao chép hoặc phân
+          phối nội dung khi chưa có sự cho phép bằng văn bản từ chúng tôi.
         </p>
 
         <h2 className="text-xl font-semibold text-foreground">
-          Limitation of Liability
+          Giới hạn trách nhiệm
         </h2>
+
         <p>
-          To the fullest extent permitted by law, we shall not be liable for
-          any indirect, incidental, or consequential damages arising from your
-          use of our services.
+          Trong phạm vi tối đa được pháp luật cho phép, chúng tôi không chịu
+          trách nhiệm đối với bất kỳ thiệt hại gián tiếp, ngẫu nhiên hoặc hệ quả
+          nào phát sinh từ việc sử dụng dịch vụ.
         </p>
 
-        <h2 className="text-xl font-semibold text-foreground">Contact</h2>
+        <h2 className="text-xl font-semibold text-foreground">Liên hệ</h2>
+
         <p>
-          For questions about these terms, contact us at legal@store.com.
+          Nếu bạn có câu hỏi về các điều khoản này, vui lòng liên hệ chúng tôi
+          qua boospace7@gmail.com.
         </p>
       </div>
     </div>
-  )
+  );
 }

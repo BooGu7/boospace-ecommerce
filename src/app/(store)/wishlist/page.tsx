@@ -1,32 +1,32 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { Heart } from "lucide-react"
-import { PageHeader } from "@/components/ui/page-header"
-import { EmptyState } from "@/components/ui/empty-state"
-import { ProductCard } from "@/components/products/product-card"
-import { useWishlistStore } from "@/store/wishlist"
-import type { Product } from "@/types"
-import data from "@/data/products.json"
+import { useEffect, useState } from "react";
+import { Heart } from "lucide-react";
+import { PageHeader } from "@/components/ui/page-header";
+import { EmptyState } from "@/components/ui/empty-state";
+import { ProductCard } from "@/components/products/product-card";
+import { useWishlistStore } from "@/store/wishlist";
+import type { Product } from "@/types";
+import data from "@/data/products.json";
 
-const allProducts = data.products as Product[]
+const allProducts = data.products as Product[];
 
 export default function WishlistPage() {
-  const wishlistItems = useWishlistStore((s) => s.items)
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => setMounted(true), [])
+  const wishlistItems = useWishlistStore((s) => s.items);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   if (!mounted) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
         <PageHeader title="Wishlist" />
       </div>
-    )
+    );
   }
 
   const wishlistedProducts = allProducts.filter((p) =>
-    wishlistItems.some((w) => w.productId === p.id)
-  )
+    wishlistItems.some((w) => w.productId === p.id),
+  );
 
   if (wishlistedProducts.length === 0) {
     return (
@@ -34,13 +34,13 @@ export default function WishlistPage() {
         <PageHeader title="Wishlist" />
         <EmptyState
           icon={Heart}
-          title="Your wishlist is empty"
-          description="Save products you love to find them easily later."
-          actionLabel="Browse Products"
+          title="Danh sách yêu thích của bạn đang trống"
+          description="Hãy lưu những sản phẩm bạn thích để dễ dàng tìm lại sau này nhé ✨"
+          actionLabel="Khám phá sản phẩm"
           actionHref="/shop"
         />
       </div>
-    )
+    );
   }
 
   return (
@@ -55,5 +55,5 @@ export default function WishlistPage() {
         ))}
       </div>
     </div>
-  )
+  );
 }

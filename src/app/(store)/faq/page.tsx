@@ -1,68 +1,68 @@
-import type { Metadata } from "next"
+import type { Metadata } from "next";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion"
+} from "@/components/ui/accordion";
 
 export const metadata: Metadata = {
-  title: "FAQ",
-  description: "Frequently asked questions about orders, shipping, returns, and more.",
-}
+  title: "Câu hỏi thường gặp",
+  description:
+    "Giải đáp các câu hỏi phổ biến về đơn hàng, vận chuyển, đổi trả và nhiều hơn nữa ✨",
+};
 
 const faqs = [
   {
-    question: "How long does shipping take?",
+    question: "Thời gian giao hàng mất bao lâu?",
     answer:
-      "Standard shipping typically takes 5-7 business days. Express shipping is available at checkout and delivers within 2-3 business days.",
+      "Giao hàng tiêu chuẩn thường mất 5–7 ngày làm việc. Bạn cũng có thể chọn giao hàng nhanh tại bước thanh toán với thời gian 2–3 ngày làm việc.",
   },
   {
-    question: "What is your return policy?",
+    question: "Chính sách đổi trả như thế nào?",
     answer:
-      "We offer a 30-day return policy on all items. Products must be in their original condition with tags attached. Visit our returns page for more details.",
+      "Chúng tôi hỗ trợ đổi trả trong vòng 30 ngày cho tất cả sản phẩm. Sản phẩm cần còn nguyên tình trạng ban đầu và đầy đủ tem mác. Xem trang đổi trả để biết thêm chi tiết.",
   },
   {
-    question: "Do you ship internationally?",
+    question: "Có giao hàng quốc tế không?",
     answer:
-      "Yes, we ship to most countries worldwide. International shipping rates and delivery times vary by destination. You can see the exact cost at checkout.",
+      "Có, chúng tôi giao hàng đến hầu hết các quốc gia trên thế giới. Phí vận chuyển và thời gian giao hàng sẽ thay đổi tùy theo điểm đến. Bạn có thể xem chi phí chính xác tại bước thanh toán.",
   },
   {
-    question: "How can I track my order?",
+    question: "Làm sao để theo dõi đơn hàng?",
     answer:
-      "Once your order ships, you'll receive a confirmation email with a tracking number. You can also track your order from your account dashboard.",
+      "Sau khi đơn hàng được gửi đi, bạn sẽ nhận email xác nhận kèm mã theo dõi. Bạn cũng có thể theo dõi đơn hàng trong trang tài khoản của mình.",
   },
   {
-    question: "What payment methods do you accept?",
+    question: "Bạn chấp nhận những phương thức thanh toán nào?",
     answer:
-      "We accept all major credit cards (Visa, Mastercard, American Express), PayPal, and Apple Pay. All transactions are secured with SSL encryption.",
+      "Chúng tôi chấp nhận thẻ tín dụng (Visa, Mastercard, American Express), PayPal và Apple Pay. Tất cả giao dịch đều được bảo mật bằng mã hóa SSL.",
   },
   {
-    question: "How do I contact customer support?",
+    question: "Làm sao để liên hệ hỗ trợ khách hàng?",
     answer:
-      "You can reach us via our contact page, email us at support@store.com, or call (555) 123-4567. Our support team is available Monday through Friday, 9am to 5pm EST.",
+      "Bạn có thể liên hệ qua trang liên hệ, email support@store.com hoặc gọi (555) 123-4567. Đội ngũ hỗ trợ hoạt động từ Thứ Hai đến Thứ Sáu, 9h–17h (EST).",
   },
   {
-    question: "Can I change or cancel my order?",
+    question: "Tôi có thể thay đổi hoặc hủy đơn hàng không?",
     answer:
-      "You can modify or cancel your order within 1 hour of placing it. After that, please contact our support team and we'll do our best to accommodate your request.",
+      "Bạn có thể thay đổi hoặc hủy đơn hàng trong vòng 1 giờ sau khi đặt. Sau thời gian này, vui lòng liên hệ bộ phận hỗ trợ để được hỗ trợ thêm.",
   },
   {
-    question: "Do you offer gift cards?",
+    question: "Có thẻ quà tặng không?",
     answer:
-      "Yes! Digital gift cards are available in denominations of $25, $50, $100, and $200. They're delivered instantly via email and never expire.",
+      "Có! Thẻ quà tặng điện tử có các mệnh giá $25, $50, $100 và $200. Thẻ được gửi ngay qua email và không có hạn sử dụng.",
   },
-]
+];
 
 export default function FAQPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
-      <h1 className="text-3xl font-bold tracking-tight">
-        Frequently Asked Questions
-      </h1>
+      <h1 className="text-3xl font-bold tracking-tight">Câu hỏi thường gặp</h1>
+
       <p className="mt-4 text-muted-foreground">
-        Find answers to common questions about our products, shipping, and
-        policies.
+        Tìm câu trả lời cho những thắc mắc phổ biến về sản phẩm, vận chuyển và
+        chính sách của chúng tôi.
       </p>
 
       <Accordion className="mt-8">
@@ -79,18 +79,20 @@ export default function FAQPage() {
       </Accordion>
 
       <div className="mt-12 rounded-lg border bg-neutral-50 p-6 text-center">
-        <h2 className="text-lg font-semibold">Still have questions?</h2>
+        <h2 className="text-lg font-semibold">Vẫn còn thắc mắc?</h2>
+
         <p className="mt-2 text-sm text-muted-foreground">
-          Can&apos;t find what you&apos;re looking for? Our support team is
-          happy to help.
+          Không tìm thấy câu trả lời bạn cần? Đội ngũ hỗ trợ luôn sẵn sàng giúp
+          bạn ✨
         </p>
+
         <a
           href="/contact"
           className="mt-4 inline-block text-sm font-medium underline hover:text-foreground"
         >
-          Contact Support
+          Liên hệ hỗ trợ
         </a>
       </div>
     </div>
-  )
+  );
 }

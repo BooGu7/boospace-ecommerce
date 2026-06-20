@@ -1,16 +1,22 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useCallback, useRef, type KeyboardEvent as ReactKeyboardEvent } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { Search, X, ArrowRight } from "lucide-react"
-import { StarRating } from "@/components/products/star-rating"
-import { formatPrice } from "@/lib/utils"
-import { PLACEHOLDER_IMAGE } from "@/lib/constants"
-import type { Product } from "@/types"
-import data from "@/data/products.json"
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  type KeyboardEvent as ReactKeyboardEvent,
+} from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { Search, X, ArrowRight } from "lucide-react";
+import { StarRating } from "@/components/products/star-rating";
+import { formatPrice } from "@/lib/utils";
+import { PLACEHOLDER_IMAGE } from "@/lib/constants";
+import type { Product } from "@/types";
+import data from "@/data/products.json";
 
-const allProducts = data.products as Product[]
+const allProducts = data.products as Product[];
 
 const popularSearches = [
   "Headphones",
@@ -19,73 +25,78 @@ const popularSearches = [
   "Wireless",
   "Organic",
   "Candle",
-]
+];
 
 interface SearchModalProps {
-  isOpen: boolean
-  onClose: () => void
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 export function SearchModal({ isOpen, onClose }: SearchModalProps) {
-  const [query, setQuery] = useState("")
-  const inputRef = useRef<HTMLInputElement>(null)
-  const modalRef = useRef<HTMLDivElement>(null)
+  const [query, setQuery] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
 
-  const results = query.trim().length > 0
-    ? allProducts.filter(
-        (p) =>
-          p.status === "active" &&
-          (p.name.toLowerCase().includes(query.toLowerCase()) ||
-            p.description.toLowerCase().includes(query.toLowerCase()) ||
-            p.tags.some((t) => t.toLowerCase().includes(query.toLowerCase())))
-      ).slice(0, 6)
-    : []
+  const results =
+    query.trim().length > 0
+      ? allProducts
+          .filter(
+            (p) =>
+              p.status === "active" &&
+              (p.name.toLowerCase().includes(query.toLowerCase()) ||
+                p.description.toLowerCase().includes(query.toLowerCase()) ||
+                p.tags.some((t) =>
+                  t.toLowerCase().includes(query.toLowerCase()),
+                )),
+          )
+          .slice(0, 6)
+      : [];
 
   const handleClose = useCallback(() => {
-    setQuery("")
-    onClose()
-  }, [onClose])
+    setQuery("");
+    onClose();
+  }, [onClose]);
 
   useEffect(() => {
     if (isOpen) {
-      setTimeout(() => inputRef.current?.focus(), 50)
+      setTimeout(() => inputRef.current?.focus(), 50);
     }
-  }, [isOpen])
+  }, [isOpen]);
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") handleClose()
+      if (e.key === "Escape") handleClose();
 
       // Focus trap
       if (e.key === "Tab" && modalRef.current) {
         const focusable = modalRef.current.querySelectorAll<HTMLElement>(
-          'a[href], button, input, [tabindex]:not([tabindex="-1"])'
-        )
-        const first = focusable[0]
-        const last = focusable[focusable.length - 1]
+          'a[href], button, input, [tabindex]:not([tabindex="-1"])',
+        );
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
 
         if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault()
-          last?.focus()
+          e.preventDefault();
+          last?.focus();
         } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault()
-          first?.focus()
+          e.preventDefault();
+          first?.focus();
         }
       }
     }
     if (isOpen) {
-      document.addEventListener("keydown", handleKeyDown)
-      document.body.style.overflow = "hidden"
+      document.addEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "hidden";
     }
     return () => {
-      document.removeEventListener("keydown", handleKeyDown)
-      document.body.style.overflow = ""
-    }
-  }, [isOpen, handleClose])
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "";
+    };
+  }, [isOpen, handleClose]);
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
-  const hasQuery = query.trim().length > 0
+  const hasQuery = query.trim().length > 0;
 
   return (
     <div className="fixed inset-0 z-[100]">
@@ -96,7 +107,13 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
       />
 
       {/* Modal */}
-      <div ref={modalRef} className="relative mx-auto mt-[10vh] w-full max-w-2xl px-4" role="dialog" aria-modal="true" aria-label="Search products">
+      <div
+        ref={modalRef}
+        className="relative mx-auto mt-[10vh] w-full max-w-2xl px-4"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Search products"
+      >
         <div className="overflow-hidden rounded-xl bg-white shadow-2xl">
           {/* Input */}
           <div className="flex items-center border-b px-4">
@@ -106,7 +123,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search products..."
+              placeholder="Nhập tên sản phẩm cần tìm..."
               aria-label="Search products"
               className="flex-1 border-0 bg-transparent px-4 py-4 text-lg outline-none placeholder:text-muted-foreground/60"
             />
@@ -130,7 +147,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
             {hasQuery && results.length > 0 && (
               <div className="p-2">
                 {results.map((product) => {
-                  const variant = product.variants[0]
+                  const variant = product.variants[0];
                   return (
                     <Link
                       key={product.id}
@@ -158,17 +175,18 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                         />
                       </div>
                       <span className="shrink-0 text-sm font-medium">
-                        {variant && formatPrice(variant.price, variant.currency)}
+                        {variant &&
+                          formatPrice(variant.price, variant.currency)}
                       </span>
                     </Link>
-                  )
+                  );
                 })}
                 <Link
                   href={`/search?q=${encodeURIComponent(query)}`}
                   onClick={handleClose}
                   className="mt-1 flex items-center justify-center gap-2 rounded-lg p-3 text-sm text-muted-foreground transition-colors hover:bg-neutral-50 hover:text-foreground"
                 >
-                  View all results
+                  Tất cả kết quả
                   <ArrowRight className="h-3 w-3" />
                 </Link>
               </div>
@@ -177,7 +195,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
             {hasQuery && results.length === 0 && (
               <div className="px-4 py-12 text-center">
                 <p className="text-sm text-muted-foreground">
-                  No results for &quot;{query}&quot;
+                  Không có kết quả nào với &quot;{query}&quot;
                 </p>
               </div>
             )}
@@ -185,7 +203,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
             {!hasQuery && (
               <div className="p-4">
                 <p className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Popular Searches
+                  Sản phẩm được tìm kiếm nhiều
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {popularSearches.map((term) => (
@@ -204,5 +222,5 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }

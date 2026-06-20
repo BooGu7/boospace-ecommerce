@@ -1,23 +1,22 @@
 {
-  "name": "nextjs-ecommerce-starter",
+  "name": "nextjs-ecommerce-boospace",
   "version": "1.0.0",
-  "description": "A free, production-ready Next.js ecommerce starter template built with Tailwind CSS and shadcn/ui.",
-  "author": "Epic Design Labs <support@epicdesignlabs.com> (https://epicdesignlabs.com)",
+  "description": "Boospace — cửa hàng sản phẩm in 3D theo yêu cầu cho workspace và DIY. Thiết kế tùy chỉnh và sản xuất sản phẩm 3D độc đáo.",
+  "author": "Boospace <hello@boospace.tech> (https://boospace.tech)",
   "license": "MIT",
-  "homepage": "https://github.com/Epic-Design-Labs/nextjs-ecommerce-starter",
+  "homepage": "https://boospace.tech",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Epic-Design-Labs/nextjs-ecommerce-starter.git"
+    "url": "https://github.com/BooGu7/boospace_nextjs-ecommerce"
   },
   "keywords": [
-    "nextjs",
-    "ecommerce",
-    "starter",
-    "template",
-    "tailwindcss",
-    "shadcn-ui",
-    "react",
-    "typescript"
+    "boospace",
+    "3d print",
+    "custom 3d workspace",
+    "diy desk setup",
+    "3d printed accessories",
+    "maker studio",
+    "custom design 3d"
   ],
   "private": true,
   "scripts": {

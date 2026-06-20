@@ -1,50 +1,59 @@
-import type { Metadata } from "next"
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Shipping Policy",
-  description: "Learn about our shipping options, rates, and delivery times.",
-}
+  title: "Chính sách vận chuyển",
+  description:
+    "Tìm hiểu về các lựa chọn vận chuyển, chi phí và thời gian giao hàng ✨",
+};
 
 export default function ShippingPolicyPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
-      <h1 className="text-3xl font-bold tracking-tight">Shipping Policy</h1>
+      <h1 className="text-3xl font-bold tracking-tight">
+        Chính sách vận chuyển
+      </h1>
+
       <div className="mt-8 space-y-6 text-muted-foreground">
         <h2 className="text-xl font-semibold text-foreground">
-          Domestic Shipping
+          Vận chuyển trong nước
         </h2>
+
         <ul className="list-inside list-disc space-y-2">
-          <li>Standard Shipping (5-7 business days): $5.99</li>
-          <li>Express Shipping (2-3 business days): $12.99</li>
-          <li>Overnight Shipping (1 business day): $24.99</li>
-          <li>Free shipping on all orders over $75</li>
+          <li>Giao hàng tiêu chuẩn (3–5 ngày làm việc): 25.000₫</li>
+          <li>Giao hàng nhanh (1–2 ngày làm việc): 45.000₫</li>
+          <li>Giao hàng hỏa tốc (trong ngày / nội thành): 90.000₫</li>
+          <li>Miễn phí vận chuyển cho đơn hàng từ 500.000₫ trở lên</li>
         </ul>
 
         <h2 className="text-xl font-semibold text-foreground">
-          International Shipping
+          Vận chuyển nội thành & ngoại tỉnh
         </h2>
+
         <p>
-          We ship to most countries worldwide. International shipping rates are
-          calculated at checkout based on destination and package weight.
-          Delivery typically takes 7-14 business days.
+          Chúng tôi giao hàng trên toàn quốc Việt Nam. Thời gian giao hàng nội
+          thành thường từ 1–2 ngày, ngoại tỉnh từ 3–5 ngày làm việc tùy khu vực.
+          Một số vùng xa có thể mất 5–7 ngày làm việc.
         </p>
 
         <h2 className="text-xl font-semibold text-foreground">
-          Order Processing
+          Xử lý đơn hàng
         </h2>
+
         <p>
-          Orders placed before 2:00 PM EST on business days are processed the
-          same day. Orders placed after 2:00 PM EST or on weekends will be
-          processed the next business day.
+          Đơn hàng được xử lý trong vòng 24 giờ (ngày làm việc). Đơn đặt sau
+          17:00 hoặc vào cuối tuần sẽ được xử lý vào ngày làm việc tiếp theo.
         </p>
 
-        <h2 className="text-xl font-semibold text-foreground">Tracking</h2>
+        <h2 className="text-xl font-semibold text-foreground">
+          Theo dõi đơn hàng
+        </h2>
+
         <p>
-          You will receive a shipping confirmation email with a tracking number
-          once your order has shipped. You can also track your order from your
-          account dashboard.
+          Sau khi đơn hàng được gửi đi, bạn sẽ nhận được tin nhắn/email kèm mã
+          vận đơn để theo dõi. Bạn cũng có thể xem trạng thái đơn hàng trong mục
+          tài khoản của mình.
         </p>
       </div>
     </div>
-  )
+  );
 }

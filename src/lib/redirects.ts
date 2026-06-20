@@ -10,16 +10,15 @@
 // ============================================================================
 
 export interface RedirectRule {
-  source: string
-  destination: string
-  permanent: boolean
+  source: string;
+  destination: string;
+  permanent: boolean;
 }
 
 export const redirects: RedirectRule[] = [
   // Legacy URL patterns from earlier ecommerce platforms — these are common
   // paths that Shopify, WooCommerce, etc. use. Uncomment as needed when
   // migrating from another platform.
-
   // Shopify-style product and collection URLs
   // {
   //   source: "/products/:slug",
@@ -36,7 +35,6 @@ export const redirects: RedirectRule[] = [
   //   destination: "/:product",
   //   permanent: true,
   // },
-
   // WooCommerce-style
   // {
   //   source: "/product/:slug",
@@ -48,7 +46,6 @@ export const redirects: RedirectRule[] = [
   //   destination: "/:slug",
   //   permanent: true,
   // },
-
   // Generic common paths
   // {
   //   source: "/store",
@@ -60,11 +57,10 @@ export const redirects: RedirectRule[] = [
   //   destination: "/shop",
   //   permanent: true,
   // },
-
   // One-off product renames — add your own as SKUs change
   // {
   //   source: "/old-product-name",
   //   destination: "/new-product-name",
   //   permanent: true,
   // },
-]
+];

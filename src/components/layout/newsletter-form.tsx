@@ -1,30 +1,30 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { toast } from "sonner"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 export function NewsletterForm() {
-  const [email, setEmail] = useState("")
-  const [loading, setLoading] = useState(false)
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
 
   function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (!email) return
+    e.preventDefault();
+    if (!email) return;
 
-    setLoading(true)
+    setLoading(true);
     setTimeout(() => {
-      toast.success("Thanks for subscribing!")
-      setEmail("")
-      setLoading(false)
-    }, 500)
+      toast.success("Thanks for subscribing!");
+      setEmail("");
+      setLoading(false);
+    }, 500);
   }
 
   return (
     <form onSubmit={handleSubmit} className="mt-8 flex w-full max-w-md gap-2">
       <input
         type="email"
-        placeholder="Enter your email"
+        placeholder="Nhập email của bạn"
         aria-label="Email address for newsletter"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
@@ -32,8 +32,8 @@ export function NewsletterForm() {
         className="flex-1 rounded-md border border-neutral-700 bg-neutral-800 px-4 py-2 text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-white/20"
       />
       <Button variant="secondary" type="submit" disabled={loading}>
-        {loading ? "..." : "Subscribe"}
+        {loading ? "..." : "Đăng ký"}
       </Button>
     </form>
-  )
+  );
 }

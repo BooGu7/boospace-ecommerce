@@ -1,17 +1,17 @@
-import type { Metadata } from "next"
-import Link from "next/link"
-import { Card, CardContent } from "@/components/ui/card"
-import { PageHeader } from "@/components/ui/page-header"
-import { pageRepository } from "@/lib/repositories"
-import { formatDate } from "@/lib/utils"
+import type { Metadata } from "next";
+import Link from "next/link";
+import { Card, CardContent } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
+import { pageRepository } from "@/lib/repositories";
+import { formatDate } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Pages",
-  description: "Browse helpful pages and resources.",
-}
+  title: "Trang",
+  description: "Khám phá các trang hữu ích và tài nguyên ✨",
+};
 
 export default async function PagesIndex() {
-  const pages = await pageRepository.list()
+  const pages = await pageRepository.list();
 
   return (
     <div className="mx-auto max-w-[1440px] px-4 py-16 sm:px-6 lg:px-8">
@@ -37,5 +37,5 @@ export default async function PagesIndex() {
         ))}
       </div>
     </div>
-  )
+  );
 }

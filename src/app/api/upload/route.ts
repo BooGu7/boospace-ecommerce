@@ -8,8 +8,8 @@ export async function POST(req: Request) {
 
     if (!file) {
       return NextResponse.json(
-        { error: "No file uploaded" },
-        { status: 400 }
+        { error: "Bạn chưa chọn tệp nào cả ✨" },
+        { status: 400 },
       );
     }
 
@@ -28,9 +28,7 @@ export async function POST(req: Request) {
 
     if (error) throw error;
 
-    const { data } = supabase.storage
-      .from("media")
-      .getPublicUrl(filename);
+    const { data } = supabase.storage.from("media").getPublicUrl(filename);
 
     return NextResponse.json({
       url: data.publicUrl,
@@ -43,9 +41,9 @@ export async function POST(req: Request) {
         error:
           error instanceof Error
             ? error.message
-            : "Upload failed",
+            : "Có lỗi xảy ra khi tải lên, bạn thử lại nhé ✨",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

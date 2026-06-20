@@ -1,34 +1,34 @@
-"use client"
+"use client";
 
-import { useRouter, useSearchParams } from "next/navigation"
-import { ChevronDown } from "lucide-react"
+import { useRouter, useSearchParams } from "next/navigation";
+import { ChevronDown } from "lucide-react";
 
 const sortOptions = [
-  { value: "newest", label: "Newest" },
-  { value: "price-asc", label: "Price: Low to High" },
-  { value: "price-desc", label: "Price: High to Low" },
-  { value: "name", label: "Name: A-Z" },
-]
+  { value: "newest", label: "Mới nhất" },
+  { value: "price-asc", label: "Giá: Thấp tới Cao" },
+  { value: "price-desc", label: "Giá: Cao xuống thấp" },
+  { value: "name", label: "Tên: A-Z" },
+];
 
 interface SortDropdownProps {
-  currentSort: string
+  currentSort: string;
 }
 
 export function SortDropdown({ currentSort }: SortDropdownProps) {
-  const router = useRouter()
-  const searchParams = useSearchParams()
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   function handleChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    const value = e.target.value
-    const params = new URLSearchParams(searchParams.toString())
+    const value = e.target.value;
+    const params = new URLSearchParams(searchParams.toString());
     if (value === "newest") {
-      params.delete("sort")
+      params.delete("sort");
     } else {
-      params.set("sort", value)
+      params.set("sort", value);
     }
-    params.delete("page")
-    const query = params.toString()
-    router.push(query ? `/shop?${query}` : "/shop")
+    params.delete("page");
+    const query = params.toString();
+    router.push(query ? `/shop?${query}` : "/shop");
   }
 
   return (
@@ -47,5 +47,5 @@ export function SortDropdown({ currentSort }: SortDropdownProps) {
       </select>
       <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
     </div>
-  )
+  );
 }

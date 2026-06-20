@@ -1,18 +1,18 @@
-import { Header } from "@/components/layout/header"
-import { Footer } from "@/components/layout/footer"
-import { AnnouncementBar } from "@/components/layout/announcement-bar"
-import { CartDrawer } from "@/components/cart/cart-drawer"
-import { BackToTop } from "@/components/layout/back-to-top"
-import { categoryRepository } from "@/lib/repositories"
+import { Header } from "@/components/layout/header";
+import { Footer } from "@/components/layout/footer";
+import { AnnouncementBar } from "@/components/layout/announcement-bar";
+import { CartDrawer } from "@/components/cart/cart-drawer";
+import { BackToTop } from "@/components/layout/back-to-top";
+import { categoryRepository } from "@/lib/repositories";
 
 export default async function StoreLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   // Fetch category tree server-side so the Header doesn't depend on
   // a specific data source — the repository layer handles that.
-  const categories = await categoryRepository.list()
+  const categories = await categoryRepository.list();
 
   return (
     <>
@@ -31,5 +31,5 @@ export default async function StoreLayout({
       <CartDrawer />
       <BackToTop />
     </>
-  )
+  );
 }

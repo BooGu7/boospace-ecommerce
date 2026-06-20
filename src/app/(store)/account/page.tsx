@@ -1,34 +1,63 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { PageHeader } from "@/components/ui/page-header"
-import { Package, MapPin, Settings, Heart, LogOut } from "lucide-react"
-import { useAuthGuard } from "@/hooks/use-auth-guard"
-import { useAuthStore } from "@/store/auth"
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/ui/page-header";
+import { Package, MapPin, Settings, Heart, LogOut } from "lucide-react";
+import { useAuthGuard } from "@/hooks/use-auth-guard";
+import { useAuthStore } from "@/store/auth";
 
 const accountLinks = [
-  { name: "Orders", description: "View your order history and track shipments", href: "/account/orders", icon: Package },
-  { name: "Addresses", description: "Manage your shipping and billing addresses", href: "/account/addresses", icon: MapPin },
-  { name: "Wishlist", description: "Products you've saved for later", href: "/wishlist", icon: Heart },
-  { name: "Settings", description: "Update your profile and preferences", href: "/account/settings", icon: Settings },
-]
+  {
+    name: "Đơn hàng",
+    description: "Xem lịch sử đơn hàng và theo dõi vận chuyển",
+    href: "/account/orders",
+    icon: Package,
+  },
+  {
+    name: "Địa chỉ",
+    description: "Quản lý địa chỉ giao hàng và thanh toán",
+    href: "/account/addresses",
+    icon: MapPin,
+  },
+  {
+    name: "Yêu thích",
+    description: "Các sản phẩm bạn đã lưu để xem sau",
+    href: "/wishlist",
+    icon: Heart,
+  },
+  {
+    name: "Cài đặt",
+    description: "Cập nhật thông tin cá nhân và tùy chọn",
+    href: "/account/settings",
+    icon: Settings,
+  },
+];
 
 export default function AccountPage() {
-  const { user, isReady } = useAuthGuard()
-  const logout = useAuthStore((s) => s.logout)
-  const router = useRouter()
+  const { user, isReady } = useAuthGuard();
+  const logout = useAuthStore((s) => s.logout);
+  const router = useRouter();
 
-  if (!isReady) return null
+  if (!isReady) return null;
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
-      <PageHeader title="My Account" description={`Welcome back, ${user?.firstName}!`}>
-        <Button variant="outline" onClick={() => { logout(); router.push("/") }}>
+      <PageHeader
+        title="Tài khoản của tôi"
+        description={`Chào mừng bạn quay trở lại, ${user?.firstName}!`}
+      >
+        <Button
+          variant="outline"
+          onClick={() => {
+            logout();
+            router.push("/");
+          }}
+        >
           <LogOut className="mr-2 h-4 w-4" />
-          Sign Out
+          Đăng xuất
         </Button>
       </PageHeader>
 
@@ -43,12 +72,14 @@ export default function AccountPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground">{item.description}</p>
+                <p className="text-sm text-muted-foreground">
+                  {item.description}
+                </p>
               </CardContent>
             </Card>
           </Link>
         ))}
       </div>
     </div>
-  )
+  );
 }

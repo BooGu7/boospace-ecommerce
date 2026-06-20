@@ -1,40 +1,40 @@
-import type { Metadata } from "next"
-import Link from "next/link"
-import Image from "next/image"
-import { PageHeader } from "@/components/ui/page-header"
-import { Pagination } from "@/components/products/pagination"
-import { blogRepository } from "@/lib/repositories"
-import { formatDate } from "@/lib/utils"
-import { PLACEHOLDER_IMAGE } from "@/lib/constants"
-import { siteConfig } from "@/lib/config"
+import type { Metadata } from "next";
+import Link from "next/link";
+import Image from "next/image";
+import { PageHeader } from "@/components/ui/page-header";
+import { Pagination } from "@/components/products/pagination";
+import { blogRepository } from "@/lib/repositories";
+import { formatDate } from "@/lib/utils";
+import { PLACEHOLDER_IMAGE } from "@/lib/constants";
+import { siteConfig } from "@/lib/config";
 
 interface BlogIndexProps {
-  searchParams: Promise<{ page?: string }>
+  searchParams: Promise<{ page?: string }>;
 }
 
 export async function generateMetadata({
   searchParams,
 }: BlogIndexProps): Promise<Metadata> {
-  const params = await searchParams
-  const page = Number(params.page) || 1
+  const params = await searchParams;
+  const page = Number(params.page) || 1;
   const canonical =
-    page > 1 ? `${siteConfig.url}/blog?page=${page}` : `${siteConfig.url}/blog`
+    page > 1 ? `${siteConfig.url}/blog?page=${page}` : `${siteConfig.url}/blog`;
   return {
     title: "Blog",
     description:
-      "Guides, stories, and notes from the team — sustainability, product care, and behind the scenes.",
+      "Hướng dẫn, câu chuyện và chia sẻ từ đội ngũ — về lối sống bền vững, cách bảo quản sản phẩm và những điều phía sau hậu trường.",
     alternates: { canonical },
-  }
+  };
 }
 
 export default async function BlogIndex({ searchParams }: BlogIndexProps) {
-  const params = await searchParams
-  const page = Number(params.page) || 1
+  const params = await searchParams;
+  const page = Number(params.page) || 1;
 
   const { items: posts, pagination } = await blogRepository.list({
     page,
     limit: 9,
-  })
+  });
 
   return (
     <div className="mx-auto max-w-[1440px] px-4 py-16 sm:px-6 lg:px-8">
@@ -79,5 +79,5 @@ export default async function BlogIndex({ searchParams }: BlogIndexProps) {
         <Pagination pagination={pagination} basePath="/blog" />
       </div>
     </div>
-  )
+  );
 }

@@ -5,17 +5,12 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
 
-    const {
-      title,
-      excerpt,
-      content,
-      featured_image,
-    } = body;
+    const { title, excerpt, content, featured_image } = body;
 
     if (!title) {
       return NextResponse.json(
-        { error: "Title is required" },
-        { status: 400 }
+        { error: "Hãy nhập tiêu đề để tiếp tục ✨" },
+        { status: 400 },
       );
     }
 
@@ -48,11 +43,11 @@ export async function POST(req: Request) {
 
     return NextResponse.json(
       {
-        error: "Create failed",
+        error: "Chưa tạo được, vui lòng thử lại ✨",
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }
