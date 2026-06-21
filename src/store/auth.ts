@@ -39,7 +39,14 @@ export const useAuthStore = create<AuthState>()(
 
       register: () => false,
 
-      logout: () => set({ user: null, isAuthenticated: false }),
+      logout: () => {
+        localStorage.removeItem("auth-storage");
+
+        set({
+          user: null,
+          isAuthenticated: false,
+        });
+      },
 
       updateProfile: (data) => {
         const user = get().user;
@@ -66,7 +73,7 @@ export const useAuthStore = create<AuthState>()(
         set({
           user: {
             ...user,
-            addresses: [...user.addresses, newAddress],
+            addresses: [...(user.addresses ?? []), newAddress],
           },
         });
       },
@@ -78,7 +85,7 @@ export const useAuthStore = create<AuthState>()(
         set({
           user: {
             ...user,
-            addresses: user.addresses.filter((a) => a.id !== id),
+            addresses: user.addresses?.filter((a) => a.id !== id) ?? [],
           },
         });
       },
@@ -86,12 +93,23 @@ export const useAuthStore = create<AuthState>()(
       // ✅ IMPORTANT FIX
       setUser: (user) =>
         set({
-          user,
+          user: {
+            ...user,
+            addresses: user.addresses ?? [],
+            role: user.role ?? "customer",
+            createdAt: user.createdAt ?? new Date().toISOString(),
+            updatedAt: user.updatedAt ?? new Date().toISOString(),
+          },
           isAuthenticated: true,
         }),
     }),
     {
       name: "auth-storage",
+      onRehydrateStorage: () => (state) => {
+        if (state?.user) {
+          state.isAuthenticated = true;
+        }
+      },
     },
   ),
 );

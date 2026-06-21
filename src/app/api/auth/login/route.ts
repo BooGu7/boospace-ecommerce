@@ -8,7 +8,9 @@ const supabase = createClient(
 
 export async function POST(req: Request) {
   try {
-    const { email, password } = await req.json();
+    let { email, password } = await req.json();
+
+    email = email.trim().toLowerCase();
 
     if (!email || !password) {
       return Response.json(
@@ -58,8 +60,12 @@ export async function POST(req: Request) {
       user: {
         id: user.id,
         email: user.email,
-        firstName: user.data?.firstName,
-        lastName: user.data?.lastName,
+        firstName: user.data?.firstName ?? "",
+        lastName: user.data?.lastName ?? "",
+        role: user.data?.role ?? "customer",
+        addresses: [],
+        createdAt: user.data?.createdAt ?? new Date().toISOString(),
+        updatedAt: user.updated_at ?? new Date().toISOString(),
       },
     });
   } catch (err) {
