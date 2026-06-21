@@ -3,37 +3,66 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+
+import { toast } from "sonner";
+
+import { loginSchema } from "@/lib/validators";
+import { useAuthStore } from "@/store/auth";
+
+import { AuthCardLayout } from "@/components/auth/auth-card-layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AuthCardLayout } from "@/components/auth/auth-card-layout";
-import { useAuthStore } from "@/store/auth";
-import { toast } from "sonner";
-import { loginSchema } from "@/lib/validators";
 
 export default function LoginPage() {
   const router = useRouter();
-  const login = useAuthStore((s) => s.login);
+
+  const setUser = useAuthStore((s) => s.setUser);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const result = loginSchema.safeParse({ email, password });
-    if (!result.success) {
-      toast.error(result.error.issues[0].message);
+
+    const validation = loginSchema.safeParse({ email, password });
+
+    if (!validation.success) {
+      toast.error(validation.error.issues[0].message);
       return;
     }
-    setLoading(true);
-    const success = login(email, password);
-    if (success) {
-      toast.success("Chào mừng bạn quay trở lại!");
-      router.push("/account");
-    } else {
-      toast.error("Email hoặc mật khẩu không hợp lệ");
+
+    try {
+      setLoading(true);
+
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        toast.error(data.message || "Đăng nhập thất bại");
+        return;
+      }
+
+      // ✅ IMPORTANT: set auth state global
+      setUser(data.user);
+
+      toast.success(`Xin chào ${data.user.firstName}!`);
+
+      router.push("/");
+      router.refresh();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Có lỗi xảy ra");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   return (
@@ -47,6 +76,7 @@ export default function LoginPage() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
+
           <Input
             id="email"
             type="email"
@@ -56,9 +86,11 @@ export default function LoginPage() {
             required
           />
         </div>
+
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">Mật khẩu</Label>
+
             <Link
               href="/auth/forgot-password"
               className="text-xs text-muted-foreground hover:text-foreground"
@@ -66,6 +98,7 @@ export default function LoginPage() {
               Quên mật khẩu?
             </Link>
           </div>
+
           <Input
             id="password"
             type="password"
@@ -74,19 +107,11 @@ export default function LoginPage() {
             required
           />
         </div>
+
         <Button type="submit" className="w-full" disabled={loading}>
           {loading ? "Đang đăng nhập..." : "Đăng nhập"}
         </Button>
       </form>
-      {/* <div className="mt-4 rounded-md bg-neutral-50 p-3">
-        <p className="text-xs text-muted-foreground">
-          <strong>Demo accounts:</strong>
-          <br />
-          admin@example.com / password123
-          <br />
-          demo@example.com / password123
-        </p>
-      </div> */}
     </AuthCardLayout>
   );
 }

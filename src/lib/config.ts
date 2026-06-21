@@ -10,11 +10,11 @@ export const siteConfig = {
     "BooSpace — Studio thiết kế DIY & không gian làm việc in 3D theo yêu cầu",
 
   description:
-    "Boospace là cửa hàng sản phẩm in 3D theo yêu cầu dành cho workspace và DIY. Thiết kế tùy chỉnh, sản xuất theo ý tưởng riêng và biến mọi không gian làm việc trở nên độc đáo bằng công nghệ in 3D.",
+    "Boo Space là cửa hàng sản phẩm in 3D theo yêu cầu dành cho workspace và DIY. Thiết kế tùy chỉnh, sản xuất theo ý tưởng riêng và biến mọi không gian làm việc trở nên độc đáo bằng công nghệ in 3D.",
 
   // Announcement bar (set to "" to hide)
   announcement:
-    "Chào mừng bạn đến với Boo Space — nơi biến ý tưởng workspace của bạn thành hiện thực ✨",
+    "Chào mừng bạn đến với Boo Space — nơi biến ý tưởng của bạn thành hiện thực ✨",
   // URLs
   url: process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000",
 

@@ -1,18 +1,44 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AuthCardLayout } from "@/components/auth/auth-card-layout";
 import { toast } from "sonner";
 
-export default function ForgotPasswordPage() {
-  const [email, setEmail] = useState("");
+import { forgotPassword } from "./action";
 
-  function handleSubmit(e: React.FormEvent) {
+export default function ForgotPasswordPage() {
+  const router = useRouter();
+
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    toast.success("Đã gửi link, hãy kiểm tra email 📨");
+
+    try {
+      setLoading(true);
+
+      const result = await forgotPassword(email);
+
+      toast.success(
+        "Nếu email tồn tại, chúng tôi đã gửi link đặt lại mật khẩu 📨",
+      );
+
+      setEmail("");
+
+      // local testing
+      if (result.resetUrl) {
+        router.push(result.resetUrl);
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Có lỗi xảy ra");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -26,6 +52,7 @@ export default function ForgotPasswordPage() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
+
           <Input
             id="email"
             type="email"
@@ -36,8 +63,8 @@ export default function ForgotPasswordPage() {
           />
         </div>
 
-        <Button type="submit" className="w-full">
-          Gửi link
+        <Button type="submit" className="w-full" disabled={loading}>
+          {loading ? "Đang gửi..." : "Gửi link"}
         </Button>
       </form>
     </AuthCardLayout>

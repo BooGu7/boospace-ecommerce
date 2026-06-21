@@ -2,51 +2,73 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+
+import { registerSchema } from "@/lib/validators";
+import { registerUser } from "./action";
+
+import { AuthCardLayout } from "@/components/auth/auth-card-layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AuthCardLayout } from "@/components/auth/auth-card-layout";
-import { useAuthStore } from "@/store/auth";
-import { toast } from "sonner";
-import { registerSchema } from "@/lib/validators";
+
+type RegisterForm = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+};
 
 export default function RegisterPage() {
   const router = useRouter();
-  const register = useAuthStore((s) => s.register);
-  const [form, setForm] = useState({
+  const [loading, setLoading] = useState(false);
+
+  const [form, setForm] = useState<RegisterForm>({
     firstName: "",
     lastName: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
-  const [loading, setLoading] = useState(false);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
+    // 1. client validation
     const validation = registerSchema.safeParse(form);
+
     if (!validation.success) {
       toast.error(validation.error.issues[0].message);
       return;
     }
-    setLoading(true);
-    const success = register({
-      firstName: form.firstName,
-      lastName: form.lastName,
-      email: form.email,
-      password: form.password,
-    });
-    if (success) {
+
+    try {
+      setLoading(true);
+
+      // 2. call server action (Supabase)
+      await registerUser(validation.data);
+
       toast.success("Tạo tài khoản thành công!");
+
       router.push("/account");
-    } else {
-      toast.error("Email này đã được sử dụng cho một tài khoản khác");
+      router.refresh();
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Không thể tạo tài khoản",
+      );
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   return (
@@ -58,67 +80,71 @@ export default function RegisterPage() {
       footerLinkHref="/auth/login"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Name */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="firstName">Tên</Label>
+            <Label>Tên</Label>
             <Input
-              id="firstName"
               name="firstName"
               value={form.firstName}
               onChange={handleChange}
               required
+              autoComplete="given-name"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="lastName">Họ</Label>
+            <Label>Họ</Label>
             <Input
-              id="lastName"
               name="lastName"
               value={form.lastName}
               onChange={handleChange}
               required
+              autoComplete="family-name"
             />
           </div>
         </div>
 
+        {/* Email */}
         <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
+          <Label>Email</Label>
           <Input
-            id="email"
             name="email"
             type="email"
-            placeholder="you@example.com"
             value={form.email}
             onChange={handleChange}
             required
+            autoComplete="email"
           />
         </div>
 
+        {/* Password */}
         <div className="space-y-2">
-          <Label htmlFor="password">Mật khẩu</Label>
+          <Label>Mật khẩu</Label>
           <Input
-            id="password"
             name="password"
             type="password"
             value={form.password}
             onChange={handleChange}
             required
+            autoComplete="new-password"
           />
         </div>
 
+        {/* Confirm Password */}
         <div className="space-y-2">
-          <Label htmlFor="confirmPassword">Xác nhận mật khẩu</Label>
+          <Label>Xác nhận mật khẩu</Label>
           <Input
-            id="confirmPassword"
             name="confirmPassword"
             type="password"
             value={form.confirmPassword}
             onChange={handleChange}
             required
+            autoComplete="new-password"
           />
         </div>
 
+        {/* Submit */}
         <Button type="submit" className="w-full" disabled={loading}>
           {loading ? "Đang tạo tài khoản..." : "Tạo tài khoản"}
         </Button>
