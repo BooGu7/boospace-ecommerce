@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { toast } from "sonner";
 
@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const setUser = useAuthStore((s) => s.setUser);
 
@@ -23,10 +24,19 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    if (searchParams.get("verified") === "true") {
+      toast.success("Xác thực email thành công. Vui lòng đăng nhập.");
+    }
+  }, [searchParams]);
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    const validation = loginSchema.safeParse({ email, password });
+    const validation = loginSchema.safeParse({
+      email,
+      password,
+    });
 
     if (!validation.success) {
       toast.error(validation.error.issues[0].message);
@@ -41,7 +51,10 @@ export default function LoginPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({
+          email,
+          password,
+        }),
       });
 
       const data = await res.json();
@@ -51,12 +64,11 @@ export default function LoginPage() {
         return;
       }
 
-      // ✅ IMPORTANT: set auth state global
       setUser(data.user);
 
-      toast.success(`Xin chào ${data.user.firstName}!`);
+      toast.success(`Xin chào ${data.user.firstName || ""}!`);
 
-      router.push("/");
+      router.replace("/");
       router.refresh();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Có lỗi xảy ra");

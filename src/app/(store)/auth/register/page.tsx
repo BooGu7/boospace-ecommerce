@@ -44,7 +44,6 @@ export default function RegisterPage() {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    // 1. client validation
     const validation = registerSchema.safeParse(form);
 
     if (!validation.success) {
@@ -55,13 +54,13 @@ export default function RegisterPage() {
     try {
       setLoading(true);
 
-      // 2. call server action (Supabase)
       await registerUser(validation.data);
 
-      toast.success("Tạo tài khoản thành công!");
+      toast.success(
+        "Tài khoản đã được tạo. Vui lòng kiểm tra email để xác nhận tài khoản.",
+      );
 
-      router.push("/account");
-      router.refresh();
+      router.push("/auth/login");
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Không thể tạo tài khoản",
@@ -80,7 +79,6 @@ export default function RegisterPage() {
       footerLinkHref="/auth/login"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Name */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label>Tên</Label>
@@ -105,7 +103,6 @@ export default function RegisterPage() {
           </div>
         </div>
 
-        {/* Email */}
         <div className="space-y-2">
           <Label>Email</Label>
           <Input
@@ -118,7 +115,6 @@ export default function RegisterPage() {
           />
         </div>
 
-        {/* Password */}
         <div className="space-y-2">
           <Label>Mật khẩu</Label>
           <Input
@@ -131,7 +127,6 @@ export default function RegisterPage() {
           />
         </div>
 
-        {/* Confirm Password */}
         <div className="space-y-2">
           <Label>Xác nhận mật khẩu</Label>
           <Input
@@ -144,7 +139,6 @@ export default function RegisterPage() {
           />
         </div>
 
-        {/* Submit */}
         <Button type="submit" className="w-full" disabled={loading}>
           {loading ? "Đang tạo tài khoản..." : "Tạo tài khoản"}
         </Button>

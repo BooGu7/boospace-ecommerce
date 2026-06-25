@@ -1,79 +1,74 @@
-import bcrypt from "bcryptjs";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
 );
 
 export async function POST(req: Request) {
   try {
-    let { email, password } = await req.json();
-
-    email = email.trim().toLowerCase();
+    const { email, password } = await req.json();
 
     if (!email || !password) {
       return Response.json(
-        { message: "Thiếu email hoặc mật khẩu" },
-        { status: 400 },
+        {
+          message: "Thiếu email hoặc mật khẩu",
+        },
+        {
+          status: 400,
+        },
       );
     }
 
-    const { data: user, error } = await supabase
-      .from("ecommerce_users")
-      .select("*")
-      .eq("email", email)
-      .maybeSingle();
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: email.trim().toLowerCase(),
+      password,
+    });
 
     if (error) {
-      return Response.json({ message: error.message }, { status: 500 });
-    }
+      console.error("SUPABASE LOGIN ERROR:", error);
 
-    if (!user) {
       return Response.json(
-        { message: "Email hoặc mật khẩu không đúng" },
-        { status: 401 },
+        {
+          message: error.message,
+          code: error.code,
+        },
+        {
+          status: 400,
+        },
       );
     }
 
-    // ⚠️ lấy password từ JSONB data
-    const storedPassword = user.data?.password;
-
-    if (!storedPassword) {
+    if (!data.user) {
       return Response.json(
-        { message: "User chưa có mật khẩu" },
-        { status: 400 },
-      );
-    }
-
-    const isValid = await bcrypt.compare(password, storedPassword);
-
-    if (!isValid) {
-      return Response.json(
-        { message: "Email hoặc mật khẩu không đúng" },
-        { status: 401 },
+        {
+          message: "Không tìm thấy tài khoản",
+        },
+        {
+          status: 404,
+        },
       );
     }
 
     return Response.json({
       success: true,
       user: {
-        id: user.id,
-        email: user.email,
-        firstName: user.data?.firstName ?? "",
-        lastName: user.data?.lastName ?? "",
-        role: user.data?.role ?? "customer",
-        addresses: [],
-        createdAt: user.data?.createdAt ?? new Date().toISOString(),
-        updatedAt: user.updated_at ?? new Date().toISOString(),
+        id: data.user.id,
+        email: data.user.email,
+        firstName: data.user.user_metadata?.firstName ?? "",
+        lastName: data.user.user_metadata?.lastName ?? "",
       },
     });
   } catch (err) {
+    console.error(err);
+
     return Response.json(
       {
         message: err instanceof Error ? err.message : "Server error",
       },
-      { status: 500 },
+      {
+        status: 500,
+      },
     );
   }
 }

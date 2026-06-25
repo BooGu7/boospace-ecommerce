@@ -25,15 +25,10 @@ export default function ForgotPasswordPage() {
       const result = await forgotPassword(email);
 
       toast.success(
-        "Nếu email tồn tại, chúng tôi đã gửi link đặt lại mật khẩu 📨",
+        "Chúng tôi đã gửi link đặt lại mật khẩu tới Gmail của bạn.",
       );
 
       setEmail("");
-
-      // local testing
-      if (result.resetUrl) {
-        router.push(result.resetUrl);
-      }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Có lỗi xảy ra");
     } finally {

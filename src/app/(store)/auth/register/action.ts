@@ -1,13 +1,8 @@
 "use server";
 
-import bcrypt from "bcryptjs";
-import { createClient } from "@supabase/supabase-js";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { registerSchema } from "@/lib/validators";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-);
 
 type RegisterInput = {
   firstName: string;
@@ -28,37 +23,29 @@ export async function registerUser(data: RegisterInput) {
 
   const normalizedEmail = email.trim().toLowerCase();
 
-  const { data: existing, error: checkError } = await supabase
+  const admin = getSupabaseAdmin();
+
+  const { data: existing } = await admin
     .from("ecommerce_users")
     .select("id")
     .eq("email", normalizedEmail)
     .maybeSingle();
 
-  if (checkError) {
-    throw new Error(checkError.message);
-  }
-
   if (existing) {
     throw new Error("Email này đã được sử dụng");
   }
 
-  const hashedPassword = await bcrypt.hash(password, 10);
+  const supabase = createSupabaseServerClient();
 
-  const id = `user-${Date.now()}`;
-
-  const { error } = await supabase.from("ecommerce_users").insert({
-    id,
+  const { data: authData, error } = await supabase.auth.signUp({
     email: normalizedEmail,
-    sort_order: 0,
-    data: {
-      id,
-      firstName,
-      lastName,
-      email: normalizedEmail,
-      password: hashedPassword,
-      createdAt: new Date().toISOString(),
-      resetToken: null,
-      resetTokenExpiresAt: null,
+    password,
+    options: {
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/api/auth/callback`,
+      data: {
+        firstName,
+        lastName,
+      },
     },
   });
 
@@ -66,8 +53,31 @@ export async function registerUser(data: RegisterInput) {
     throw new Error(error.message);
   }
 
+  const user = authData.user;
+
+  if (!user) {
+    throw new Error("Không thể tạo tài khoản");
+  }
+
+  const { error: profileError } = await admin.from("ecommerce_users").insert({
+    id: user.id,
+    email: normalizedEmail,
+    sort_order: 0,
+    data: {
+      id: user.id,
+      firstName,
+      lastName,
+      email: normalizedEmail,
+      isVerified: false,
+      createdAt: new Date().toISOString(),
+    },
+  });
+
+  if (profileError) {
+    throw new Error(profileError.message);
+  }
+
   return {
     success: true,
-    userId: id,
   };
 }
