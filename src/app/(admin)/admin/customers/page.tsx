@@ -7,7 +7,7 @@ export default async function AdminCustomersPage() {
   const supabase = getSupabaseAdmin();
 
   const { data: orders, error } = await supabase
-    .from("ecommerce_orders")
+    .from("orders")
     .select("*")
     .order("created_at", { ascending: false });
 
@@ -78,13 +78,9 @@ export default async function AdminCustomersPage() {
             <tbody>
               {customers.map((customer: any) => (
                 <tr key={customer.email} className="border-b">
-                  <td className="p-3">
-                    {customer.email}
-                  </td>
+                  <td className="p-3">{customer.email}</td>
 
-                  <td className="p-3">
-                    {customer.orderCount}
-                  </td>
+                  <td className="p-3">{customer.orderCount}</td>
 
                   <td className="p-3">
                     {new Date(customer.lastOrder).toLocaleString()}

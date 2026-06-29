@@ -9,10 +9,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 export async function deleteProduct(id: string) {
   const supabase = getSupabaseAdmin();
 
-  const { error } = await supabase
-    .from("ecommerce_products")
-    .delete()
-    .eq("id", id);
+  const { error } = await supabase.from("products").delete().eq("id", id);
 
   if (error) {
     console.error("DELETE ERROR:", error);
@@ -65,7 +62,7 @@ export async function createProduct(formData: FormData) {
     ],
   };
 
-  const { error } = await supabase.from("ecommerce_products").insert({
+  const { error } = await supabase.from("products").insert({
     id,
     slug,
     status: "active",
@@ -94,7 +91,7 @@ export async function updateProduct(id: string, formData: FormData) {
 
   // lấy product hiện tại
   const { data: product, error: fetchError } = await supabase
-    .from("ecommerce_products")
+    .from("products")
     .select("*")
     .eq("id", id)
     .single();
@@ -120,7 +117,7 @@ export async function updateProduct(id: string, formData: FormData) {
   }
 
   const { error } = await supabase
-    .from("ecommerce_products")
+    .from("products")
     .update({
       slug,
       data: json,

@@ -15,7 +15,7 @@ export async function createBrand(formData: FormData) {
 
   const id = `brand-${Date.now()}`;
 
-  const { error } = await supabase.from("ecommerce_brands").insert({
+  const { error } = await supabase.from("brands").insert({
     id,
     slug,
     sort_order: 0,
@@ -41,10 +41,7 @@ export async function createBrand(formData: FormData) {
 export async function deleteBrand(id: string) {
   const supabase = getSupabaseAdmin();
 
-  const { error } = await supabase
-    .from("ecommerce_brands")
-    .delete()
-    .eq("id", id);
+  const { error } = await supabase.from("brands").delete().eq("id", id);
 
   if (error) {
     console.error("DELETE BRAND ERROR:", error);

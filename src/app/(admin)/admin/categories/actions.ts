@@ -14,7 +14,7 @@ export async function createCategory(formData: FormData) {
 
   const id = `cat-${Date.now()}`;
 
-  const { error } = await supabase.from("ecommerce_categories").insert({
+  const { error } = await supabase.from("categories").insert({
     id,
     slug,
     sort_order: 0,
@@ -39,10 +39,7 @@ export async function createCategory(formData: FormData) {
 export async function deleteCategory(id: string) {
   const supabase = getSupabaseAdmin();
 
-  const { error } = await supabase
-    .from("ecommerce_categories")
-    .delete()
-    .eq("id", id);
+  const { error } = await supabase.from("categories").delete().eq("id", id);
 
   if (error) {
     console.error("DELETE CATEGORY ERROR:", error);

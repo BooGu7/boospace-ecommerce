@@ -21,7 +21,7 @@ export default async function CategoriesPage() {
   const supabase = getSupabaseAdmin();
 
   const { data: categories, error } = await supabase
-    .from("ecommerce_categories")
+    .from("categories")
     .select("*")
     .order("created_at", { ascending: false });
 
@@ -31,10 +31,7 @@ export default async function CategoriesPage() {
 
   return (
     <div>
-      <PageHeader
-        title="Categories"
-        description="Manage categories"
-      >
+      <PageHeader title="Categories" description="Manage categories">
         <Link href="/admin/categories/new">
           <Button>Add Category</Button>
         </Link>
@@ -53,13 +50,9 @@ export default async function CategoriesPage() {
           <TableBody>
             {categories?.map((cat: any) => (
               <TableRow key={cat.id}>
-                <TableCell>
-                  {cat.name}
-                </TableCell>
+                <TableCell>{cat.name}</TableCell>
 
-                <TableCell>
-                  {cat.slug}
-                </TableCell>
+                <TableCell>{cat.slug}</TableCell>
 
                 <TableCell className="text-right">
                   <form
@@ -68,10 +61,7 @@ export default async function CategoriesPage() {
                       await deleteCategory(cat.id);
                     }}
                   >
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                    >
+                    <Button variant="destructive" size="sm">
                       Delete
                     </Button>
                   </form>

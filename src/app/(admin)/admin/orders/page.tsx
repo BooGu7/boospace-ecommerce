@@ -7,7 +7,7 @@ export default async function AdminOrdersPage() {
   const supabase = getSupabaseAdmin();
 
   const { data: orders, error } = await supabase
-    .from("ecommerce_orders")
+    .from("orders")
     .select("*")
     .order("created_at", { ascending: false });
 
@@ -46,21 +46,13 @@ export default async function AdminOrdersPage() {
             <tbody>
               {orders?.map((order: any) => (
                 <tr key={order.id} className="border-b">
-                  <td className="p-3">
-                    {order.order_number}
-                  </td>
+                  <td className="p-3">{order.order_number}</td>
 
-                  <td className="p-3">
-                    {order.customer_email}
-                  </td>
+                  <td className="p-3">{order.customer_email}</td>
 
-                  <td className="p-3">
-                    {order.status}
-                  </td>
+                  <td className="p-3">{order.status}</td>
 
-                  <td className="p-3">
-                    {order.payment_status}
-                  </td>
+                  <td className="p-3">{order.payment_status}</td>
 
                   <td className="p-3 text-right">
                     ${Number(order.total).toLocaleString()}
@@ -71,9 +63,7 @@ export default async function AdminOrdersPage() {
           </table>
         </div>
       ) : (
-        <p className="mt-6 text-sm text-muted-foreground">
-          No orders found.
-        </p>
+        <p className="mt-6 text-sm text-muted-foreground">No orders found.</p>
       )}
     </div>
   );

@@ -21,7 +21,7 @@ export default async function BrandsPage() {
   const supabase = getSupabaseAdmin();
 
   const { data: brands, error } = await supabase
-    .from("ecommerce_brands")
+    .from("brands")
     .select("*")
     .order("created_at", { ascending: false });
 
@@ -31,10 +31,7 @@ export default async function BrandsPage() {
 
   return (
     <div>
-      <PageHeader
-        title="Brands"
-        description="Manage brands"
-      >
+      <PageHeader title="Brands" description="Manage brands">
         <Link href="/admin/brands/new">
           <Button>Add Brand</Button>
         </Link>
@@ -53,13 +50,9 @@ export default async function BrandsPage() {
           <TableBody>
             {brands?.map((brand: any) => (
               <TableRow key={brand.id}>
-                <TableCell>
-                  {brand.name}
-                </TableCell>
+                <TableCell>{brand.name}</TableCell>
 
-                <TableCell>
-                  {brand.slug}
-                </TableCell>
+                <TableCell>{brand.slug}</TableCell>
 
                 <TableCell className="text-right">
                   <form
@@ -68,10 +61,7 @@ export default async function BrandsPage() {
                       await deleteBrand(brand.id);
                     }}
                   >
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                    >
+                    <Button size="sm" variant="destructive">
                       Delete
                     </Button>
                   </form>

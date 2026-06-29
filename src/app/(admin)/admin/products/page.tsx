@@ -22,7 +22,7 @@ export default async function ProductsPage() {
   const supabase = getSupabaseAdmin();
 
   const { data: products, error } = await supabase
-    .from("ecommerce_products")
+    .from("products")
     .select("*")
     .order("created_at", { ascending: false });
 
@@ -32,10 +32,7 @@ export default async function ProductsPage() {
 
   return (
     <div>
-      <PageHeader
-        title="Products"
-        description="Manage store products."
-      >
+      <PageHeader title="Products" description="Manage store products.">
         <Link href="/admin/products/new">
           <Button>Add Product</Button>
         </Link>
@@ -61,29 +58,18 @@ export default async function ProductsPage() {
 
               return (
                 <TableRow key={product.id}>
-                  <TableCell>
-                    {item?.name ?? "No name"}
-                  </TableCell>
+                  <TableCell>{item?.name ?? "No name"}</TableCell>
 
-                  <TableCell>
-                    {product.status}
-                  </TableCell>
+                  <TableCell>{product.status}</TableCell>
 
-                  <TableCell>
-                    ${variant?.price ?? 0}
-                  </TableCell>
+                  <TableCell>${variant?.price ?? 0}</TableCell>
 
-                  <TableCell>
-                    {variant?.inventory?.quantity ?? 0}
-                  </TableCell>
+                  <TableCell>{variant?.inventory?.quantity ?? 0}</TableCell>
 
                   <TableCell className="text-right">
                     <div className="flex gap-2 justify-end">
                       <Link href={`/admin/products/${product.id}`}>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                        >
+                        <Button variant="outline" size="sm">
                           Edit
                         </Button>
                       </Link>
@@ -94,10 +80,7 @@ export default async function ProductsPage() {
                           await deleteProduct(product.id);
                         }}
                       >
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                        >
+                        <Button variant="destructive" size="sm">
                           Delete
                         </Button>
                       </form>

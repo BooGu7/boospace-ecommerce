@@ -15,11 +15,10 @@ export default async function ProductEditPage({
 }) {
   const { id } = await params;
 
-  const supabase =
-    createSupabaseServerClient();
+  const supabase = createSupabaseServerClient();
 
   const { data: product } = await supabase
-    .from("ecommerce_products")
+    .from("products")
     .select("*")
     .eq("id", id)
     .single();
@@ -32,33 +31,22 @@ export default async function ProductEditPage({
 
   return (
     <div className="max-w-2xl">
-      <h1 className="text-3xl font-bold">
-        Edit Product
-      </h1>
+      <h1 className="text-3xl font-bold">Edit Product</h1>
 
       <form
-        action={updateProduct.bind(
-          null,
-          product.id
-        )}
+        action={updateProduct.bind(null, product.id)}
         className="mt-6 space-y-6"
       >
         <div>
           <Label>Name</Label>
 
-          <Input
-            name="name"
-            defaultValue={item.name}
-          />
+          <Input name="name" defaultValue={item.name} />
         </div>
 
         <div>
           <Label>Slug</Label>
 
-          <Input
-            name="slug"
-            defaultValue={item.slug}
-          />
+          <Input name="slug" defaultValue={item.slug} />
         </div>
 
         <div>
@@ -67,9 +55,7 @@ export default async function ProductEditPage({
           <Input
             name="price"
             type="number"
-            defaultValue={
-              item?.variants?.[0]?.price
-            }
+            defaultValue={item?.variants?.[0]?.price}
           />
         </div>
 
@@ -79,16 +65,11 @@ export default async function ProductEditPage({
           <Input
             name="inventory"
             type="number"
-            defaultValue={
-              item?.variants?.[0]?.inventory
-                ?.quantity
-            }
+            defaultValue={item?.variants?.[0]?.inventory?.quantity}
           />
         </div>
 
-        <Button type="submit">
-          Save Changes
-        </Button>
+        <Button type="submit">Save Changes</Button>
       </form>
     </div>
   );
