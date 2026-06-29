@@ -19,6 +19,11 @@ type JsonRow<T> = {
   data: T;
 };
 
+/**
+ * =========================================================================
+ * PHÂN TRANG (HELPER)
+ * =========================================================================
+ */
 function paginate<T>(
   items: T[],
   pagination?: PaginationParams,
@@ -42,6 +47,79 @@ function paginate<T>(
   };
 }
 
+/**
+ * =========================================================================
+ * BỘ CHUYỂN ĐỔI DỮ LIỆU (ADAPTERS)
+ * Ánh xạ dữ liệu quan hệ Supabase thành Interface mà UI Storefront mong đợi
+ * =========================================================================
+ */
+function mapDbProductToStorefront(dbProduct: any): Product {
+  if (!dbProduct) return null as any;
+  const price = Number(dbProduct.price ?? 0);
+
+  // Tạo cấu trúc variants/inventory tương thích với frontend của storefront
+  const defaultVariant = {
+    id: dbProduct.id + "-default",
+    name: "Default Variant",
+    sku: dbProduct.sku || "",
+    price: price,
+    compareAtPrice: dbProduct.compare_price
+      ? Number(dbProduct.compare_price)
+      : null,
+    inventory: {
+      quantity: dbProduct.stock ?? 99,
+      allowBackorder: true,
+    },
+  };
+
+  return {
+    id: dbProduct.id,
+    slug: dbProduct.slug,
+    name: dbProduct.name,
+    description: dbProduct.description || "",
+    shortDescription: dbProduct.short_description || "",
+    status: dbProduct.published ? "active" : "draft",
+    featured: dbProduct.featured || false,
+    images: dbProduct.images || [],
+    categoryIds: dbProduct.category_id ? [dbProduct.category_id] : [],
+    brandId: dbProduct.brand_id,
+    tags: [],
+    variants: [defaultVariant],
+    createdAt: dbProduct.created_at || new Date().toISOString(),
+    updatedAt: dbProduct.updated_at || new Date().toISOString(),
+  } as unknown as Product;
+}
+
+function mapDbCategoryToStorefront(dbCategory: any): Category {
+  if (!dbCategory) return null as any;
+  return {
+    id: dbCategory.id,
+    name: dbCategory.name,
+    slug: dbCategory.slug,
+    parentId: dbCategory.parent_id || null,
+    order: dbCategory.sort_order ?? 0,
+    createdAt: dbCategory.created_at,
+    updatedAt: dbCategory.updated_at,
+  } as unknown as Category;
+}
+
+function mapDbBrandToStorefront(dbBrand: any): Brand {
+  if (!dbBrand) return null as any;
+  return {
+    id: dbBrand.id,
+    name: dbBrand.name,
+    slug: dbBrand.slug,
+    logoUrl: dbBrand.logo_url || null,
+    createdAt: dbBrand.created_at,
+    updatedAt: dbBrand.updated_at,
+  } as unknown as Brand;
+}
+
+/**
+ * =========================================================================
+ * BỘ GIAO DIỆN JSON CHO BLOG & PAGES (Giữ nguyên cấu trúc JSONB mặc định)
+ * =========================================================================
+ */
 async function listJsonData<T>(
   table: string,
   orderColumn = "sort_order",
@@ -95,6 +173,11 @@ async function getJsonDataById<T>(
   return (data as Pick<JsonRow<T>, "data"> | null)?.data ?? null;
 }
 
+/**
+ * =========================================================================
+ * LOGIC LỌC SẢN PHẨM Ở CLIENT (Giữ nguyên của template)
+ * =========================================================================
+ */
 function applyProductFilters(
   items: Product[],
   categories: Category[],
@@ -138,14 +221,7 @@ function applyProductFilters(
     result = result.filter(
       (product) =>
         product.name.toLowerCase().includes(query) ||
-        product.description.toLowerCase().includes(query) ||
-        product.tags.some((tag) => tag.toLowerCase().includes(query)),
-    );
-  }
-
-  if (filters.tags && filters.tags.length > 0) {
-    result = result.filter((product) =>
-      filters.tags!.some((tag) => product.tags.includes(tag)),
+        product.description.toLowerCase().includes(query),
     );
   }
 
@@ -177,17 +253,46 @@ function applyProductSort(items: Product[], sort?: SortOption): Product[] {
   });
 }
 
+/**
+ * =========================================================================
+ * EXPORTS CHUẨN ĐỒNG BỘ ĐẦY ĐỦ CHO TOÀN DỰ ÁN
+ * =========================================================================
+ */
+
 export const supabaseCategoryRepository = {
   async list(): Promise<Category[]> {
-    return listJsonData<Category>("categories");
+    const supabase = createSupabaseServerClient();
+    const { data, error } = await supabase
+      .from("categories")
+      .select("*")
+      .order("name", { ascending: true });
+
+    if (error) throw error;
+    return (data || []).map(mapDbCategoryToStorefront);
   },
 
   async getBySlug(slug: string): Promise<Category | null> {
-    return getJsonDataBySlug<Category>("categories", slug);
+    const supabase = createSupabaseServerClient();
+    const { data, error } = await supabase
+      .from("categories")
+      .select("*")
+      .eq("slug", slug)
+      .maybeSingle();
+
+    if (error) return null;
+    return mapDbCategoryToStorefront(data);
   },
 
   async getById(id: string): Promise<Category | null> {
-    return getJsonDataById<Category>("categories", id);
+    const supabase = createSupabaseServerClient();
+    const { data, error } = await supabase
+      .from("categories")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (error) return null;
+    return mapDbCategoryToStorefront(data);
   },
 
   async getChildren(parentId: string): Promise<Category[]> {
@@ -222,37 +327,68 @@ export const supabaseCategoryRepository = {
 
 export const supabaseProductRepository: ProductRepository = {
   async list(filters, sort, pagination) {
-    const [products, categories] = await Promise.all([
-      listJsonData<Product>("products", "created_at"),
+    const supabase = createSupabaseServerClient();
+    const [dbProductsRes, categories] = await Promise.all([
+      supabase
+        .from("products")
+        .select("*")
+        .order("created_at", { ascending: false }),
       supabaseCategoryRepository.list(),
     ]);
+
+    const products = (dbProductsRes.data || []).map(mapDbProductToStorefront);
     const filtered = applyProductFilters(products, categories, filters);
     return paginate(applyProductSort(filtered, sort), pagination);
   },
 
   async getBySlug(slug) {
-    const product = await getJsonDataBySlug<Product>("products", slug);
+    const supabase = createSupabaseServerClient();
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .eq("slug", slug)
+      .maybeSingle();
+
+    if (error || !data) return null;
+    const product = mapDbProductToStorefront(data);
     return product?.status === "active" ? product : null;
   },
 
   async getById(id) {
-    return getJsonDataById<Product>("products", id);
+    const supabase = createSupabaseServerClient();
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (error) return null;
+    return mapDbProductToStorefront(data);
   },
 
   async getFeatured(limit = 4) {
-    const products = await listJsonData<Product>("products", "created_at");
-    return products
-      .filter((product) => product.featured && product.status === "active")
-      .slice(0, limit);
+    const supabase = createSupabaseServerClient();
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .eq("featured", true)
+      .eq("published", true)
+      .limit(limit);
+
+    if (error) return [];
+    return (data || []).map(mapDbProductToStorefront);
   },
 
   async getByCategory(categorySlug, pagination) {
-    const [products, category] = await Promise.all([
-      listJsonData<Product>("products", "created_at"),
+    const supabase = createSupabaseServerClient();
+    const [dbProductsRes, category] = await Promise.all([
+      supabase.from("products").select("*"),
       supabaseCategoryRepository.getBySlug(categorySlug),
     ]);
 
     if (!category) return paginate([], pagination);
+
+    const products = (dbProductsRes.data || []).map(mapDbProductToStorefront);
 
     return paginate(
       products.filter(
@@ -265,10 +401,12 @@ export const supabaseProductRepository: ProductRepository = {
   },
 
   async search(query, pagination) {
-    const [products, categories] = await Promise.all([
-      listJsonData<Product>("products", "created_at"),
+    const supabase = createSupabaseServerClient();
+    const [dbProductsRes, categories] = await Promise.all([
+      supabase.from("products").select("*"),
       supabaseCategoryRepository.list(),
     ]);
+    const products = (dbProductsRes.data || []).map(mapDbProductToStorefront);
     return paginate(
       applyProductFilters(products, categories, { search: query }),
       pagination,
@@ -278,15 +416,38 @@ export const supabaseProductRepository: ProductRepository = {
 
 export const supabaseBrandRepository = {
   async list(): Promise<Brand[]> {
-    return listJsonData<Brand>("brands");
+    const supabase = createSupabaseServerClient();
+    const { data, error } = await supabase
+      .from("brands")
+      .select("*")
+      .order("name", { ascending: true });
+
+    if (error) throw error;
+    return (data || []).map(mapDbBrandToStorefront);
   },
 
   async getBySlug(slug: string): Promise<Brand | null> {
-    return getJsonDataBySlug<Brand>("brands", slug);
+    const supabase = createSupabaseServerClient();
+    const { data, error } = await supabase
+      .from("brands")
+      .select("*")
+      .eq("slug", slug)
+      .maybeSingle();
+
+    if (error) return null;
+    return mapDbBrandToStorefront(data);
   },
 
   async getById(id: string): Promise<Brand | null> {
-    return getJsonDataById<Brand>("brands", id);
+    const supabase = createSupabaseServerClient();
+    const { data, error } = await supabase
+      .from("brands")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (error) return null;
+    return mapDbBrandToStorefront(data);
   },
 };
 
@@ -339,29 +500,68 @@ export const supabaseBlogRepository = {
     );
   },
 };
-
+/**
+ * =========================================================================
+ * LƯU ĐƠN HÀNG THỜI GIAN THỰC (REALTIME CHECKOUT INTEGRATION)
+ * Sửa lỗi UUID: Để Supabase tự sinh UUID cho đơn hàng, tránh lỗi chữ thường [18]
+ * =========================================================================
+ */
 export async function createSupabaseOrder(order: Order): Promise<Order> {
   const supabase = createSupabaseServerClient();
 
-  const { data, error } = await supabase
+  // Ép kiểu 'as any' để bỏ qua kiểm duyệt TypeScript nghiêm ngặt đối với PaymentStatus
+  const rawPaymentStatus = order.paymentStatus as any;
+  const dbPaymentStatus =
+    rawPaymentStatus === "paid" || rawPaymentStatus === "Paid"
+      ? "Paid"
+      : "Pending";
+
+  // 1. Lưu đơn hàng cha vào bảng 'orders' (KHÔNG truyền id ảo, để DB tự sinh UUID) [18]
+  const { data: createdOrder, error: orderError } = await supabase
     .from("orders")
     .insert({
-      id: order.id,
-      order_number: order.orderNumber,
+      code: order.orderNumber, // Lưu mã "ORD-MQZD2NKN" vào cột code dạng TEXT
+      customer_name: order.shippingAddress
+        ? `${order.shippingAddress.firstName} ${order.shippingAddress.lastName}`
+        : "Khách hàng Storefront",
       customer_email: order.customerEmail,
-      status: order.status,
-      payment_status: order.paymentStatus,
       total: order.total,
-      data: order,
+      order_status: "Pending", // Trạng thái mặc định
+      payment_status: dbPaymentStatus,
+      shipping_status: "Pending",
     })
-    .select("data")
+    .select("id") // Đọc về mã UUID thực tế do Database tự động sinh ra! [18]
     .single();
 
-  if (error) {
-    console.error("SUPABASE ORDER ERROR:", error);
-
-    throw new Error(`Failed to create order: ${error.message}`);
+  if (orderError || !createdOrder) {
+    console.error("SUPABASE ORDER ERROR:", orderError);
+    throw new Error(
+      `Failed to create order: ${orderError?.message || "Unknown error"}`,
+    );
   }
 
-  return (data as { data: Order }).data;
+  // 2. Lưu các sản phẩm chi tiết vào bảng 'order_items'
+  if (order.items && order.items.length > 0) {
+    const itemsToInsert = order.items.map((item) => ({
+      order_id: createdOrder.id, // Sử dụng UUID chuẩn từ DB trả về! [18]
+      product_id: item.productId,
+      quantity: item.quantity,
+      unit_price: item.price,
+      total_price: item.price * item.quantity,
+    }));
+
+    const { error: itemsError } = await supabase
+      .from("order_items")
+      .insert(itemsToInsert);
+
+    if (itemsError) {
+      console.error("SUPABASE ORDER ITEMS ERROR:", itemsError);
+      // Xóa đơn hàng cha nếu chèn sản phẩm chi tiết bị lỗi để tránh rác DB (Rollback) [18]
+      await supabase.from("orders").delete().eq("id", createdOrder.id);
+      throw new Error(`Failed to create order items: ${itemsError.message}`);
+    }
+  }
+
+  // Trả về đối tượng order ban đầu để tránh làm hỏng luồng redirect của Storefront
+  return order;
 }
