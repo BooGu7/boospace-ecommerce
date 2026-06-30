@@ -451,10 +451,11 @@ export const supabaseBrandRepository = {
   },
 };
 
+// 1. Sửa hàm list, get của supabasePageRepository (khoảng dòng 385)
 export const supabasePageRepository = {
   async list(): Promise<CmsPage[]> {
     const pages = await listJsonData<CmsPage>(
-      "ecommerce_pages",
+      "pages", // Sửa từ "ecommerce_pages" thành "pages"
       "published_at",
     );
     return pages.sort(
@@ -462,20 +463,19 @@ export const supabasePageRepository = {
         new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(),
     );
   },
-
   async getBySlug(slug: string): Promise<CmsPage | null> {
-    return getJsonDataBySlug<CmsPage>("ecommerce_pages", slug);
+    return getJsonDataBySlug<CmsPage>("pages", slug); // Đổi thành "pages"
   },
-
   async getById(id: string): Promise<CmsPage | null> {
-    return getJsonDataById<CmsPage>("ecommerce_pages", id);
+    return getJsonDataById<CmsPage>("pages", id); // Đổi thành "pages"
   },
 };
 
+// 2. Sửa tương tự cho supabaseBlogRepository (khoảng dòng 404)
 export const supabaseBlogRepository = {
   async list(params?: PaginationParams): Promise<PaginatedResult<BlogPost>> {
     const posts = await listJsonData<BlogPost>(
-      "ecommerce_blog_posts",
+      "blog_posts", // Sửa từ "ecommerce_blog_posts" thành "blog_posts"
       "published_at",
     );
     const sorted = posts.sort(
@@ -484,16 +484,14 @@ export const supabaseBlogRepository = {
     );
     return paginate(sorted, params);
   },
-
   async getBySlug(slug: string): Promise<BlogPost | null> {
-    return getJsonDataBySlug<BlogPost>("ecommerce_blog_posts", slug);
+    return getJsonDataBySlug<BlogPost>("blog_posts", slug); // Đổi thành "blog_posts"
   },
-
   async getByTag(
     tag: string,
     params?: PaginationParams,
   ): Promise<PaginatedResult<BlogPost>> {
-    const posts = await listJsonData<BlogPost>("ecommerce_blog_posts");
+    const posts = await listJsonData<BlogPost>("blog_posts"); // Đổi thành "blog_posts"
     return paginate(
       posts.filter((post) => post.tags.includes(tag)),
       params,
