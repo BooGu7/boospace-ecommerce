@@ -21,6 +21,19 @@ type JsonRow<T> = {
 
 /**
  * =========================================================================
+ * BỘ CHUYỂN ĐỔI CHUỖI LAI CHO PAGES (HYBRID CONTENT HELPER)
+ * Khớp hoàn hảo với trang Pages gọi dangerouslySetInnerHTML={page.content} [30]
+ * =========================================================================
+ */
+function createHybridContent(content: string) {
+  const safeContent = content || "";
+  const hybrid = new String(safeContent);
+  (hybrid as any).__html = safeContent;
+  return hybrid;
+}
+
+/**
+ * =========================================================================
  * PHÂN TRANG (HELPER)
  * =========================================================================
  */
@@ -55,22 +68,32 @@ function paginate<T>(
  */
 function mapDbProductToStorefront(dbProduct: any): Product {
   if (!dbProduct) return null as any;
-  const price = Number(dbProduct.price ?? 0);
 
-  // Tạo cấu trúc variants/inventory tương thích với frontend của storefront
+  // Nhân với 100 để triệt tiêu phép chia 100 trong hàm formatPrice của Storefront [21]
+  const price = Number(dbProduct.price ?? 0) * 100;
+  const comparePrice = dbProduct.compare_price
+    ? Number(dbProduct.compare_price) * 100
+    : null;
+
   const defaultVariant = {
     id: dbProduct.id + "-default",
     name: "Default Variant",
     sku: dbProduct.sku || "",
     price: price,
-    compareAtPrice: dbProduct.compare_price
-      ? Number(dbProduct.compare_price)
-      : null,
+    compareAtPrice: comparePrice,
     inventory: {
       quantity: dbProduct.stock ?? 99,
       allowBackorder: true,
     },
   };
+
+  // SỬA LỖI HÌNH ẢNH: Đổi mảng link string thành mảng object có chứa trường url [21]
+  const dbImages = dbProduct.images || [];
+  const mappedImages = dbImages.map((url: string, index: number) => ({
+    id: `${dbProduct.id}-img-${index}`,
+    url: url,
+    alt: dbProduct.name,
+  }));
 
   return {
     id: dbProduct.id,
@@ -80,7 +103,7 @@ function mapDbProductToStorefront(dbProduct: any): Product {
     shortDescription: dbProduct.short_description || "",
     status: dbProduct.published ? "active" : "draft",
     featured: dbProduct.featured || false,
-    images: dbProduct.images || [],
+    images: mappedImages, // Sử dụng mảng hình ảnh đã map dạng Object [21]
     categoryIds: dbProduct.category_id ? [dbProduct.category_id] : [],
     brandId: dbProduct.brand_id,
     tags: [],
@@ -116,61 +139,44 @@ function mapDbBrandToStorefront(dbBrand: any): Brand {
 }
 
 /**
- * =========================================================================
- * BỘ GIAO DIỆN JSON CHO BLOG & PAGES (Giữ nguyên cấu trúc JSONB mặc định)
- * =========================================================================
+ * BỘ CHUYỂN ĐỔI CHO BLOG & PAGES (ÁP DỤNG HYBRID CONTENT)
  */
-async function listJsonData<T>(
-  table: string,
-  orderColumn = "sort_order",
-): Promise<T[]> {
-  const supabase = createSupabaseServerClient();
-  const { data, error } = await supabase
-    .from(table)
-    .select("id, slug, data")
-    .order(orderColumn, { ascending: true });
-
-  if (error) {
-    throw new Error(`Failed to load ${table}: ${error.message}`);
-  }
-
-  return ((data ?? []) as JsonRow<T>[]).map((row) => row.data);
+function mapDbBlogPostToStorefront(dbPost: any): BlogPost {
+  if (!dbPost) return null as any;
+  return {
+    id: dbPost.id,
+    slug: dbPost.slug,
+    title: dbPost.title,
+    // Ánh xạ cột content trong database thành trường body của Storefront [30]
+    body: dbPost.content || "",
+    // Ánh xạ cột short_description trong database thành trường excerpt của Storefront
+    excerpt: dbPost.short_description || "",
+    author: "Boospace", // Giá trị tác giả mặc định
+    // Chuyển đổi chuỗi URL thành một đối tượng coverImage có chứa url và alt
+    coverImage: dbPost.cover_image
+      ? { url: dbPost.cover_image, alt: dbPost.title }
+      : null,
+    publishedAt:
+      dbPost.published_at || dbPost.created_at || new Date().toISOString(),
+    createdAt: dbPost.created_at || new Date().toISOString(),
+    updatedAt: dbPost.updated_at || new Date().toISOString(),
+    tags: dbPost.tags || [],
+  } as unknown as BlogPost;
 }
 
-async function getJsonDataBySlug<T>(
-  table: string,
-  slug: string,
-): Promise<T | null> {
-  const supabase = createSupabaseServerClient();
-  const { data, error } = await supabase
-    .from(table)
-    .select("data")
-    .eq("slug", slug)
-    .maybeSingle();
-
-  if (error) {
-    throw new Error(`Failed to load ${table} by slug: ${error.message}`);
-  }
-
-  return (data as Pick<JsonRow<T>, "data"> | null)?.data ?? null;
-}
-
-async function getJsonDataById<T>(
-  table: string,
-  id: string,
-): Promise<T | null> {
-  const supabase = createSupabaseServerClient();
-  const { data, error } = await supabase
-    .from(table)
-    .select("data")
-    .eq("id", id)
-    .maybeSingle();
-
-  if (error) {
-    throw new Error(`Failed to load ${table} by id: ${error.message}`);
-  }
-
-  return (data as Pick<JsonRow<T>, "data"> | null)?.data ?? null;
+function mapDbPageToStorefront(dbPage: any): CmsPage {
+  if (!dbPage) return null as any;
+  return {
+    id: dbPage.id,
+    slug: dbPage.slug,
+    title: dbPage.title,
+    // Sử dụng bộ chuyển đổi lai vì trang Pages gọi trực tiếp dangerouslySetInnerHTML={page.content} [30]
+    content: createHybridContent(dbPage.content),
+    publishedAt:
+      dbPage.published_at || dbPage.created_at || new Date().toISOString(),
+    createdAt: dbPage.created_at || new Date().toISOString(),
+    updatedAt: dbPage.updated_at || new Date().toISOString(),
+  } as unknown as CmsPage;
 }
 
 /**
@@ -255,7 +261,7 @@ function applyProductSort(items: Product[], sort?: SortOption): Product[] {
 
 /**
  * =========================================================================
- * EXPORTS CHUẨN ĐỒNG BỘ ĐẦY ĐỦ CHO TOÀN DỰ ÁN
+ * EXPORTS CHUẨN ĐỒNG BỘ ĐẦY ĐỦ CHO TOÀN DỰ ÁN (SỬ DỤNG SQL PHẲNG)
  * =========================================================================
  */
 
@@ -451,84 +457,109 @@ export const supabaseBrandRepository = {
   },
 };
 
-// 1. Sửa hàm list, get của supabasePageRepository (khoảng dòng 385)
 export const supabasePageRepository = {
   async list(): Promise<CmsPage[]> {
-    const pages = await listJsonData<CmsPage>(
-      "pages", // Sửa từ "ecommerce_pages" thành "pages"
-      "published_at",
-    );
-    return pages.sort(
-      (a, b) =>
-        new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(),
-    );
+    const supabase = createSupabaseServerClient();
+    const { data, error } = await supabase
+      .from("pages")
+      .select("*")
+      .order("title", { ascending: true });
+
+    if (error) return [];
+    return (data || []).map(mapDbPageToStorefront);
   },
+
   async getBySlug(slug: string): Promise<CmsPage | null> {
-    return getJsonDataBySlug<CmsPage>("pages", slug); // Đổi thành "pages"
+    const supabase = createSupabaseServerClient();
+    const { data, error } = await supabase
+      .from("pages")
+      .select("*")
+      .eq("slug", slug)
+      .maybeSingle();
+
+    if (error) return null;
+    return mapDbPageToStorefront(data);
   },
+
   async getById(id: string): Promise<CmsPage | null> {
-    return getJsonDataById<CmsPage>("pages", id); // Đổi thành "pages"
+    const supabase = createSupabaseServerClient();
+    const { data, error } = await supabase
+      .from("pages")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (error) return null;
+    return mapDbPageToStorefront(data);
   },
 };
 
-// 2. Sửa tương tự cho supabaseBlogRepository (khoảng dòng 404)
 export const supabaseBlogRepository = {
   async list(params?: PaginationParams): Promise<PaginatedResult<BlogPost>> {
-    const posts = await listJsonData<BlogPost>(
-      "blog_posts", // Sửa từ "ecommerce_blog_posts" thành "blog_posts"
-      "published_at",
-    );
-    const sorted = posts.sort(
-      (a, b) =>
-        new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(),
-    );
-    return paginate(sorted, params);
+    const supabase = createSupabaseServerClient();
+    const { data, error } = await supabase
+      .from("blog_posts")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) return paginate([], params);
+    const posts = (data || []).map(mapDbBlogPostToStorefront);
+    return paginate(posts, params);
   },
+
   async getBySlug(slug: string): Promise<BlogPost | null> {
-    return getJsonDataBySlug<BlogPost>("blog_posts", slug); // Đổi thành "blog_posts"
+    const supabase = createSupabaseServerClient();
+    const { data, error } = await supabase
+      .from("blog_posts")
+      .select("*")
+      .eq("slug", slug)
+      .maybeSingle();
+
+    if (error) return null;
+    return mapDbBlogPostToStorefront(data);
   },
+
   async getByTag(
     tag: string,
     params?: PaginationParams,
   ): Promise<PaginatedResult<BlogPost>> {
-    const posts = await listJsonData<BlogPost>("blog_posts"); // Đổi thành "blog_posts"
+    const postsResult = await this.list();
     return paginate(
-      posts.filter((post) => post.tags.includes(tag)),
+      postsResult.items.filter((post) => post.tags.includes(tag)),
       params,
     );
   },
 };
+
 /**
  * =========================================================================
- * LƯU ĐƠN HÀNG THỜI GIAN THỰC (REALTIME CHECKOUT INTEGRATION)
- * Sửa lỗi UUID: Để Supabase tự sinh UUID cho đơn hàng, tránh lỗi chữ thường [18]
+ * LƯU ĐƠN HÀNG THỜI GIAN THỰC (REALTIME CHECKOUT INTEGRATION) [18]
  * =========================================================================
  */
 export async function createSupabaseOrder(order: Order): Promise<Order> {
   const supabase = createSupabaseServerClient();
 
-  // Ép kiểu 'as any' để bỏ qua kiểm duyệt TypeScript nghiêm ngặt đối với PaymentStatus
   const rawPaymentStatus = order.paymentStatus as any;
   const dbPaymentStatus =
     rawPaymentStatus === "paid" || rawPaymentStatus === "Paid"
       ? "Paid"
       : "Pending";
 
-  // 1. Lưu đơn hàng cha vào bảng 'orders' (KHÔNG truyền id ảo, để DB tự sinh UUID) [18]
+  // 1. Lưu đơn hàng cha vào bảng 'orders' [18]
   const { data: createdOrder, error: orderError } = await supabase
     .from("orders")
     .insert({
-      code: order.orderNumber, // Lưu mã "ORD-MQZD2NKN" vào cột code dạng TEXT
+      code: order.orderNumber,
       customer_name: order.shippingAddress
         ? `${order.shippingAddress.firstName} ${order.shippingAddress.lastName}`
         : "Khách hàng Storefront",
       customer_email: order.customerEmail,
       total: order.total,
-      order_status: "Pending", // Trạng thái mặc định
+      order_status: "Pending",
       payment_status: dbPaymentStatus,
       shipping_status: "Pending",
     })
-    .select("id") // Đọc về mã UUID thực tế do Database tự động sinh ra! [18]
+    .select("id")
     .single();
 
   if (orderError || !createdOrder) {
@@ -541,7 +572,7 @@ export async function createSupabaseOrder(order: Order): Promise<Order> {
   // 2. Lưu các sản phẩm chi tiết vào bảng 'order_items'
   if (order.items && order.items.length > 0) {
     const itemsToInsert = order.items.map((item) => ({
-      order_id: createdOrder.id, // Sử dụng UUID chuẩn từ DB trả về! [18]
+      order_id: createdOrder.id,
       product_id: item.productId,
       quantity: item.quantity,
       unit_price: item.price,
@@ -554,12 +585,10 @@ export async function createSupabaseOrder(order: Order): Promise<Order> {
 
     if (itemsError) {
       console.error("SUPABASE ORDER ITEMS ERROR:", itemsError);
-      // Xóa đơn hàng cha nếu chèn sản phẩm chi tiết bị lỗi để tránh rác DB (Rollback) [18]
       await supabase.from("orders").delete().eq("id", createdOrder.id);
       throw new Error(`Failed to create order items: ${itemsError.message}`);
     }
   }
 
-  // Trả về đối tượng order ban đầu để tránh làm hỏng luồng redirect của Storefront
   return order;
 }
