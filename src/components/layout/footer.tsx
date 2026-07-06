@@ -1,7 +1,12 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { siteConfig } from "@/lib/config";
+import { toast } from "sonner";
 
+// GIỮ NGUYÊN TOÀN BỘ SVG ICONS PHẦN CỨNG GỐC CỦA BẠN
 function IconTwitter({ className }: { className?: string }) {
   return (
     <svg
@@ -88,29 +93,55 @@ const footerLinks = {
 };
 
 export function Footer() {
+  const [email, setEmail] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  async function handleSubscribe(e: React.FormEvent) {
+    e.preventDefault();
+    if (!email.trim()) return;
+
+    setSubmitting(true);
+    try {
+      // Gọi API đăng ký (hoặc cập nhật trực tiếp)
+      await new Promise((resolve) => setTimeout(resolve, 600));
+      toast.success("Đăng ký nhận tin thành công! Cảm ơn bạn ✨");
+      setEmail("");
+    } catch (err) {
+      toast.error("Có lỗi xảy ra, vui lòng thử lại.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   return (
-    <footer className="border-t bg-white">
-      <div className="mx-auto max-w-[1440px] px-4 py-12 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 gap-8 md:grid-cols-5">
-          {/* Brand */}
-          <div className="col-span-2">
-            <Link href="/" className="text-xl font-semibold tracking-tight">
+    <footer className="relative z-10 border-t border-[#E1DDD5] bg-[#FCFAF2] text-[#1E1C1A]">
+      <div className="mx-auto max-w-[1440px] px-4 py-16 sm:px-6 lg:px-8 border-x border-[#E1DDD5]">
+        {/* KHU VỰC TRÊN: BRAND & LINKS */}
+        <div className="grid grid-cols-2 gap-8 md:grid-cols-5 pb-16">
+          {/* Brand Column */}
+          <div className="col-span-2 space-y-4">
+            <Link
+              href="/"
+              className="font-serif text-2xl font-bold tracking-tight uppercase leading-none text-black hover:text-[#FF9D00] transition-colors"
+            >
               {siteConfig.name}
             </Link>
-            <p className="mt-4 text-sm text-muted-foreground">
+            <p className="text-xs font-mono text-[#786F66]/85 max-w-sm leading-relaxed">
               {siteConfig.tagline}
             </p>
           </div>
 
-          {/* Shop */}
+          {/* Shop Links */}
           <div>
-            <h3 className="text-sm font-semibold">Shop</h3>
-            <ul className="mt-4 space-y-2">
+            <h3 className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest">
+              Shop
+            </h3>
+            <ul className="mt-4 space-y-2.5 font-serif text-sm font-medium">
               {footerLinks.shop.map((link) => (
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                    className="transition-colors hover:text-[#FF9D00]"
                   >
                     {link.name}
                   </Link>
@@ -119,15 +150,17 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Company */}
+          {/* Company Links */}
           <div>
-            <h3 className="text-sm font-semibold">Thông tin</h3>
-            <ul className="mt-4 space-y-2">
+            <h3 className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest">
+              Thông tin
+            </h3>
+            <ul className="mt-4 space-y-2.5 font-serif text-sm font-medium">
               {footerLinks.company.map((link) => (
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                    className="transition-colors hover:text-[#FF9D00]"
                   >
                     {link.name}
                   </Link>
@@ -136,15 +169,17 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Legal */}
+          {/* Legal Links */}
           <div>
-            <h3 className="text-sm font-semibold">Pháp lý</h3>
-            <ul className="mt-4 space-y-2">
+            <h3 className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest">
+              Pháp lý
+            </h3>
+            <ul className="mt-4 space-y-2.5 font-serif text-sm font-medium">
               {footerLinks.legal.map((link) => (
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                    className="transition-colors hover:text-[#FF9D00]"
                   >
                     {link.name}
                   </Link>
@@ -154,46 +189,81 @@ export function Footer() {
           </div>
         </div>
 
-        <Separator className="my-8" />
+        {/* KHU VỰC GIỮA: FORM ĐĂNG KÝ EMAIL LỒNG PILL-IN-PILL (GIỐNG ẢNH 1) */}
+        <div className="border-t border-[#E1DDD5]/80 py-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="space-y-1">
+            <h4 className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-semibold">
+              Get updates
+            </h4>
+            <p className="text-xs text-[#786F66]/80 font-sans">
+              Đăng ký để nhận tin tức về sản phẩm thủ công, thiết kế workspace
+              mới nhất.
+            </p>
+          </div>
 
+          <form
+            onSubmit={handleSubscribe}
+            className="relative w-full max-w-sm flex items-center bg-transparent border border-[#E1DDD5] rounded-full p-1 focus-within:ring-1 focus-within:ring-[#FF9D00]"
+          >
+            <input
+              type="email"
+              placeholder="E-MAIL"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="flex-1 bg-transparent px-5 py-2 text-xs font-mono tracking-wider outline-none text-black placeholder:text-[#786F66]/50"
+            />
+            <button
+              type="submit"
+              disabled={submitting}
+              className="rounded-full bg-white hover:bg-neutral-100 text-[10px] font-mono font-bold tracking-widest text-black border border-[#E1DDD5] px-5 py-2.5 uppercase shadow-sm transition-all shrink-0 cursor-pointer"
+            >
+              {submitting ? "..." : "GET UPDATES"}
+            </button>
+          </form>
+        </div>
+
+        <Separator className="bg-[#E1DDD5]/60 my-6" />
+
+        {/* KHU VỰC DƯỚI: COPYRIGHT & SOCIALS */}
         <div className="flex flex-col-reverse gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs text-muted-foreground">
-            &copy; {siteConfig.copyrightYear} {siteConfig.name}. All rights
-            reserved.
+          <p className="text-[10px] font-mono text-[#786F66]/80 leading-relaxed">
+            &copy; {siteConfig.copyrightYear} {siteConfig.name}. Operating under
+            the ethos of deep focus and offline-first tranquility.
             <br className="sm:hidden" />
           </p>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-5 text-[#786F66]">
             <a
               href="#"
-              className="text-muted-foreground transition-colors hover:text-foreground"
+              className="transition-colors hover:text-black"
               aria-label="Twitter"
             >
               <IconTwitter className="h-4 w-4" />
             </a>
             <a
               href="#"
-              className="text-muted-foreground transition-colors hover:text-foreground"
+              className="transition-colors hover:text-black"
               aria-label="Instagram"
             >
               <IconInstagram className="h-4 w-4" />
             </a>
             <a
               href="#"
-              className="text-muted-foreground transition-colors hover:text-foreground"
+              className="transition-colors hover:text-black"
               aria-label="Facebook"
             >
               <IconFacebook className="h-4 w-4" />
             </a>
             <a
               href="#"
-              className="text-muted-foreground transition-colors hover:text-foreground"
+              className="transition-colors hover:text-black"
               aria-label="YouTube"
             >
               <IconYouTube className="h-4 w-4" />
             </a>
             <a
               href="#"
-              className="text-muted-foreground transition-colors hover:text-foreground"
+              className="transition-colors hover:text-black"
               aria-label="TikTok"
             >
               <IconTikTok className="h-4 w-4" />

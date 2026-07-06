@@ -4,18 +4,8 @@ import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Cpu,
-  Lock,
-  History,
-  Activity,
-  Search,
-  Sparkles,
-  FileText,
-  Award,
-} from "lucide-react";
+import { Search, Sparkles, FileText } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/lib/supabase/client";
 
 export function BentoPortalGrid() {
   const [idea, setIdea] = React.useState("");
@@ -27,7 +17,7 @@ export function BentoPortalGrid() {
   const [searchLoading, setSearchLoading] = React.useState(false);
   const [searchResult, setSearchResult] = React.useState<any[]>([]);
 
-  // Tiến trình gửi ý tưởng thiết kế về cơ sở dữ liệu
+  // Tiến trình gửi ý tưởng thiết kế đồng thời lưu Supabase và Kích hoạt gửi Mail thông báo qua Resend
   const handleIdeaSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!idea.trim()) {
@@ -41,24 +31,39 @@ export function BentoPortalGrid() {
 
     setAuthLoading(true);
     try {
-      // Thực hiện chèn thông tin ý tưởng của khách hàng vào bảng profiles làm dữ liệu test [18]
-      const { error } = await supabase.from("profiles").insert({
-        email: email,
-        name: "Khách hàng góp ý",
-        phone: "Ý tưởng: " + idea,
+      // Gửi yêu cầu dạng POST tới API contact chung để xử lý đồng bộ
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: "Khách hàng Hòm thư góp ý kiến",
+          email: email,
+          subject: "Ý tưởng chế tác in 3D mới gửi từ Hòm thư góp ý kiến",
+          message: idea,
+        }),
       });
 
-      if (error) throw error;
-      setAuthSubmitted(true);
-      toast.success("Boospace đã ghi nhận ý tưởng thiết kế tuyệt vời của bạn!");
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setAuthSubmitted(true);
+        toast.success(
+          "Boo Space đã ghi nhận ý tưởng thiết kế tuyệt vời và gửi thông báo về Email!",
+        );
+      } else {
+        toast.error(
+          data.error || "Gửi ý tưởng thất bại, vui lòng gửi lại sau.",
+        );
+      }
     } catch (err: any) {
-      setAuthSubmitted(true);
+      console.error("Lỗi gửi ý tưởng:", err);
+      toast.error("Không thể kết nối đến máy chủ.");
     } finally {
       setAuthLoading(false);
     }
   };
 
-  // Tiến trình tìm kiếm ngữ nghĩa bằng AI gọi RPC pgvector [18]
+  // Tiến trình tìm kiếm ngữ nghĩa bằng AI gọi RPC pgvector
   const handleSemanticSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
@@ -80,11 +85,11 @@ export function BentoPortalGrid() {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-6 bg-[#111111] p-8 rounded-3xl border border-white/10 relative overflow-hidden">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-[#111111] p-8 rounded-3xl border border-white/10 relative overflow-hidden select-none">
       {/* Nền ma trận chấm tinh tế */}
       <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#FAF5F2_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
 
-      {/* THẺ 1 (2x1 Spans): SEMANTIC SEARCH BENTO BLOCK */}
+      {/* THẺ 1 (Chiếm 2 cột trên Desktop): SEMANTIC SEARCH BENTO BLOCK */}
       <div className="col-span-1 md:col-span-2 rounded-3xl bg-white/5 border border-white/10 p-8 flex flex-col justify-between min-h-[20rem] relative z-10">
         <div className="flex justify-between items-start">
           <span className="text-xs font-mono text-[#3ECF8E] font-bold">
@@ -100,7 +105,7 @@ export function BentoPortalGrid() {
               placeholder="Nhập ý tưởng (ví dụ: 'kệ gỗ màu ấm có khe để ipad')..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-sm text-white focus:outline-hidden focus:border-[#3ECF8E] placeholder:text-neutral-500 font-sans"
+              className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#3ECF8E] placeholder:text-neutral-500 font-sans"
             />
             <button
               type="submit"
@@ -116,7 +121,7 @@ export function BentoPortalGrid() {
           </div>
         </form>
 
-        {/* Hiển thị kết quả tìm kiếm ngữ nghĩa */}
+        {/* Hiển thị danh mục sản phẩm tìm kiếm AI */}
         <div className="grid grid-cols-2 gap-4">
           {searchResult.slice(0, 2).map((prod) => (
             <Link
@@ -150,13 +155,9 @@ export function BentoPortalGrid() {
             </Link>
           ))}
         </div>
-
-        <span className="text-[10px] font-mono text-neutral-400 uppercase tracking-widest mt-2">
-          Tìm kiếm bằng ý nghĩa thay vì từ khóa
-        </span>
       </div>
 
-      {/* THẺ 2 (1x1 Span): GỬI GÓP Ý & Ý TƯỞNG THIẾT KẾ RIÊNG [1.1] */}
+      {/* THẺ 2 (Chiếm 1 cột trên Desktop): GỬI GÓP Ý & Ý TƯỞNG THIẾT KẾ RIÊNG */}
       <div className="col-span-1 rounded-3xl bg-white/5 border border-white/10 p-8 flex flex-col justify-between min-h-[20rem] relative z-10">
         <div className="flex justify-between items-start">
           <span className="text-xs font-mono text-[#3ECF8E] font-bold">
@@ -180,7 +181,7 @@ export function BentoPortalGrid() {
                 onChange={(e) => setIdea(e.target.value)}
                 required
                 rows={3}
-                className="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-xs text-white focus:outline-hidden focus:border-[#3ECF8E] placeholder:text-neutral-500 font-sans resize-none"
+                className="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#3ECF8E] placeholder:text-neutral-500 font-sans resize-none"
               />
               <input
                 type="email"
@@ -188,7 +189,7 @@ export function BentoPortalGrid() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-hidden focus:border-[#3ECF8E] placeholder:text-neutral-500 font-sans"
+                className="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-[#3ECF8E] placeholder:text-neutral-500 font-sans"
               />
               <button
                 type="submit"
@@ -220,40 +221,7 @@ export function BentoPortalGrid() {
         </AnimatePresence>
 
         <span className="text-[10px] font-mono text-neutral-400 uppercase tracking-widest mt-2">
-          Dịch vụ chế tác in 3D theo yêu cầu
-        </span>
-      </div>
-
-      {/* THẺ 3 (1x1 Span): CHỈ SỐ CHẾ TÁC SOL-SERIES */}
-      <div className="col-span-1 rounded-3xl bg-white/5 border border-white/10 p-8 flex flex-col justify-between min-h-[20rem] relative z-10">
-        <div className="flex justify-between items-start">
-          <span className="text-xs font-mono text-[#3ECF8E] font-bold">
-            03 / SPECIFICATIONS
-          </span>
-          <Award className="size-4 text-[#3ECF8E]" />
-        </div>
-
-        <div className="space-y-3 my-4">
-          <div className="flex items-center justify-between text-xs border-b border-white/5 pb-2">
-            <span className="text-neutral-400">Gỗ sồi nguyên tấm</span>
-            <span className="text-[#3ECF8E] font-mono font-bold">
-              100% SOLID
-            </span>
-          </div>
-          <div className="flex items-center justify-between text-xs border-b border-white/5 pb-2">
-            <span className="text-neutral-400">Chế tác thủ công</span>
-            <span className="text-[#3ECF8E] font-mono font-bold">48 GIỜ</span>
-          </div>
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-neutral-400">In 3D chịu lực</span>
-            <span className="text-[#3ECF8E] font-mono font-bold">
-              45% GYROID
-            </span>
-          </div>
-        </div>
-
-        <span className="text-[10px] font-mono text-neutral-400 uppercase tracking-widest mt-2">
-          Tiêu chuẩn chế tác mộc Boospace
+          Dịch vụ in 3D theo yêu cầu
         </span>
       </div>
     </div>

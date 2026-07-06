@@ -6,15 +6,19 @@
 export const siteConfig = {
   // Branding
   name: "Boo Space",
+
   tagline:
-    "Boo Space — Studio thiết kế DIY & không gian làm việc in 3D theo yêu cầu",
+    "BOO SPACE — STUDIO HIỆN THỰC HÓA Ý TƯỞNG & MAY ĐO GÓC LÀM VIỆC THEO YÊU CẦU.",
+  // Gợi ý: Đổi "không gian" thành "góc làm việc" giúp định vị rõ ràng hơn về mảng workspace, tạo cảm giác cá nhân hóa sâu sắc.
+
   description:
-    "Boo Space là cửa hàng cung cấp sản phẩm in 3D theo yêu cầu dành cho workspace và DIY. Thiết kế tùy chỉnh, sản xuất theo ý tưởng riêng và biến mọi không gian làm việc trở nên độc đáo bằng công nghệ in 3D.",
+    "Boo Space là studio thiết kế và chế tác các sản phẩm custom tiện ích dành riêng cho góc làm việc của bạn. Chúng tôi hiện thực hóa mọi ý tưởng cá nhân, giải quyết những bất tiện hằng ngày và nâng tầm không gian sống bằng các giải pháp thông minh được đo ni đóng giày cho chính bạn.",
+  // Đã sửa: Bỏ bớt từ "in 3D" bị lặp lại nhiều lần, tập trung vào giá trị "giải quyết bất tiện" và "chế tác custom" đúng theo gu của bạn ở các câu trước.
 
   // Announcement bar (set to "" to hide)
   announcement:
-    "Chào mừng bạn đến với Boo Space — nơi biến ý tưởng của bạn thành hiện thực ✨",
-
+    "Chào mừng bạn đến với Boo Space — Nơi biến mọi ý tưởng cá nhân thành sản phẩm thực tế ✨",
+  // Đã sửa: Đồng bộ với concept "biến ý tưởng thành thực tế cầm trên tay".
   // URLs
   url: process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000",
 

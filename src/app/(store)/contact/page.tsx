@@ -12,7 +12,7 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { Mail, Globe, Sparkles, Send } from "lucide-react";
+import { Mail, Globe, Send, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { contactFormSchema } from "@/lib/validators";
 
@@ -31,9 +31,10 @@ export default function ContactPage() {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
+    // Xác thực dữ liệu Client
     const result = contactFormSchema.safeParse(form);
     if (!result.success) {
       toast.error(result.error.issues[0].message);
@@ -42,13 +43,29 @@ export default function ContactPage() {
 
     setLoading(true);
 
-    setTimeout(() => {
-      toast.success(
-        "Gửi tin nhắn thành công! Chúng tôi sẽ phản hồi bạn sớm nhất ✨",
-      );
-      setForm({ name: "", email: "", subject: "", message: "" });
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        toast.success(
+          "Gửi tin nhắn thành công! Chúng tôi sẽ phản hồi bạn sớm nhất ✨",
+        );
+        setForm({ name: "", email: "", subject: "", message: "" });
+      } else {
+        toast.error(data.error || "Có lỗi xảy ra, vui lòng gửi lại sau.");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Không thể kết nối đến máy chủ.");
+    } finally {
       setLoading(false);
-    }, 500);
+    }
   }
 
   return (
@@ -198,10 +215,20 @@ export default function ContactPage() {
 
                 <Button
                   type="submit"
-                  className="w-full sm:w-auto bg-black hover:bg-[#33302C] text-white font-mono uppercase text-xs tracking-wider rounded-xl py-3 px-6"
+                  className="w-full sm:w-auto bg-black hover:bg-[#33302C] text-white font-mono uppercase text-xs tracking-wider rounded-xl py-3 px-6 flex items-center justify-center gap-2"
                   disabled={loading}
                 >
-                  {loading ? "Đang gửi..." : "Gửi tin nhắn"}
+                  {loading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Đang gửi...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="h-4 w-4" />
+                      Gửi tin nhắn
+                    </>
+                  )}
                 </Button>
               </form>
             </CardContent>

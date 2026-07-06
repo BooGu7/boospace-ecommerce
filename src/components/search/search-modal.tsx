@@ -1,30 +1,18 @@
 "use client";
 
-import {
-  useState,
-  useEffect,
-  useCallback,
-  useRef,
-  type KeyboardEvent as ReactKeyboardEvent,
-} from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Search, X, ArrowRight } from "lucide-react";
-import { StarRating } from "@/components/products/star-rating";
-import { formatPrice } from "@/lib/utils";
+import { Search, X, ArrowRight, Loader2 } from "lucide-react";
 import { PLACEHOLDER_IMAGE } from "@/lib/constants";
-import type { Product } from "@/types";
-import data from "@/data/products.json";
-
-const allProducts = data.products as Product[];
+import { motion, Variants } from "framer-motion";
 
 const popularSearches = [
-  "Headphones",
-  "Coffee",
-  "Leather",
-  "Wireless",
-  "Organic",
-  "Candle",
+  "Workspace",
+  "DIY Studio",
+  "Mechanical",
+  "Solid Wood",
+  "Custom Design",
 ];
 
 interface SearchModalProps {
@@ -32,28 +20,56 @@ interface SearchModalProps {
   onClose: () => void;
 }
 
+interface SearchProduct {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+  images: any[];
+}
+
+// Cấu hình Hoạt ảnh chuyển động mượt mà dẹp ngang (Type-safe Variants)
+const backdropVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.22, ease: "easeOut" } },
+};
+
+const modalVariants: Variants = {
+  hidden: { opacity: 0, y: -30, scale: 0.96 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { type: "spring", damping: 24, stiffness: 320 },
+  },
+};
+
+const resultsContainerVariants: Variants = {
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: 0.05 },
+  },
+};
+
+const resultItemVariants: Variants = {
+  hidden: { opacity: 0, x: -12 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: { type: "spring", stiffness: 280, damping: 20 },
+  },
+};
+
 export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [query, setQuery] = useState("");
+  const [products, setProducts] = useState<SearchProduct[]>([]);
+  const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
 
-  const results =
-    query.trim().length > 0
-      ? allProducts
-          .filter(
-            (p) =>
-              p.status === "active" &&
-              (p.name.toLowerCase().includes(query.toLowerCase()) ||
-                p.description.toLowerCase().includes(query.toLowerCase()) ||
-                p.tags.some((t) =>
-                  t.toLowerCase().includes(query.toLowerCase()),
-                )),
-          )
-          .slice(0, 6)
-      : [];
-
   const handleClose = useCallback(() => {
     setQuery("");
+    setProducts([]);
     onClose();
   }, [onClose]);
 
@@ -67,7 +83,6 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape") handleClose();
 
-      // Focus trap
       if (e.key === "Tab" && modalRef.current) {
         const focusable = modalRef.current.querySelectorAll<HTMLElement>(
           'a[href], button, input, [tabindex]:not([tabindex="-1"])',
@@ -94,133 +109,187 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
     };
   }, [isOpen, handleClose]);
 
+  useEffect(() => {
+    if (query.trim() === "") {
+      setProducts([]);
+      return;
+    }
+
+    const delayDebounce = setTimeout(async () => {
+      setLoading(true);
+      try {
+        const response = await fetch("/api/search", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query }),
+        });
+        const data = await response.json();
+        if (data.success) {
+          setProducts(data.products || []);
+        }
+      } catch (err) {
+        console.error("Tìm kiếm lỗi:", err);
+      } finally {
+        setLoading(false);
+      }
+    }, 350);
+
+    return () => clearTimeout(delayDebounce);
+  }, [query]);
+
   if (!isOpen) return null;
 
   const hasQuery = query.trim().length > 0;
 
   return (
-    <div className="fixed inset-0 z-[100]">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-        onClick={handleClose}
-      />
-
-      {/* Modal */}
-      <div
+    <motion.div
+      variants={backdropVariants}
+      initial="hidden"
+      animate="visible"
+      className="fixed inset-0 z-[100] flex items-start justify-center bg-black/40 backdrop-blur-sm pt-[10vh] px-4"
+      onClick={(e) => e.target === e.currentTarget && handleClose()}
+    >
+      {/* Khung Modal chính trượt lò xo */}
+      <motion.div
         ref={modalRef}
-        className="relative mx-auto mt-[10vh] w-full max-w-2xl px-4"
+        variants={modalVariants}
+        className="relative w-full max-w-2xl overflow-hidden rounded-xl bg-white shadow-2xl border border-[#E1DDD5]"
         role="dialog"
         aria-modal="true"
         aria-label="Search products"
       >
-        <div className="overflow-hidden rounded-xl bg-white shadow-2xl">
-          {/* Input */}
-          <div className="flex items-center border-b px-4">
-            <Search className="h-5 w-5 shrink-0 text-muted-foreground" />
-            <input
-              ref={inputRef}
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Nhập tên sản phẩm cần tìm..."
-              aria-label="Search products"
-              className="flex-1 border-0 bg-transparent px-4 py-4 text-lg outline-none placeholder:text-muted-foreground/60"
-            />
-            {hasQuery ? (
-              <button
-                onClick={() => setQuery("")}
-                className="rounded-md p-1 text-muted-foreground hover:text-foreground"
-                aria-label="Clear search"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            ) : (
-              <kbd className="hidden rounded border bg-neutral-100 px-1.5 py-0.5 text-xs text-muted-foreground sm:inline">
-                ESC
-              </kbd>
-            )}
-          </div>
+        {/* Input Header */}
+        <div className="flex items-center border-b px-4">
+          <Search className="h-5 w-5 shrink-0 text-muted-foreground" />
+          <input
+            ref={inputRef}
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Nhập tên sản phẩm cần tìm bằng AI..."
+            className="flex-1 border-0 bg-transparent px-4 py-4 text-base font-sans outline-none placeholder:text-muted-foreground/60 text-black"
+          />
+          {loading && (
+            <Loader2 className="h-4 w-4 animate-spin text-[#FF9D00] mr-2" />
+          )}
+          {hasQuery ? (
+            <button
+              onClick={() => setQuery("")}
+              className="rounded-md p-1 text-muted-foreground hover:text-foreground"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          ) : (
+            <kbd className="hidden rounded border bg-neutral-100 px-1.5 py-0.5 text-xs text-muted-foreground sm:inline font-mono">
+              ESC
+            </kbd>
+          )}
+        </div>
 
-          {/* Results */}
-          <div className="max-h-[60vh] overflow-y-auto">
-            {hasQuery && results.length > 0 && (
-              <div className="p-2">
-                {results.map((product) => {
-                  const variant = product.variants[0];
-                  return (
+        {/* Khu vực kết quả tìm kiếm */}
+        <div className="max-h-[60vh] overflow-y-auto">
+          {hasQuery && products.length > 0 && (
+            <motion.div
+              variants={resultsContainerVariants}
+              initial="hidden"
+              animate="visible"
+              className="p-2 space-y-1"
+            >
+              {products.map((product) => {
+                const imgUrl =
+                  typeof product.images?.[0] === "string"
+                    ? product.images[0]
+                    : (product.images?.[0]?.url ?? PLACEHOLDER_IMAGE);
+
+                const imgAlt =
+                  typeof product.images?.[0] === "string"
+                    ? product.name
+                    : (product.images?.[0]?.alt ?? product.name);
+
+                return (
+                  <motion.div
+                    key={product.id}
+                    variants={resultItemVariants}
+                    whileHover={{
+                      x: 6,
+                      backgroundColor: "rgba(234, 229, 217, 0.3)",
+                    }}
+                    className="rounded-lg transition-colors"
+                  >
                     <Link
-                      key={product.id}
                       href={`/${product.slug}`}
                       onClick={handleClose}
-                      className="flex items-center gap-4 rounded-lg p-3 transition-colors hover:bg-neutral-50"
+                      className="flex items-center gap-4 p-3"
                     >
-                      <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-md bg-neutral-100">
+                      <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-md bg-neutral-100 border border-[#E1DDD5]">
                         <Image
-                          src={product.images[0]?.url ?? PLACEHOLDER_IMAGE}
-                          alt={product.images[0]?.alt ?? product.name}
+                          src={imgUrl}
+                          alt={imgAlt}
                           fill
                           className="object-cover"
                           sizes="56px"
                         />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">
+                        <p className="text-sm font-medium text-black truncate font-sans">
                           {product.name}
                         </p>
-                        <StarRating
-                          rating={product.rating}
-                          reviewCount={product.reviewCount}
-                          size="sm"
-                        />
                       </div>
-                      <span className="shrink-0 text-sm font-medium">
-                        {variant &&
-                          formatPrice(variant.price, variant.currency)}
+
+                      {/* ĐỊNH DẠNG ĐÚNG ĐƠN VỊ TIỀN TỆ (VND) KHÔNG BỊ CHIA 100 CHUẨN XÁC */}
+                      <span className="shrink-0 text-sm font-mono font-medium text-black">
+                        {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                          maximumFractionDigits: 0,
+                        }).format(product.price)}
                       </span>
                     </Link>
-                  );
-                })}
-                <Link
-                  href={`/search?q=${encodeURIComponent(query)}`}
-                  onClick={handleClose}
-                  className="mt-1 flex items-center justify-center gap-2 rounded-lg p-3 text-sm text-muted-foreground transition-colors hover:bg-neutral-50 hover:text-foreground"
-                >
-                  Tất cả kết quả
-                  <ArrowRight className="h-3 w-3" />
-                </Link>
-              </div>
-            )}
+                  </motion.div>
+                );
+              })}
 
-            {hasQuery && results.length === 0 && (
-              <div className="px-4 py-12 text-center">
-                <p className="text-sm text-muted-foreground">
-                  Không có kết quả nào với &quot;{query}&quot;
-                </p>
-              </div>
-            )}
+              <Link
+                href={`/search?q=${encodeURIComponent(query)}`}
+                onClick={handleClose}
+                className="mt-1 flex items-center justify-center gap-2 rounded-lg p-3 text-sm text-muted-foreground transition-colors hover:bg-neutral-50 hover:text-foreground font-sans"
+              >
+                Tất cả kết quả tìm kiếm
+                <ArrowRight className="h-3 w-3" />
+              </Link>
+            </motion.div>
+          )}
 
-            {!hasQuery && (
-              <div className="p-4">
-                <p className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Sản phẩm được tìm kiếm nhiều
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {popularSearches.map((term) => (
-                    <button
-                      key={term}
-                      onClick={() => setQuery(term)}
-                      className="rounded-full border border-border px-3 py-1.5 text-sm transition-colors hover:border-foreground hover:bg-neutral-50"
-                    >
-                      {term}
-                    </button>
-                  ))}
-                </div>
+          {hasQuery && products.length === 0 && !loading && (
+            <div className="px-4 py-12 text-center">
+              <p className="text-sm text-muted-foreground font-sans animate-pulse">
+                Không có kết quả nào phù hợp với &quot;{query}&quot;
+              </p>
+            </div>
+          )}
+
+          {!hasQuery && (
+            <div className="p-4">
+              <p className="mb-3 text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
+                Sản phẩm được tìm kiếm nhiều
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {popularSearches.map((term) => (
+                  <motion.button
+                    key={term}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setQuery(term)}
+                    className="rounded-full border border-[#E1DDD5] px-3 py-1.5 text-xs font-mono transition-colors hover:border-foreground hover:bg-neutral-50 text-black bg-white cursor-pointer"
+                  >
+                    {term}
+                  </motion.button>
+                ))}
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

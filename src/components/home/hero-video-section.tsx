@@ -43,49 +43,28 @@ export function HeroVideoSection({
           <MotionWrapper direction="down" delay={100}>
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 backdrop-blur-md text-[#FAF5F2] text-xs font-mono uppercase tracking-widest border border-white/20">
               <span className="size-2 rounded-full bg-[#3ECF8E] animate-pulse" />
-              01 / CHẾ TÁC KHÔNG GIAN TẬP TRUNG
-            </div>
-          </MotionWrapper>
-
-          <MotionWrapper
-            direction="down"
-            delay={200}
-            className="hidden sm:block"
-          >
-            <div className="max-w-xs bg-white/95 backdrop-blur-md text-black p-4 rounded-2xl border border-white/20 shadow-xl relative overflow-hidden group">
-              <span className="absolute top-2 right-2 px-2 py-0.5 bg-[#3ECF8E] text-white name-badge text-[9px] font-mono font-bold uppercase rounded-md">
-                LIMITED
-              </span>
-              <div className="space-y-1 pr-6">
-                <h4 className="font-bold text-sm">Bộ lắp ráp Boospace</h4>
-                <p className="text-[10px] text-slate-500 font-mono">
-                  WOODEN DIY KITS INCLUDED
-                </p>
-                <Link
-                  href="/shop"
-                  className="text-[10px] text-blue-600 font-bold hover:underline block pt-1"
-                >
-                  KHÁM PHÁ NGAY ↗
-                </Link>
-              </div>
+              SẢN PHẨM NỔI BẬT
             </div>
           </MotionWrapper>
         </div>
-
         {/* Tiêu đề & Mô tả Việt hóa hoàn chỉnh */}
         <div className="max-w-3xl space-y-6 pt-16">
           <MotionWrapper direction="up" delay={200}>
             <h1 className="text-5xl sm:text-7xl font-bold tracking-tight text-white leading-[1.05] font-serif text-drop-shadow">
-              Góc làm việc mơ ước,
+              Mảng xanh độc bản,
               <br />
               <span className="text-[#3ECF8E] italic font-medium font-serif">
-                được định nghĩa lại.
+                thân thiện và tinh tế.
               </span>
             </h1>
           </MotionWrapper>
           <MotionWrapper direction="up" delay={300}>
             <p className="text-base sm:text-lg text-neutral-200 leading-relaxed max-w-lg font-sans text-drop-shadow">
-              {heroSubtitle}
+              Định nghĩa lại góc làm việc bằng những chiếc{" "}
+              <span className="text-[#3ECF8E] font-medium">chậu cây in 3D</span>{" "}
+              mang ngôn ngữ thiết kế hiện đại. Chất liệu sinh học lành tính,
+              kiểu dáng thẩm mỹ cao giúp dọn dẹp mọi xao nhãng số, trả lại sự
+              tĩnh lặng thuần khiết bên cạnh hạ tầng.
             </p>
           </MotionWrapper>
         </div>
@@ -115,7 +94,7 @@ export function HeroVideoSection({
                 </span>
                 <div className="space-y-1">
                   <h4 className="font-bold text-xs text-slate-800">
-                    Bản tin Boospace
+                    Bản tin Boo Space
                   </h4>
                   <p className="text-[10px] text-slate-500 font-mono">
                     ĐĂNG KÝ NHẬN TIN · KHÔNG SPAM

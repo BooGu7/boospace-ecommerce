@@ -1,18 +1,18 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { ShoppingBag, Heart } from "lucide-react"
-import { toast } from "sonner"
-import { useCartStore } from "@/store/cart"
-import { useWishlistStore } from "@/store/wishlist"
-import { useRecentlyViewedStore } from "@/store/recently-viewed"
-import { RecentlyViewed } from "@/components/products/recently-viewed"
-import { StarRating } from "@/components/products/star-rating"
-import { TrustSignals } from "@/components/products/trust-signals"
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
-import { Badge } from "@/components/ui/badge"
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { ShoppingBag, Heart } from "lucide-react";
+import { toast } from "sonner";
+import { useCartStore } from "@/store/cart";
+import { useWishlistStore } from "@/store/wishlist";
+import { useRecentlyViewedStore } from "@/store/recently-viewed";
+import { RecentlyViewed } from "@/components/products/recently-viewed";
+import { StarRating } from "@/components/products/star-rating";
+import { TrustSignals } from "@/components/products/trust-signals";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -20,20 +20,21 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import { ProductGallery } from "@/components/products/product-gallery"
-import { VariantSelector } from "@/components/products/variant-selector"
-import { QuantitySelector } from "@/components/products/quantity-selector"
-import { ProductGrid } from "@/components/products/product-grid"
-import { formatPrice } from "@/lib/utils"
-import { breadcrumbJsonLd } from "@/lib/structured-data"
-import type { Product, Brand, Category } from "@/types"
+} from "@/components/ui/breadcrumb";
+import { ProductGallery } from "@/components/products/product-gallery";
+import { VariantSelector } from "@/components/products/variant-selector";
+import { QuantitySelector } from "@/components/products/quantity-selector";
+import { ProductGrid } from "@/components/products/product-grid";
+import { formatPrice } from "@/lib/utils";
+import { breadcrumbJsonLd } from "@/lib/structured-data";
+import type { Product, Brand, Category } from "@/types";
+import { ReviewsSection } from "@/components/products/reviews-section";
 
 interface ProductDetailViewProps {
-  product: Product
-  relatedProducts: Product[]
-  brand: Brand | null
-  categoryAncestors?: Category[]
+  product: Product;
+  relatedProducts: Product[];
+  brand: Brand | null;
+  categoryAncestors?: Category[];
 }
 
 export function ProductDetailView({
@@ -43,23 +44,24 @@ export function ProductDetailView({
   categoryAncestors = [],
 }: ProductDetailViewProps) {
   const [selectedVariantId, setSelectedVariantId] = useState(
-    product.variants[0]?.id ?? ""
-  )
-  const [quantity, setQuantity] = useState(1)
+    product.variants[0]?.id ?? "",
+  );
+  const [quantity, setQuantity] = useState(1);
 
-  const addToCart = useCartStore((s) => s.addItem)
-  const openCart = useCartStore((s) => s.openCart)
-  const wishlistItems = useWishlistStore((s) => s.items)
-  const addToWishlist = useWishlistStore((s) => s.addItem)
-  const removeFromWishlist = useWishlistStore((s) => s.removeItem)
+  const addToCart = useCartStore((s) => s.addItem);
+  const openCart = useCartStore((s) => s.openCart);
+  const wishlistItems = useWishlistStore((s) => s.items);
+  const addToWishlist = useWishlistStore((s) => s.addItem);
+  const removeFromWishlist = useWishlistStore((s) => s.removeItem);
 
-  const addRecentlyViewed = useRecentlyViewedStore((s) => s.addItem)
+  const addRecentlyViewed = useRecentlyViewedStore((s) => s.addItem);
 
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => setMounted(true), [])
-  const isWishlisted = mounted && wishlistItems.some((i) => i.productId === product.id)
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const isWishlisted =
+    mounted && wishlistItems.some((i) => i.productId === product.id);
 
-  // Track recently viewed
+  // Theo dõi lịch sử xem sản phẩm
   useEffect(() => {
     addRecentlyViewed({
       productId: product.id,
@@ -68,20 +70,20 @@ export function ProductDetailView({
       price: product.variants[0]?.price ?? 0,
       imageUrl: product.images[0]?.url ?? "",
       imageAlt: product.images[0]?.alt ?? product.name,
-    })
-  }, [product.id])
+    });
+  }, [product.id]);
 
   const selectedVariant = product.variants.find(
-    (v) => v.id === selectedVariantId
-  )
-  if (!selectedVariant) return null
+    (v) => v.id === selectedVariantId,
+  );
+  if (!selectedVariant) return null;
 
   const isOnSale =
     selectedVariant.compareAtPrice &&
-    selectedVariant.compareAtPrice > selectedVariant.price
+    selectedVariant.compareAtPrice > selectedVariant.price;
   const inStock =
     selectedVariant.inventory.quantity > 0 ||
-    selectedVariant.inventory.allowBackorder
+    selectedVariant.inventory.allowBackorder;
 
   function handleAddToCart() {
     addToCart({
@@ -93,14 +95,14 @@ export function ProductDetailView({
       slug: product.slug,
       price: selectedVariant!.price,
       quantity,
-    })
-    openCart()
+    });
+    openCart();
   }
 
   function handleToggleWishlist() {
     if (isWishlisted) {
-      removeFromWishlist(product.id)
-      toast("Removed from wishlist")
+      removeFromWishlist(product.id);
+      toast("Removed from wishlist");
     } else {
       addToWishlist({
         productId: product.id,
@@ -108,8 +110,8 @@ export function ProductDetailView({
         slug: product.slug,
         price: selectedVariant!.price,
         image: product.images[0] ?? { url: "", alt: product.name },
-      })
-      toast.success("Added to wishlist")
+      });
+      toast.success("Added to wishlist");
     }
   }
 
@@ -117,7 +119,7 @@ export function ProductDetailView({
     { name: "Shop", href: "/shop" },
     ...categoryAncestors.map((c) => ({ name: c.name, href: `/${c.slug}` })),
     { name: product.name, href: `/${product.slug}` },
-  ])
+  ]);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -140,22 +142,25 @@ export function ProductDetailView({
         ? "https://schema.org/InStock"
         : "https://schema.org/OutOfStock",
     },
-  }
+  };
 
   return (
     <div className="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 lg:px-8">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify([jsonLd, breadcrumbLd]) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify([jsonLd, breadcrumbLd]),
+        }}
       />
-      {/* Breadcrumb — shows category ancestry; product name is in the H1 below */}
+
+      {/* Breadcrumbs */}
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink render={<Link href="/shop" />}>Shop</BreadcrumbLink>
           </BreadcrumbItem>
           {categoryAncestors.map((cat, idx) => {
-            const isLast = idx === categoryAncestors.length - 1
+            const isLast = idx === categoryAncestors.length - 1;
             return (
               <div key={cat.id} className="contents">
                 <BreadcrumbSeparator />
@@ -169,12 +174,12 @@ export function ProductDetailView({
                   )}
                 </BreadcrumbItem>
               </div>
-            )
+            );
           })}
         </BreadcrumbList>
       </Breadcrumb>
 
-      {/* Product */}
+      {/* Main Product Section */}
       <div className="mt-2 grid gap-8 lg:grid-cols-2 lg:gap-16">
         {/* Gallery */}
         <ProductGallery images={product.images} productName={product.name} />
@@ -182,7 +187,10 @@ export function ProductDetailView({
         {/* Info */}
         <div className="flex flex-col">
           <div>
-            <StarRating rating={product.rating} reviewCount={product.reviewCount} />
+            <StarRating
+              rating={product.rating}
+              reviewCount={product.reviewCount}
+            />
           </div>
 
           <h1 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
@@ -207,15 +215,14 @@ export function ProductDetailView({
                 <span className="text-lg text-muted-foreground line-through">
                   {formatPrice(
                     selectedVariant.compareAtPrice!,
-                    selectedVariant.currency
+                    selectedVariant.currency,
                   )}
                 </span>
                 <Badge variant="secondary">
                   {Math.round(
                     (1 -
-                      selectedVariant.price /
-                        selectedVariant.compareAtPrice!) *
-                      100
+                      selectedVariant.price / selectedVariant.compareAtPrice!) *
+                      100,
                   )}
                   % off
                 </Badge>
@@ -225,7 +232,7 @@ export function ProductDetailView({
 
           <p className="mt-4 text-muted-foreground">{product.description}</p>
 
-          {/* Variants */}
+          {/* Variants Selection */}
           {product.variants.length > 1 && (
             <div className="mt-6 mb-6">
               <VariantSelector
@@ -236,7 +243,7 @@ export function ProductDetailView({
             </div>
           )}
 
-          {/* Quantity + Add to Cart */}
+          {/* Quantity Selector + Add to Cart */}
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
             <div className="flex items-center gap-4">
               <QuantitySelector
@@ -247,10 +254,14 @@ export function ProductDetailView({
               <Button
                 variant="outline"
                 size="icon"
-                aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                aria-label={
+                  isWishlisted ? "Remove from wishlist" : "Add to wishlist"
+                }
                 onClick={handleToggleWishlist}
               >
-                <Heart className={`h-4 w-4 ${isWishlisted ? "fill-wishlist text-wishlist" : ""}`} />
+                <Heart
+                  className={`h-4 w-4 ${isWishlisted ? "fill-wishlist text-wishlist" : ""}`}
+                />
               </Button>
             </div>
             <Button
@@ -276,7 +287,7 @@ export function ProductDetailView({
         </div>
       </div>
 
-      {/* Full HTML description (below gallery/add-to-cart) */}
+      {/* Full HTML description */}
       {product.body && (
         <section className="mt-16 border-t pt-12">
           <div className="mx-auto max-w-3xl">
@@ -287,6 +298,9 @@ export function ProductDetailView({
           </div>
         </section>
       )}
+
+      {/* KHU VỰC ĐÁNH GIÁ KHÁCH HÀNG (DỮ LIỆU THỜI GIAN THỰC TỪ SUPABASE) */}
+      <ReviewsSection productId={product.id} />
 
       {/* Related products */}
       {relatedProducts.length > 0 && (
@@ -303,5 +317,5 @@ export function ProductDetailView({
       {/* Recently viewed */}
       <RecentlyViewed excludeProductId={product.id} />
     </div>
-  )
+  );
 }
