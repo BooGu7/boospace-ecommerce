@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link"; // ĐÃ SỬA LỖI: Bổ sung import Link từ next/link
 import {
   Accordion,
   AccordionContent,
@@ -7,91 +8,86 @@ import {
 } from "@/components/ui/accordion";
 
 export const metadata: Metadata = {
-  title: "Câu hỏi thường gặp",
+  title: "Câu hỏi thường gặp — Boospace FAQ",
   description:
-    "Giải đáp các câu hỏi phổ biến về đơn hàng, vận chuyển, đổi trả và nhiều hơn nữa ✨",
+    "Giải đáp các câu hỏi phổ biến về đơn hàng, vận chuyển, đổi trả và thiết kế in 3D custom ✨",
 };
 
 const faqs = [
   {
-    question: "Thời gian giao hàng mất bao lâu?",
+    question: "Xưởng in 3D Boospace sử dụng phôi liệu nhựa gì?",
     answer:
-      "Giao hàng tiêu chuẩn thường mất 5–7 ngày làm việc. Bạn cũng có thể chọn giao hàng nhanh tại bước thanh toán với thời gian 2–3 ngày làm việc.",
+      "Chúng tôi ưu tiên sử dụng nhựa PLA tự nhiên phân hủy sinh học (thân thiện với môi trường) và nhựa gỗ hữu cơ chứa phôi gỗ thông để gia công mộc mạc, tạo cảm giác xúc giác chân thực.",
   },
   {
-    question: "Chính sách đổi trả như thế nào?",
+    question: "Có hỗ trợ chỉnh sửa kích thước mô hình theo yêu cầu không?",
     answer:
-      "Chúng tôi hỗ trợ đổi trả trong vòng 30 ngày cho tất cả sản phẩm. Sản phẩm cần còn nguyên tình trạng ban đầu và đầy đủ tem mác. Xem trang đổi trả để biết thêm chi tiết.",
+      "Có! Bạn có thể vào trang liên hệ để gửi file STL/OBJ hoặc ý tưởng, đội ngũ kỹ sư của Boospace sẽ hỗ trợ Slicing và in 3D đúng chuẩn kích thước bạn cần.",
   },
   {
-    question: "Có giao hàng quốc tế không?",
+    question: "Thời gian in 3D và giao hàng mất bao lâu?",
     answer:
-      "Có, chúng tôi giao hàng đến hầu hết các quốc gia trên thế giới. Phí vận chuyển và thời gian giao hàng sẽ thay đổi tùy theo điểm đến. Bạn có thể xem chi phí chính xác tại bước thanh toán.",
+      "Do đặc thù chế tác chậm, các đơn hàng in 3D thường mất 2-3 ngày để hoàn thiện thô và đóng gói, sau đó vận chuyển tiêu chuẩn đến tay bạn trong 2-3 ngày tiếp theo.",
   },
   {
-    question: "Làm sao để theo dõi đơn hàng?",
+    question: "Lại thế nào để bảo quản gỗ của Sol-01?",
     answer:
-      "Sau khi đơn hàng được gửi đi, bạn sẽ nhận email xác nhận kèm mã theo dõi. Bạn cũng có thể theo dõi đơn hàng trong trang tài khoản của mình.",
-  },
-  {
-    question: "Bạn chấp nhận những phương thức thanh toán nào?",
-    answer:
-      "Chúng tôi chấp nhận thẻ tín dụng (Visa, Mastercard, American Express), PayPal và Apple Pay. Tất cả giao dịch đều được bảo mật bằng mã hóa SSL.",
-  },
-  {
-    question: "Làm sao để liên hệ hỗ trợ khách hàng?",
-    answer:
-      "Bạn có thể liên hệ qua trang liên hệ, email support@store.com hoặc gọi (555) 123-4567. Đội ngũ hỗ trợ hoạt động từ Thứ Hai đến Thứ Sáu, 9h–17h (EST).",
-  },
-  {
-    question: "Tôi có thể thay đổi hoặc hủy đơn hàng không?",
-    answer:
-      "Bạn có thể thay đổi hoặc hủy đơn hàng trong vòng 1 giờ sau khi đặt. Sau thời gian này, vui lòng liên hệ bộ phận hỗ trợ để được hỗ trợ thêm.",
-  },
-  {
-    question: "Có thẻ quà tặng không?",
-    answer:
-      "Có! Thẻ quà tặng điện tử có các mệnh giá $25, $50, $100 và $200. Thẻ được gửi ngay qua email và không có hạn sử dụng.",
+      "Bộ gỗ SOL-01 đã được phủ sẵn dầu bảo quản tự nhiên. Bạn chỉ cần lau chùi bằng khăn giấy khô mềm hàng tuần, tránh tiếp xúc trực tiếp với nước hoặc ánh nắng gắt nhiệt độ cao.",
   },
 ];
 
 export default function FAQPage() {
   return (
-    <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
-      <h1 className="text-3xl font-bold tracking-tight">Câu hỏi thường gặp</h1>
+    <div className="bg-[#FCFAF2] text-[#1E1C1A] min-h-screen antialiased selection:bg-[#EAE5D9]">
+      <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8 border-x border-[#E1DDD5] bg-[#FCFAF2]/50">
+        {/* HEADER SECTION */}
+        <div className="border-b border-[#E1DDD5] pb-8 mb-12">
+          <div className="space-y-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#EAE5D9] text-[#786F66] text-xs font-mono uppercase tracking-widest border border-[#DCD6CC] w-fit">
+              <span className="size-1.5 rounded-full bg-amber-500 animate-pulse" />
+              07 / USER HELP &amp; FAQ
+            </div>
+            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-black font-serif leading-none">
+              Câu hỏi thường gặp
+            </h1>
+            <p className="text-xs sm:text-sm font-mono text-[#786F66] uppercase tracking-wider">
+              Giải đáp các câu hỏi phổ biến về vận hành và chính sách cửa hàng
+            </p>
+          </div>
+        </div>
 
-      <p className="mt-4 text-muted-foreground">
-        Tìm câu trả lời cho những thắc mắc phổ biến về sản phẩm, vận chuyển và
-        chính sách của chúng tôi.
-      </p>
+        <Accordion className="mt-8">
+          {faqs.map((faq, index) => (
+            <AccordionItem
+              key={index}
+              value={`item-${index}`}
+              className="border-b border-[#E1DDD5]"
+            >
+              <AccordionTrigger className="text-left font-serif font-bold text-[#1E1C1A] hover:text-[#FF9D00] text-base py-4">
+                {faq.question}
+              </AccordionTrigger>
+              <AccordionContent className="text-[#5C564E] text-sm leading-relaxed pb-4">
+                {faq.answer}
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
 
-      <Accordion className="mt-8">
-        {faqs.map((faq, index) => (
-          <AccordionItem key={index} value={`item-${index}`}>
-            <AccordionTrigger className="text-left">
-              {faq.question}
-            </AccordionTrigger>
-            <AccordionContent className="text-muted-foreground">
-              {faq.answer}
-            </AccordionContent>
-          </AccordionItem>
-        ))}
-      </Accordion>
-
-      <div className="mt-12 rounded-lg border bg-neutral-50 p-6 text-center">
-        <h2 className="text-lg font-semibold">Vẫn còn thắc mắc?</h2>
-
-        <p className="mt-2 text-sm text-muted-foreground">
-          Không tìm thấy câu trả lời bạn cần? Đội ngũ hỗ trợ luôn sẵn sàng giúp
-          bạn ✨
-        </p>
-
-        <a
-          href="/contact"
-          className="mt-4 inline-block text-sm font-medium underline hover:text-foreground"
-        >
-          Liên hệ hỗ trợ
-        </a>
+        <div className="mt-12 rounded-3xl border border-[#E1DDD5] bg-[#EAE5D9]/20 p-8 text-center space-y-4">
+          <h2 className="text-lg font-bold font-serif text-black">
+            Vẫn còn thắc mắc?
+          </h2>
+          <p className="text-xs sm:text-sm text-[#5C564E] max-w-md mx-auto leading-relaxed">
+            Không tìm thấy câu trả lời bạn cần? Đội ngũ hỗ trợ của Boospace luôn
+            sẵn sàng đồng hành cùng bạn ✨
+          </p>
+          <Link
+            href="/contact"
+            className="inline-block text-xs font-mono uppercase tracking-widest text-[#FF9D00] font-bold hover:underline"
+          >
+            Liên hệ hỗ trợ ngay →
+          </Link>
+        </div>
       </div>
     </div>
   );

@@ -11,6 +11,7 @@
   --color-wishlist: var(--wishlist);
   --color-sale: var(--sale);
   --color-success: var(--success);
+
   --color-status-pending-bg: var(--status-pending-bg);
   --color-status-pending-text: var(--status-pending-text);
   --color-status-processing-bg: var(--status-processing-bg);
@@ -23,9 +24,13 @@
   --color-status-cancelled-text: var(--status-cancelled-text);
   --color-status-refunded-bg: var(--status-refunded-bg);
   --color-status-refunded-text: var(--status-refunded-text);
+
+  /* ĐỒNG BỘ HÓA FONT CHỮ CÓ CHÂN EDITORIAL CHO TIÊU ĐỀ DAYLIGHT */
   --font-sans: var(--font-inter), "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-serif), "Georgia", Cambria, "Times New Roman", serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --font-heading: var(--font-sans);
+
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -34,6 +39,7 @@
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar: var(--sidebar);
+
   --color-chart-5: var(--chart-5);
   --color-chart-4: var(--chart-4);
   --color-chart-3: var(--chart-3);
@@ -55,6 +61,7 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -65,50 +72,64 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  /* HIỆU CHUẨN MÀU NỀN GIẤY KEM CỔ ĐIỂN CHUẨN #FAF5F2 */
+  --background: oklch(0.975 0.006 45);
+  /* HIỆU CHUẨN MÀU CHỮ ĐEN MỜ THAN CHÌ CHUẨN #1E1C1A */
+  --foreground: oklch(0.17 0.005 45);
+
+  --card: oklch(0.985 0.003 45);
+  --card-foreground: oklch(0.17 0.005 45);
+  --popover: oklch(0.985 0.003 45);
+  --popover-foreground: oklch(0.17 0.005 45);
+
+  /* MÀU SẮC CHỦ ĐẠO TƯƠNG PHẢN CAO */
+  --primary: oklch(0.17 0.005 45);
+  --primary-foreground: oklch(0.975 0.006 45);
+
+  --secondary: oklch(0.94 0.008 45);
+  --secondary-foreground: oklch(0.17 0.005 45);
+  --muted: oklch(0.94 0.008 45);
+  --muted-foreground: oklch(0.48 0.01 45);
+
+  /* ĐỒNG BỘ KHỐI CÁT SÁNG #EAE5D9 */
+  --accent: oklch(0.92 0.01 45);
+  --accent-foreground: oklch(0.17 0.005 45);
+
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
+
+  /* HIỆU CHUẨN ĐƯỜNG LƯỚI KỸ THUẬT MẢNH CHUẨN #E1DDD5 */
+  --border: oklch(0.91 0.008 45);
+  --input: oklch(0.91 0.008 45);
+
+  /* ĐIỂM NHẤN CAM HỔ PHÁCH CHUẨN #FF9D00 */
+  --ring: oklch(0.73 0.217 60);
+
+  --chart-1: oklch(0.73 0.217 60);
+  --chart-2: oklch(0.48 0.01 45);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
+  --radius: 0.75rem;
 
-  /* Store accent colors — edit these to retheme the store */
-  --rating: oklch(0.795 0.184 86.047); /* yellow-400 */
-  --wishlist: oklch(0.637 0.237 25.331); /* red-500 */
-  --sale: oklch(0.795 0.184 86.047); /* yellow-400 */
-  --success: oklch(0.627 0.194 149.214); /* green-600 */
+  /* ĐỒNG BỘ TOÀN BỘ ĐIỂM NHẤN SẢN PHẨM SANG MÀU CAM HỔ PHÁCH DAYLIGHT */
+  --rating: oklch(0.73 0.217 60);
+  --wishlist: oklch(0.637 0.237 25.331);
+  --sale: oklch(0.73 0.217 60);
+  --success: oklch(0.627 0.194 149.214);
 
   /* Order status colors */
-  --status-pending-bg: oklch(0.962 0.059 95.617); /* yellow-100 */
-  --status-pending-text: oklch(0.476 0.114 61.907); /* yellow-800 */
-  --status-processing-bg: oklch(0.932 0.032 255.585); /* blue-100 */
-  --status-processing-text: oklch(0.424 0.199 265.638); /* blue-800 */
-  --status-shipped-bg: oklch(0.946 0.033 307.174); /* purple-100 */
-  --status-shipped-text: oklch(0.438 0.218 303.724); /* purple-800 */
-  --status-delivered-bg: oklch(0.962 0.044 156.643); /* green-100 */
-  --status-delivered-text: oklch(0.405 0.128 151.328); /* green-800 */
-  --status-cancelled-bg: oklch(0.963 0.022 17.078); /* red-100 */
-  --status-cancelled-text: oklch(0.444 0.177 26.899); /* red-800 */
-  --status-refunded-bg: oklch(0.962 0 0); /* gray-100 */
-  --status-refunded-text: oklch(0.37 0 0); /* gray-800 */
+  --status-pending-bg: oklch(0.962 0.059 95.617);
+  --status-pending-text: oklch(0.476 0.114 61.907);
+  --status-processing-bg: oklch(0.932 0.032 255.585);
+  --status-processing-text: oklch(0.424 0.199 265.638);
+  --status-shipped-bg: oklch(0.946 0.033 307.174);
+  --status-shipped-text: oklch(0.438 0.218 303.724);
+  --status-delivered-bg: oklch(0.962 0.044 156.643);
+  --status-delivered-text: oklch(0.405 0.128 151.328);
+  --status-cancelled-bg: oklch(0.963 0.022 17.078);
+  --status-cancelled-text: oklch(0.444 0.177 26.899);
+  --status-refunded-bg: oklch(0.962 0 0);
+  --status-refunded-text: oklch(0.37 0 0);
 
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
@@ -168,7 +189,6 @@
 
 /* ============================================================================
    .blog-body — Prose styles for rich HTML content
-   Used by: product descriptions, blog posts, CMS pages
    ============================================================================ */
 
 .blog-body {
@@ -180,15 +200,15 @@
 }
 
 .blog-body h1 {
-  @apply mt-10 text-3xl font-bold tracking-tight text-foreground;
+  @apply mt-10 text-3xl font-bold tracking-tight text-foreground font-serif;
 }
 
 .blog-body h2 {
-  @apply mt-10 text-2xl font-bold tracking-tight text-foreground;
+  @apply mt-10 text-2xl font-bold tracking-tight text-foreground font-serif;
 }
 
 .blog-body h3 {
-  @apply mt-8 text-xl font-semibold tracking-tight text-foreground;
+  @apply mt-8 text-xl font-semibold tracking-tight text-foreground font-serif;
 }
 
 .blog-body h4 {
@@ -217,15 +237,15 @@
 }
 
 .blog-body a {
-  @apply text-foreground underline underline-offset-4 transition-colors hover:text-foreground/70;
+  @apply text-foreground underline underline-offset-4 transition-colors hover:text-[#FF9D00];
 }
 
 .blog-body blockquote {
-  @apply border-l-4 border-border pl-6 italic text-muted-foreground;
+  @apply border-l-4 border-border pl-6 italic text-muted-foreground font-serif;
 }
 
 .blog-body img {
-  @apply rounded-lg;
+  @apply rounded-2xl border border-[#E1DDD5];
 }
 
 .blog-body hr {

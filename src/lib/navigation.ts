@@ -8,14 +8,15 @@ export interface NavSection {
   items: NavItem[];
 }
 
-// Single source of truth for all navigation across desktop header,
-// mobile menu, and anywhere else. Edit this one file to update all menus.
+// ============================================================================
+// Navigation Structure — Single source of truth for all navigation
+// across desktop header, mobile menu, sitemaps and other footer links.
+// ============================================================================
 
 export const shopLinks: NavItem[] = [
   { name: "Trang chủ", href: "/" },
-  { name: "Phụ kiện", href: "/accessories" },
+  { name: "Shop", href: "/shop" },
   { name: "Blog", href: "/blog" },
-  { name: "Thông tin", href: "/about" },
   { name: "Liên hệ", href: "/contact" },
 ];
 
@@ -26,10 +27,7 @@ export const accountLinks: NavItem[] = [
 ];
 
 export const infoLinks: NavItem[] = [
-  // { name: "All Brands", href: "/brands" },
   { name: "Blog", href: "/blog" },
-  // { name: "Pages", href: "/pages" },
-  { name: "Thông tin", href: "/about" },
   { name: "Liên hệ", href: "/contact" },
   { name: "FAQ", href: "/faq" },
 ];

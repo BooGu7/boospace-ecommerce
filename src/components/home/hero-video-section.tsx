@@ -1,0 +1,145 @@
+"use client";
+
+import * as React from "react";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+import { MagneticButton } from "@/components/ui/magnetic-button";
+import { MotionWrapper } from "@/components/ui/motion-wrapper";
+
+interface HeroVideoSectionProps {
+  heroImage: string;
+  heroVideo: string;
+  heroSubtitle: string;
+}
+
+export function HeroVideoSection({
+  heroImage,
+  heroVideo,
+  heroSubtitle,
+}: HeroVideoSectionProps) {
+  const [orderLoading, setOrderLoading] = React.useState(false);
+
+  const handleOrderClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setOrderLoading(true);
+    // Giả lập thời gian nạp đơn hàng trước khi chuyển tiếp
+    setTimeout(() => {
+      window.location.href = "/shop";
+    }, 1200);
+  };
+
+  return (
+    // SỬA ĐỔI: Chuyển sang min-h-screen (Full View) ôm trọn màn hình không góc chết [1.1]
+    <section
+      className="relative min-h-screen w-screen flex items-center overflow-hidden bg-cover bg-center"
+      style={{ backgroundImage: `url(${heroImage})` }}
+    >
+      {/* Lớp phủ mờ bảo vệ độ tương phản của chữ */}
+      <div className="absolute inset-0 bg-black/45 z-0" />
+
+      <div className="mx-auto max-w-[1440px] w-full h-[85vh] flex flex-col justify-between relative z-10 p-6 sm:p-12 lg:p-16 text-white bg-black/5">
+        {/* Header phụ mộc mạc */}
+        <div className="flex justify-between items-start w-full">
+          <MotionWrapper direction="down" delay={100}>
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 backdrop-blur-md text-[#FAF5F2] text-xs font-mono uppercase tracking-widest border border-white/20">
+              <span className="size-2 rounded-full bg-[#3ECF8E] animate-pulse" />
+              01 / CHẾ TÁC KHÔNG GIAN TẬP TRUNG
+            </div>
+          </MotionWrapper>
+
+          <MotionWrapper
+            direction="down"
+            delay={200}
+            className="hidden sm:block"
+          >
+            <div className="max-w-xs bg-white/95 backdrop-blur-md text-black p-4 rounded-2xl border border-white/20 shadow-xl relative overflow-hidden group">
+              <span className="absolute top-2 right-2 px-2 py-0.5 bg-[#3ECF8E] text-white name-badge text-[9px] font-mono font-bold uppercase rounded-md">
+                LIMITED
+              </span>
+              <div className="space-y-1 pr-6">
+                <h4 className="font-bold text-sm">Bộ lắp ráp Boospace</h4>
+                <p className="text-[10px] text-slate-500 font-mono">
+                  WOODEN DIY KITS INCLUDED
+                </p>
+                <Link
+                  href="/shop"
+                  className="text-[10px] text-blue-600 font-bold hover:underline block pt-1"
+                >
+                  KHÁM PHÁ NGAY ↗
+                </Link>
+              </div>
+            </div>
+          </MotionWrapper>
+        </div>
+
+        {/* Tiêu đề & Mô tả Việt hóa hoàn chỉnh */}
+        <div className="max-w-3xl space-y-6 pt-16">
+          <MotionWrapper direction="up" delay={200}>
+            <h1 className="text-5xl sm:text-7xl font-bold tracking-tight text-white leading-[1.05] font-serif text-drop-shadow">
+              Góc làm việc mơ ước,
+              <br />
+              <span className="text-[#3ECF8E] italic font-medium font-serif">
+                được định nghĩa lại.
+              </span>
+            </h1>
+          </MotionWrapper>
+          <MotionWrapper direction="up" delay={300}>
+            <p className="text-base sm:text-lg text-neutral-200 leading-relaxed max-w-lg font-sans text-drop-shadow">
+              {heroSubtitle}
+            </p>
+          </MotionWrapper>
+        </div>
+
+        {/* Chân trang Hero (Khung Video lặp ngầm & Button Order) */}
+        <div className="flex flex-col lg:flex-row items-stretch lg:items-end justify-between gap-8 pt-12">
+          {/* Khung phát Video lặp lại thời gian thực từ Supabase Storage [21] */}
+          <MotionWrapper direction="right" delay={400}>
+            <div className="relative w-48 sm:w-64 aspect-[16/10] rounded-2xl overflow-hidden border-2 border-[#3ECF8E] bg-black/40 group cursor-pointer shadow-lg">
+              <video
+                src={heroVideo}
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover opacity-75 group-hover:scale-102 transition-transform duration-500"
+              />
+            </div>
+          </MotionWrapper>
+
+          <div className="space-y-4 max-w-sm w-full">
+            {/* Form Newsletter nhỏ gọn */}
+            <MotionWrapper direction="left" delay={450}>
+              <div className="bg-white/95 backdrop-blur-md text-black p-4 rounded-2xl border border-white/20 shadow-xl relative">
+                <span className="absolute top-2 right-2 text-xs text-slate-400 cursor-pointer hover:text-black">
+                  ✕
+                </span>
+                <div className="space-y-1">
+                  <h4 className="font-bold text-xs text-slate-800">
+                    Bản tin Boospace
+                  </h4>
+                  <p className="text-[10px] text-slate-500 font-mono">
+                    ĐĂNG KÝ NHẬN TIN · KHÔNG SPAM
+                  </p>
+                </div>
+              </div>
+            </MotionWrapper>
+
+            {/* Lệnh Order Now khổng lồ màu xanh Supabase tích hợp HÚT CHUỘT MAGNETIC */}
+            <MotionWrapper direction="up" delay={500} className="space-y-2">
+              <MagneticButton
+                onClick={handleOrderClick}
+                loading={orderLoading}
+                className="w-full bg-[#3ECF8E] hover:bg-[#2eb87b] text-black font-mono uppercase text-xs font-bold tracking-wider py-4 rounded-xl border border-[#3ECF8E] shadow-sm"
+              >
+                ĐẶT HÀNG NGAY <ArrowRight className="size-4 text-black" />
+              </MagneticButton>
+              <p className="text-center text-[10px] text-white/70 font-mono tracking-wider">
+                {"✓"} CÒN HÀNG {"·"} VẬN CHUYỂN TRONG 3-5 NGÀY
+              </p>
+            </MotionWrapper>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
