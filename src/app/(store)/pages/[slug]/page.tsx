@@ -1,6 +1,6 @@
-import type { Metadata } from "next"
-import Link from "next/link"
-import { notFound } from "next/navigation"
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -8,27 +8,27 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import { breadcrumbJsonLd } from "@/lib/structured-data"
-import { pageRepository } from "@/lib/repositories"
-import { formatDate } from "@/lib/utils"
-import { siteConfig } from "@/lib/config"
+} from "@/components/ui/breadcrumb";
+import { breadcrumbJsonLd } from "@/lib/structured-data";
+import { pageRepository } from "@/lib/repositories";
+import { formatDate } from "@/lib/utils";
+import { siteConfig } from "@/lib/config";
 
 interface PageProps {
-  params: Promise<{ slug: string }>
+  params: Promise<{ slug: string }>;
 }
 
 export async function generateStaticParams() {
-  const pages = await pageRepository.list()
-  return pages.map((p) => ({ slug: p.slug }))
+  const pages = await pageRepository.list();
+  return pages.map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
-  const { slug } = await params
-  const page = await pageRepository.getBySlug(slug)
-  if (!page) return { title: "Not Found" }
+  const { slug } = await params;
+  const page = await pageRepository.getBySlug(slug);
+  if (!page) return { title: "Not Found" };
 
   return {
     title: page.title,
@@ -40,13 +40,13 @@ export async function generateMetadata({
       type: "article",
       url: `${siteConfig.url}/pages/${page.slug}`,
     },
-  }
+  };
 }
 
 export default async function CmsPageDetail({ params }: PageProps) {
-  const { slug } = await params
-  const page = await pageRepository.getBySlug(slug)
-  if (!page) notFound()
+  const { slug } = await params;
+  const page = await pageRepository.getBySlug(slug);
+  if (!page) notFound();
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
@@ -57,7 +57,7 @@ export default async function CmsPageDetail({ params }: PageProps) {
             breadcrumbJsonLd([
               { name: "Pages", href: "/pages" },
               { name: page.title, href: `/pages/${page.slug}` },
-            ])
+            ]),
           ),
         }}
       />
@@ -65,7 +65,9 @@ export default async function CmsPageDetail({ params }: PageProps) {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink render={<Link href="/pages" />}>Pages</BreadcrumbLink>
+            <BreadcrumbLink render={<Link href="/pages" />}>
+              Pages
+            </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
@@ -88,5 +90,5 @@ export default async function CmsPageDetail({ params }: PageProps) {
         />
       </article>
     </div>
-  )
+  );
 }

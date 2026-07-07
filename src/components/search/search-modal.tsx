@@ -3,17 +3,10 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Search, X, ArrowRight, Loader2 } from "lucide-react";
+import { Search, X, ArrowRight, Loader2, Star } from "lucide-react";
 import { PLACEHOLDER_IMAGE } from "@/lib/constants";
 import { motion, Variants } from "framer-motion";
-
-const popularSearches = [
-  "Workspace",
-  "DIY Studio",
-  "Mechanical",
-  "Solid Wood",
-  "Custom Design",
-];
+import { supabase } from "@/lib/supabase/client"; // Kết nối client Supabase thời gian thực
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -64,6 +57,12 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [query, setQuery] = useState("");
   const [products, setProducts] = useState<SearchProduct[]>([]);
   const [loading, setLoading] = useState(false);
+
+  // State lưu trữ danh sách sản phẩm đánh giá cao tải từ Supabase
+  const [suggestedProducts, setSuggestedProducts] = useState<SearchProduct[]>(
+    [],
+  );
+
   const inputRef = useRef<HTMLInputElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -77,6 +76,38 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
     if (isOpen) {
       setTimeout(() => inputRef.current?.focus(), 50);
     }
+  }, [isOpen]);
+
+  // TRUY VẤN SẢN PHẨM ĐÁNH GIÁ CAO (FEATURED) TỪ SUPABASE KHI MỞ MODAL
+  useEffect(() => {
+    if (!isOpen) return;
+
+    async function fetchTopRatedSuggestions() {
+      try {
+        const { data, error } = await supabase
+          .from("products")
+          .select("id, name, slug, price, images")
+          .eq("published", true)
+          .eq("featured", true) // Lấy các sản phẩm nổi bật tiêu biểu
+          .limit(3); // Giới hạn 3 sản phẩm đẹp nhất
+
+        if (!error && data) {
+          // Ánh xạ kiểu dữ liệu để đồng bộ với UI
+          const mapped: SearchProduct[] = data.map((item: any) => ({
+            id: item.id,
+            name: item.name,
+            slug: item.slug,
+            price: Number(item.price ?? 0),
+            images: item.images || [],
+          }));
+          setSuggestedProducts(mapped);
+        }
+      } catch (err) {
+        console.error("Lỗi nạp sản phẩm gợi ý:", err);
+      }
+    }
+
+    fetchTopRatedSuggestions();
   }, [isOpen]);
 
   useEffect(() => {
@@ -236,7 +267,6 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                         </p>
                       </div>
 
-                      {/* ĐỊNH DẠNG ĐÚNG ĐƠN VỊ TIỀN TỆ (VND) KHÔNG BỊ CHIA 100 CHUẨN XÁC */}
                       <span className="shrink-0 text-sm font-mono font-medium text-black">
                         {new Intl.NumberFormat("vi-VN", {
                           style: "currency",
@@ -268,24 +298,86 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
             </div>
           )}
 
+          {/* ==========================================
+             NÂNG CẤP: HIỂN THỊ SẢN PHẨM ĐÁNH GIÁ CAO KHI CHƯA GÕ CHỮ
+             ========================================== */}
           {!hasQuery && (
-            <div className="p-4">
-              <p className="mb-3 text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
-                Sản phẩm được tìm kiếm nhiều
+            <div className="p-4 space-y-4">
+              <p className="text-[10px] font-mono uppercase tracking-widest text-[#786F66] font-bold">
+                Sản phẩm được đánh giá cao
               </p>
-              <div className="flex flex-wrap gap-2">
-                {popularSearches.map((term) => (
-                  <motion.button
-                    key={term}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => setQuery(term)}
-                    className="rounded-full border border-[#E1DDD5] px-3 py-1.5 text-xs font-mono transition-colors hover:border-foreground hover:bg-neutral-50 text-black bg-white cursor-pointer"
-                  >
-                    {term}
-                  </motion.button>
-                ))}
-              </div>
+
+              {suggestedProducts.length > 0 ? (
+                <div className="space-y-1">
+                  {suggestedProducts.map((product) => {
+                    const imgUrl =
+                      typeof product.images?.[0] === "string"
+                        ? product.images[0]
+                        : (product.images?.[0]?.url ?? PLACEHOLDER_IMAGE);
+
+                    const imgAlt =
+                      typeof product.images?.[0] === "string"
+                        ? product.name
+                        : (product.images?.[0]?.alt ?? product.name);
+
+                    return (
+                      <motion.div
+                        key={product.id}
+                        whileHover={{
+                          x: 6,
+                          backgroundColor: "rgba(234, 229, 217, 0.25)",
+                        }}
+                        className="rounded-xl transition-all border border-transparent"
+                      >
+                        <Link
+                          href={`/${product.slug}`}
+                          onClick={handleClose}
+                          className="flex items-center gap-4 p-3"
+                        >
+                          <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-neutral-100 border border-[#E1DDD5]">
+                            <Image
+                              src={imgUrl}
+                              alt={imgAlt}
+                              fill
+                              className="object-cover"
+                              sizes="48px"
+                            />
+                          </div>
+
+                          {/* Name + 5 Stars */}
+                          <div className="flex-1 min-w-0 text-left">
+                            <p className="text-xs sm:text-sm font-serif font-medium text-black truncate">
+                              {product.name}
+                            </p>
+
+                            {/* Chấm 5 sao vàng mộc mạc đặc trưng */}
+                            <div className="flex gap-0.5 mt-1 text-[#FF9D00]">
+                              {Array.from({ length: 5 }).map((_, i) => (
+                                <Star
+                                  key={i}
+                                  className="h-3 w-3 fill-[#FF9D00] text-[#FF9D00]"
+                                />
+                              ))}
+                            </div>
+                          </div>
+
+                          <span className="shrink-0 text-xs sm:text-sm font-mono font-medium text-black">
+                            {new Intl.NumberFormat("vi-VN", {
+                              style: "currency",
+                              currency: "VND",
+                              maximumFractionDigits: 0,
+                            }).format(product.price)}
+                          </span>
+                        </Link>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="flex justify-center py-4">
+                  <Loader2 className="h-4 w-4 animate-spin text-[#FF9D00]" />
+                </div>
+              )}
             </div>
           )}
         </div>

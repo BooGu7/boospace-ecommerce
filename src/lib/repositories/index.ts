@@ -1,9 +1,3 @@
-import { jsonProductRepository } from "./json-product-repository";
-import { jsonCategoryRepository } from "./json-category-repository";
-import { jsonBrandRepository } from "./json-brand-repository";
-import { jsonPageRepository } from "./json-page-repository";
-import { jsonBlogRepository } from "./json-blog-repository";
-
 import {
   supabaseProductRepository,
   supabaseCategoryRepository,
@@ -13,35 +7,18 @@ import {
 } from "./supabase-repositories";
 
 /**
- * SAFE ENV CHECK (NO hasSupabaseConfig)
+ * SYSTEM DIRECT REPOSITORIES (SUPABASE ONLY)
+ * Loại bỏ hoàn toàn tầng dữ liệu JSON tĩnh. Hệ thống kết nối trực tiếp tới đám mây Supabase.
  */
-const useSupabase =
-  !!process.env.NEXT_PUBLIC_SUPABASE_URL &&
-  !!(
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  );
+export const productRepository = supabaseProductRepository;
 
-/**
- * SWITCH BACKEND AUTOMATICALLY
- * (SAFE FOR NEXT.JS BUILD)
- */
-export const productRepository = useSupabase
-  ? supabaseProductRepository
-  : jsonProductRepository;
+export const categoryRepository = supabaseCategoryRepository;
 
-export const categoryRepository = useSupabase
-  ? supabaseCategoryRepository
-  : jsonCategoryRepository;
+export const brandRepository = supabaseBrandRepository;
 
-export const brandRepository = useSupabase
-  ? supabaseBrandRepository
-  : jsonBrandRepository;
+export const pageRepository = supabasePageRepository;
 
-export const pageRepository = useSupabase
-  ? supabasePageRepository
-  : jsonPageRepository;
+export const blogRepository = supabaseBlogRepository;
 
-export const blogRepository = useSupabase
-  ? supabaseBlogRepository
-  : jsonBlogRepository;
+// Xuất các hàm trợ giúp lưu trữ đơn hàng Supabase nếu các cổng thanh toán cần gọi tới
+export { createSupabaseOrder } from "./supabase-repositories";

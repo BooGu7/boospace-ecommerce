@@ -15,17 +15,18 @@ export default function OrdersPage() {
 
   if (!isReady) return null;
 
+  // Lọc danh sách đơn hàng đồng bộ theo email tài khoản từ Store
   const userOrders = user
     ? orders.filter((o) => o.customerEmail === user.email)
     : orders;
 
   return (
     <div className="bg-[#FCFAF2] text-[#1E1C1A] min-h-screen antialiased selection:bg-[#EAE5D9]">
-      <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8 border-x border-[#E1DDD5] bg-[#FCFAF2]/50">
-        {/* HEADER SECTION */}
+      <div className="mx-auto max-w-[1440px] px-4 py-16 sm:px-6 lg:px-8 border-x border-[#E1DDD5] bg-[#FCFAF2]/50">
+        {/* HEADER SECTION PHONG CÁCH TẠP CHÍ DẸT */}
         <div className="border-b border-[#E1DDD5] pb-8 mb-12">
-          <div className="space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#EAE5D9] text-[#786F66] text-xs font-mono uppercase tracking-widest border border-[#DCD6CC] w-fit">
+          <div className="space-y-4 text-left">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#EAE5D9] text-[#786F66] text-xs font-mono uppercase tracking-widest border border-[#DCD6CC] w-fit font-bold">
               <span className="size-1.5 rounded-full bg-amber-500 animate-pulse" />
               06 / ORDERS HISTORY
             </div>
@@ -47,7 +48,8 @@ export default function OrdersPage() {
             actionHref="/shop"
           />
         ) : (
-          <div className="mt-8 space-y-4">
+          /* DANH SÁCH ĐƠN HÀNG HOẠT ĐỘNG ỔN ĐỊNH */
+          <div className="mt-8 space-y-4 max-w-4xl mx-auto text-left">
             {userOrders.map((order) => (
               <Card
                 key={order.id}
@@ -56,24 +58,25 @@ export default function OrdersPage() {
                 <CardContent className="p-6 pt-6">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                      <p className="text-sm font-bold text-slate-800">
-                        {order.orderNumber}
+                      <p className="font-mono text-sm font-bold text-black uppercase tracking-wider">
+                        Mã đơn: #{order.orderNumber}
                       </p>
-                      <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1.5">
+                      <p className="text-xs text-[#786F66] mt-1 flex items-center gap-1.5 font-mono">
                         <CalendarDays className="size-3.5" />
                         {formatDate(order.createdAt)}
                       </p>
                     </div>
 
                     <div className="flex items-center gap-3">
+                      {/* Thẻ trạng thái gốc tương thích kiểu dữ liệu OrderStatus */}
                       <OrderStatusBadge status={order.status} />
-                      <span className="text-sm font-bold text-[#FF9D00]">
+                      <span className="text-base font-mono font-bold text-[#FF9D00]">
                         {formatPrice(order.total)}
                       </span>
                     </div>
                   </div>
 
-                  <div className="mt-4 text-xs font-mono text-[#786F66] uppercase border-t border-slate-50 pt-4">
+                  <div className="mt-4 text-xs font-mono text-[#786F66] uppercase border-t border-slate-100 pt-4">
                     {order.items.map((item) => (
                       <span key={item.id} className="mr-4">
                         {item.name} × {item.quantity}

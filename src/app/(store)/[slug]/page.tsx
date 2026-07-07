@@ -58,9 +58,7 @@ export async function generateMetadata({
           : [],
       },
       other: {
-        "product:price:amount": variant
-          ? String(variant.price / 100)
-          : "",
+        "product:price:amount": variant ? String(variant.price / 100) : "",
         "product:price:currency": variant?.currency ?? "USD",
       },
     };
@@ -107,9 +105,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function SlugPage({
-  params,
-}: SlugPageProps) {
+export default async function SlugPage({ params }: SlugPageProps) {
   const { slug } = await params;
 
   // Product Page
@@ -117,43 +113,32 @@ export default async function SlugPage({
 
   if (product) {
     const productCategories = await Promise.all(
-      product.categoryIds.map((id) =>
-        categoryRepository.getById(id)
-      )
+      product.categoryIds.map((id) => categoryRepository.getById(id)),
     );
 
     const validCategories = productCategories.filter(
-      (c): c is NonNullable<typeof c> => c !== null
+      (c): c is NonNullable<typeof c> => c !== null,
     );
 
     const primaryCategory =
-      validCategories.find((c) => c.parentId) ??
-      validCategories[0] ??
-      null;
+      validCategories.find((c) => c.parentId) ?? validCategories[0] ?? null;
 
-    const [relatedProducts, brand, categoryAncestors] =
-      await Promise.all([
-        primaryCategory
-          ? productRepository
-              .getByCategory(primaryCategory.slug, {
-                page: 1,
-                limit: 5,
-              })
-              .then((r) =>
-                r.items
-                  .filter((p) => p.id !== product.id)
-                  .slice(0, 4)
-              )
-          : Promise.resolve([]),
+    const [relatedProducts, brand, categoryAncestors] = await Promise.all([
+      primaryCategory
+        ? productRepository
+            .getByCategory(primaryCategory.slug, {
+              page: 1,
+              limit: 5,
+            })
+            .then((r) => r.items.filter((p) => p.id !== product.id).slice(0, 4))
+        : Promise.resolve([]),
 
-        brandRepository.getById(product.brandId),
+      brandRepository.getById(product.brandId),
 
-        primaryCategory
-          ? categoryRepository.getAncestors(
-              primaryCategory.id
-            )
-          : Promise.resolve([]),
-      ]);
+      primaryCategory
+        ? categoryRepository.getAncestors(primaryCategory.id)
+        : Promise.resolve([]),
+    ]);
 
     return (
       <ProductDetailView
@@ -169,18 +154,15 @@ export default async function SlugPage({
   const category = await categoryRepository.getBySlug(slug);
 
   if (category) {
-    const [
-      { items: products, pagination },
-      subcategories,
-      ancestors,
-    ] = await Promise.all([
-      productRepository.getByCategory(slug, {
-        page: 1,
-        limit: 40,
-      }),
-      categoryRepository.getChildren(category.id),
-      categoryRepository.getAncestors(category.id),
-    ]);
+    const [{ items: products, pagination }, subcategories, ancestors] =
+      await Promise.all([
+        productRepository.getByCategory(slug, {
+          page: 1,
+          limit: 40,
+        }),
+        categoryRepository.getChildren(category.id),
+        categoryRepository.getAncestors(category.id),
+      ]);
 
     return (
       <CategoryView
@@ -197,19 +179,16 @@ export default async function SlugPage({
   const brand = await brandRepository.getBySlug(slug);
 
   if (brand) {
-    const { items: products, pagination } =
-      await productRepository.list(
-        { tags: [] },
-        undefined,
-        {
-          page: 1,
-          limit: 40,
-        }
-      );
-
-    const brandProducts = products.filter(
-      (p) => p.brandId === brand.id
+    const { items: products, pagination } = await productRepository.list(
+      { tags: [] },
+      undefined,
+      {
+        page: 1,
+        limit: 40,
+      },
     );
+
+    const brandProducts = products.filter((p) => p.brandId === brand.id);
 
     return (
       <BrandView

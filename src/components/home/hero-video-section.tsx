@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { MotionWrapper } from "@/components/ui/motion-wrapper";
+import { toast } from "sonner";
 
 interface HeroVideoSectionProps {
   heroImage: string;
@@ -18,6 +19,9 @@ export function HeroVideoSection({
   heroSubtitle,
 }: HeroVideoSectionProps) {
   const [orderLoading, setOrderLoading] = React.useState(false);
+  const [email, setEmail] = React.useState("");
+  const [submitting, setSubmitting] = React.useState(false);
+  const [isClosed, setIsClosed] = React.useState(false);
 
   const handleOrderClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -28,8 +32,37 @@ export function HeroVideoSection({
     }, 1200);
   };
 
+  // Tiến trình đăng ký bản tin từ góc Hero Section gửi lên Supabase
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) return;
+
+    setSubmitting(true);
+    try {
+      const response = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        toast.success(data.message || "Đăng ký nhận bản tin thành công! ✨");
+        setEmail("");
+        setIsClosed(true); // Tự động đóng bản tin sau khi đăng ký thành công
+      } else {
+        toast.error(data.error || "Có lỗi xảy ra, vui lòng thử lại.");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Không thể kết nối đến máy chủ.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
-    // SỬA ĐỔI: Chuyển sang min-h-screen (Full View) ôm trọn màn hình không góc chết [1.1]
     <section
       className="relative min-h-screen w-screen flex items-center overflow-hidden bg-cover bg-center"
       style={{ backgroundImage: `url(${heroImage})` }}
@@ -47,6 +80,7 @@ export function HeroVideoSection({
             </div>
           </MotionWrapper>
         </div>
+
         {/* Tiêu đề & Mô tả Việt hóa hoàn chỉnh */}
         <div className="max-w-3xl space-y-6 pt-16">
           <MotionWrapper direction="up" delay={200}>
@@ -71,7 +105,7 @@ export function HeroVideoSection({
 
         {/* Chân trang Hero (Khung Video lặp ngầm & Button Order) */}
         <div className="flex flex-col lg:flex-row items-stretch lg:items-end justify-between gap-8 pt-12">
-          {/* Khung phát Video lặp lại thời gian thực từ Supabase Storage [21] */}
+          {/* Khung phát Video lặp lại thời gian thực từ Supabase Storage */}
           <MotionWrapper direction="right" delay={400}>
             <div className="relative w-48 sm:w-64 aspect-[16/10] rounded-2xl overflow-hidden border-2 border-[#3ECF8E] bg-black/40 group cursor-pointer shadow-lg">
               <video
@@ -86,22 +120,49 @@ export function HeroVideoSection({
           </MotionWrapper>
 
           <div className="space-y-4 max-w-sm w-full">
-            {/* Form Newsletter nhỏ gọn */}
-            <MotionWrapper direction="left" delay={450}>
-              <div className="bg-white/95 backdrop-blur-md text-black p-4 rounded-2xl border border-white/20 shadow-xl relative">
-                <span className="absolute top-2 right-2 text-xs text-slate-400 cursor-pointer hover:text-black">
-                  ✕
-                </span>
-                <div className="space-y-1">
-                  <h4 className="font-bold text-xs text-slate-800">
-                    Bản tin Boo Space
-                  </h4>
-                  <p className="text-[10px] text-slate-500 font-mono">
-                    ĐĂNG KÝ NHẬN TIN · KHÔNG SPAM
-                  </p>
+            {/* Form Newsletter nhỏ gọn (Sẽ ẩn mượt mà sau khi đăng ký thành công hoặc tắt) */}
+            {!isClosed && (
+              <MotionWrapper direction="left" delay={450}>
+                <div className="bg-white/95 backdrop-blur-md text-black p-5 rounded-2xl border border-white/20 shadow-xl relative space-y-3">
+                  <button
+                    onClick={() => setIsClosed(true)}
+                    className="absolute top-3 right-3 text-xs text-slate-400 cursor-pointer hover:text-black transition-colors"
+                  >
+                    ✕
+                  </button>
+                  <div className="space-y-1">
+                    <h4 className="font-bold text-xs text-slate-800 font-sans">
+                      Bản tin Boo Space
+                    </h4>
+                    <p className="text-[9px] text-[#786F66] font-mono tracking-wider font-semibold">
+                      ĐĂNG KÝ NHẬN TIN · KHÔNG SPAM
+                    </p>
+                  </div>
+
+                  {/* Form tương tác kết nối trực tiếp với Supabase */}
+                  <form
+                    onSubmit={handleSubscribe}
+                    className="flex items-center gap-1 bg-slate-100 rounded-xl p-1 border border-slate-200"
+                  >
+                    <input
+                      type="email"
+                      placeholder="E-MAIL"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      className="flex-1 bg-transparent px-3 py-2 text-xs font-mono tracking-wider outline-none text-black placeholder:text-slate-400"
+                    />
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className="rounded-lg bg-black hover:bg-slate-800 text-[10px] font-mono font-bold tracking-widest text-white px-3.5 py-2 uppercase shadow-sm transition-all shrink-0 cursor-pointer"
+                    >
+                      {submitting ? "..." : "ĐĂNG KÍ"}
+                    </button>
+                  </form>
                 </div>
-              </div>
-            </MotionWrapper>
+              </MotionWrapper>
+            )}
 
             {/* Lệnh Order Now khổng lồ màu xanh Supabase tích hợp HÚT CHUỘT MAGNETIC */}
             <MotionWrapper direction="up" delay={500} className="space-y-2">

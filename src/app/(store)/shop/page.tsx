@@ -76,7 +76,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
           <div className="space-y-4">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#EAE5D9] text-[#786F66] text-xs font-mono uppercase tracking-widest border border-[#DCD6CC] w-fit">
               <span className="size-1.5 rounded-full bg-amber-500 animate-pulse" />
-              01 / PRODUCTS CATALOG
+              PRODUCTS CATALOG
             </div>
 
             <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-black font-serif leading-none">
@@ -119,7 +119,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
                 : "border-[#E1DDD5] bg-[#EAE5D9]/20 text-[#5C564E] hover:border-black"
             }`}
           >
-            01 // TẤT CẢ SẢN PHẨM
+            TẤT CẢ SẢN PHẨM
           </Link>
 
           {categories.map((cat, idx) => {
@@ -134,7 +134,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
                     : "border-[#E1DDD5] bg-[#EAE5D9]/20 text-[#5C564E] hover:border-black"
                 }`}
               >
-                0{idx + 2} // {cat.name}
+                {cat.name}
               </Link>
             );
           })}

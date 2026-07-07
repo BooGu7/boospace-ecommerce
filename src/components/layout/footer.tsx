@@ -6,7 +6,7 @@ import { Separator } from "@/components/ui/separator";
 import { siteConfig } from "@/lib/config";
 import { toast } from "sonner";
 
-// GIỮ NGUYÊN TOÀN BỘ SVG ICONS PHẦN CỨNG GỐC CỦA BẠN
+// ICONS GIỮ NGUYÊN SVG GỐC
 function IconTwitter({ className }: { className?: string }) {
   return (
     <svg
@@ -96,18 +96,29 @@ export function Footer() {
   const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  // Tiến trình đăng ký nhận bản tin gửi dữ liệu trực tiếp về Supabase
   async function handleSubscribe(e: React.FormEvent) {
     e.preventDefault();
     if (!email.trim()) return;
 
     setSubmitting(true);
     try {
-      // Gọi API đăng ký (hoặc cập nhật trực tiếp)
-      await new Promise((resolve) => setTimeout(resolve, 600));
-      toast.success("Đăng ký nhận tin thành công! Cảm ơn bạn ✨");
-      setEmail("");
+      const response = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        toast.success(data.message || "Đăng ký nhận tin thành công! ✨");
+        setEmail("");
+      } else {
+        toast.error(data.error || "Có lỗi xảy ra, vui lòng thử lại.");
+      }
     } catch (err) {
-      toast.error("Có lỗi xảy ra, vui lòng thử lại.");
+      toast.error("Không thể kết nối đến máy chủ.");
     } finally {
       setSubmitting(false);
     }
@@ -118,7 +129,6 @@ export function Footer() {
       <div className="mx-auto max-w-[1440px] px-4 py-16 sm:px-6 lg:px-8 border-x border-[#E1DDD5]">
         {/* KHU VỰC TRÊN: BRAND & LINKS */}
         <div className="grid grid-cols-2 gap-8 md:grid-cols-5 pb-16">
-          {/* Brand Column */}
           <div className="col-span-2 space-y-4">
             <Link
               href="/"
@@ -126,14 +136,14 @@ export function Footer() {
             >
               {siteConfig.name}
             </Link>
-            <p className="text-xs font-mono text-[#786F66]/85 max-w-sm leading-relaxed">
+            <p className="text-xs font-mono text-[#786F66]/85 max-w-sm leading-relaxed text-left">
               {siteConfig.tagline}
             </p>
           </div>
 
-          {/* Shop Links */}
-          <div>
-            <h3 className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest">
+          {/* Shop */}
+          <div className="text-left">
+            <h3 className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
               Shop
             </h3>
             <ul className="mt-4 space-y-2.5 font-serif text-sm font-medium">
@@ -150,9 +160,9 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Company Links */}
-          <div>
-            <h3 className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest">
+          {/* Company */}
+          <div className="text-left">
+            <h3 className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
               Thông tin
             </h3>
             <ul className="mt-4 space-y-2.5 font-serif text-sm font-medium">
@@ -169,9 +179,9 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Legal Links */}
-          <div>
-            <h3 className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest">
+          {/* Legal */}
+          <div className="text-left">
+            <h3 className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
               Pháp lý
             </h3>
             <ul className="mt-4 space-y-2.5 font-serif text-sm font-medium">
@@ -189,9 +199,9 @@ export function Footer() {
           </div>
         </div>
 
-        {/* KHU VỰC GIỮA: FORM ĐĂNG KÝ EMAIL LỒNG PILL-IN-PILL (GIỐNG ẢNH 1) */}
+        {/* KHU VỰC GIỮA: GET UPDATES EMAIL (PILL-IN-PILL LỒNG DẸT CHUẨN ĐỒNG BỘ) */}
         <div className="border-t border-[#E1DDD5]/80 py-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div className="space-y-1">
+          <div className="space-y-1 text-left">
             <h4 className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-semibold">
               Get updates
             </h4>
@@ -218,15 +228,15 @@ export function Footer() {
               disabled={submitting}
               className="rounded-full bg-white hover:bg-neutral-100 text-[10px] font-mono font-bold tracking-widest text-black border border-[#E1DDD5] px-5 py-2.5 uppercase shadow-sm transition-all shrink-0 cursor-pointer"
             >
-              {submitting ? "..." : "GET UPDATES"}
+              {submitting ? "..." : "ĐĂNG KÝ NHẬN THÔNG TIN"}
             </button>
           </form>
         </div>
 
         <Separator className="bg-[#E1DDD5]/60 my-6" />
 
-        {/* KHU VỰC DƯỚI: COPYRIGHT & SOCIALS */}
-        <div className="flex flex-col-reverse gap-4 sm:flex-row sm:items-center sm:justify-between">
+        {/* KHU VỰC DƯỚI: COPYRIGHT */}
+        <div className="flex flex-col-reverse gap-4 sm:flex-row sm:items-center sm:justify-between text-left">
           <p className="text-[10px] font-mono text-[#786F66]/80 leading-relaxed">
             &copy; {siteConfig.copyrightYear} {siteConfig.name}. Operating under
             the ethos of deep focus and offline-first tranquility.

@@ -1,28 +1,28 @@
-import type { Metadata } from "next"
-import { Input } from "@/components/ui/input"
-import { Search } from "lucide-react"
-import { productRepository } from "@/lib/repositories"
-import { ProductGrid } from "@/components/products/product-grid"
-import { Pagination } from "@/components/products/pagination"
+import type { Metadata } from "next";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
+import { productRepository } from "@/lib/repositories";
+import { ProductGrid } from "@/components/products/product-grid";
+import { Pagination } from "@/components/products/pagination";
 
 export const metadata: Metadata = {
   title: "Search",
   description: "Search our product catalog.",
-}
+};
 
 interface SearchPageProps {
-  searchParams: Promise<{ q?: string; page?: string }>
+  searchParams: Promise<{ q?: string; page?: string }>;
 }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
-  const params = await searchParams
-  const query = params.q ?? ""
-  const page = Number(params.page) || 1
+  const params = await searchParams;
+  const query = params.q ?? "";
+  const page = Number(params.page) || 1;
 
-  const hasQuery = query.trim().length > 0
+  const hasQuery = query.trim().length > 0;
   const results = hasQuery
     ? await productRepository.search(query, { page, limit: 40 })
-    : null
+    : null;
 
   return (
     <div className="mx-auto max-w-[1440px] px-4 py-16 sm:px-6 lg:px-8">
@@ -75,5 +75,5 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         </div>
       )}
     </div>
-  )
+  );
 }

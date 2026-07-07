@@ -32,10 +32,11 @@ export async function GET(req: Request) {
   }
 }
 
-// 2. ĐĂNG ĐÁNH GIÁ MỚI
+// 2. ĐĂNG ĐÁNH GIÁ MỚI (ĐÃ BỔ SUNG CỘT IMAGE_URL)
 export async function POST(req: Request) {
   try {
-    const { product_id, customer_name, rating, comment } = await req.json();
+    const { product_id, customer_name, rating, comment, image_url } =
+      await req.json();
 
     if (!product_id || !customer_name || !rating) {
       return NextResponse.json(
@@ -47,7 +48,15 @@ export async function POST(req: Request) {
     const supabase = createSupabaseServerClient();
     const { data, error } = await supabase
       .from("reviews")
-      .insert([{ product_id, customer_name, rating, comment }])
+      .insert([
+        {
+          product_id,
+          customer_name,
+          rating,
+          comment,
+          image_url, // Ghi nhận link ảnh từ Supabase Storage
+        },
+      ])
       .select()
       .single();
 

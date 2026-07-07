@@ -8,16 +8,33 @@ export function NewsletterForm() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
-  function handleSubmit(e: React.FormEvent) {
+  // Tiến trình đăng ký bản tin gửi dữ liệu thực tế về Supabase
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!email) return;
+    if (!email.trim()) return;
 
     setLoading(true);
-    setTimeout(() => {
-      toast.success("Thanks for subscribing!");
-      setEmail("");
+    try {
+      const response = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        toast.success(data.message || "Đăng ký nhận bản tin thành công! ✨");
+        setEmail("");
+      } else {
+        toast.error(data.error || "Có lỗi xảy ra, vui lòng thử lại sau.");
+      }
+    } catch (err) {
+      console.error("Lỗi đăng ký bản tin:", err);
+      toast.error("Không thể kết nối đến máy chủ.");
+    } finally {
       setLoading(false);
-    }, 500);
+    }
   }
 
   return (
