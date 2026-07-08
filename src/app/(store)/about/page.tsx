@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"; // Đã bổ sung dòng import 
 export const metadata: Metadata = {
   title: "Về Boo Space — Studio Chế tác Workspace Độc Bản",
   description:
-    "Boo Space — Studio thiết kế sản phẩm thủ công, phụ kiện DIY và các giải pháp tổ chức không gian làm việc in 3D tĩnh lặng theo yêu cầu.",
+    "Studio thiết kế sản phẩm thủ công, phụ kiện DIY và các giải pháp tổ chức không gian làm việc in 3D tĩnh lặng theo yêu cầu.",
 };
 
 export default function AboutPage() {

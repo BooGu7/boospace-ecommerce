@@ -10,7 +10,7 @@ const supabase = createClient(
 
 export async function forgotPassword(email: string) {
   const { data: user } = await supabase
-    .from("ecommerce_users")
+    .from("users")
     .select("*")
     .eq("email", email)
     .maybeSingle();
@@ -28,7 +28,7 @@ export async function forgotPassword(email: string) {
   };
 
   await supabase
-    .from("ecommerce_users")
+    .from("users")
     .update({
       data: updatedData,
       updated_at: new Date().toISOString(),

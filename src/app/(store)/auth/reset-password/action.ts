@@ -16,17 +16,16 @@ export async function resetPassword(
   if (!token) {
     throw new Error("Token không hợp lệ");
   }
-
   if (!password) {
     throw new Error("Vui lòng nhập mật khẩu mới");
   }
-
   if (password !== confirmPassword) {
     throw new Error("Mật khẩu xác nhận không khớp");
   }
 
+  // Truy vấn từ bảng 'users'
   const { data: user, error } = await supabase
-    .from("ecommerce_users")
+    .from("users")
     .select("*")
     .contains("data", {
       resetToken: token,
@@ -36,13 +35,11 @@ export async function resetPassword(
   if (error) {
     throw new Error(error.message);
   }
-
   if (!user) {
-    throw new Error("Token không hợp lệ hoặc đã hết hạn");
+    throw new Error("Link đặt lại mật khẩu không hợp lệ hoặc đã hết hạn");
   }
 
   const userData = user.data;
-
   if (
     !userData?.resetTokenExpiresAt ||
     new Date(userData.resetTokenExpiresAt).getTime() < Date.now()
@@ -52,8 +49,9 @@ export async function resetPassword(
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
+  // Cập nhật cấu trúc mật khẩu băm mới lên bảng 'users'
   const { error: updateError } = await supabase
-    .from("ecommerce_users")
+    .from("users")
     .update({
       data: {
         ...userData,

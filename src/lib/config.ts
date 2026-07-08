@@ -7,8 +7,7 @@ export const siteConfig = {
   // Branding
   name: "Boo Space",
 
-  tagline:
-    "BOO SPACE — STUDIO HIỆN THỰC HÓA Ý TƯỞNG & MAY ĐO GÓC LÀM VIỆC THEO YÊU CẦU.",
+  tagline: "STUDIO HIỆN THỰC HÓA Ý TƯỞNG & MAY ĐO GÓC LÀM VIỆC THEO YÊU CẦU.",
   // Gợi ý: Đổi "không gian" thành "góc làm việc" giúp định vị rõ ràng hơn về mảng workspace, tạo cảm giác cá nhân hóa sâu sắc.
 
   description:

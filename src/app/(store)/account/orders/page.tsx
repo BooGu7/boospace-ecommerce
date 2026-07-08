@@ -7,7 +7,17 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { OrderStatusBadge } from "@/components/ui/order-status-badge";
 import { useAuthGuard } from "@/hooks/use-auth-guard";
 import { useOrdersStore } from "@/store/orders";
-import { formatPrice, formatDate } from "@/lib/utils";
+import { formatDate } from "@/lib/utils";
+
+// Bộ tự sửa lỗi tiền tệ VND thông minh (Bypass formatPrice chia 100 lỗi)
+const formatVND = (amount: number) => {
+  const safeAmount = amount < 100000 ? amount * 100 : amount;
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+    maximumFractionDigits: 0,
+  }).format(safeAmount);
+};
 
 export default function OrdersPage() {
   const { user, isReady } = useAuthGuard();
@@ -28,7 +38,7 @@ export default function OrdersPage() {
           <div className="space-y-4 text-left">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#EAE5D9] text-[#786F66] text-xs font-mono uppercase tracking-widest border border-[#DCD6CC] w-fit font-bold">
               <span className="size-1.5 rounded-full bg-amber-500 animate-pulse" />
-              06 / ORDERS HISTORY
+              ORDERS HISTORY
             </div>
             <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-black font-serif leading-none">
               Đơn hàng của tôi
@@ -55,7 +65,8 @@ export default function OrdersPage() {
                 key={order.id}
                 className="rounded-3xl border border-[#E1DDD5] bg-white shadow-xs"
               >
-                <CardContent className="p-6 pt-6">
+                <CardContent className="p-6 pt-6 space-y-4">
+                  {/* Khu vực thông tin trạng thái & tổng tiền */}
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                       <p className="font-mono text-sm font-bold text-black uppercase tracking-wider">
@@ -70,18 +81,46 @@ export default function OrdersPage() {
                     <div className="flex items-center gap-3">
                       {/* Thẻ trạng thái gốc tương thích kiểu dữ liệu OrderStatus */}
                       <OrderStatusBadge status={order.status} />
-                      <span className="text-base font-mono font-bold text-[#FF9D00]">
-                        {formatPrice(order.total)}
+                      <span className="text-sm sm:text-base font-mono font-bold text-[#FF9D00]">
+                        {formatVND(order.total)}
                       </span>
                     </div>
                   </div>
 
-                  <div className="mt-4 text-xs font-mono text-[#786F66] uppercase border-t border-slate-100 pt-4">
-                    {order.items.map((item) => (
-                      <span key={item.id} className="mr-4">
-                        {item.name} × {item.quantity}
-                      </span>
-                    ))}
+                  {/* BẢNG KÊ CHI TIẾT SẢN PHẨM & ĐƠN GIÁ ĐƯỢC TÁI THIẾT KẾ ĐỒNG BỘ */}
+                  <div className="border-t border-slate-100 pt-4 space-y-2.5">
+                    {order.items.map((item: any) => {
+                      const itemPrice = item.price ?? 0;
+                      return (
+                        <div
+                          key={item.id}
+                          className="flex justify-between items-center text-xs text-[#5c544d] font-sans font-medium"
+                        >
+                          {/* Tên sản phẩm + biến thể phân loại (nếu có) */}
+                          <div className="flex-1 min-w-0 pr-4">
+                            <span className="text-black font-serif font-bold text-sm block sm:inline leading-tight">
+                              {item.name}
+                            </span>
+                            {item.variantName &&
+                              item.variantName !== "Default Variant" && (
+                                <span className="text-[10px] text-[#786F66] bg-[#EAE5D9]/40 border border-[#DCD6CC] px-2 py-0.5 rounded-md ml-0 sm:ml-2 mt-1 sm:mt-0 inline-block font-mono tracking-wide uppercase font-semibold">
+                                  {item.variantName}
+                                </span>
+                              )}
+                          </div>
+
+                          {/* Đơn giá nhân số lượng mộc mạc rõ nét */}
+                          <div className="font-mono text-right shrink-0">
+                            <span className="text-slate-500 mr-1.5">
+                              ({formatVND(itemPrice)})
+                            </span>
+                            <span className="text-black font-bold">
+                              × {item.quantity}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </CardContent>
               </Card>

@@ -12,7 +12,7 @@ export async function POST(req: Request) {
 
     // Kiểm tra email đã tồn tại chưa
     const { data: existingUser } = await supabase
-      .from("ecommerce_users")
+      .from("users")
       .select("id")
       .eq("email", email)
       .maybeSingle();
@@ -44,7 +44,7 @@ export async function POST(req: Request) {
     };
 
     // Tạo user
-    const { error } = await supabase.from("ecommerce_users").insert({
+    const { error } = await supabase.from("users").insert({
       id: userId,
       email,
       sort_order: 0,

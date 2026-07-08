@@ -17,7 +17,7 @@ export async function resetPassword(
     throw new Error("Mật khẩu xác nhận không khớp");
   }
 
-  const { data: users } = await supabase.from("ecommerce_users").select("*");
+  const { data: users } = await supabase.from("users").select("*");
 
   const user = users?.find(
     (u) =>
@@ -39,7 +39,7 @@ export async function resetPassword(
   };
 
   const { error } = await supabase
-    .from("ecommerce_users")
+    .from("users")
     .update({
       data: updatedData,
       updated_at: new Date().toISOString(),

@@ -20,13 +20,12 @@ export async function registerUser(data: RegisterInput) {
   }
 
   const { firstName, lastName, email, password } = validation.data;
-
   const normalizedEmail = email.trim().toLowerCase();
-
   const admin = getSupabaseAdmin();
 
+  // Kiểm tra xem email này đã tồn tại trong bảng 'users' hay chưa
   const { data: existing } = await admin
-    .from("ecommerce_users")
+    .from("users")
     .select("id")
     .eq("email", normalizedEmail)
     .maybeSingle();
@@ -37,6 +36,7 @@ export async function registerUser(data: RegisterInput) {
 
   const supabase = createSupabaseServerClient();
 
+  // Đăng ký tài khoản trên Supabase Auth và tự động kích hoạt gửi Email verify
   const { data: authData, error } = await supabase.auth.signUp({
     email: normalizedEmail,
     password,
@@ -54,24 +54,27 @@ export async function registerUser(data: RegisterInput) {
   }
 
   const user = authData.user;
-
   if (!user) {
     throw new Error("Không thể tạo tài khoản");
   }
 
-  const { error: profileError } = await admin.from("ecommerce_users").insert({
-    id: user.id,
-    email: normalizedEmail,
-    sort_order: 0,
-    data: {
+  // SỬA LỖI TRÙNG KHÓA: Sử dụng .upsert() thay vì .insert() để ghi đè an toàn nếu tài khoản đăng ký lại
+  const { error: profileError } = await admin.from("users").upsert(
+    {
       id: user.id,
-      firstName,
-      lastName,
       email: normalizedEmail,
-      isVerified: false,
-      createdAt: new Date().toISOString(),
+      sort_order: 0,
+      data: {
+        id: user.id,
+        firstName,
+        lastName,
+        email: normalizedEmail,
+        isVerified: false,
+        createdAt: new Date().toISOString(),
+      },
     },
-  });
+    { onConflict: "id" },
+  );
 
   if (profileError) {
     throw new Error(profileError.message);

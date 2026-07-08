@@ -37,3 +37,24 @@ export const mobileMenuSections: NavSection[] = [
   { label: "Tài khoản", items: accountLinks },
   { label: "Thông tin", items: infoLinks },
 ];
+
+// NÂNG CẤP: Đã thêm từ khóa export để làm nguồn dữ liệu chuẩn duy nhất
+export const footerLinks = {
+  shop: [
+    { name: "Tất cả sản phẩm", href: "/shop" },
+    { name: "Sản phẩm mới", href: "/shop?sort=newest" },
+    { name: "Khuyến mãi", href: "/shop?sale=true" },
+  ],
+  company: [
+    { name: "Giới thiệu", href: "/about" },
+    { name: "Blog", href: "/blog" },
+    { name: "Liên hệ", href: "/contact" },
+    { name: "FAQ", href: "/faq" },
+  ],
+  legal: [
+    { name: "Chính sách vận chuyển", href: "/policies/shipping" },
+    { name: "Đổi trả & hoàn tiền", href: "/policies/returns" },
+    { name: "Chính sách bảo mật", href: "/policies/privacy" },
+    { name: "Điều khoản sử dụng", href: "/policies/terms" },
+  ],
+};

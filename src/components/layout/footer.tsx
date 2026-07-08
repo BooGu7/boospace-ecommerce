@@ -4,9 +4,10 @@ import Link from "next/link";
 import { useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { siteConfig } from "@/lib/config";
+import { footerLinks } from "@/lib/navigation"; // Khai báo nhập khẩu nguồn dữ liệu chuẩn duy nhất
 import { toast } from "sonner";
 
-// ICONS GIỮ NGUYÊN SVG GỐC
+// HỆ THỐNG SVG SOCIAL ICONS GỐC
 function IconTwitter({ className }: { className?: string }) {
   return (
     <svg
@@ -72,31 +73,11 @@ function IconTikTok({ className }: { className?: string }) {
   );
 }
 
-const footerLinks = {
-  shop: [
-    { name: "Tất cả sản phẩm", href: "/shop" },
-    { name: "Sản phẩm mới", href: "/shop?sort=newest" },
-    { name: "Khuyến mãi", href: "/shop?sale=true" },
-  ],
-  company: [
-    { name: "Giới thiệu", href: "/about" },
-    { name: "Blog", href: "/blog" },
-    { name: "Liên hệ", href: "/contact" },
-    { name: "FAQ", href: "/faq" },
-  ],
-  legal: [
-    { name: "Chính sách vận chuyển", href: "/policies/shipping" },
-    { name: "Đổi trả & hoàn tiền", href: "/policies/returns" },
-    { name: "Chính sách bảo mật", href: "/policies/privacy" },
-    { name: "Điều khoản sử dụng", href: "/policies/terms" },
-  ],
-};
-
 export function Footer() {
   const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  // Tiến trình đăng ký nhận bản tin gửi dữ liệu trực tiếp về Supabase
+  // Tiến trình đăng ký nhận bản tin gửi dữ liệu trực tiếp về Supabase qua API trung gian
   async function handleSubscribe(e: React.FormEvent) {
     e.preventDefault();
     if (!email.trim()) return;
@@ -127,157 +108,191 @@ export function Footer() {
   return (
     <footer className="relative z-10 border-t border-[#E1DDD5] bg-[#FCFAF2] text-[#1E1C1A]">
       <div className="mx-auto max-w-[1440px] px-4 py-16 sm:px-6 lg:px-8 border-x border-[#E1DDD5]">
-        {/* KHU VỰC TRÊN: BRAND & LINKS */}
-        <div className="grid grid-cols-2 gap-8 md:grid-cols-5 pb-16">
-          <div className="col-span-2 space-y-4">
-            <Link
-              href="/"
-              className="font-serif text-2xl font-bold tracking-tight uppercase leading-none text-black hover:text-[#FF9D00] transition-colors"
-            >
-              {siteConfig.name}
-            </Link>
-            <p className="text-xs font-mono text-[#786F66]/85 max-w-sm leading-relaxed text-left">
-              {siteConfig.tagline}
-            </p>
+        {/* ============================================================================
+           BỐ CỤC KHU VỰC TRÊN (TÁI CẤU TRÚC 12 CỘT: KHUNG ĐĂNG KÝ EMAIL NẰM TRỌN BÊN TRÁI)
+           ============================================================================ */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 pb-16 items-start">
+          {/* CỘT TRÁI (BẢN TIN & THƯƠNG HIỆU - CHIẾM 5/12 CỘT TRÊN DESKTOP) */}
+          <div className="lg:col-span-5 space-y-8 text-left">
+            <div className="space-y-4">
+              <Link
+                href="/"
+                className="font-serif text-2xl font-bold tracking-tight uppercase leading-none text-black hover:text-[#FF9D00] transition-colors block"
+              >
+                {siteConfig.name}
+              </Link>
+              <p className="text-xs font-mono text-[#786F66]/85 max-w-sm leading-relaxed">
+                {siteConfig.tagline}
+              </p>
+            </div>
+
+            {/* FORM ĐĂNG KÝ EMAIL LỒNG DẸT ĐƯỢC CHUYỂN LÊN ĐÂY */}
+            <div className="space-y-3 pt-6 border-t border-[#E1DDD5]/60 max-w-sm">
+              <h4 className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-semibold">
+                TIN TỨC
+              </h4>
+              <p className="text-xs text-[#786F66]/80 font-sans leading-normal">
+                Đăng ký để nhận tin tức về sản phẩm thủ công, thiết kế workspace
+                mới nhất.
+              </p>
+
+              <form
+                onSubmit={handleSubscribe}
+                className="relative w-full flex items-center bg-transparent border border-[#E1DDD5] rounded-full p-1 focus-within:ring-1 focus-within:ring-[#FF9D00] mt-3"
+              >
+                <input
+                  type="email"
+                  placeholder="E-MAIL"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="flex-1 bg-transparent px-4 py-2 text-xs font-mono tracking-wider outline-none text-black placeholder:text-[#786F66]/50"
+                />
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="rounded-full bg-white hover:bg-neutral-100 text-[10px] font-mono font-bold tracking-widest text-black border border-[#E1DDD5] px-4 py-2 uppercase shadow-sm transition-all shrink-0 cursor-pointer"
+                >
+                  {submitting ? "..." : "GET"}
+                </button>
+              </form>
+            </div>
           </div>
 
-          {/* Shop */}
-          <div className="text-left">
-            <h3 className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
-              Shop
-            </h3>
-            <ul className="mt-4 space-y-2.5 font-serif text-sm font-medium">
-              {footerLinks.shop.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    href={link.href}
-                    className="transition-colors hover:text-[#FF9D00]"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {/* CỘT PHẢI (CÁC LIÊN KẾT ĐIỀU HƯỚNG ĐƯỢC MAP TRỰC TIẾP TỪ NAVIGATIONS.TS) */}
+          <div className="lg:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-8 text-left">
+            {/* Shop links */}
+            <div>
+              <h3 className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
+                Shop
+              </h3>
+              <ul className="mt-4 space-y-2.5 font-serif text-sm font-medium">
+                {footerLinks.shop.map((link) => (
+                  <li key={link.name}>
+                    <Link
+                      href={link.href}
+                      className="transition-colors hover:text-[#FF9D00]"
+                    >
+                      {link.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-          {/* Company */}
-          <div className="text-left">
-            <h3 className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
-              Thông tin
-            </h3>
-            <ul className="mt-4 space-y-2.5 font-serif text-sm font-medium">
-              {footerLinks.company.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    href={link.href}
-                    className="transition-colors hover:text-[#FF9D00]"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+            {/* Company links */}
+            <div>
+              <h3 className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
+                Thông tin
+              </h3>
+              <ul className="mt-4 space-y-2.5 font-serif text-sm font-medium">
+                {footerLinks.company.map((link) => (
+                  <li key={link.name}>
+                    <Link
+                      href={link.href}
+                      className="transition-colors hover:text-[#FF9D00]"
+                    >
+                      {link.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-          {/* Legal */}
-          <div className="text-left">
-            <h3 className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
-              Pháp lý
-            </h3>
-            <ul className="mt-4 space-y-2.5 font-serif text-sm font-medium">
-              {footerLinks.legal.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    href={link.href}
-                    className="transition-colors hover:text-[#FF9D00]"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            {/* Legal links */}
+            <div className="col-span-2 sm:col-span-1">
+              <h3 className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
+                Pháp lý
+              </h3>
+              <ul className="mt-4 space-y-2.5 font-serif text-sm font-medium">
+                {footerLinks.legal.map((link) => (
+                  <li key={link.name}>
+                    <Link
+                      href={link.href}
+                      className="transition-colors hover:text-[#FF9D00]"
+                    >
+                      {link.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
-        </div>
-
-        {/* KHU VỰC GIỮA: GET UPDATES EMAIL (PILL-IN-PILL LỒNG DẸT CHUẨN ĐỒNG BỘ) */}
-        <div className="border-t border-[#E1DDD5]/80 py-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div className="space-y-1 text-left">
-            <h4 className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-semibold">
-              Get updates
-            </h4>
-            <p className="text-xs text-[#786F66]/80 font-sans">
-              Đăng ký để nhận tin tức về sản phẩm thủ công, thiết kế workspace
-              mới nhất.
-            </p>
-          </div>
-
-          <form
-            onSubmit={handleSubscribe}
-            className="relative w-full max-w-sm flex items-center bg-transparent border border-[#E1DDD5] rounded-full p-1 focus-within:ring-1 focus-within:ring-[#FF9D00]"
-          >
-            <input
-              type="email"
-              placeholder="E-MAIL"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="flex-1 bg-transparent px-5 py-2 text-xs font-mono tracking-wider outline-none text-black placeholder:text-[#786F66]/50"
-            />
-            <button
-              type="submit"
-              disabled={submitting}
-              className="rounded-full bg-white hover:bg-neutral-100 text-[10px] font-mono font-bold tracking-widest text-black border border-[#E1DDD5] px-5 py-2.5 uppercase shadow-sm transition-all shrink-0 cursor-pointer"
-            >
-              {submitting ? "..." : "ĐĂNG KÝ NHẬN THÔNG TIN"}
-            </button>
-          </form>
         </div>
 
         <Separator className="bg-[#E1DDD5]/60 my-6" />
 
-        {/* KHU VỰC DƯỚI: COPYRIGHT */}
+        {/* ============================================================================
+           KHU VỰC DƯỚI: COPYRIGHT & SOCIALS (LIÊN KẾT ĐỘNG HOÀN TOÀN TỪ CONFIG.TS)
+           ============================================================================ */}
         <div className="flex flex-col-reverse gap-4 sm:flex-row sm:items-center sm:justify-between text-left">
           <p className="text-[10px] font-mono text-[#786F66]/80 leading-relaxed">
-            &copy; {siteConfig.copyrightYear} {siteConfig.name}. Operating under
-            the ethos of deep focus and offline-first tranquility.
+            &copy; {siteConfig.copyrightYear} {siteConfig.name}. Khi tư duy sáng
+            tạo gặp gỡ lối sống tối giản.
             <br className="sm:hidden" />
           </p>
+
+          {/* HỆ THỐNG MẠNG XÃ HỘI TỰ ĐỘNG PHẢN HỒI THEO FILE CONFIG.TS */}
           <div className="flex items-center gap-5 text-[#786F66]">
-            <a
-              href="#"
-              className="transition-colors hover:text-black"
-              aria-label="Twitter"
-            >
-              <IconTwitter className="h-4 w-4" />
-            </a>
-            <a
-              href="#"
-              className="transition-colors hover:text-black"
-              aria-label="Instagram"
-            >
-              <IconInstagram className="h-4 w-4" />
-            </a>
-            <a
-              href="#"
-              className="transition-colors hover:text-black"
-              aria-label="Facebook"
-            >
-              <IconFacebook className="h-4 w-4" />
-            </a>
-            <a
-              href="#"
-              className="transition-colors hover:text-black"
-              aria-label="YouTube"
-            >
-              <IconYouTube className="h-4 w-4" />
-            </a>
-            <a
-              href="#"
-              className="transition-colors hover:text-black"
-              aria-label="TikTok"
-            >
-              <IconTikTok className="h-4 w-4" />
-            </a>
+            {siteConfig.social.twitter && (
+              <a
+                href={siteConfig.social.twitter}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-colors hover:text-black"
+                aria-label="Twitter"
+              >
+                <IconTwitter className="h-4 w-4" />
+              </a>
+            )}
+
+            {siteConfig.social.instagram && (
+              <a
+                href={siteConfig.social.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-colors hover:text-black"
+                aria-label="Instagram"
+              >
+                <IconInstagram className="h-4 w-4" />
+              </a>
+            )}
+
+            {siteConfig.social.facebook && (
+              <a
+                href={siteConfig.social.facebook}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-colors hover:text-black"
+                aria-label="Facebook"
+              >
+                <IconFacebook className="h-4 w-4" />
+              </a>
+            )}
+
+            {siteConfig.social.youtube && (
+              <a
+                href={siteConfig.social.youtube}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-colors hover:text-black"
+                aria-label="YouTube"
+              >
+                <IconYouTube className="h-4 w-4" />
+              </a>
+            )}
+
+            {siteConfig.social.tiktok && (
+              <a
+                href={siteConfig.social.tiktok}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-colors hover:text-black"
+                aria-label="TikTok"
+              >
+                <IconTikTok className="h-4 w-4" />
+              </a>
+            )}
           </div>
         </div>
       </div>
