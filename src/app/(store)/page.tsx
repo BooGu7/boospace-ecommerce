@@ -11,14 +11,14 @@ import { MainHorizontalScroll } from "@/components/home/main-horizontal-scroll";
 
 // GIỮ NGUYÊN TOÀN BỘ CẤU HÌNH SEO METADATA CHUẨN CỦA BẠN
 export const metadata: Metadata = {
-  title: "Boospace — Custom 3D Printed Workspace & DIY Design Studio",
+  title: "Boo Space — Custom 3D Printed Workspace & DIY Design Studio",
   description:
-    "Boospace cung cấp sản phẩm in 3D theo yêu cầu cho workspace và DIY. Thiết kế tùy chỉnh, sản xuất theo ý tưởng riêng và tạo ra các giải pháp không gian làm việc độc đáo bằng công nghệ in 3D.",
+    "Boo Space cung cấp sản phẩm in 3D theo yêu cầu cho workspace và DIY. Thiết kế tùy chỉnh, sản xuất theo ý tưởng riêng và tạo ra các giải pháp không gian làm việc độc đáo bằng công nghệ in 3D.",
   alternates: {
     canonical: "https://boospace.tech/",
   },
   openGraph: {
-    title: "Boospace — Custom 3D Printed Workspace",
+    title: "Boo Space — Custom 3D Printed Workspace",
     description:
       "Thiết kế và sản xuất sản phẩm in 3D cho workspace và DIY theo yêu cầu tại Boospace.",
     type: "website",
@@ -33,6 +33,7 @@ export const metadata: Metadata = {
     "diy 3d print",
     "boospace",
     "boospace tech",
+    "Boo Space",
   ],
 };
 
@@ -72,7 +73,7 @@ export default async function HomePage() {
 
     statement_title:
       "Chúng tôi từ chối chấp nhận một không gian làm việc bừa bộn, kém bảo mật, và gây xao nhãng.",
-    statement_subtitle: "02 / TUYÊN NGÔN BOOSPACE",
+    statement_subtitle: "02 / TUYÊN NGÔN BOO SPACE",
 
     display_tag: "// CHẾ TÁC VÀ ĐỒNG BỘ ĐỘC BẢN",
     display_title: "Hệ sinh thái bàn làm việc hướng tới sự tập trung sâu",

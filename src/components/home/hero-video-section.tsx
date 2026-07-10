@@ -1,38 +1,41 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { MotionWrapper } from "@/components/ui/motion-wrapper";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface HeroVideoSectionProps {
   heroImage: string;
   heroVideo: string;
   heroSubtitle: string;
+  onExploreClick?: () => void; // Prop xử lý điều hướng thông suốt
 }
 
 export function HeroVideoSection({
   heroImage,
   heroVideo,
   heroSubtitle,
+  onExploreClick,
 }: HeroVideoSectionProps) {
-  const [orderLoading, setOrderLoading] = React.useState(false);
+  const router = useRouter();
   const [email, setEmail] = React.useState("");
   const [submitting, setSubmitting] = React.useState(false);
   const [isClosed, setIsClosed] = React.useState(false);
 
-  const handleOrderClick = (e: React.MouseEvent) => {
+  // Điều phối chuyển trang thông suốt về /shop
+  const handleExplore = (e: React.MouseEvent) => {
     e.preventDefault();
-    setOrderLoading(true);
-    // Giả lập thời gian nạp đơn hàng trước khi chuyển tiếp
-    setTimeout(() => {
-      window.location.href = "/shop";
-    }, 1200);
+    if (onExploreClick) {
+      onExploreClick();
+    } else {
+      router.push("/shop");
+    }
   };
 
-  // Tiến trình đăng ký bản tin từ góc Hero Section gửi lên Supabase
+  // Tiến trình đăng ký bản tin góc trang lưu trực tiếp về Supabase
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim()) return;
@@ -48,9 +51,9 @@ export function HeroVideoSection({
       const data = await response.json();
 
       if (response.ok && data.success) {
-        toast.success(data.message || "Đăng ký nhận bản tin thành công! ✨");
+        toast.success(data.message || "Đăng ký nhận tin thành công! ✨");
         setEmail("");
-        setIsClosed(true); // Tự động đóng bản tin sau khi đăng ký thành công
+        setIsClosed(true); // Ẩn mượt mà form sau khi đăng ký thành công
       } else {
         toast.error(data.error || "Có lỗi xảy ra, vui lòng thử lại.");
       }
@@ -71,7 +74,7 @@ export function HeroVideoSection({
       <div className="absolute inset-0 bg-black/45 z-0" />
 
       <div className="mx-auto max-w-[1440px] w-full h-[85vh] flex flex-col justify-between relative z-10 p-6 sm:p-12 lg:p-16 text-white bg-black/5">
-        {/* Header phụ mộc mạc */}
+        {/* Header phụ mộc mạc không chứa chỉ mục số rườm rà */}
         <div className="flex justify-between items-start w-full">
           <MotionWrapper direction="down" delay={100}>
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 backdrop-blur-md text-[#FAF5F2] text-xs font-mono uppercase tracking-widest border border-white/20">
@@ -81,31 +84,30 @@ export function HeroVideoSection({
           </MotionWrapper>
         </div>
 
-        {/* Tiêu đề & Mô tả Việt hóa hoàn chỉnh */}
-        <div className="max-w-3xl space-y-6 pt-16">
+        {/* Tiêu đề & Mô tả Việt hóa hoàn chỉnh chuẩn mực hãng đèn Cozy */}
+        <div className="max-w-3xl space-y-6 pt-16 text-left">
           <MotionWrapper direction="up" delay={200}>
             <h1 className="text-5xl sm:text-7xl font-bold tracking-tight text-white leading-[1.05] font-serif text-drop-shadow">
-              Mảng xanh độc bản,
+              Không gian độc bản.
               <br />
               <span className="text-[#3ECF8E] italic font-medium font-serif">
-                thân thiện và tinh tế.
+                Thân thiện và Tinh tế.
               </span>
             </h1>
           </MotionWrapper>
           <MotionWrapper direction="up" delay={300}>
             <p className="text-base sm:text-lg text-neutral-200 leading-relaxed max-w-lg font-sans text-drop-shadow">
-              Định nghĩa lại góc làm việc bằng những chiếc{" "}
-              <span className="text-[#3ECF8E] font-medium">chậu cây in 3D</span>{" "}
-              mang ngôn ngữ thiết kế hiện đại. Chất liệu sinh học lành tính,
-              kiểu dáng thẩm mỹ cao giúp dọn dẹp mọi xao nhãng số, trả lại sự
-              tĩnh lặng thuần khiết bên cạnh hạ tầng.
+              Định nghĩa lại góc sống bằng những chiếc đèn nghệ thuật và vật
+              dụng in 3D mang ngôn ngữ tối giản. Chất liệu sinh học lành tính
+              giúp dọn dẹp mọi xao nhãng số, trả lại sự ấm áp thuần khiết cho
+              tâm trí.
             </p>
           </MotionWrapper>
         </div>
 
-        {/* Chân trang Hero (Khung Video lặp ngầm & Button Order) */}
+        {/* Chân trang Hero (Khung Video lặp ngầm & Button Explore) */}
         <div className="flex flex-col lg:flex-row items-stretch lg:items-end justify-between gap-8 pt-12">
-          {/* Khung phát Video lặp lại thời gian thực từ Supabase Storage */}
+          {/* Khung phát Video lặp chậm mượt mà nạp từ Supabase Storage */}
           <MotionWrapper direction="right" delay={400}>
             <div className="relative w-48 sm:w-64 aspect-[16/10] rounded-2xl overflow-hidden border-2 border-[#3ECF8E] bg-black/40 group cursor-pointer shadow-lg">
               <video
@@ -119,8 +121,8 @@ export function HeroVideoSection({
             </div>
           </MotionWrapper>
 
-          <div className="space-y-4 max-w-sm w-full">
-            {/* Form Newsletter nhỏ gọn (Sẽ ẩn mượt mà sau khi đăng ký thành công hoặc tắt) */}
+          <div className="space-y-4 max-w-sm w-full text-left">
+            {/* Form Newsletter lồng dẹt gọn gàng */}
             {!isClosed && (
               <MotionWrapper direction="left" delay={450}>
                 <div className="bg-white/95 backdrop-blur-md text-black p-5 rounded-2xl border border-white/20 shadow-xl relative space-y-3">
@@ -135,7 +137,7 @@ export function HeroVideoSection({
                       Bản tin Boo Space
                     </h4>
                     <p className="text-[9px] text-[#786F66] font-mono tracking-wider font-semibold">
-                      ĐĂNG KÝ NHẬN TIN · KHÔNG SPAM
+                      NHẬN CẢM HỨNG KHÔNG GIAN COZY HÀNG TUẦN · KHÔNG SPAM
                     </p>
                   </div>
 
@@ -157,24 +159,23 @@ export function HeroVideoSection({
                       disabled={submitting}
                       className="rounded-lg bg-black hover:bg-slate-800 text-[10px] font-mono font-bold tracking-widest text-white px-3.5 py-2 uppercase shadow-sm transition-all shrink-0 cursor-pointer"
                     >
-                      {submitting ? "..." : "ĐĂNG KÍ"}
+                      {submitting ? "..." : "GET"}
                     </button>
                   </form>
                 </div>
               </MotionWrapper>
             )}
 
-            {/* Lệnh Order Now khổng lồ màu xanh Supabase tích hợp HÚT CHUỘT MAGNETIC */}
+            {/* Phím bấm KHÁM PHÁ BỘ SƯU TẬP dẫn thẳng sang trang Shop */}
             <MotionWrapper direction="up" delay={500} className="space-y-2">
               <MagneticButton
-                onClick={handleOrderClick}
-                loading={orderLoading}
-                className="w-full bg-[#3ECF8E] hover:bg-[#2eb87b] text-black font-mono uppercase text-xs font-bold tracking-wider py-4 rounded-xl border border-[#3ECF8E] shadow-sm"
+                onClick={handleExplore}
+                className="w-full bg-[#FF9D00] hover:bg-[#E68A00] text-black font-mono uppercase text-xs font-bold tracking-wider py-4 rounded-xl border border-[#FF9D00] shadow-sm"
               >
-                ĐẶT HÀNG NGAY <ArrowRight className="size-4 text-black" />
+                KHÁM PHÁ BỘ SƯU TẬP <ArrowRight className="size-4 text-black" />
               </MagneticButton>
               <p className="text-center text-[10px] text-white/70 font-mono tracking-wider">
-                {"✓"} CÒN HÀNG {"·"} VẬN CHUYỂN TRONG 3-5 NGÀY
+                {"✓"} MIỄN PHÍ VẬN CHUYỂN TOÀN QUỐC TẠI VIỆT NAM
               </p>
             </MotionWrapper>
           </div>

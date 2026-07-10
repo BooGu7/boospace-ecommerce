@@ -1,24 +1,21 @@
-import type { Product } from "@/types"
-import { ProductCard } from "./product-card"
+import { ProductCard } from "./product-card";
+import type { Product } from "@/types";
 
 interface ProductGridProps {
-  products: Product[]
+  products: Product[];
 }
 
 export function ProductGrid({ products }: ProductGridProps) {
-  if (products.length === 0) {
-    return (
-      <div className="py-16 text-center">
-        <p className="text-muted-foreground">No products found.</p>
-      </div>
-    )
-  }
-
   return (
-    <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 lg:grid-cols-4">
-      {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+    <div className="grid grid-cols-2 gap-x-6 gap-y-12 md:grid-cols-3 lg:grid-cols-4 bg-transparent">
+      {products.map((product, index) => (
+        <ProductCard
+          key={product.id}
+          product={product}
+          // Tự động kích hoạt nạp ưu tiên cho 4 sản phẩm đầu tiên phía trên màn hình (index < 4) [1.1]
+          priority={index < 4}
+        />
       ))}
     </div>
-  )
+  );
 }

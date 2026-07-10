@@ -134,7 +134,7 @@ export default function AboutPage() {
               <div className="flex justify-between items-center pb-1">
                 <span className="text-[#786F66]">Đơn vị vận hành</span>
                 <span className="font-bold text-black uppercase">
-                  Boospace Studio ©2026
+                  Boo Space Studio ©2026
                 </span>
               </div>
             </div>

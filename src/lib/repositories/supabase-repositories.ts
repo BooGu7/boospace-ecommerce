@@ -108,6 +108,8 @@ function mapDbProductToStorefront(dbProduct: any): Product {
     brandId: dbProduct.brand_id,
     tags: [],
     variants: [defaultVariant],
+    attributes: dbProduct.attributes || {},
+
     createdAt: dbProduct.created_at || new Date().toISOString(),
     updatedAt: dbProduct.updated_at || new Date().toISOString(),
   } as unknown as Product;

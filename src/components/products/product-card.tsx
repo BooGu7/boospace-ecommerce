@@ -1,105 +1,80 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { Heart } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
-import { StarRating } from "@/components/products/star-rating"
-import { formatPrice } from "@/lib/utils"
-import { PLACEHOLDER_IMAGE } from "@/lib/constants"
-import { useWishlistStore } from "@/store/wishlist"
-import { toast } from "sonner"
-import type { Product } from "@/types"
+import Link from "next/link";
+import Image from "next/image";
+import { formatPrice } from "@/lib/utils";
+import { PLACEHOLDER_IMAGE } from "@/lib/constants";
+import type { Product } from "@/types";
+import { motion } from "framer-motion";
 
 interface ProductCardProps {
-  product: Product
+  product: Product;
+  priority?: boolean; // Nhận thuộc tính nạp ưu tiên từ ngoài Grid để triệt tiêu cảnh báo LCP
 }
 
-export function ProductCard({ product }: ProductCardProps) {
-  const defaultVariant = product.variants[0]
-  if (!defaultVariant) return null
+export function ProductCard({ product, priority = false }: ProductCardProps) {
+  const defaultVariant = product.variants?.[0];
 
-  const price = defaultVariant.price
-  const compareAtPrice = defaultVariant.compareAtPrice
-  const isOnSale = compareAtPrice && compareAtPrice > price
-  const image = product.images[0]
+  // Xử lý an toàn cấu trúc ảnh động từ cả database Supabase lẫn file JSON cũ của bạn
+  const imgUrl =
+    typeof product.images?.[0] === "string"
+      ? product.images[0]
+      : (product.images?.[0]?.url ?? PLACEHOLDER_IMAGE);
 
-  const wishlistItems = useWishlistStore((s) => s.items)
-  const addItem = useWishlistStore((s) => s.addItem)
-  const removeItem = useWishlistStore((s) => s.removeItem)
+  const imgAlt =
+    typeof product.images?.[0] === "string"
+      ? product.name
+      : (product.images?.[0]?.alt ?? product.name);
 
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => setMounted(true), [])
-  const isWishlisted = mounted && wishlistItems.some((i) => i.productId === product.id)
-
-  function handleWishlist(e: React.MouseEvent) {
-    e.preventDefault()
-    e.stopPropagation()
-    if (isWishlisted) {
-      removeItem(product.id)
-      toast("Removed from wishlist")
-    } else {
-      addItem({
-        productId: product.id,
-        name: product.name,
-        slug: product.slug,
-        price,
-        image: image ?? { url: PLACEHOLDER_IMAGE, alt: product.name },
-      })
-      toast.success("Added to wishlist")
-    }
-  }
+  const isOnSale =
+    defaultVariant?.compareAtPrice &&
+    defaultVariant.compareAtPrice > defaultVariant.price;
 
   return (
-    <Link href={`/${product.slug}`} className="group">
-      <div className="relative aspect-square overflow-hidden rounded-lg bg-neutral-100">
-        <Image
-          src={image?.url ?? PLACEHOLDER_IMAGE}
-          alt={image?.alt ?? product.name}
-          fill
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
-          sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-        />
-        {isOnSale && (
-          <Badge
-            variant="secondary"
-            className="absolute top-3 left-3 bg-white text-xs"
-          >
-            Sale
-          </Badge>
-        )}
-        <button
-          onClick={handleWishlist}
-          className="absolute top-2 right-2 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-sm transition-opacity hover:bg-neutral-50 sm:opacity-0 sm:group-hover:opacity-100"
-          aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
-        >
-          <Heart
-            className={`h-4 w-4 ${isWishlisted ? "fill-current text-wishlist" : "text-neutral-600"}`}
+    <motion.div
+      whileHover={{ y: -6 }} // Nhấc nổi dẹt mộc mạc khi hover chuẩn hãng
+      transition={{ type: "spring", stiffness: 300, damping: 15 }}
+      className="group relative flex flex-col justify-between h-full text-left"
+    >
+      <Link href={`/${product.slug}`} className="block w-full h-full space-y-4">
+        {/* Khung chứa ảnh dẹt tròn lớn mộc mạc */}
+        <div className="relative aspect-square w-full overflow-hidden rounded-[32px] border border-[#E1DDD5] bg-[#EAE5D9]/20 shadow-xs">
+          <Image
+            src={imgUrl}
+            alt={imgAlt}
+            fill
+            priority={priority} // Bật nạp ưu tiên nếu nằm trên dòng đầu (LCP)
+            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+            className="object-cover mix-blend-multiply opacity-90 group-hover:scale-102 transition-transform duration-500"
           />
-        </button>
-      </div>
-      <div className="mt-3">
-        <StarRating rating={product.rating} reviewCount={product.reviewCount} size="sm" />
-        <h3 className="mt-1 text-sm font-medium text-foreground group-hover:underline">
-          {product.name}
-        </h3>
-        <div className="mt-1 flex items-center gap-2">
-          <span className="text-sm font-medium">
-            {formatPrice(price, defaultVariant.currency)}
-          </span>
+
+          {/* Badge giảm giá dẹt nếu có Sale */}
           {isOnSale && (
-            <span className="text-xs text-muted-foreground line-through">
-              {formatPrice(compareAtPrice, defaultVariant.currency)}
+            <span className="absolute top-4 left-4 text-[9px] font-mono font-bold text-white bg-[#E26E67] px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-sm">
+              Sale
             </span>
           )}
         </div>
-        {product.variants.length > 1 && (
-          <p className="mt-1 text-xs text-muted-foreground">
-            {product.variants.length} options
-          </p>
-        )}
-      </div>
-    </Link>
-  )
+
+        {/* Phần thông tin sản phẩm rõ nét */}
+        <div className="space-y-1.5 px-1">
+          <h3 className="font-serif text-base font-bold text-black leading-snug group-hover:text-[#FF9D00] transition-colors duration-300">
+            {product.name}
+          </h3>
+
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-mono font-bold text-black">
+              {defaultVariant &&
+                formatPrice(defaultVariant.price, defaultVariant.currency)}
+            </span>
+            {isOnSale && (
+              <span className="text-xs font-mono text-[#786F66] line-through opacity-60">
+                {formatPrice(defaultVariant.compareAtPrice!)}
+              </span>
+            )}
+          </div>
+        </div>
+      </Link>
+    </motion.div>
+  );
 }

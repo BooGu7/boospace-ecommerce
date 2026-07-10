@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import {
   motion,
   useScroll,
@@ -10,12 +11,13 @@ import {
   useSpring,
   Variants,
 } from "framer-motion";
-import { ArrowRight, Sparkles, ShieldCheck, Heart } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/utils";
 import { ProductGrid } from "@/components/products/product-grid";
 import { BentoPortalGrid } from "./bento-portal-grid";
 import { HeroVideoSection } from "./hero-video-section";
+import { HowItWorks } from "./how-it-works"; // Nhập khẩu quy trình chế tác mới
 
 interface MainHorizontalScrollProps {
   categories: any[];
@@ -50,6 +52,7 @@ export function MainHorizontalScroll({
   config,
 }: MainHorizontalScrollProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   // XỬ LÝ LỖI MẤT GIAO DIỆN KHI BẤM NÚT "BACK" CỦA TRÌNH DUYỆT (Scroll Restoration Bug)
   useEffect(() => {
@@ -69,7 +72,7 @@ export function MainHorizontalScroll({
     }
   }, []);
 
-  // Theo dõi tiến trình cuộn dọc trong tầm h-scroll 900vh (tương ứng 10 slide)
+  // Theo dõi tiến trình cuộn dọc trong tầm h-scroll 1000vh (tương ứng 11 slide)
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"],
@@ -82,8 +85,8 @@ export function MainHorizontalScroll({
     restDelta: 0.001,
   });
 
-  // Tịnh tiến 10 slide rộng 100vw xếp cạnh nhau (1000vw) -> dịch chuyển tối đa -90%
-  const x = useTransform(smoothScrollProgress, [0, 1], ["0%", "-90%"]);
+  // Tịnh tiến 11 slide rộng 100vw xếp cạnh nhau (1100vw) -> dịch chuyển tối đa -90.9%
+  const x = useTransform(smoothScrollProgress, [0, 1], ["0%", "-90.9%"]);
 
   // Thanh tiến trình cuộn ngang (Scroll Progress Bar) đặt ở đầu trang Desktop
   const scaleX = useSpring(scrollYProgress, {
@@ -102,40 +105,61 @@ export function MainHorizontalScroll({
         <HeroVideoSection
           heroImage={config.hero_image}
           heroVideo={config.hero_video}
-          heroSubtitle="Một trải nghiệm tĩnh lặng, dọn dẹp mọi xao nhãng. Không còn vòng xoay tải trang vô tận, không còn tiếng ồn số. Chỉ có sự mộc mạc của chất liệu vật lý kết hợp cùng hạ tầng Realtime mượt mà."
+          heroSubtitle="Định nghĩa lại góc sống bằng những chiếc đèn nghệ thuật và vật dụng in 3D mang ngôn ngữ tối giản. Chất liệu sinh học lành tính giúp dọn dẹp mọi xao nhãng số, trả lại sự ấm áp thuần khiết cho tâm trí."
+          onExploreClick={() => {
+            // NÂNG CẤP ĐỊNH TUYẾN: Đẩy trực tiếp sang trang /shop thực tế
+            router.push("/shop");
+          }}
         />
 
         {/* Slide 2: Tuyên ngôn */}
-        <section className="bg-[#F7F4EB] py-20 px-6 text-center border-y border-[#E1DDD5]">
-          <h2 className="text-3xl font-light font-serif leading-relaxed tracking-tight text-[#1E1C1A] max-w-4xl mx-auto">
-            Chúng tôi từ chối chấp nhận một tương lai nơi các thiết bị làm ta
-            kiệt sức, gây nghiện và bủa vây bởi sự{" "}
-            <span className="text-[#E26E67] font-semibold">
-              xao nhãng<sup className="text-xs text-[#FF9D00] ml-0.5">1</sup>
-            </span>
-          </h2>
-          <p className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest mt-8 font-bold">
-            TUYÊN NGÔN BOOSPACE
-          </p>
+        <section className="bg-[#F7F4EB] py-20 px-6 text-center border-y border-[#E1DDD5] relative overflow-hidden">
+          <div className="dappled-shadow-overlay opacity-20" />
+          <div className="relative z-10 space-y-6">
+            <h2 className="text-3xl font-light font-serif leading-relaxed tracking-tight text-[#1E1C1A] max-w-4xl mx-auto">
+              Chúng tôi từ chối chấp nhận một tương lai nơi các thiết bị làm ta{" "}
+              <span className="text-[#E26E67] font-semibold italic">
+                kiệt sức
+              </span>
+              ,{" "}
+              <span className="text-[#E26E67] font-semibold italic">
+                gây nghiện
+              </span>{" "}
+              và bủa vây bởi sự{" "}
+              <span className="text-[#E26E67] font-semibold italic">
+                xao nhãng
+                <sup className="text-xs text-[#FF9D00] ml-0.5 not-italic">
+                  1
+                </sup>
+              </span>
+              . Boo Space tin rằng, một chiếc đèn tỏa ánh sáng dịu hay một mảng
+              xanh nhỏ gọn gàng có thể là điểm tựa kéo tâm trí bạn về với sự
+              bình yên.
+            </h2>
+            <p className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest mt-8 font-bold">
+              TUYÊN NGÔN BOOSPACE
+            </p>
+          </div>
         </section>
 
-        {/* Slide 3: Chạm thô mộc */}
+        {/* Slide 3: Khúc xạ ấm áp */}
         <section className="px-6 py-16 space-y-6">
           <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
-            CHẠM THÔ MỘC
+            KHÚC XẠ ẤM ÁP
           </span>
           <h2 className="text-3xl font-bold font-serif text-black leading-tight">
-            Cảm giác sờ chạm thô mộc từ thớ gỗ sồi sấy
+            Vũ điệu dịu dàng của hình khối và ánh sáng
           </h2>
           <p className="text-sm text-[#5C564E] leading-relaxed">
-            Gỗ tự nhiên được mài nhám mịn bằng tay và nâng niu bằng lớp dầu bảo
-            dưỡng hữu cơ mộc mạc, kết nối sâu sắc tâm trí bạn với tự nhiên ngay
-            tại bàn phím.
+            Không còn những dải LED chói mắt gây mệt mỏi thị giác. Các thiết kế
+            đèn in 3D của Boo Space ứng dụng cấu trúc hình học đặc biệt để khúc
+            xạ ánh sáng thô thành những vầng sáng ambient dịu mát, ôm ấp không
+            gian sống của bạn khi đêm về.
           </p>
           <div className="relative aspect-square w-full rounded-3xl overflow-hidden border border-[#E1DDD5] bg-white">
             <Image
               src={config.diy_image}
-              alt="Chạm thô mộc"
+              alt="Khúc xạ ấm áp"
               fill
               sizes="100vw"
               className="object-cover mix-blend-multiply opacity-95"
@@ -143,23 +167,24 @@ export function MainHorizontalScroll({
           </div>
         </section>
 
-        {/* Slide 4: Tránh xao nhãng (Dark Panel) */}
+        {/* Slide 4: Mảng xanh tĩnh lặng */}
         <section className="px-6 py-16 bg-[#1C1A18] text-[#FCFAF2] space-y-6 border-y border-[#E1DDD5]/10">
           <span className="text-[10px] font-mono text-amber-500 uppercase tracking-widest font-bold">
-            TRÁNH XAO NHÃNG
+            MẢNG XANH TĨNH LẶNG
           </span>
           <h2 className="text-3xl font-bold font-serif text-white leading-tight">
-            Giải phóng không gian cho sự tập trung sâu
+            Khi sự sống ẩn mình trong những đường nét tối giản
           </h2>
           <p className="text-sm text-neutral-400 leading-relaxed">
-            Rãnh âm giấu cáp thông minh dọn dẹp sạch sẽ đống dây lộn xộn trên
-            bàn làm việc, trả lại khoảng không tối giản tĩnh lặng tuyệt đối cho
-            những ý tưởng lớn.
+            Một góc xanh nhỏ là bộ lọc tự nhiên cho những áp lực thường nhật.
+            Dòng chậu cây sen đá sở hữu thiết kế nguyên khối gọn gàng cùng hệ
+            thống rãnh thoát nước ẩn thông minh, giữ cho mặt bàn làm việc của
+            bạn luôn khô ráo, ngăn nắp và thanh lịch.
           </p>
           <div className="relative aspect-square w-full rounded-3xl overflow-hidden border border-white/10 bg-neutral-900">
             <Image
               src={config.tech_image}
-              alt="Tránh xao nhãng"
+              alt="Mảng xanh tĩnh lặng"
               fill
               sizes="100vw"
               className="object-cover opacity-90"
@@ -167,22 +192,25 @@ export function MainHorizontalScroll({
           </div>
         </section>
 
-        {/* Slide 5: Công thái học */}
+        {/* Slide 5: Vân nhám tương lai */}
         <section className="px-6 py-16 space-y-6">
           <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
-            CÔNG THÁI HỌC
+            VÂN NHÁM TƯƠNG LAI
           </span>
           <h2 className="text-3xl font-bold font-serif text-black leading-tight">
-            Tư thế ngồi tự nhiên, bảo vệ năng lượng sống
+            Tác phẩm nghệ thuật từ chất liệu sinh học lành tính
           </h2>
           <p className="text-sm text-[#5C564E] leading-relaxed">
-            Nâng màn hình lên góc 15 độ lý tưởng, giải phóng áp lực lên vùng vai
-            gáy, giúp bạn duy trì trạng thái sáng tạo bền bỉ suốt cả ngày dài.
+            Mỗi sản phẩm được &quot;vẽ&quot; bằng nhựa PLA (chiết xuất từ tinh
+            bột ngô/mía) thân thiện tuyệt đối với sức khỏe. Chúng tôi tinh chỉnh
+            máy in để giữ lại cấu trúc vân nhám mịn tự nhiên — mộc mạc như gốm
+            đất nung, bền bỉ với thời gian nhưng mang tinh thần của công nghệ
+            tương lai.
           </p>
           <div className="relative aspect-square w-full rounded-3xl overflow-hidden border border-[#E1DDD5] bg-white">
             <Image
               src={config.hero_image}
-              alt="Công thái học"
+              alt="Vân nhám tương lai"
               fill
               sizes="100vw"
               className="object-cover mix-blend-multiply opacity-95"
@@ -190,8 +218,16 @@ export function MainHorizontalScroll({
           </div>
         </section>
 
-        {/* Slide 6: Featured Products */}
-        <section className="px-6 py-16 bg-[#F5F1E6] border-y border-[#E1DDD5]">
+        {/* SLIDE 6 (MỚI): QUY TRÌNH CHẾ TÁC HOW IT WORKS CHO MOBILE */}
+        <section className="px-6 py-16 border-y border-[#E1DDD5] bg-[#F7F4EB]">
+          <HowItWorks />
+        </section>
+
+        {/* Slide 7: Featured Products */}
+        <section
+          id="featured-products-mobile"
+          className="px-6 py-16 bg-[#F5F1E6] border-y border-[#E1DDD5]"
+        >
           <div className="flex justify-between items-end border-b pb-4 border-[#E1DDD5] mb-8">
             <h2 className="text-3xl font-normal text-black font-serif">
               Thiết kế nổi bật
@@ -206,10 +242,10 @@ export function MainHorizontalScroll({
           <ProductGrid products={featuredProducts} />
         </section>
 
-        {/* Slide 7: Collections */}
+        {/* Slide 8: Collections */}
         <section className="px-6 py-16">
           <h2 className="text-3xl font-normal text-black font-serif border-b pb-4 border-[#E1DDD5] mb-8">
-            Không gian module
+            Bộ sưu tập không gian
           </h2>
           <div className="grid gap-6 sm:grid-cols-2">
             {categories?.map((cat, idx) => (
@@ -233,7 +269,11 @@ export function MainHorizontalScroll({
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent flex flex-col justify-end p-8 text-white">
                   <span className="text-[10px] font-mono uppercase tracking-widest text-amber-400 font-bold">
-                    MÔ HÌNH 0{idx + 1}
+                    {idx === 0
+                      ? "The Glow Space"
+                      : idx === 1
+                        ? "The Botanical Desk"
+                        : "Minimal Living"}
                   </span>
                   <h3 className="text-xl font-bold font-serif">{cat.name}</h3>
                 </div>
@@ -242,7 +282,7 @@ export function MainHorizontalScroll({
           </div>
         </section>
 
-        {/* Slide 8: The Journal */}
+        {/* Slide 9: The Journal */}
         <section className="px-6 py-16 bg-[#F9F6ED] border-y border-[#E1DDD5]">
           <div className="flex justify-between items-end border-b pb-4 border-[#E1DDD5] mb-8">
             <h2 className="text-3xl font-normal text-black font-serif">
@@ -285,20 +325,20 @@ export function MainHorizontalScroll({
           </div>
         </section>
 
-        {/* Slide 9: Bento Grid */}
+        {/* Slide 10: Bento Grid */}
         <section className="px-6 py-16">
           <div className="border-b pb-4 border-[#E1DDD5] mb-8">
             <span className="text-xs font-mono text-[#786F66] uppercase tracking-widest font-bold">
-              STRUCTURAL ANATOMY
+              CỔNG TƯƠNG TÁC
             </span>
             <h2 className="text-3xl font-normal text-black font-serif mt-2">
-              Bento Cổng Tương Tác
+              Cổng tương tác
             </h2>
           </div>
           <BentoPortalGrid />
         </section>
 
-        {/* Slide 10: Sunset Pre-footer (Tương thích lưới ma trận trên di động) */}
+        {/* Slide 11: Sunset Pre-footer */}
         <section
           className="relative text-white py-20 overflow-hidden border-t border-white/5"
           style={{
@@ -311,27 +351,26 @@ export function MainHorizontalScroll({
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[120%] aspect-square rounded-full bg-gradient-radial from-[#FF8A00]/15 to-transparent blur-3xl -translate-y-[80%]" />
           <div className="px-6 relative z-10 text-center space-y-6">
             <h3 className="text-xl font-serif italic leading-relaxed text-white/95">
-              &quot;Boospace hoạt động trên nền tảng chế tác thủ công mộc mạc và
-              mã nguồn mở độc lập, bảo vệ tuyệt đối sự tĩnh lặng và dữ liệu cá
-              nhân của bạn thông qua hạ tầng phi tập trung của Supabase.&quot;
+              &quot;Mang sự tĩnh lặng và ấm áp về căn phòng của bạn ngay hôm
+              nay.&quot;
             </h3>
             <Button
               asChild
               size="lg"
               className="w-full bg-[#FF9D00] hover:bg-[#E68A00] text-black rounded-xl py-4 font-mono font-bold tracking-wider"
             >
-              <Link href="/shop">ĐẶT CHẾ TÁC NGAY</Link>
+              <Link href="/contact">LIÊN HỆ ĐẶT IN NGAY</Link>
             </Button>
           </div>
         </section>
       </div>
 
       {/* ============================================================================
-         2. GIAO DIỆN DESKTOP (STICKY HORIZONTAL SLIDING SCROLL): Đan xen mượt mà
+         2. GIAO DIỆN DESKTOP (STICKY HORIZONTAL SLIDING SCROLL): Đan xen mượt mà 11 Slides
          ============================================================================ */}
       <motion.div
         ref={containerRef}
-        className="hidden md:block relative h-[1000vh] w-full"
+        className="hidden md:block relative h-[1100vh] w-full"
       >
         {/* THANH TIẾN TRÌNH CUỘN NGANG CAO CẤP DƯỚI HEADER */}
         <motion.div
@@ -343,46 +382,72 @@ export function MainHorizontalScroll({
           {/* Lưới kỹ thuật chạy mờ dưới nền */}
           <div className="absolute inset-0 opacity-15 bg-[linear-gradient(to_right,#E1DDD5_1px,transparent_1px),linear-gradient(to_bottom,#E1DDD5_1px,transparent_1px)] bg-[size:4rem_4rem] pointer-events-none" />
 
-          {/* Dải trượt ngang 10 slide (1000vw) */}
+          {/* Dải trượt ngang 11 slide (1100vw) tịnh tiến tối đa -90.9% */}
           <motion.div
             style={{ x }}
-            className="flex w-[1000vw] h-full items-center"
+            className="flex w-[1100vw] h-full items-center"
           >
             {/* SLIDE 1: HERO SECTION */}
             <div className="w-[100vw] h-full shrink-0 relative flex items-center justify-center border-r border-[#E1DDD5]/50 bg-[#FCFAF2]">
               <HeroVideoSection
                 heroImage={config.hero_image}
                 heroVideo={config.hero_video}
-                heroSubtitle="Một trải nghiệm tĩnh lặng, dọn dẹp mọi xao nhãng. Không còn vòng xoay tải trang vô tận, không còn tiếng ồn số. Chỉ có sự mộc mạc của chất liệu vật lý kết hợp cùng hạ tầng Realtime mượt mà."
+                heroSubtitle="Định nghĩa lại góc sống bằng những chiếc đèn nghệ thuật và vật dụng in 3D mang ngôn ngữ tối giản. Chất liệu sinh học lành tính giúp dọn dẹp mọi xao nhãng số, trả lại sự ấm áp thuần khiết cho tâm trí."
+                onExploreClick={() => {
+                  // NÂNG CẤP ĐỊNH TUYẾN: Bấm nút khám phá đẩy trực tiếp về trang /shop thực tế
+                  router.push("/shop");
+                }}
               />
             </div>
 
-            {/* SLIDE 2: TUYÊN NGÔN BOOSPACE (MÀU KEM SÁNG TRẦM ẤM #F7F4EB) */}
-            <div className="w-[100vw] h-full shrink-0 flex items-center justify-center px-24 border-r border-[#E1DDD5]/50 bg-[#F7F4EB]">
+            {/* SLIDE 2: TUYÊN NGÔN Boo Space (MÀU KEM SÁNG TRẦM #F7F4EB) */}
+            <div className="w-[100vw] h-full shrink-0 relative flex flex-col items-center justify-center px-12 border-r border-[#E1DDD5]/50 bg-[#F7F4EB] overflow-hidden">
+              <div className="dappled-shadow-overlay opacity-30" />
+
               <motion.div
                 variants={textFadeUp}
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true }}
-                className="max-w-4xl text-center space-y-8"
+                className="max-w-5xl w-full text-center space-y-10 relative z-10"
               >
                 <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
-                  SLOGAN
+                  TUYÊN NGÔN BOOSPACE
                 </span>
-                <h2 className="text-4xl lg:text-5xl font-light font-serif leading-relaxed tracking-tight text-[#1E1C1A] max-w-3xl mx-auto">
-                  Chúng tôi đưa mọi nét vẽ in 3D chạm vào thế giới vật lý, phá
-                  bỏ mọi ranh giới số để giải phóng sức mạnh{" "}
-                  <span className="text-[#E26E67] font-bold italic">
-                    sáng tạo
+
+                <h2 className="text-4xl sm:text-5xl lg:text-6xl font-light font-serif tracking-tight text-[#1E1C1A] leading-[1.25] max-w-4xl mx-auto">
+                  Chúng tôi từ chối chấp nhận một tương lai nơi các thiết bị làm
+                  ta{" "}
+                  <span className="text-[#E26E67] font-semibold italic">
+                    kiệt sức
+                  </span>
+                  ,{" "}
+                  <span className="text-[#E26E67] font-semibold italic">
+                    gây nghiện
+                  </span>{" "}
+                  và bủa vây bởi sự{" "}
+                  <span className="text-[#E26E67] font-semibold italic relative">
+                    xao nhãng
                     <sup className="text-xs text-[#FF9D00] ml-0.5 not-italic">
                       1
                     </sup>
                   </span>
                 </h2>
+
+                <p className="font-serif text-base sm:text-lg text-[#5C564E] leading-relaxed max-w-2xl mx-auto italic font-light pt-6 border-t border-[#E1DDD5]/60">
+                  Boo Space tin rằng, một chiếc đèn tỏa ánh sáng dịu hay một
+                  mảng xanh nhỏ gọn gàng có thể là điểm tựa kéo tâm trí bạn về
+                  với sự bình yên hằng ngày.
+                </p>
+
+                <div className="pt-4 text-[9px] font-mono text-[#786F66]/60 uppercase tracking-widest max-w-md mx-auto font-semibold">
+                  ¹ XAO NHÃNG: SỰ BỦA VÂY CỦA DÂY CÁP LỘN XỘN VÀ NHỮNG THÔNG BÁO
+                  ĐẨY LIÊN TỤC.
+                </div>
               </motion.div>
             </div>
 
-            {/* SLIDE 3: CHẠM THÔ MỘC (SÁNG) */}
+            {/* SLIDE 3: KHÚC XẠ ẤM ÁP (SÁNG) */}
             <div className="w-[100vw] h-full shrink-0 flex items-center justify-center px-24 border-r border-[#E1DDD5]/50 bg-[#FCFAF2]">
               <div className="mx-auto max-w-7xl w-full grid grid-cols-12 gap-16 items-center">
                 <motion.div
@@ -393,15 +458,16 @@ export function MainHorizontalScroll({
                   className="col-span-6 space-y-6 text-left"
                 >
                   <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
-                    HẠM THÔ MỘC
+                    KHÚC XẠ ẤM ÁP
                   </span>
                   <h2 className="text-5xl font-bold font-serif text-black leading-tight">
-                    Cảm giác sờ chạm thô mộc từ thớ gỗ sồi sấy
+                    Vũ điệu dịu dàng của hình khối và ánh sáng
                   </h2>
                   <p className="text-sm text-[#5C564E] leading-relaxed max-w-md">
-                    Gỗ tự nhiên được mài nhám mịn bằng tay và nâng niu bằng lớp
-                    dầu bảo dưỡng hữu cơ mộc mạc, kết nối sâu sắc tâm trí bạn
-                    với tự nhiên ngay tại bàn phím.
+                    Không còn những dải LED chói mắt gây mệt mỏi thị giác. Các
+                    thiết kế đèn in 3D của Boo Space ứng dụng cấu trúc hình học
+                    đặc biệt để khúc xạ ánh sáng thô thành những vầng sáng
+                    ambient dịu mát, ôm ấp không gian sống của bạn khi đêm về.
                   </p>
                 </motion.div>
                 <motion.div
@@ -413,7 +479,7 @@ export function MainHorizontalScroll({
                 >
                   <Image
                     src={config.diy_image}
-                    alt="Chạm thô mộc"
+                    alt="Vũ điệu ánh sáng"
                     fill
                     sizes="(max-width: 1200px) 50vw, 33vw"
                     className="object-cover mix-blend-multiply opacity-95"
@@ -422,7 +488,7 @@ export function MainHorizontalScroll({
               </div>
             </div>
 
-            {/* SLIDE 4: TRÁNH XAO NHÃNG (SÁNG - ĐÃ ĐỒNG BỘ ĐỒNG NHẤT) */}
+            {/* SLIDE 4: MẢNG XANH TĨNH LẶNG (SÁNG) */}
             <div className="w-[100vw] h-full shrink-0 flex items-center justify-center px-24 border-r border-[#E1DDD5]/50 bg-[#FCFAF2]">
               <div className="mx-auto max-w-7xl w-full grid grid-cols-12 gap-16 items-center">
                 <motion.div
@@ -433,15 +499,17 @@ export function MainHorizontalScroll({
                   className="col-span-6 space-y-6 text-left"
                 >
                   <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
-                    TRÁNH XAO NHÃNG
+                    MẢNG XANH TĨNH LẶNG
                   </span>
                   <h2 className="text-5xl font-bold font-serif text-black leading-tight">
-                    Giải phóng không gian cho sự tập trung sâu
+                    Khi sự sống ẩn mình trong những đường nét tối giản
                   </h2>
                   <p className="text-sm text-[#5C564E] leading-relaxed max-w-md">
-                    Rãnh âm giấu cáp thông minh dọn dẹp sạch sẽ đống dây lộn xộn
-                    trên bàn làm việc, trả lại khoảng không tối giản tĩnh lặng
-                    tuyệt đối cho những ý tưởng lớn.
+                    Một góc xanh nhỏ là bộ lọc tự nhiên cho những áp lực thường
+                    nhật. Dòng chậu cây sen đá sở hữu thiết kế nguyên khối gọn
+                    gàng cùng hệ thống rãnh thoát nước ẩn thông minh, giữ cho
+                    mặt bàn làm việc của bạn luôn khô ráo, ngăn nắp và thanh
+                    lịch.
                   </p>
                 </motion.div>
                 <motion.div
@@ -453,7 +521,7 @@ export function MainHorizontalScroll({
                 >
                   <Image
                     src={config.tech_image}
-                    alt="Tránh xao nhãng"
+                    alt="Mảng xanh tĩnh lặng"
                     fill
                     sizes="(max-width: 1200px) 50vw, 33vw"
                     className="object-cover mix-blend-multiply opacity-95"
@@ -462,7 +530,7 @@ export function MainHorizontalScroll({
               </div>
             </div>
 
-            {/* SLIDE 5: CÔNG THÁI HỌC (SÁNG - ĐÃ ĐỒNG BỘ ĐỒNG NHẤT) */}
+            {/* SLIDE 5: VÂN NHÁM TƯƠNG LAI (SÁNG) */}
             <div className="w-[100vw] h-full shrink-0 flex items-center justify-center px-24 border-r border-[#E1DDD5]/50 bg-[#FCFAF2]">
               <div className="mx-auto max-w-7xl w-full grid grid-cols-12 gap-16 items-center">
                 <motion.div
@@ -473,15 +541,17 @@ export function MainHorizontalScroll({
                   className="col-span-6 space-y-6 text-left"
                 >
                   <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
-                    CÔNG THÁI HỌC
+                    VÂN NHÁM TƯƠNG LAI
                   </span>
                   <h2 className="text-5xl font-bold font-serif text-black leading-tight">
-                    Tư thế ngồi tự nhiên, bảo vệ năng lượng sống
+                    Tác phẩm nghệ thuật từ chất liệu sinh học lành tính
                   </h2>
                   <p className="text-sm text-[#5C564E] leading-relaxed max-w-md">
-                    Nâng màn hình lên góc 15 độ lý tưởng, giải phóng áp lực lên
-                    vùng vai gáy, giúp bạn duy trì trạng thái sáng tạo bền bỉ
-                    suốt cả ngày dài.
+                    Mỗi sản phẩm được &quot;vẽ&quot; bằng nhựa PLA (chiết xuất
+                    từ tinh bột ngô/mía) thân thiện tuyệt đối với sức khỏe.
+                    Chúng tôi tinh chỉnh máy in để giữ lại cấu trúc vân nhám mịn
+                    tự nhiên — mộc mạc như gốm đất nung, bền bỉ với thời gian
+                    nhưng mang tinh thần của công nghệ tương lai.
                   </p>
                 </motion.div>
                 <motion.div
@@ -493,7 +563,7 @@ export function MainHorizontalScroll({
                 >
                   <Image
                     src={config.hero_image}
-                    alt="Tư thế tự nhiên"
+                    alt="Vân nhám thạch cao"
                     fill
                     sizes="(max-width: 1200px) 50vw, 33vw"
                     className="object-cover mix-blend-multiply opacity-95"
@@ -502,13 +572,16 @@ export function MainHorizontalScroll({
               </div>
             </div>
 
-            {/* SLIDE 6: SẢN PHẨM NỔI BẬT (MÀU KEM SÁNG TRẦM #F5F1E6) */}
+            {/* SLIDE 6 (MỚI): CHÈN COMPONENT QUY TRÌNH CHẾ TÁC HOW IT WORKS CHO DESKTOP */}
+            <HowItWorks />
+
+            {/* SLIDE 7: SẢN PHẨM NỔI BẬT (MÀU KEM SÁNG TRẦM #F5F1E6) */}
             <div className="w-[100vw] h-full shrink-0 flex items-center justify-center px-24 border-r border-[#E1DDD5]/50 bg-[#F5F1E6]">
               <div className="w-full max-w-7xl">
                 <div className="flex justify-between items-end border-b pb-6 border-[#E1DDD5] mb-8 text-left">
                   <div>
                     <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
-                      PRODUCTS
+                      THE CORE PORTFOLIO
                     </span>
                     <h2 className="text-3xl sm:text-4xl font-normal text-black font-serif mt-2">
                       Sản phẩm nổi bật
@@ -525,15 +598,15 @@ export function MainHorizontalScroll({
               </div>
             </div>
 
-            {/* SLIDE 7: BỘ SƯU TẬP KHÔNG GIAN (SÁNG #FCFAF2) */}
+            {/* SLIDE 8: BỘ SƯU TẬP KHÔNG GIAN (SÁNG #FCFAF2) */}
             <div className="w-[100vw] h-full shrink-0 flex items-center justify-center px-24 border-r border-[#E1DDD5]/50 bg-[#FCFAF2]">
               <div className="w-full max-w-7xl">
                 <div className="border-b pb-6 border-[#E1DDD5] mb-8 text-left">
                   <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
-                    OLLECTION
+                    COLLECTION
                   </span>
                   <h2 className="text-4xl font-normal text-black font-serif mt-2">
-                    BỘ SƯU TẬP
+                    Bộ sưu tập không gian
                   </h2>
                 </div>
                 <div className="grid gap-6 grid-cols-3 bg-[#FCFAF2]">
@@ -565,8 +638,12 @@ export function MainHorizontalScroll({
                           className="object-cover mix-blend-multiply opacity-80 group-hover:opacity-90"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent flex flex-col justify-end p-8 text-white text-left">
-                          <span className="text-[10px] font-mono uppercase tracking-widest text-amber-400">
-                            MÔ HÌNH 0{idx + 1}
+                          <span className="text-[10px] font-mono uppercase tracking-widest text-amber-400 font-bold">
+                            {idx === 0
+                              ? "The Glow Space"
+                              : idx === 1
+                                ? "The Botanical Desk"
+                                : "Minimal Living"}
                           </span>
                           <h3 className="text-2xl font-bold font-serif mt-1">
                             {cat.name}
@@ -579,7 +656,7 @@ export function MainHorizontalScroll({
               </div>
             </div>
 
-            {/* SLIDE 8: THE JOURNAL (MÀU SÁNG TRẦM #F9F6ED) */}
+            {/* SLIDE 9: THE JOURNAL (MÀU SÁNG TRẦM #F9F6ED) */}
             <div className="w-[100vw] h-full shrink-0 flex items-center justify-center px-24 border-r border-[#E1DDD5]/50 bg-[#F9F6ED]">
               <div className="w-full max-w-7xl">
                 <div className="flex justify-between items-end border-b pb-6 border-[#E1DDD5] mb-8 text-left">
@@ -588,14 +665,14 @@ export function MainHorizontalScroll({
                       BLOG
                     </span>
                     <h2 className="text-4xl font-normal text-black font-serif mt-2">
-                      BLOG
+                      The Journal
                     </h2>
                   </div>
                   <Link
                     href="/blog"
                     className="text-xs font-mono uppercase tracking-widest text-[#1E1C1A] hover:text-[#FF9D00] flex items-center gap-1.5 transition-colors"
                   >
-                    Xem bài viết →
+                    Đọc nhật ký →
                   </Link>
                 </div>
                 <div className="grid grid-cols-3 gap-0 border border-[#E1DDD5] bg-white divide-x divide-[#E1DDD5] rounded-3xl overflow-hidden shadow-sm">
@@ -634,22 +711,22 @@ export function MainHorizontalScroll({
               </div>
             </div>
 
-            {/* SLIDE 9: BENTO GRID (GÓP Ý & AI SEARCH) - ĐƯA XUỐNG CUỐI CÙNG SÁNG #FCFAF2 */}
+            {/* SLIDE 10: BENTO GRID (GÓP Ý & AI SEARCH) - ĐƯA XUỐNG CUỐI CÙNG SÁNG #FCFAF2 */}
             <div className="w-[100vw] h-full shrink-0 flex items-center justify-center px-24 border-r border-[#E1DDD5]/50 bg-[#FCFAF2]">
               <div className="w-full max-w-7xl">
                 <div className="border-b pb-4 border-[#E1DDD5] mb-8 text-left">
                   <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
-                    GÓP Ý KIẾN
+                    CỔNG TƯƠNG TÁC
                   </span>
                   <h2 className="text-4xl font-normal text-black font-serif mt-2">
-                    GÓP Ý KIẾN
+                    Cổng tương tác
                   </h2>
                 </div>
                 <BentoPortalGrid />
               </div>
             </div>
 
-            {/* SLIDE 10: PRE-FOOTER (Sunset Banner - ĐỒNG BỘ HIỆU ỨNG MA TRẬN LƯỚI GRID GỐC CỦA BENTOPORTALGRID) */}
+            {/* SLIDE 11: PRE-FOOTER (Sunset Banner) */}
             <div
               className="w-[100vw] h-full shrink-0 relative flex items-center justify-center overflow-hidden border-l border-white/5"
               style={{
@@ -682,11 +759,8 @@ export function MainHorizontalScroll({
                 </div>
                 <div className="space-y-4 text-left flex-1 max-w-3xl">
                   <h3 className="text-2xl sm:text-3xl font-light font-serif leading-relaxed italic text-white/95">
-                    &quot;Mọi ý tưởng bạn từng nghĩ ra để cuộc sống mình dễ chịu
-                    hơn, Boo Space đều có thể biến thành sản phẩm thực tế cầm
-                    trên tay. Tụi mình thiết kế và chế tác riêng theo đúng thói
-                    quen của bạn, dẹp bỏ mọi bất tiện hằng ngày để phục vụ chuẩn
-                    xác cho chính bạn.&quot;
+                    &quot;Mang sự tĩnh lặng và ấm áp về căn phòng của bạn ngay
+                    hôm nay.&quot;
                   </h3>
                   <p className="text-[10px] font-mono text-neutral-400 uppercase tracking-widest mt-4">
                     BOO SPACE • KHÔNG GIAN CỦA NHỮNG KẺ MƠ MỘNG THỰC TẾ
@@ -698,7 +772,7 @@ export function MainHorizontalScroll({
                     size="lg"
                     className="w-full bg-[#FF9D00] hover:bg-[#E68A00] text-black rounded-xl py-4 font-mono uppercase text-xs font-bold tracking-wider cursor-pointer"
                   >
-                    <Link href="/contact">LIÊN HỆ NGAY</Link>
+                    <Link href="/contact">LIÊN HỆ ĐẶT IN NGAY</Link>
                   </Button>
                 </div>
               </div>

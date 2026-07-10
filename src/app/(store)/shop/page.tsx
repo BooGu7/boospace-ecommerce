@@ -85,7 +85,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
                   "Shop")
                 : searchQuery
                   ? `Kết quả cho "${searchQuery}"`
-                  : "Sol Series Catalog"}
+                  : "Bộ sưu tập"}
             </h1>
 
             <p className="text-xs sm:text-sm font-mono text-[#786F66] uppercase tracking-wider flex items-center gap-1.5">

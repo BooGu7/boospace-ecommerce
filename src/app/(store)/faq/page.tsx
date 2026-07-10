@@ -8,21 +8,21 @@ import {
 } from "@/components/ui/accordion";
 
 export const metadata: Metadata = {
-  title: "Câu hỏi thường gặp — Boospace FAQ",
+  title: "Câu hỏi thường gặp — Boo Space FAQ",
   description:
     "Giải đáp các câu hỏi phổ biến về đơn hàng, vận chuyển, đổi trả và thiết kế in 3D custom ✨",
 };
 
 const faqs = [
   {
-    question: "Xưởng in 3D Boospace sử dụng phôi liệu nhựa gì?",
+    question: "Xưởng in 3D Boo Space sử dụng phôi liệu nhựa gì?",
     answer:
       "Chúng tôi ưu tiên sử dụng nhựa PLA tự nhiên phân hủy sinh học (thân thiện với môi trường) và nhựa gỗ hữu cơ chứa phôi gỗ thông để gia công mộc mạc, tạo cảm giác xúc giác chân thực.",
   },
   {
     question: "Có hỗ trợ chỉnh sửa kích thước mô hình theo yêu cầu không?",
     answer:
-      "Có! Bạn có thể vào trang liên hệ để gửi file STL/OBJ hoặc ý tưởng, đội ngũ kỹ sư của Boospace sẽ hỗ trợ Slicing và in 3D đúng chuẩn kích thước bạn cần.",
+      "Có! Bạn có thể vào trang liên hệ để gửi file STL/OBJ hoặc ý tưởng, đội ngũ kỹ sư của Boo Space sẽ hỗ trợ Slicing và in 3D đúng chuẩn kích thước bạn cần.",
   },
   {
     question: "Thời gian in 3D và giao hàng mất bao lâu?",
@@ -78,8 +78,8 @@ export default function FAQPage() {
             Vẫn còn thắc mắc?
           </h2>
           <p className="text-xs sm:text-sm text-[#5C564E] max-w-md mx-auto leading-relaxed">
-            Không tìm thấy câu trả lời bạn cần? Đội ngũ hỗ trợ của Boospace luôn
-            sẵn sàng đồng hành cùng bạn ✨
+            Không tìm thấy câu trả lời bạn cần? Đội ngũ hỗ trợ của Boo Space
+            luôn sẵn sàng đồng hành cùng bạn ✨
           </p>
           <Link
             href="/contact"

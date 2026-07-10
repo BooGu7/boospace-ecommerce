@@ -230,7 +230,7 @@ export async function POST(req: Request) {
 
               <hr style="border: 0; border-top: 1px solid #2d2d2a; margin: 32px 0;" />
               <p style="font-size: 11px; text-align: center; color: #8c857b; margin-bottom: 0;">
-                Hệ thống Quản lý Đơn hàng Tự động Boospace ©2026 • Supabase RLS Protected.
+                Hệ thống Quản lý Đơn hàng Tự động Boo Space ©2026 • Supabase RLS Protected.
               </p>
             </div>
           `,
