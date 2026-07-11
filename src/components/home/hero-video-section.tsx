@@ -137,7 +137,7 @@ export function HeroVideoSection({
                       Bản tin Boo Space
                     </h4>
                     <p className="text-[9px] text-[#786F66] font-mono tracking-wider font-semibold">
-                      NHẬN CẢM HỨNG KHÔNG GIAN COZY HÀNG TUẦN · KHÔNG SPAM
+                      NHẬN CẢM HỨNG KHÔNG GIAN · KHÔNG SPAM
                     </p>
                   </div>
 

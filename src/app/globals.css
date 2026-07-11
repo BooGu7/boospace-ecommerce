@@ -328,3 +328,21 @@
       transparent 40%
     );
 }
+/* ============================================================================
+   HOẠT ẢNH CHẠY VIỀN CHUYỂN MÀU PHÁT SÁNG (GLOWING GRADIENT BORDER) [1.1]
+   ============================================================================ */
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient-shift {
+  animation: gradientShift 6s ease infinite !important;
+}

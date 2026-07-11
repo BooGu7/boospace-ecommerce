@@ -46,6 +46,7 @@ export function BentoPortalGrid() {
   // States cho Form gửi ý tưởng in 3D (Thẻ số 2)
   const [idea, setIdea] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState(""); // Thêm State số điện thoại
   const [submitting, setSubmitting] = useState(false);
 
   // States quản lý file đính kèm 3D (.stl, .obj...) tối đa 5MB
@@ -63,7 +64,7 @@ export function BentoPortalGrid() {
     const maxFileSize = 5 * 1024 * 1024; // 5MB
     if (file.size > maxFileSize) {
       toast.error(
-        "Tệp vượt quá dung lượng 5MB. Vui lòng chọn tệp nhỏ hơn hoặc gửi trực tiếp qua email cho chúng tôi.",
+        "Dung lượng tệp vượt quá giới hạn 5MB. Vui lòng chọn tệp nhỏ hơn.",
       );
       if (fileInputRef.current) fileInputRef.current.value = "";
       return;
@@ -86,8 +87,10 @@ export function BentoPortalGrid() {
   // Hàm xử lý gửi ý tưởng & tệp in 3D về Supabase DB & kích hoạt gửi mail báo giá qua Resend
   async function handleSubmitIdea(e: React.FormEvent) {
     e.preventDefault();
-    if (!idea.trim() || !email.trim()) {
-      toast.error("Vui lòng điền đầy đủ ý tưởng và email liên hệ.");
+    if (!idea.trim() || !email.trim() || !phone.trim()) {
+      toast.error(
+        "Vui lòng điền đầy đủ ý tưởng, số điện thoại và email liên hệ.",
+      );
       return;
     }
 
@@ -95,7 +98,7 @@ export function BentoPortalGrid() {
     let uploadedFileUrl = "";
 
     try {
-      // 1. Tiến hành tải ảnh lên Supabase Storage nếu có đính kèm
+      // 1. Tiến hành tải tệp đính kèm lên Supabase Storage nếu có
       if (attachedFile) {
         const fileExt = attachedFile.name.split(".").pop();
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 12)}.${fileExt}`;
@@ -113,25 +116,26 @@ export function BentoPortalGrid() {
         uploadedFileUrl = publicUrl;
       }
 
-      // 2. Gửi dữ liệu về API liên hệ chung để đồng bộ Supabase & bắn Email thông báo
+      // 2. Gửi dữ liệu về API liên hệ để lưu Supabase & bắn Email thông báo kèm SĐT
       const response = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: "Khách hàng Ý Tưởng Độc Bản",
           email: email,
-          subject: "Yêu cầu báo giá thiết kế in 3D On-Demand",
-          message: `Ý tưởng: ${idea}${uploadedFileUrl ? `\nTệp đính kèm: ${uploadedFileUrl}` : ""}`,
+          subject: "Yêu cầu báo giá thiết kế in 3D On-Demand từ Bento",
+          message: `SĐT: ${phone}\nÝ tưởng: ${idea}${uploadedFileUrl ? `\nTệp đính kèm: ${uploadedFileUrl}` : ""}`,
         }),
       });
 
       const data = await response.json();
       if (response.ok && data.success) {
         toast.success(
-          "Boo đã tiếp nhận! Báo giá chi tiết sẽ được gửi lại bạn sớm ✨",
+          "Boo đã tiếp nhận! Báo giá chi tiết sẽ được gửi lại cho bạn sớm nhất ✨",
         );
         setIdea("");
         setEmail("");
+        setPhone("");
         handleRemoveFile();
       } else {
         toast.error(data.error || "Gửi ý tưởng thất bại, vui lòng thử lại.");
@@ -152,7 +156,7 @@ export function BentoPortalGrid() {
       className="grid gap-6 md:grid-cols-3 w-full bg-[#151513] p-6 rounded-[36px] border border-white/5 dark-mesh-pattern select-none"
     >
       {/* ==========================================
-         CARD 01 (Chiếm 2 cột): TÌM KIẾM Ý TƯỞNG BẰNG AI (KÍCH HOẠT TƯƠNG TÁC THỰC TẾ)
+         CARD 01 (Chiếm 2 cột): TÌM KIẾM Ý TƯỞNG BẰNG AI
          ========================================== */}
       <motion.div
         variants={bentoCardVariants}
@@ -162,7 +166,7 @@ export function BentoPortalGrid() {
         {/* Header */}
         <div className="flex items-center justify-between text-[#00E19B]">
           <span className="text-xs font-mono tracking-widest font-semibold uppercase">
-            TÌM KIẾM Ý TƯỞNG BẰNG AI
+            TÌM KIẾM Ý TƯỞNG
           </span>
           <Search className="h-4 w-4" />
         </div>
@@ -174,7 +178,7 @@ export function BentoPortalGrid() {
             placeholder="Tìm đèn, chậu cây hoặc màu sắc phù hợp..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-[#242421] border border-white/10 rounded-full py-4 pl-6 pr-12 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#00E19B] transition-all font-sans"
+            className="w-full bg-[#242421] border border-[#white]/10 rounded-full py-4 pl-6 pr-12 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#00E19B] transition-all font-sans"
           />
           <button
             type="submit"
@@ -191,7 +195,7 @@ export function BentoPortalGrid() {
       </motion.div>
 
       {/* ==========================================
-         CARD 02 (Chiếm 1 cột): Ý TƯỞNG ĐỘC BẢN (CO-CREATION) (ĐÃ SỬA LỖI ĐỒNG BỘ ATTACHEDFILE)
+         CARD 02 (Chiếm 1 cột): Ý TƯỞNG ĐỘC BẢN (CO-CREATION) (HỖ TRỢ ĐÍNH KÈM FILE & ĐỒNG BỘ SĐT)
          ========================================== */}
       <motion.div
         variants={bentoCardVariants}
@@ -201,12 +205,12 @@ export function BentoPortalGrid() {
         {/* Header */}
         <div className="flex items-center justify-between text-[#00E19B]">
           <span className="text-xs font-mono tracking-widest font-semibold uppercase">
-            Ý TƯỞNG ĐỘC BẢN (CO-CREATION)
+            Ý TƯỞNG
           </span>
           <FileText className="h-4 w-4" />
         </div>
 
-        {/* Form nhập liệu kèm đính kèm file */}
+        {/* Form nhập liệu kèm đính kèm file & số điện thoại */}
         <form
           onSubmit={handleSubmitIdea}
           className="space-y-3.5 my-4 flex-1 flex flex-col justify-center"
@@ -221,7 +225,7 @@ export function BentoPortalGrid() {
           />
 
           <div className="grid grid-cols-1 gap-2.5">
-            {/* Trường đính kèm tệp */}
+            {/* Trường đính kèm tệp đa định dạng */}
             {!attachedFile ? (
               <div
                 onClick={() => fileInputRef.current?.click()}
@@ -229,13 +233,13 @@ export function BentoPortalGrid() {
               >
                 <Upload className="h-3.5 w-3.5 text-[#00E19B]" />
                 <span className="text-[10px] font-mono text-[#00E19B] uppercase tracking-wider">
-                  Đính kèm file 3D
+                  Đính kèm file 3D / Bản phác thảo (Nếu có)
                 </span>
                 <input
                   type="file"
                   ref={fileInputRef}
                   onChange={handleFileChange}
-                  accept=".stl,.obj,.gltf,.glb,.png,.jpg,.jpeg"
+                  accept=".stl,.obj,.3mf,.dwg,.step,.stp,.dxf,.f3d,.png,.jpg,.jpeg"
                   className="hidden"
                 />
               </div>
@@ -254,11 +258,22 @@ export function BentoPortalGrid() {
               </div>
             )}
 
+            {/* Ô nhập Email */}
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Hòm thư email liên hệ..."
+              required
+              className="w-full bg-[#242421] border border-white/5 rounded-2xl px-4 py-2.5 text-xs outline-none text-white placeholder:text-[#786F66]/65 font-sans"
+            />
+
+            {/* Ô NHẬP SỐ ĐIỆN THOẠI MỚI CHUẨN XÁC ĐÃ TÍCH HỢP */}
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="Số điện thoại di động..."
               required
               className="w-full bg-[#242421] border border-white/5 rounded-2xl px-4 py-2.5 text-xs outline-none text-white placeholder:text-[#786F66]/65 font-sans"
             />
@@ -283,7 +298,7 @@ export function BentoPortalGrid() {
 
         {/* Footer */}
         <div className="text-[10px] font-mono tracking-widest text-white/40 uppercase">
-          Báo giá sẽ gửi lại bạn sớm nhất
+          Chúng tôi sẽ phản hồi lại bạn sớm nhất
         </div>
       </motion.div>
     </motion.div>

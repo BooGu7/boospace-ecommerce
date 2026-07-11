@@ -90,7 +90,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
 
             <p className="text-xs sm:text-sm font-mono text-[#786F66] uppercase tracking-wider flex items-center gap-1.5">
               <LayoutGrid className="size-3.5 text-amber-600" />
-              Có {pagination.total} mô hình &amp; phụ kiện gỗ đang có sẵn
+              Có {pagination.total} sản phẩm đang có sẵn
             </p>
           </div>
 

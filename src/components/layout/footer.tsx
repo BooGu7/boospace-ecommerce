@@ -153,7 +153,7 @@ export function Footer() {
                   disabled={submitting}
                   className="rounded-full bg-white hover:bg-neutral-100 text-[10px] font-mono font-bold tracking-widest text-black border border-[#E1DDD5] px-4 py-2 uppercase shadow-sm transition-all shrink-0 cursor-pointer"
                 >
-                  {submitting ? "..." : "GET"}
+                  {submitting ? "..." : "ĐĂNG KÝ"}
                 </button>
               </form>
             </div>

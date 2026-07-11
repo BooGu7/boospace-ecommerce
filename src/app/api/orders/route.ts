@@ -33,7 +33,7 @@ export async function POST(req: Request) {
     // 1. GHI NHẬN ĐƠN HÀNG VÀO SUPABASE (DATABASE TRANSACTION)
     // =========================================================================
 
-    // 1.1 Lưu đơn hàng cha vào bảng 'orders'
+    // 1.1 Lưu đơn hàng cha vào bảng 'orders' (Đã đồng bộ bổ sung 2 cột mới)
     const { data: createdOrder, error: orderError } = await supabase
       .from("orders")
       .insert({
@@ -42,6 +42,8 @@ export async function POST(req: Request) {
           ? `${order.shippingAddress.lastName} ${order.shippingAddress.firstName}`
           : "Khách hàng Storefront",
         customer_email: order.customerEmail,
+        customer_phone: order.customerPhone || null, // Lưu trực tiếp số điện thoại vào cột mới
+        notes: order.notes || null, // Lưu trực tiếp ghi chú vào cột mới
         total: order.total,
         order_status: "Pending",
         payment_status: dbPaymentStatus,
@@ -91,7 +93,7 @@ export async function POST(req: Request) {
     // ========================================================================
     const resendApiKey = process.env.RESEND_API_KEY;
     const adminEmail = process.env.ADMIN_EMAIL || "boospace7@gmail.com";
-    const senderEmail = "Boo Space <support@boospace.tech>"; // Địa chỉ gửi mặc định
+    const senderEmail = "Boospace Store <onboarding@resend.dev>";
 
     if (resendApiKey) {
       // Biên soạn danh sách sản phẩm hiển thị dạng bảng HTML trong Email
@@ -174,6 +176,11 @@ export async function POST(req: Request) {
                 <p style="margin: 0; font-family: serif; font-style: italic; color: #1c1c1c;">${addressString}</p>
               </div>
 
+              <div style="margin-top: 16px; padding: 12px; background-color: #ffffff; border: 1px solid #e8e2d2; border-radius: 8px; font-size: 12px; color: #5c544d;">
+                <p style="margin: 0 0 4px 0;"><strong>Yêu cầu chế tác của bạn:</strong></p>
+                <p style="margin: 0; font-style: italic; color: #1c1c1c;">${order.notes || "Không có yêu cầu đặc biệt"}</p>
+              </div>
+
               <hr style="border: 0; border-top: 1px solid #e8e2d2; margin: 32px 0;" />
               <p style="font-size: 12px; text-align: center; color: #786F66; margin-bottom: 0;">
                 BOO SPACE • Biến mọi ý tưởng cá nhân thành sản phẩm thực tế ✨
@@ -205,7 +212,9 @@ export async function POST(req: Request) {
 
               <div style="margin: 24px 0; padding: 16px; background-color: #1e1e1c; border: 1px solid #2d2d2a; border-radius: 16px; font-size: 13px;">
                 <p style="margin: 0 0 8px 0;"><strong>Khách hàng:</strong> ${order.customerName}</p>
+                <p style="margin: 0 0 8px 0;"><strong>Số điện thoại:</strong> ${order.customerPhone || "N/A"}</p>
                 <p style="margin: 0 0 8px 0;"><strong>Email liên hệ:</strong> ${order.customerEmail}</p>
+                <p style="margin: 0 0 8px 0;"><strong>Ghi chú chế tác:</strong> <span style="color: #FF9D00;">${order.notes || "Không có"}</span></p>
                 <p style="margin: 0 0 8px 0;"><strong>Địa chỉ giao:</strong> ${addressString}</p>
                 <p style="margin: 0;"><strong>Tổng tiền thu COD:</strong> <span style="color: #00e19b; font-weight: bold; font-family: monospace;">${formatVND(order.total)}</span></p>
               </div>
@@ -230,7 +239,7 @@ export async function POST(req: Request) {
 
               <hr style="border: 0; border-top: 1px solid #2d2d2a; margin: 32px 0;" />
               <p style="font-size: 11px; text-align: center; color: #8c857b; margin-bottom: 0;">
-                Hệ thống Quản lý Đơn hàng Tự động Boo Space ©2026 • Supabase RLS Protected.
+                Hệ thống Quản lý Đơn hàng Tự động Boospace ©2026 • Supabase RLS Protected.
               </p>
             </div>
           `,

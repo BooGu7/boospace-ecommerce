@@ -348,7 +348,7 @@ export function ReviewsSection({ productId }: { productId: string }) {
                     <textarea
                       value={comment}
                       onChange={(e) => setComment(e.target.value)}
-                      placeholder="Đánh giá chi tiết về chất liệu mộc, góc nghiêng hay độ hoàn thiện..."
+                      placeholder="Đánh giá chi tiết về chất liệu, góc nghiêng hay độ hoàn thiện..."
                       rows={4}
                       className="w-full rounded-xl border border-[#E1DDD5] bg-white px-4 py-3 text-xs outline-none text-black font-sans resize-none focus:border-[#FF9D00] transition-colors"
                     />

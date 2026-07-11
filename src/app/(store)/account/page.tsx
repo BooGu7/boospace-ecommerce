@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Package, MapPin, Settings, Heart, LogOut } from "lucide-react";
 import { useAuthGuard } from "@/hooks/use-auth-guard";
-import { useAuthStore } from "@/store/auth"; // Import đầy đủ Store
+import { useAuthStore } from "@/store/auth";
 import { useOrdersStore } from "@/store/orders";
 import { useWishlistStore } from "@/store/wishlist";
 import { motion, Variants } from "framer-motion";
@@ -59,14 +59,13 @@ export default function AccountPage() {
     : 0;
   const wishlistCount = mounted ? wishlistItems.length : 0;
 
-  // Cấu hình danh sách các module bento điều khiển
+  // Cấu hình danh sách các module bento điều khiển (Đã dọn sạch chỉ mục số rườm rà)
   const accountLinks = [
     {
       name: "Đơn hàng của tôi",
       description: "Xem lịch sử đơn hàng, biên nhận và trạng thái vận chuyển",
       href: "/account/orders",
       icon: Package,
-      index: "01",
       count: orderCount,
       countLabel: "đơn",
       iconClass: "group-hover:rotate-6",
@@ -77,7 +76,6 @@ export default function AccountPage() {
         "Quản lý danh sách địa chỉ giao hàng và thông tin thanh toán",
       href: "/account/addresses",
       icon: MapPin,
-      index: "02",
       iconClass: "group-hover:scale-110",
     },
     {
@@ -85,7 +83,6 @@ export default function AccountPage() {
       description: "Danh sách các thiết kế thủ công bạn đã lưu lại để xem sau",
       href: "/wishlist",
       icon: Heart,
-      index: "03",
       count: wishlistCount,
       countLabel: "mục",
       iconClass: "group-hover:scale-110 group-hover:text-red-500",
@@ -95,7 +92,6 @@ export default function AccountPage() {
       description: "Cập nhật thông tin hồ sơ cá nhân và số điện thoại liên hệ",
       href: "/account/settings",
       icon: Settings,
-      index: "04",
       iconClass: "group-hover:rotate-45",
     },
   ];
@@ -103,12 +99,12 @@ export default function AccountPage() {
   return (
     <div className="bg-[#FCFAF2] text-[#1E1C1A] min-h-screen antialiased selection:bg-[#EAE5D9]">
       <div className="mx-auto max-w-[1440px] px-4 py-16 sm:px-6 lg:px-8 border-x border-[#E1DDD5] bg-[#FCFAF2]/50">
-        {/* HEADER SECTION PHONG CÁCH TẠP CHÍ DẸT */}
+        {/* HEADER SECTION PHONG CÁCH TẠP CHÍ DẸT (Đã xóa bỏ chỉ mục số rườm rà) */}
         <div className="border-b border-[#E1DDD5] pb-8 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-4 text-left">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#EAE5D9] text-[#786F66] text-[10px] font-mono font-bold uppercase tracking-widest border border-[#DCD6CC] w-fit">
               <span className="size-1.5 rounded-full bg-amber-500 animate-pulse" />
-              04 / MEMBER CONTROL PANEL
+              MEMBER CONTROL PANEL
             </div>
             <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-black font-serif leading-none">
               Tài khoản
@@ -146,8 +142,10 @@ export default function AccountPage() {
                 <h2 className="font-serif text-xl font-bold text-black leading-tight">
                   {user?.lastName} {user?.firstName}
                 </h2>
+
+                {/* Đã đồng bộ: Chỉ hiển thị nhãn mộc mạc tối giản, ẩn các phân hạng cũ */}
                 <span className="text-[10px] font-mono text-[#786F66] bg-[#EAE5D9]/40 border border-[#DCD6CC] px-2.5 py-0.5 rounded-full uppercase tracking-wider font-semibold">
-                  Thành viên xưởng mộc
+                  Thành viên Boo Space
                 </span>
               </div>
             </div>
@@ -191,7 +189,7 @@ export default function AccountPage() {
           </motion.div>
 
           {/* ==========================================
-             MÔ-ĐUN PHẢI: LƯỚI PHÍM TẮT BENTO THÔNG MINH
+             MÔ-ĐUN PHẢI: LƯỚI PHÍM TẮT BENTO THÔNG MINH (ĐÃ BỎ CHỈ MỤC SỐ RƯỜM RÀ)
              ========================================== */}
           <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
             {accountLinks.map((item) => {
@@ -210,11 +208,12 @@ export default function AccountPage() {
                     className="h-full cursor-pointer rounded-[32px] border border-[#DCD6CC]"
                   >
                     <Card className="h-full border-0 bg-white p-8 flex flex-col justify-between min-h-[190px] shadow-xs relative overflow-hidden transition-all rounded-[32px]">
+                      {/* Đã dọn sạch chỉ mục số, chỉ hiển thị Tên mục in hoa tối giản làm nhãn phụ */}
                       <div className="flex justify-between items-start">
-                        <span className="text-xs font-mono text-[#FF9D00] font-bold">
-                          {item.index} /{" "}
+                        <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
+                          {item.name}{" "}
                           {item.count !== undefined && (
-                            <span className="text-black font-sans ml-1 text-[11px] font-semibold">
+                            <span className="text-[#FF9D00] font-sans ml-1 text-[11px] font-bold">
                               ({item.count} {item.countLabel})
                             </span>
                           )}
@@ -227,6 +226,7 @@ export default function AccountPage() {
                         </div>
                       </div>
 
+                      {/* Thông tin mô tả mộc mạc sắc nét */}
                       <div className="space-y-2 mt-10 text-left">
                         <h3 className="text-lg font-bold font-serif text-black leading-tight flex items-center gap-1.5">
                           {item.name}

@@ -35,6 +35,7 @@ import { QuantitySelector } from "@/components/products/quantity-selector";
 import { ProductGrid } from "@/components/products/product-grid";
 import { formatPrice } from "@/lib/utils";
 import { breadcrumbJsonLd } from "@/lib/structured-data";
+import { PLACEHOLDER_IMAGE } from "@/lib/constants";
 import type { Product, Brand, Category } from "@/types";
 import { ReviewsSection } from "@/components/products/reviews-section";
 import { supabase } from "@/lib/supabase/client";
@@ -135,6 +136,25 @@ export function ProductDetailView({
     openCart();
   }
 
+  // Hàm thêm nhanh sản phẩm mua kèm vào giỏ hàng dứt khoát
+  function handleAddAddonToCart(addon: Product) {
+    const addonVariant = addon.variants?.[0];
+    if (addonVariant) {
+      addToCart({
+        variantId: addonVariant.id,
+        productId: addon.id,
+        name: addon.name,
+        variantName: addonVariant.name || "Default Variant",
+        image: addon.images[0] ?? { url: "", alt: addon.name },
+        slug: addon.slug,
+        price: addonVariant.price,
+        quantity: 1,
+      });
+      toast.success(`Đã thêm ${addon.name} vào giỏ hàng ✨`);
+      openCart();
+    }
+  }
+
   function handleToggleWishlist() {
     if (isWishlisted) {
       removeFromWishlist(product.id);
@@ -180,7 +200,6 @@ export function ProductDetailView({
     },
   };
 
-  // ĐỌC CẤU TRÚC THUỘC TÍNH IN 3D ĐỘNG TỪ SUPABASE
   const attrs = (product as any).attributes || {};
 
   return (
@@ -232,7 +251,21 @@ export function ProductDetailView({
               <StarRating rating={avgRating} reviewCount={reviewCount} />
             </div>
 
-            <h1 className="mt-2 text-3xl sm:text-4xl font-bold tracking-tight text-black font-serif">
+            {/* DẢI BADGES GIẢM GIÁ / BÁN CHẠY NHẤP NHÁY MƯỢT Ở TRÊN TIÊU ĐỀ */}
+            <div className="flex flex-wrap gap-2.5 mt-3 mb-1">
+              {isOnSale && (
+                <span className="text-[9px] font-mono font-bold text-white bg-[#E26E67] px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm animate-pulse select-none">
+                  ⚡ GIẢM GIÁ
+                </span>
+              )}
+              {product.featured && (
+                <span className="text-[9px] font-mono font-bold text-black bg-[#FF9D00] px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm animate-pulse select-none">
+                  🔥 BÁN CHẠY
+                </span>
+              )}
+            </div>
+
+            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-black font-serif">
               {product.name}
             </h1>
 
@@ -246,7 +279,7 @@ export function ProductDetailView({
             )}
 
             <div className="mt-4 flex items-center gap-3">
-              <span className="text-2xl font-semibold">
+              <span className="text-2xl font-semibold text-black/90">
                 {formatPrice(selectedVariant.price, selectedVariant.currency)}
               </span>
               {isOnSale && (
@@ -290,7 +323,7 @@ export function ProductDetailView({
             )}
 
             {/* Quantity Selector + Add to Cart */}
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4 mt-6">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4 mt-6 border-b border-[#E1DDD5]/60 pb-8">
               <div className="flex items-center gap-4">
                 <QuantitySelector
                   quantity={quantity}
@@ -327,6 +360,88 @@ export function ProductDetailView({
               <p className="mt-2 text-xs font-mono text-red-500 uppercase tracking-wider font-semibold">
                 Sản phẩm này hiện đang hết hàng tạm thời.
               </p>
+            )}
+
+            {/* ============================================================================
+               NÂNG CẤP: BẢNG SẢN PHẨM MUA KÈM ƯU ĐÃI (HIỆU ỨNG VIỀN CHẠY PHÁT SÁNG NỔI BẬT & ẢNH CÂN ĐỐI) [1.1]
+               ============================================================================ */}
+            {relatedProducts.length > 0 && (
+              <div
+                style={{
+                  border: "1px solid transparent",
+                  backgroundImage:
+                    "linear-gradient(#ffffff, #ffffff), linear-gradient(135deg, #FF9D00, #E26E67, #3ECF8E, #FF9D00)",
+                  backgroundOrigin: "border-box",
+                  backgroundClip: "padding-box, border-box",
+                  backgroundSize: "300% 300%",
+                }}
+                className="mt-8 rounded-[28px] p-6 bg-white flex flex-col gap-4 shadow-sm relative overflow-hidden transition-all duration-500 hover:shadow-md animate-gradient-shift"
+              >
+                <div className="space-y-1 relative z-10">
+                  <h4 className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
+                    Mua kèm ưu đãi
+                  </h4>
+                  <p className="text-[11px] text-[#5C564E] font-sans leading-none">
+                    Hoàn thiện không gian sống của bạn.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 relative z-10">
+                  {relatedProducts.slice(0, 2).map((item) => {
+                    const addonImgUrl =
+                      typeof item.images?.[0] === "string"
+                        ? item.images[0]
+                        : item.images?.[0]?.url || PLACEHOLDER_IMAGE;
+                    const addonVariant = item.variants?.[0];
+                    const isAddonSale =
+                      addonVariant?.compareAtPrice &&
+                      addonVariant.compareAtPrice > addonVariant.price;
+
+                    return (
+                      <div
+                        key={item.id}
+                        className="flex items-center gap-4 p-4 bg-white border border-[#E1DDD5]/80 rounded-2xl shadow-xs hover:border-black/20 transition-all"
+                      >
+                        {/* ẢNH THU NHỎ ĐƯỢC PHÓNG TO KÍCH THƯỚC H-16 W-16 CÂN ĐỐI [1.1] */}
+                        <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-[#E1DDD5] bg-[#EAE5D9]/20 shadow-inner">
+                          <Image
+                            src={addonImgUrl}
+                            alt={item.name}
+                            fill
+                            sizes="64px"
+                            className="object-cover"
+                          />
+                        </div>
+
+                        {/* Title & Price */}
+                        <div className="flex-1 min-w-0 text-left">
+                          <p className="text-xs sm:text-sm font-serif font-bold text-black truncate leading-snug">
+                            {item.name}
+                          </p>
+                          <div className="flex items-baseline gap-1.5 mt-1 font-mono text-[10px] sm:text-xs">
+                            <span className="font-bold text-black">
+                              {addonVariant && formatPrice(addonVariant.price)}
+                            </span>
+                            {isAddonSale && (
+                              <span className="text-[#786F66] line-through opacity-60">
+                                {formatPrice(addonVariant.compareAtPrice!)}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Phím bấm ADD + dẹt mộc mạc chuẩn Daylight */}
+                        <button
+                          onClick={() => handleAddAddonToCart(item)}
+                          className="rounded-lg bg-black hover:bg-[#33302C] text-[9px] font-mono font-bold tracking-widest text-white px-3.5 py-2.5 uppercase shadow-sm shrink-0 cursor-pointer transition-colors"
+                        >
+                          ADD +
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             )}
 
             <TrustSignals />

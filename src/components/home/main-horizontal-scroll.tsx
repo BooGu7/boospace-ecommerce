@@ -22,6 +22,7 @@ import { HowItWorks } from "./how-it-works"; // Nhập khẩu quy trình chế t
 interface MainHorizontalScrollProps {
   categories: any[];
   featuredProducts: any[];
+  saleProducts: any[]; // Nhận dải sản phẩm giảm giá động từ Supabase [21]
   blogs: any[];
   config: any;
 }
@@ -48,6 +49,7 @@ const imageParallax: Variants = {
 export function MainHorizontalScroll({
   categories,
   featuredProducts,
+  saleProducts = [],
   blogs,
   config,
 }: MainHorizontalScrollProps) {
@@ -72,7 +74,30 @@ export function MainHorizontalScroll({
     }
   }, []);
 
-  // Theo dõi tiến trình cuộn dọc trong tầm h-scroll 1000vh (tương ứng 11 slide)
+  // ĐỒNG BỘ LAYOUT ĐỘNG (DYNAMIC LAYOUT SCROLL):
+  // Tự động kéo dãn dải trượt ngang lên 12 Slide (1200vw) nếu có sản phẩm giảm giá,
+  // ngược lại tự thu gọn về 11 Slide (1100vw) nếu không cấu hình giảm giá [21].
+  const hasSaleProducts = saleProducts && saleProducts.length > 0;
+
+  const containerHeightClass = hasSaleProducts ? "h-[1200vh]" : "h-[1100vh]";
+  const containerWidthClass = hasSaleProducts ? "w-[1200vw]" : "w-[1100vw]";
+
+  // Tịnh tiến dịch chuyển: 11 Slide dịch tối đa -90.9%, 12 Slide dịch tối đa -91.66%
+  const maxTranslateX = hasSaleProducts ? "-91.66%" : "-90.9%";
+  const activeSlideCount = hasSaleProducts ? 11 : 10; // Slide cuối cùng nhảy sang trang /shop
+
+  // HÀM TRƯỢT TRANG CHỦ THEO CHỈ SỐ SLIDE (UX CHUYỂN CẢNH MƯỢT MÀ)
+  const scrollToSlide = (slideIndex: number) => {
+    if (typeof window !== "undefined") {
+      const scrollAmount = window.innerHeight * slideIndex;
+      window.scrollTo({
+        top: scrollAmount,
+        behavior: "smooth",
+      });
+    }
+  };
+
+  // Theo dõi tiến trình cuộn dọc
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"],
@@ -85,8 +110,7 @@ export function MainHorizontalScroll({
     restDelta: 0.001,
   });
 
-  // Tịnh tiến 11 slide rộng 100vw xếp cạnh nhau (1100vw) -> dịch chuyển tối đa -90.9%
-  const x = useTransform(smoothScrollProgress, [0, 1], ["0%", "-90.9%"]);
+  const x = useTransform(smoothScrollProgress, [0, 1], ["0%", maxTranslateX]);
 
   // Thanh tiến trình cuộn ngang (Scroll Progress Bar) đặt ở đầu trang Desktop
   const scaleX = useSpring(scrollYProgress, {
@@ -98,7 +122,7 @@ export function MainHorizontalScroll({
   return (
     <>
       {/* ============================================================================
-         1. THIẾT BỊ DI ĐỘNG (MOBILE LAYOUT): Dàn dọc mượt mà, đan xen màu sắc sáng/tối
+         1. THIẾT BỊ DI ĐỘNG (MOBILE LAYOUT): Dàn dọc mượt mà, tự ẩn/hiện mục Giảm Giá
          ============================================================================ */}
       <div className="block md:hidden space-y-16 bg-[#FCFAF2] text-[#1E1C1A]">
         {/* Slide 1: Hero Section */}
@@ -107,7 +131,6 @@ export function MainHorizontalScroll({
           heroVideo={config.hero_video}
           heroSubtitle="Định nghĩa lại góc sống bằng những chiếc đèn nghệ thuật và vật dụng in 3D mang ngôn ngữ tối giản. Chất liệu sinh học lành tính giúp dọn dẹp mọi xao nhãng số, trả lại sự ấm áp thuần khiết cho tâm trí."
           onExploreClick={() => {
-            // NÂNG CẤP ĐỊNH TUYẾN: Đẩy trực tiếp sang trang /shop thực tế
             router.push("/shop");
           }}
         />
@@ -218,16 +241,13 @@ export function MainHorizontalScroll({
           </div>
         </section>
 
-        {/* SLIDE 6 (MỚI): QUY TRÌNH CHẾ TÁC HOW IT WORKS CHO MOBILE */}
+        {/* SLIDE 6: QUY TRÌNH CHẾ TÁC HOW IT WORKS CHO MOBILE */}
         <section className="px-6 py-16 border-y border-[#E1DDD5] bg-[#F7F4EB]">
           <HowItWorks />
         </section>
 
-        {/* Slide 7: Featured Products */}
-        <section
-          id="featured-products-mobile"
-          className="px-6 py-16 bg-[#F5F1E6] border-y border-[#E1DDD5]"
-        >
+        {/* Slide 7.1: Featured Products */}
+        <section className="px-6 py-16 bg-[#F5F1E6] border-y border-[#E1DDD5]">
           <div className="flex justify-between items-end border-b pb-4 border-[#E1DDD5] mb-8">
             <h2 className="text-3xl font-normal text-black font-serif">
               Thiết kế nổi bật
@@ -241,6 +261,24 @@ export function MainHorizontalScroll({
           </div>
           <ProductGrid products={featuredProducts} />
         </section>
+
+        {/* SLIDE 7.2 (MỚI): CHỈ HIỂN THỊ SẢN PHẨM GIẢM GIÁ TRÊN MOBILE NẾU CÓ DỮ LIỆU THỰC TẾ */}
+        {hasSaleProducts && (
+          <section className="px-6 py-16 bg-[#FBF9F4] border-y border-[#E1DDD5] relative overflow-hidden">
+            <div className="flex justify-between items-end border-b pb-4 border-[#E1DDD5] mb-8">
+              <h2 className="text-3xl font-normal text-black font-serif">
+                Sản phẩm đang ưu đãi
+              </h2>
+              <Link
+                href="/shop?sale=true"
+                className="text-xs font-mono uppercase tracking-widest text-red-600 hover:text-[#FF9D00]"
+              >
+                Nhận ưu đãi →
+              </Link>
+            </div>
+            <ProductGrid products={saleProducts} />
+          </section>
+        )}
 
         {/* Slide 8: Collections */}
         <section className="px-6 py-16">
@@ -366,26 +404,25 @@ export function MainHorizontalScroll({
       </div>
 
       {/* ============================================================================
-         2. GIAO DIỆN DESKTOP (STICKY HORIZONTAL SLIDING SCROLL): Đan xen mượt mà 11 Slides
+         2. GIAO DIỆN DESKTOP (STICKY HORIZONTAL SCROLL): ĐỒNG BỘ NỀN KHUNG ĐỘNG 11 hoặc 12 SLIDES [21]
          ============================================================================ */}
       <motion.div
         ref={containerRef}
-        className="hidden md:block relative h-[1100vh] w-full"
+        className={`hidden md:block relative w-full ${containerHeightClass}`} // Động bộ 1100vh hoặc 1200vh
       >
-        {/* THANH TIẾN TRÌNH CUỘN NGANG CAO CẤP DƯỚI HEADER */}
+        {/* THANH TIẾN TRÌNH CUỘN NGANG */}
         <motion.div
           className="fixed top-0 left-0 right-0 h-[3px] bg-[#FF9D00] origin-left z-50"
           style={{ scaleX }}
         />
 
         <div className="sticky top-0 h-screen w-full flex items-center overflow-hidden">
-          {/* Lưới kỹ thuật chạy mờ dưới nền */}
           <div className="absolute inset-0 opacity-15 bg-[linear-gradient(to_right,#E1DDD5_1px,transparent_1px),linear-gradient(to_bottom,#E1DDD5_1px,transparent_1px)] bg-[size:4rem_4rem] pointer-events-none" />
 
-          {/* Dải trượt ngang 11 slide (1100vw) tịnh tiến tối đa -90.9% */}
+          {/* Dải trượt rộng w-[1100vw] hoặc w-[1200vw] tùy thuộc vào việc có sản phẩm giảm giá hay không */}
           <motion.div
             style={{ x }}
-            className="flex w-[1100vw] h-full items-center"
+            className={`flex h-full items-center ${containerWidthClass}`}
           >
             {/* SLIDE 1: HERO SECTION */}
             <div className="w-[100vw] h-full shrink-0 relative flex items-center justify-center border-r border-[#E1DDD5]/50 bg-[#FCFAF2]">
@@ -394,16 +431,14 @@ export function MainHorizontalScroll({
                 heroVideo={config.hero_video}
                 heroSubtitle="Định nghĩa lại góc sống bằng những chiếc đèn nghệ thuật và vật dụng in 3D mang ngôn ngữ tối giản. Chất liệu sinh học lành tính giúp dọn dẹp mọi xao nhãng số, trả lại sự ấm áp thuần khiết cho tâm trí."
                 onExploreClick={() => {
-                  // NÂNG CẤP ĐỊNH TUYẾN: Bấm nút khám phá đẩy trực tiếp về trang /shop thực tế
                   router.push("/shop");
                 }}
               />
             </div>
 
-            {/* SLIDE 2: TUYÊN NGÔN Boo Space (MÀU KEM SÁNG TRẦM #F7F4EB) */}
+            {/* SLIDE 2: TUYÊN NGÔN BOOSPACE */}
             <div className="w-[100vw] h-full shrink-0 relative flex flex-col items-center justify-center px-12 border-r border-[#E1DDD5]/50 bg-[#F7F4EB] overflow-hidden">
               <div className="dappled-shadow-overlay opacity-30" />
-
               <motion.div
                 variants={textFadeUp}
                 initial="hidden"
@@ -414,7 +449,6 @@ export function MainHorizontalScroll({
                 <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
                   TUYÊN NGÔN BOOSPACE
                 </span>
-
                 <h2 className="text-4xl sm:text-5xl lg:text-6xl font-light font-serif tracking-tight text-[#1E1C1A] leading-[1.25] max-w-4xl mx-auto">
                   Chúng tôi từ chối chấp nhận một tương lai nơi các thiết bị làm
                   ta{" "}
@@ -433,13 +467,11 @@ export function MainHorizontalScroll({
                     </sup>
                   </span>
                 </h2>
-
                 <p className="font-serif text-base sm:text-lg text-[#5C564E] leading-relaxed max-w-2xl mx-auto italic font-light pt-6 border-t border-[#E1DDD5]/60">
                   Boo Space tin rằng, một chiếc đèn tỏa ánh sáng dịu hay một
                   mảng xanh nhỏ gọn gàng có thể là điểm tựa kéo tâm trí bạn về
                   với sự bình yên hằng ngày.
                 </p>
-
                 <div className="pt-4 text-[9px] font-mono text-[#786F66]/60 uppercase tracking-widest max-w-md mx-auto font-semibold">
                   ¹ XAO NHÃNG: SỰ BỦA VÂY CỦA DÂY CÁP LỘN XỘN VÀ NHỮNG THÔNG BÁO
                   ĐẨY LIÊN TỤC.
@@ -447,7 +479,7 @@ export function MainHorizontalScroll({
               </motion.div>
             </div>
 
-            {/* SLIDE 3: KHÚC XẠ ẤM ÁP (SÁNG) */}
+            {/* SLIDE 3: KHÚC XẠ ẤM ÁP */}
             <div className="w-[100vw] h-full shrink-0 flex items-center justify-center px-24 border-r border-[#E1DDD5]/50 bg-[#FCFAF2]">
               <div className="mx-auto max-w-7xl w-full grid grid-cols-12 gap-16 items-center">
                 <motion.div
@@ -488,7 +520,7 @@ export function MainHorizontalScroll({
               </div>
             </div>
 
-            {/* SLIDE 4: MẢNG XANH TĨNH LẶNG (SÁNG) */}
+            {/* SLIDE 4: MẢNG XANH TĨNH LẶNG */}
             <div className="w-[100vw] h-full shrink-0 flex items-center justify-center px-24 border-r border-[#E1DDD5]/50 bg-[#FCFAF2]">
               <div className="mx-auto max-w-7xl w-full grid grid-cols-12 gap-16 items-center">
                 <motion.div
@@ -530,7 +562,7 @@ export function MainHorizontalScroll({
               </div>
             </div>
 
-            {/* SLIDE 5: VÂN NHÁM TƯƠNG LAI (SÁNG) */}
+            {/* SLIDE 5: VÂN NHÁM TƯƠNG LAI */}
             <div className="w-[100vw] h-full shrink-0 flex items-center justify-center px-24 border-r border-[#E1DDD5]/50 bg-[#FCFAF2]">
               <div className="mx-auto max-w-7xl w-full grid grid-cols-12 gap-16 items-center">
                 <motion.div
@@ -572,12 +604,15 @@ export function MainHorizontalScroll({
               </div>
             </div>
 
-            {/* SLIDE 6 (MỚI): CHÈN COMPONENT QUY TRÌNH CHẾ TÁC HOW IT WORKS CHO DESKTOP */}
+            {/* SLIDE 6: COMPONENT QUY TRÌNH CHẾ TÁC HOW IT WORKS CHO DESKTOP */}
             <HowItWorks />
 
-            {/* SLIDE 7: SẢN PHẨM NỔI BẬT (MÀU KEM SÁNG TRẦM #F5F1E6) */}
-            <div className="w-[100vw] h-full shrink-0 flex items-center justify-center px-24 border-r border-[#E1DDD5]/50 bg-[#F5F1E6]">
-              <div className="w-full max-w-7xl">
+            {/* SLIDE 7.1: SẢN PHẨM NỔI BẬT (MÀU KEM SÁNG TRẦM #F5F1E6) */}
+            <div className="w-[100vw] h-full shrink-0 flex items-center justify-center px-24 border-r border-[#E1DDD5]/50 bg-[#F5F1E6] relative overflow-hidden">
+              {/* Vầng sáng hoàng hôn hổ phách mờ ảo tỏa rộng nâng tầm sản phẩm nổi bật */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] aspect-square rounded-full bg-gradient-radial from-[#FF8A00]/8 to-transparent blur-3xl pointer-events-none" />
+
+              <div className="w-full max-w-7xl relative z-10">
                 <div className="flex justify-between items-end border-b pb-6 border-[#E1DDD5] mb-8 text-left">
                   <div>
                     <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
@@ -598,7 +633,37 @@ export function MainHorizontalScroll({
               </div>
             </div>
 
-            {/* SLIDE 8: BỘ SƯU TẬP KHÔNG GIAN (SÁNG #FCFAF2) */}
+            {/* ============================================================================
+               SLIDE 7.2 (MỚI THÊM): KHU VỰC SẢN PHẨM GIẢM GIÁ ĐỘNG (DỌN SẠCH CHÌM MÀU) [21]
+               ============================================================================ */}
+            {hasSaleProducts && (
+              <div className="w-[100vw] h-full shrink-0 flex items-center justify-center px-24 border-r border-[#E1DDD5]/50 bg-[#FBF9F4] relative overflow-hidden">
+                {/* Vầng sáng Hồng san hô dịu dàng rọi sau lưới sản phẩm giảm giá chuẩn hãng */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] aspect-square rounded-full bg-gradient-radial from-[#E26E67]/6 to-transparent blur-3xl pointer-events-none" />
+
+                <div className="w-full max-w-7xl relative z-10">
+                  <div className="flex justify-between items-end border-b pb-6 border-[#E1DDD5] mb-8 text-left">
+                    <div>
+                      <span className="text-[10px] font-mono text-[#E26E67] uppercase tracking-widest font-bold">
+                        EXCLUSIVE OFFERS
+                      </span>
+                      <h2 className="text-3xl sm:text-4xl font-normal text-black font-serif mt-2">
+                        Sản phẩm đang ưu đãi
+                      </h2>
+                    </div>
+                    <Link
+                      href="/shop?sale=true"
+                      className="text-xs font-mono uppercase tracking-widest text-red-600 hover:text-[#FF9D00] flex items-center gap-1.5 transition-colors"
+                    >
+                      Nhận ưu đãi →
+                    </Link>
+                  </div>
+                  <ProductGrid products={saleProducts} />
+                </div>
+              </div>
+            )}
+
+            {/* Slide 8: Collections */}
             <div className="w-[100vw] h-full shrink-0 flex items-center justify-center px-24 border-r border-[#E1DDD5]/50 bg-[#FCFAF2]">
               <div className="w-full max-w-7xl">
                 <div className="border-b pb-6 border-[#E1DDD5] mb-8 text-left">
@@ -656,7 +721,7 @@ export function MainHorizontalScroll({
               </div>
             </div>
 
-            {/* SLIDE 9: THE JOURNAL (MÀU SÁNG TRẦM #F9F6ED) */}
+            {/* Slide 9: The Journal */}
             <div className="w-[100vw] h-full shrink-0 flex items-center justify-center px-24 border-r border-[#E1DDD5]/50 bg-[#F9F6ED]">
               <div className="w-full max-w-7xl">
                 <div className="flex justify-between items-end border-b pb-6 border-[#E1DDD5] mb-8 text-left">
@@ -711,7 +776,7 @@ export function MainHorizontalScroll({
               </div>
             </div>
 
-            {/* SLIDE 10: BENTO GRID (GÓP Ý & AI SEARCH) - ĐƯA XUỐNG CUỐI CÙNG SÁNG #FCFAF2 */}
+            {/* Slide 10: Bento Grid */}
             <div className="w-[100vw] h-full shrink-0 flex items-center justify-center px-24 border-r border-[#E1DDD5]/50 bg-[#FCFAF2]">
               <div className="w-full max-w-7xl">
                 <div className="border-b pb-4 border-[#E1DDD5] mb-8 text-left">
@@ -726,7 +791,7 @@ export function MainHorizontalScroll({
               </div>
             </div>
 
-            {/* SLIDE 11: PRE-FOOTER (Sunset Banner) */}
+            {/* Slide 11: PRE-FOOTER */}
             <div
               className="w-[100vw] h-full shrink-0 relative flex items-center justify-center overflow-hidden border-l border-white/5"
               style={{
@@ -736,7 +801,6 @@ export function MainHorizontalScroll({
                 backgroundSize: "4px 4px", // Mật độ chấm lưới 4px đều tăm tắp
               }}
             >
-              {/* Vầng sáng Amber tỏa rộng của Daylight rọi từ trên cao xuống */}
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[120%] aspect-square rounded-full bg-gradient-radial from-[#FF8A00]/18 to-transparent blur-3xl -translate-y-[80%]" />
 
               <div className="max-w-7xl px-24 relative z-10 w-full flex flex-col lg:flex-row items-center justify-between gap-12">
@@ -772,7 +836,7 @@ export function MainHorizontalScroll({
                     size="lg"
                     className="w-full bg-[#FF9D00] hover:bg-[#E68A00] text-black rounded-xl py-4 font-mono uppercase text-xs font-bold tracking-wider cursor-pointer"
                   >
-                    <Link href="/contact">LIÊN HỆ ĐẶT IN NGAY</Link>
+                    <Link href="/contact">LIÊN HỆ ĐẶT NGAY</Link>
                   </Button>
                 </div>
               </div>

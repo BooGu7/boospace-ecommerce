@@ -50,7 +50,7 @@ export default async function BlogIndex({ searchParams }: BlogIndexProps) {
           <div className="space-y-4 text-left">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#EAE5D9] text-[#786F66] text-[10px] font-mono uppercase tracking-widest border border-[#DCD6CC] w-fit font-bold">
               <span className="size-1.5 rounded-full bg-amber-500 animate-pulse" />
-              THE JOURNAL • CHRONICLES OF FLOW
+              THE JOURNAL
             </div>
             <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-black font-serif leading-none">
               Nhật ký hành trình

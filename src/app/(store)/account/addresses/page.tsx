@@ -93,12 +93,12 @@ export default function AddressesPage() {
   return (
     <div className="bg-[#FCFAF2] text-[#1E1C1A] min-h-screen antialiased selection:bg-[#EAE5D9]">
       <div className="mx-auto max-w-[1440px] px-4 py-16 sm:px-6 lg:px-8 border-x border-[#E1DDD5] bg-[#FCFAF2]/50">
-        {/* HEADER SECTION PHONG CÁCH TẠP CHÍ DẸT */}
+        {/* HEADER SECTION PHONG CÁCH TẠP CHÍ DẸT (Xóa chỉ mục số rườm rà) */}
         <div className="border-b border-[#E1DDD5] pb-8 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-4 text-left">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#EAE5D9] text-[#786F66] text-[10px] font-mono font-bold uppercase tracking-widest border border-[#DCD6CC] w-fit">
               <span className="size-1.5 rounded-full bg-amber-500 animate-pulse" />
-              02 / SHIPPING DIRECTORY
+              SHIPPING DIRECTORY
             </div>
             <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-black font-serif leading-none">
               Địa chỉ giao hàng
@@ -256,7 +256,7 @@ export default function AddressesPage() {
                         type="button"
                         variant="outline"
                         onClick={() => {
-                          setShowForm(false); //  Chỉ giữ lại lệnh ẩn Form
+                          setShowForm(false);
                         }}
                         className="rounded-xl border-[#E1DDD5] font-mono uppercase text-xs font-bold tracking-wider py-4 px-6 cursor-pointer"
                       >
