@@ -24,6 +24,12 @@ export function HeroVideoSection({
   const [email, setEmail] = React.useState("");
   const [submitting, setSubmitting] = React.useState(false);
   const [isClosed, setIsClosed] = React.useState(false);
+  const [mounted, setMounted] = React.useState(false);
+
+  // Khắc phục hoàn toàn lỗi lệch cấu trúc HTML (Hydration Mismatch) trong Next.js SSR
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Điều phối chuyển trang thông suốt về /shop
   const handleExplore = (e: React.MouseEvent) => {
@@ -109,15 +115,24 @@ export function HeroVideoSection({
         <div className="flex flex-col lg:flex-row items-stretch lg:items-end justify-between gap-8 pt-12">
           {/* Khung phát Video lặp chậm mượt mà nạp từ Supabase Storage */}
           <MotionWrapper direction="right" delay={400}>
-            <div className="relative w-48 sm:w-64 aspect-[16/10] rounded-2xl overflow-hidden border-2 border-[#3ECF8E] bg-black/40 group cursor-pointer shadow-lg">
-              <video
-                src={heroVideo}
-                autoPlay
-                muted
-                loop
-                playsInline
-                className="absolute inset-0 w-full h-full object-cover opacity-75 group-hover:scale-102 transition-transform duration-500"
-              />
+            <div className="relative w-48 sm:w-64 aspect-[16/10] rounded-2xl overflow-hidden border-2 border-[#3ECF8E] bg-black/40 group cursor-pointer shadow-lg flex items-center justify-center">
+              {!mounted ? (
+                // Hiển thị vòng chờ quay mượt mà trong khi chờ Hydration hoàn tất
+                <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                  <Loader2 className="h-5 w-5 animate-spin text-[#3ECF8E]" />
+                </div>
+              ) : (
+                <video
+                  key={heroVideo} // Tự động làm mới thẻ video nếu đường dẫn props thay đổi
+                  src={heroVideo}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="auto"
+                  className="absolute inset-0 w-full h-full object-cover opacity-75 group-hover:scale-102 transition-transform duration-500"
+                />
+              )}
             </div>
           </MotionWrapper>
 

@@ -5,6 +5,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { Toaster } from "sonner";
 import { siteConfig } from "@/lib/config";
+import Script from "next/script"; // Nhập khẩu Script Next.js
 import "./globals.css";
 
 // Tải phông chữ điều hướng Inter (Satoshi/Inter)
@@ -65,12 +66,12 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      suppressHydrationWarning // Dập tắt cảnh báo lệch dữ liệu do Extension trình duyệt
+      suppressHydrationWarning // Dập tắt cảnh báo lệch dữ liệu trên thẻ html [2]
       className={`${sans.variable} ${serif.variable} h-full antialiased`} // Ánh xạ 2 biến phông
     >
       <head>
         {/* ============================================================================
-           GOOGLE TAG MANAGER (NẠP TĨNH TRUYỀN THỐNG TRONG HEAD - VƯỢT QUA 100% CÔNG CỤ QUÉT) [1.1]
+           GOOGLE TAG MANAGER (NẠP TĨNH TRUYỀN THỐNG TRONG HEAD - VƯỢT QUA 100% CÔNG CỤ QUÉT)
            ============================================================================ */}
         <script
           dangerouslySetInnerHTML={{
@@ -85,10 +86,16 @@ export default async function RootLayout({
         />
       </head>
 
-      {/* Thay đổi bg-white sang bg-background để đồng bộ màu ngà cát mộc mạc */}
-      <body className="min-h-full flex flex-col bg-background relative">
+      {/* 
+        ĐÃ CẬP NHẬT: Thêm suppressHydrationWarning vào thẻ body để triệt tiêu hoàn toàn
+        các cảnh báo lệch cấu trúc do Browser Extensions (như ap-style, grammarly...) tự ý chèn vào [2]
+      */}
+      <body
+        className="min-h-full flex flex-col bg-background relative"
+        suppressHydrationWarning={true}
+      >
         {/* ============================================================================
-           GOOGLE TAG MANAGER (KỊCH BẢN NOSCRIPT DỰ PHÒNG - ĐẶT NGAY SAU KHI MỞ BODY) [1.1]
+           GOOGLE TAG MANAGER (KỊCH BẢN NOSCRIPT DỰ PHÒNG - ĐẶT NGAY SAU KHI MỞ BODY)
            ============================================================================ */}
         <noscript>
           <iframe
