@@ -141,17 +141,21 @@ export function Footer() {
                 onSubmit={handleSubscribe}
                 className="relative w-full flex items-center bg-transparent border border-[#E1DDD5] rounded-full p-1 focus-within:ring-1 focus-within:ring-[#FF9D00] mt-3"
               >
+                {/* Đã bổ sung aria-label cho ô nhập Email nhận bản tin ở Chân trang [1.1] */}
                 <input
                   type="email"
                   placeholder="E-MAIL"
+                  aria-label="Địa chỉ Email đăng ký nhận bản tin khuyến mãi"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   className="flex-1 bg-transparent px-4 py-2 text-xs font-mono tracking-wider outline-none text-black placeholder:text-[#786F66]/50"
                 />
+                {/* Đã bổ sung aria-label cho nút bấm GET xác nhận đăng ký Email nhận bản tin ở Chân trang [1.1] */}
                 <button
                   type="submit"
                   disabled={submitting}
+                  aria-label="Xác nhận đăng ký nhận tin tức"
                   className="rounded-full bg-white hover:bg-neutral-100 text-[10px] font-mono font-bold tracking-widest text-black border border-[#E1DDD5] px-4 py-2 uppercase shadow-sm transition-all shrink-0 cursor-pointer"
                 >
                   {submitting ? "..." : "GET"}

@@ -141,8 +141,10 @@ export function HeroVideoSection({
             {!isClosed && (
               <MotionWrapper direction="left" delay={450}>
                 <div className="bg-white/95 backdrop-blur-md text-black p-5 rounded-2xl border border-white/20 shadow-xl relative space-y-3">
+                  {/* Đã bổ sung aria-label cho phím Đóng ✕ [1.1] */}
                   <button
                     onClick={() => setIsClosed(true)}
+                    aria-label="Đóng biểu mẫu bản tin"
                     className="absolute top-3 right-3 text-xs text-slate-400 cursor-pointer hover:text-black transition-colors"
                   >
                     ✕
@@ -161,17 +163,21 @@ export function HeroVideoSection({
                     onSubmit={handleSubscribe}
                     className="flex items-center gap-1 bg-slate-100 rounded-xl p-1 border border-slate-200"
                   >
+                    {/* Đã bổ sung aria-label cho ô nhập email để tránh lỗi cản trở trình đọc màn hình [1.1] */}
                     <input
                       type="email"
                       placeholder="E-MAIL"
+                      aria-label="Địa chỉ Email đăng ký nhận thông tin"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
                       className="flex-1 bg-transparent px-3 py-2 text-xs font-mono tracking-wider outline-none text-black placeholder:text-slate-400"
                     />
+                    {/* Đã bổ sung aria-label cho phím Gửi GET [1.1] */}
                     <button
                       type="submit"
                       disabled={submitting}
+                      aria-label="Xác nhận gửi đăng ký Email"
                       className="rounded-lg bg-black hover:bg-slate-800 text-[10px] font-mono font-bold tracking-widest text-white px-3.5 py-2 uppercase shadow-sm transition-all shrink-0 cursor-pointer"
                     >
                       {submitting ? "..." : "GET"}

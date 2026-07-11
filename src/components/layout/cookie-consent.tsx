@@ -28,7 +28,7 @@ export function CookieConsent() {
   useEffect(() => {
     const consent = localStorage.getItem("cookie_consent_status");
     if (!consent) {
-      // Tự động mở bảng thông báo dịu mát sau 3 giây khi vào trang
+      // Tự động mở bảng thông báo sau 3 giây khi vào trang
       const timer = setTimeout(() => setShowConsent(true), 3000);
       return () => clearTimeout(timer);
     }
@@ -56,9 +56,10 @@ export function CookieConsent() {
           exit="exit"
           className="fixed bottom-6 left-6 z-[95] w-full max-w-sm overflow-hidden rounded-3xl border border-[#E1DDD5] bg-[#FCFAF2] p-6 shadow-2xl text-left select-none"
         >
-          {/* Nút đóng nhanh ở góc */}
+          {/* Nút đóng nhanh ở góc - ĐÃ BỔ SUNG ARIA-LABEL CHUẨN ACCESSIBILITY [1.1] */}
           <button
             onClick={handleDecline}
+            aria-label="Đóng thông báo Cookie và từ chối"
             className="absolute right-4 top-4 rounded-md p-1 text-[#786F66] hover:bg-[#EAE5D9]/40 hover:text-black transition-colors cursor-pointer focus:outline-none"
           >
             <X className="h-4 w-4" />
