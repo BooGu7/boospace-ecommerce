@@ -1,24 +1,23 @@
-import { Analytics } from "@vercel/analytics/next"; // Đo đạc Web Vitals của Vercel
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
-import { Inter, Instrument_Sans } from "next/font/google"; // 2 phông chữ chuẩn Bio-Tech Zen
+import { Inter, Instrument_Sans } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { Toaster } from "sonner";
 import { siteConfig } from "@/lib/config";
-import Script from "next/script"; // Thư viện Script tối ưu của Next.js [1.1]
 import "./globals.css";
 
-// 1. Tải phông chữ điều hướng Inter (Satoshi/Inter)
+// Tải phông chữ điều hướng Inter (Satoshi/Inter)
 const sans = Inter({
   variable: "--font-sans",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
 });
 
-// 2. Tải phông chữ nghệ thuật Instrument Sans (Đã loại bỏ phân vùng "vietnamese" gây lỗi)
+// Tải phông chữ nghệ thuật Instrument Sans
 const serif = Instrument_Sans({
   variable: "--font-serif",
-  subsets: ["latin"], // Đã sửa lỗi kiểu tĩnh an toàn [2]
+  subsets: ["latin"], // Đã hiệu chuẩn kiểu dữ liệu an toàn [2]
   weight: ["400", "500", "600", "700"],
 });
 
@@ -71,11 +70,9 @@ export default async function RootLayout({
     >
       <head>
         {/* ============================================================================
-           GOOGLE TAG MANAGER (KỊCH BẢN CHÍNH - TỐI ƯU HOÁ HIỆU NĂNG QUA NEXT/SCRIPT) [1.1]
+           GOOGLE TAG MANAGER (NẠP TĨNH TRUYỀN THỐNG TRONG HEAD - VƯỢT QUA 100% CÔNG CỤ QUÉT) [1.1]
            ============================================================================ */}
-        <Script
-          id="gtm-script"
-          strategy="afterInteractive" // Chỉ nạp sau khi trang đã tương tác xong, bảo vệ tốc độ tải trang
+        <script
           dangerouslySetInnerHTML={{
             __html: `
               (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -88,7 +85,7 @@ export default async function RootLayout({
         />
       </head>
 
-      {/* Đồng bộ màu ngà cát mộc mạc bg-background cho body */}
+      {/* Thay đổi bg-white sang bg-background để đồng bộ màu ngà cát mộc mạc */}
       <body className="min-h-full flex flex-col bg-background relative">
         {/* ============================================================================
            GOOGLE TAG MANAGER (KỊCH BẢN NOSCRIPT DỰ PHÒNG - ĐẶT NGAY SAU KHI MỞ BODY) [1.1]
