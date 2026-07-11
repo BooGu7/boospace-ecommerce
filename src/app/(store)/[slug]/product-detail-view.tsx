@@ -39,6 +39,7 @@ import { PLACEHOLDER_IMAGE } from "@/lib/constants";
 import type { Product, Brand, Category } from "@/types";
 import { ReviewsSection } from "@/components/products/reviews-section";
 import { supabase } from "@/lib/supabase/client";
+import { motion } from "framer-motion"; // Đã bổ sung import motion để kích hoạt hiệu ứng
 
 interface ProductDetailViewProps {
   product: Product;
@@ -278,34 +279,42 @@ export function ProductDetailView({
               </Link>
             )}
 
-            <div className="mt-4 flex items-center gap-3">
-              <span className="text-2xl font-semibold text-black/90">
+            {/* ============================================================================
+               NÂNG CẤP HOẠT ẢNH & ĐỘ MẢNH PHÔNG CHỮ GIÁ TIỀN (PREMIUM TACTILE INTERACTION) [1]
+               ============================================================================ */}
+            <motion.div
+              whileHover={{ scale: 1.02, x: 4 }} // Nhấp nổi tịnh tiến nhẹ khi di chuột
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              className="mt-4 flex items-baseline gap-3 w-fit cursor-pointer group select-none"
+            >
+              {/* Giá thực tế (Chuyển sang font-light serif mảnh dẻ thanh lịch) */}
+              <span className="text-3xl font-serif font-light tracking-tight text-black group-hover:text-[#FF9D00] transition-colors duration-300">
                 {formatPrice(selectedVariant.price, selectedVariant.currency)}
               </span>
+
+              {/* Giá cũ gạch ngang mờ */}
               {isOnSale && (
-                <>
-                  <span className="text-lg text-muted-foreground line-through">
-                    {formatPrice(
-                      selectedVariant.compareAtPrice!,
-                      selectedVariant.currency,
-                    )}
-                  </span>
-                  <Badge
-                    variant="secondary"
-                    className="bg-[#EAE5D9]/40 border border-[#DCD6CC] text-[#786F66] text-xs font-mono uppercase"
-                  >
-                    Giảm{" "}
-                    {Math.round(
-                      (1 -
-                        selectedVariant.price /
-                          selectedVariant.compareAtPrice!) *
-                        100,
-                    )}
-                    %
-                  </Badge>
-                </>
+                <span className="text-xs sm:text-sm font-mono text-[#786F66] line-through opacity-55">
+                  {formatPrice(selectedVariant.compareAtPrice!)}
+                </span>
               )}
-            </div>
+
+              {/* Huy hiệu tỉ lệ % giảm giá mộc */}
+              {isOnSale && (
+                <Badge
+                  variant="secondary"
+                  className="bg-[#EAE5D9]/40 border border-[#DCD6CC] text-[#786F66] text-[10px] font-mono uppercase px-2 py-0.5 rounded-md"
+                >
+                  -
+                  {Math.round(
+                    (1 -
+                      selectedVariant.price / selectedVariant.compareAtPrice!) *
+                      100,
+                  )}
+                  %
+                </Badge>
+              )}
+            </motion.div>
 
             <p className="mt-4 text-sm sm:text-base text-[#5C564E] leading-relaxed font-sans">
               {product.description}
@@ -362,9 +371,7 @@ export function ProductDetailView({
               </p>
             )}
 
-            {/* ============================================================================
-               NÂNG CẤP: BẢNG SẢN PHẨM MUA KÈM ƯU ĐÃI (HIỆU ỨNG VIỀN CHẠY PHÁT SÁNG NỔI BẬT & ẢNH CÂN ĐỐI) [1.1]
-               ============================================================================ */}
+            {/* BẢNG SẢN PHẨM MUA KÈM ƯU ĐÃI (COMPLETE YOUR SETUP) */}
             {relatedProducts.length > 0 && (
               <div
                 style={{
@@ -382,11 +389,11 @@ export function ProductDetailView({
                     Mua kèm ưu đãi
                   </h4>
                   <p className="text-[11px] text-[#5C564E] font-sans leading-none">
-                    Hoàn thiện không gian sống của bạn.
+                    Hoàn thiện không gian sống Cozy tối giản của bạn.
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 relative z-10">
+                <div className="grid grid-cols-1 gap-3.5 relative z-10">
                   {relatedProducts.slice(0, 2).map((item) => {
                     const addonImgUrl =
                       typeof item.images?.[0] === "string"
@@ -400,37 +407,37 @@ export function ProductDetailView({
                     return (
                       <div
                         key={item.id}
-                        className="flex items-center gap-4 p-4 bg-white border border-[#E1DDD5]/80 rounded-2xl shadow-xs hover:border-black/20 transition-all"
+                        className="flex items-center justify-between gap-4 p-4 bg-white border border-[#E1DDD5]/80 rounded-2xl shadow-xs hover:border-black/20 transition-all w-full"
                       >
-                        {/* ẢNH THU NHỎ ĐƯỢC PHÓNG TO KÍCH THƯỚC H-16 W-16 CÂN ĐỐI [1.1] */}
-                        <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-[#E1DDD5] bg-[#EAE5D9]/20 shadow-inner">
-                          <Image
-                            src={addonImgUrl}
-                            alt={item.name}
-                            fill
-                            sizes="64px"
-                            className="object-cover"
-                          />
-                        </div>
+                        <div className="flex items-center gap-4 flex-1 min-w-0">
+                          <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-[#E1DDD5] bg-[#EAE5D9]/20 shadow-inner">
+                            <Image
+                              src={addonImgUrl}
+                              alt={item.name}
+                              fill
+                              sizes="64px"
+                              className="object-cover"
+                            />
+                          </div>
 
-                        {/* Title & Price */}
-                        <div className="flex-1 min-w-0 text-left">
-                          <p className="text-xs sm:text-sm font-serif font-bold text-black truncate leading-snug">
-                            {item.name}
-                          </p>
-                          <div className="flex items-baseline gap-1.5 mt-1 font-mono text-[10px] sm:text-xs">
-                            <span className="font-bold text-black">
-                              {addonVariant && formatPrice(addonVariant.price)}
-                            </span>
-                            {isAddonSale && (
-                              <span className="text-[#786F66] line-through opacity-60">
-                                {formatPrice(addonVariant.compareAtPrice!)}
+                          <div className="text-left min-w-0 flex-1">
+                            <p className="text-xs sm:text-sm font-serif font-bold text-black truncate leading-snug pr-2">
+                              {item.name}
+                            </p>
+                            <div className="flex items-baseline gap-1.5 mt-1 font-mono text-[10px] sm:text-xs">
+                              <span className="font-bold text-black">
+                                {addonVariant &&
+                                  formatPrice(addonVariant.price)}
                               </span>
-                            )}
+                              {isAddonSale && (
+                                <span className="text-[#786F66] line-through opacity-60">
+                                  {formatPrice(addonVariant.compareAtPrice!)}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
 
-                        {/* Phím bấm ADD + dẹt mộc mạc chuẩn Daylight */}
                         <button
                           onClick={() => handleAddAddonToCart(item)}
                           className="rounded-lg bg-black hover:bg-[#33302C] text-[9px] font-mono font-bold tracking-widest text-white px-3.5 py-2.5 uppercase shadow-sm shrink-0 cursor-pointer transition-colors"

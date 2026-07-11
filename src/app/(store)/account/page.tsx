@@ -5,14 +5,21 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Package, MapPin, Settings, Heart, LogOut } from "lucide-react";
+import {
+  Package,
+  MapPin,
+  Settings,
+  Heart,
+  LogOut,
+  Loader2,
+} from "lucide-react";
 import { useAuthGuard } from "@/hooks/use-auth-guard";
 import { useAuthStore } from "@/store/auth";
-import { useOrdersStore } from "@/store/orders";
 import { useWishlistStore } from "@/store/wishlist";
 import { motion, Variants } from "framer-motion";
+import { supabase } from "@/lib/supabase/client"; // Gọi client Supabase để đồng bộ chỉ số thực tế [21]
 
-// Cấu hình Hoạt ảnh Spring dẹt mượt mà (Type-safe Variants)
+// Cấu hình Hoạt ảnh Spring dẹt mượt mạc (Type-safe Variants)
 const containerVariants: Variants = {
   hidden: {},
   visible: {
@@ -41,32 +48,61 @@ export default function AccountPage() {
   const logout = useAuthStore((s) => s.logout);
   const router = useRouter();
 
-  // Đọc dữ liệu đơn hàng và danh sách yêu thích để hiển thị chỉ số động
-  const orders = useOrdersStore((s) => s.orders);
+  // Đọc dữ liệu danh sách yêu thích
   const wishlistItems = useWishlistStore((s) => s.items);
 
   const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+
+  // State quản lý số lượng đơn hàng thực tế lấy từ Supabase DB [21]
+  const [dbOrderCount, setDbOrderCount] = useState(0);
+  const [countLoading, setCountLoading] = useState(true);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // ĐỒNG BỘ: Truy vấn lấy chính xác số lượng đơn hàng thực của User từ Supabase [21]
+  useEffect(() => {
+    if (!mounted || !user?.email) return;
+
+    const userEmail = user.email;
+
+    async function fetchOrderCount() {
+      try {
+        const { count, error } = await supabase
+          .from("orders")
+          .select("*", { count: "exact", head: true })
+          .eq("customer_email", userEmail);
+
+        if (!error && count !== null) {
+          setDbOrderCount(count);
+        }
+      } catch (err) {
+        console.error("Lỗi đồng bộ số lượng đơn hàng:", err);
+      } finally {
+        setCountLoading(false);
+      }
+    }
+
+    fetchOrderCount();
+  }, [mounted, user]);
 
   if (!isReady) return null;
 
-  // Ép kiểu an toàn để tránh báo lỗi "Property 'phone' does not exist on type 'User'"
+  // Ép kiểu an toàn tránh báo lỗi TypeScript
   const userPhone = (user as any)?.phone;
+  const userAvatar = (user as any)?.avatar;
 
-  // Lọc số lượng đơn hàng thực tế
-  const orderCount = mounted
-    ? orders.filter((o) => o.customerEmail === user?.email).length
-    : 0;
   const wishlistCount = mounted ? wishlistItems.length : 0;
 
-  // Cấu hình danh sách các module bento điều khiển (Đã dọn sạch chỉ mục số rườm rà)
+  // Cấu hình danh sách các module bento điều khiển
   const accountLinks = [
     {
       name: "Đơn hàng của tôi",
       description: "Xem lịch sử đơn hàng, biên nhận và trạng thái vận chuyển",
       href: "/account/orders",
       icon: Package,
-      count: orderCount,
+      count: dbOrderCount, // Sử dụng số lượng thực tế từ Supabase [21]
       countLabel: "đơn",
       iconClass: "group-hover:rotate-6",
     },
@@ -99,7 +135,7 @@ export default function AccountPage() {
   return (
     <div className="bg-[#FCFAF2] text-[#1E1C1A] min-h-screen antialiased selection:bg-[#EAE5D9]">
       <div className="mx-auto max-w-[1440px] px-4 py-16 sm:px-6 lg:px-8 border-x border-[#E1DDD5] bg-[#FCFAF2]/50">
-        {/* HEADER SECTION PHONG CÁCH TẠP CHÍ DẸT (Đã xóa bỏ chỉ mục số rườm rà) */}
+        {/* HEADER SECTION PHONG CÁCH TẠP CHÍ DẸT */}
         <div className="border-b border-[#E1DDD5] pb-8 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-4 text-left">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#EAE5D9] text-[#786F66] text-[10px] font-mono font-bold uppercase tracking-widest border border-[#DCD6CC] w-fit">
@@ -125,9 +161,7 @@ export default function AccountPage() {
           animate="visible"
           className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start"
         >
-          {/* ==========================================
-             MÔ-ĐUN TRÁI: THẺ HỒ SƠ THÀNH VIÊN ĐỘC BẢN
-             ========================================== */}
+          {/* Mô-đun trái: Thẻ hồ sơ thành viên */}
           <motion.div
             variants={blockVariants}
             className="lg:col-span-4 bg-white border border-[#DCD6CC] rounded-[32px] p-8 space-y-6 text-left shadow-xs relative overflow-hidden"
@@ -135,15 +169,22 @@ export default function AccountPage() {
             <div className="absolute -top-12 -right-12 size-36 rounded-full bg-gradient-radial from-[#FF8A00]/5 to-transparent blur-2xl" />
 
             <div className="flex flex-col items-center text-center space-y-4 pb-6 border-b border-[#E1DDD5]/60 relative z-10">
-              <div className="size-16 rounded-full bg-black flex items-center justify-center font-serif text-2xl font-bold text-white border border-[#DCD6CC] shadow-inner select-none uppercase">
-                {user?.firstName?.[0] ?? "U"}
+              {/* Ảnh đại diện Google Avatar bo tròn sắc nét */}
+              <div className="size-16 rounded-full bg-black flex items-center justify-center font-serif text-2xl font-bold text-white border border-[#DCD6CC] shadow-inner select-none uppercase overflow-hidden">
+                {userAvatar ? (
+                  <img
+                    src={userAvatar}
+                    alt="Google Avatar"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  (user?.firstName?.[0] ?? "U")
+                )}
               </div>
               <div className="space-y-1">
                 <h2 className="font-serif text-xl font-bold text-black leading-tight">
                   {user?.lastName} {user?.firstName}
                 </h2>
-
-                {/* Đã đồng bộ: Chỉ hiển thị nhãn mộc mạc tối giản, ẩn các phân hạng cũ */}
                 <span className="text-[10px] font-mono text-[#786F66] bg-[#EAE5D9]/40 border border-[#DCD6CC] px-2.5 py-0.5 rounded-full uppercase tracking-wider font-semibold">
                   Thành viên Boo Space
                 </span>
@@ -188,9 +229,7 @@ export default function AccountPage() {
             </div>
           </motion.div>
 
-          {/* ==========================================
-             MÔ-ĐUN PHẢI: LƯỚI PHÍM TẮT BENTO THÔNG MINH (ĐÃ BỎ CHỈ MỤC SỐ RƯỜM RÀ)
-             ========================================== */}
+          {/* Mô-đun phải: Lưới phím tắt bento thông minh */}
           <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
             {accountLinks.map((item) => {
               const Icon = item.icon;
@@ -208,14 +247,17 @@ export default function AccountPage() {
                     className="h-full cursor-pointer rounded-[32px] border border-[#DCD6CC]"
                   >
                     <Card className="h-full border-0 bg-white p-8 flex flex-col justify-between min-h-[190px] shadow-xs relative overflow-hidden transition-all rounded-[32px]">
-                      {/* Đã dọn sạch chỉ mục số, chỉ hiển thị Tên mục in hoa tối giản làm nhãn phụ */}
                       <div className="flex justify-between items-start">
                         <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
                           {item.name}{" "}
-                          {item.count !== undefined && (
-                            <span className="text-[#FF9D00] font-sans ml-1 text-[11px] font-bold">
-                              ({item.count} {item.countLabel})
-                            </span>
+                          {countLoading && item.count !== undefined ? (
+                            <Loader2 className="h-3 w-3 animate-spin inline ml-1 text-[#FF9D00]" />
+                          ) : (
+                            item.count !== undefined && (
+                              <span className="text-[#FF9D00] font-sans ml-1 text-[11px] font-bold">
+                                ({item.count} {item.countLabel})
+                              </span>
+                            )
                           )}
                         </span>
 
@@ -226,7 +268,6 @@ export default function AccountPage() {
                         </div>
                       </div>
 
-                      {/* Thông tin mô tả mộc mạc sắc nét */}
                       <div className="space-y-2 mt-10 text-left">
                         <h3 className="text-lg font-bold font-serif text-black leading-tight flex items-center gap-1.5">
                           {item.name}

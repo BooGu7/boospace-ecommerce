@@ -147,7 +147,7 @@ export default function SettingsPage() {
           <div className="space-y-4 text-left">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#EAE5D9] text-[#786F66] text-[10px] font-mono font-bold uppercase tracking-widest border border-[#DCD6CC] w-fit">
               <span className="size-1.5 rounded-full bg-amber-500 animate-pulse" />
-              04 / ACCOUNT SETTINGS
+              ACCOUNT SETTINGS
             </div>
             <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-black font-serif leading-none">
               Thiết lập

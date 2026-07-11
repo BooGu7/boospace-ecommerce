@@ -53,7 +53,10 @@ export function Header({ categories = [] }: HeaderProps) {
   useEffect(() => setMounted(true), []);
   const itemCount = mounted ? getItemCount() : 0;
 
-  // Phím tắt Cmd+K / Ctrl+K kích hoạt Modal tìm kiếm AI nhanh chóng
+  // Trích xuất đường dẫn ảnh đại diện Google từ Auth Store (đã gán kiểu an toàn)
+  const userAvatar = (user as any)?.avatar;
+
+  // Phím tắt Cmd+K / Ctrl+K kích hoạt nhanh Modal tìm kiếm AI
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
@@ -219,8 +222,17 @@ export function Header({ categories = [] }: HeaderProps) {
                   className="hidden h-10 w-10 items-center justify-center rounded-xl hover:bg-[#EAE5D9]/40 transition-colors lg:inline-flex cursor-pointer focus:outline-none"
                   aria-label={t("accountMenu")}
                 >
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-black text-[10px] font-mono font-bold text-[#FCFAF2] uppercase">
-                    {user?.firstName?.[0] ?? "U"}
+                  {/* TỰ ĐỘNG PHẢN HỒI: Kết xuất ảnh đại diện Google nếu có, ngược lại hiện Monogram chữ cái đầu */}
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-black text-[10px] font-mono font-bold text-[#FCFAF2] uppercase overflow-hidden border border-[#E1DDD5]">
+                    {userAvatar ? (
+                      <img
+                        src={userAvatar}
+                        alt="Google Profile"
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      (user?.firstName?.[0] ?? "U")
+                    )}
                   </div>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
@@ -307,7 +319,7 @@ export function Header({ categories = [] }: HeaderProps) {
         </div>
       </header>
 
-      {/* MODAL TÌM KIẾM AI ĐÃ ĐƯỢC CHUẨN HÓA KHÔNG LỖI BIÊN DỊCH */}
+      {/* MODAL TÌM KIẾM AI ĐÃ ĐƯỢC CHUẨN HÓA KHÔNG LỒI BIÊN DỊCH */}
       <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
   );

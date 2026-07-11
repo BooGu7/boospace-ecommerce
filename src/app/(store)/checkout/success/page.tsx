@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,6 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { CheckCircle2, Loader2, Package, ShoppingBag } from "lucide-react";
 import { useOrdersStore } from "@/store/orders";
 import { formatDate } from "@/lib/utils";
+import { PLACEHOLDER_IMAGE } from "@/lib/constants"; // Import ảnh giữ chỗ
 import { motion, AnimatePresence } from "framer-motion";
 
 // Định dạng tiền tệ Việt Nam (VND) trực tiếp để tránh lỗi chênh lệch chia 100 của formatPrice
@@ -124,29 +126,57 @@ function CheckoutSuccessContent() {
                   </div>
                 </div>
 
-                {/* Items List */}
+                {/* Items List (Đã sửa lỗi loại bỏ trường gọi trùng lặp .imageUrl) */}
                 <div className="space-y-4">
                   <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold block">
                     Chi tiết sản phẩm
                   </span>
 
-                  <div className="space-y-3.5">
-                    {order.items.map((item) => (
-                      <div
-                        key={item.id}
-                        className="flex justify-between items-start gap-4 text-xs font-sans"
-                      >
-                        <span className="text-[#5c544d] flex-1 font-serif font-bold">
-                          {item.name}{" "}
-                          <span className="font-mono font-normal text-[#786F66] ml-1.5">
-                            × {item.quantity}
+                  <div className="space-y-4">
+                    {order.items.map((item) => {
+                      // Trích xuất chuẩn xác đường dẫn ảnh đại diện theo kiểu dữ liệu OrderLineItem
+                      const imgUrl = item.image?.url || PLACEHOLDER_IMAGE;
+                      const imgAlt = item.image?.alt || item.name;
+
+                      return (
+                        <div
+                          key={item.id}
+                          className="flex items-center gap-4 pb-3.5 border-b border-[#E1DDD5]/40 last:border-0 last:pb-0"
+                        >
+                          {/* Khung chứa ảnh đại diện thu nhỏ */}
+                          <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-[#E1DDD5] bg-[#EAE5D9]/20 shadow-sm">
+                            <Image
+                              src={imgUrl}
+                              alt={imgAlt}
+                              fill
+                              className="object-cover"
+                              sizes="48px"
+                            />
+                          </div>
+
+                          {/* Tên sản phẩm & phân loại */}
+                          <div className="flex-1 min-w-0 text-left">
+                            <p className="text-xs sm:text-sm font-serif font-bold text-black leading-snug truncate">
+                              {item.name}
+                            </p>
+                            {item.variantName &&
+                              item.variantName !== "Default Variant" && (
+                                <p className="text-[10px] text-[#786F66] font-sans font-medium mt-0.5 truncate">
+                                  Phân loại: {item.variantName}
+                                </p>
+                              )}
+                            <span className="text-[10px] font-mono text-[#5c544d] bg-[#EAE5D9]/50 px-2 py-0.5 rounded-md mt-1 inline-block font-semibold">
+                              Số lượng: {item.quantity}
+                            </span>
+                          </div>
+
+                          {/* Tổng giá của dòng hàng */}
+                          <span className="shrink-0 text-xs sm:text-sm font-mono font-bold text-black">
+                            {formatVND(item.total)}
                           </span>
-                        </span>
-                        <span className="font-mono font-semibold text-black shrink-0">
-                          {formatVND(item.total)}
-                        </span>
-                      </div>
-                    ))}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
 

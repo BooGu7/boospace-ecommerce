@@ -22,13 +22,12 @@ export const shopLinks: NavItem[] = [
 
 export const accountLinks: NavItem[] = [
   { name: "Tài khoản", href: "/account" },
-  { name: "Yêu thích ❤️", href: "/wishlist" },
+  { name: "Yêu thích", href: "/wishlist" },
   { name: "Đơn hàng", href: "/account/orders" },
 ];
 
 export const infoLinks: NavItem[] = [
-  { name: "Blog", href: "/blog" },
-  { name: "Liên hệ", href: "/contact" },
+  { name: "Giới thiệu", href: "/about" },
   { name: "FAQ", href: "/faq" },
 ];
 

@@ -4,6 +4,8 @@ import { AnnouncementBar } from "@/components/layout/announcement-bar";
 import { CartDrawer } from "@/components/cart/cart-drawer";
 import { BackToTop } from "@/components/layout/back-to-top";
 import { categoryRepository } from "@/lib/repositories";
+import { AuthListener } from "@/components/auth/auth-listener"; // Đồng bộ hóa tài khoản Google OAuth [21]
+import { CookieConsent } from "@/components/layout/cookie-consent"; // Khung thông báo bảo mật Cookie nổi
 
 export default async function StoreLayout({
   children,
@@ -15,6 +17,12 @@ export default async function StoreLayout({
 
   return (
     <>
+      {/* Kích hoạt bộ lắng nghe đồng bộ hóa trạng thái tài khoản chạy ngầm toàn trang */}
+      <AuthListener />
+
+      {/* Kích hoạt thông báo bảo mật Cookie dẹt nổi góc dưới bên trái */}
+      <CookieConsent />
+
       {/* Phím tắt bỏ qua nhanh nội dung (Skip-to-content) hỗ trợ chuẩn Accessibility (a11y) */}
       <a
         href="#main-content"
@@ -23,7 +31,7 @@ export default async function StoreLayout({
         Skip to content
       </a>
 
-      {/* Announcement bar mộc mạc hàng đầu của Daylight */}
+      {/* Announcement bar chạy chữ vô cực của Daylight */}
       <AnnouncementBar />
 
       {/* Header thanh điều hướng động kết nối database */}

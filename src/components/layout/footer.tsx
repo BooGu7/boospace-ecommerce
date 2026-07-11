@@ -107,13 +107,14 @@ export function Footer() {
 
   return (
     <footer className="relative z-10 border-t border-[#E1DDD5] bg-[#FCFAF2] text-[#1E1C1A]">
-      <div className="mx-auto max-w-[1440px] px-4 py-16 sm:px-6 lg:px-8 border-x border-[#E1DDD5]">
+      {/* NÂNG CẤP SPACER: Thu hẹp độ dày đứng toàn khung từ py-16 xuống pt-12 pb-6 */}
+      <div className="mx-auto max-w-[1440px] px-4 pt-12 pb-6 sm:px-6 lg:px-8 border-x border-[#E1DDD5]">
         {/* ============================================================================
-           BỐ CỤC KHU VỰC TRÊN (TÁI CẤU TRÚC 12 CỘT: KHUNG ĐĂNG KÝ EMAIL NẰM TRỌN BÊN TRÁI)
+           BỐ CỤC KHU VỰC TRÊN (NÉN KHOẢNG TRỐNG pb-16 xuống pb-10)
            ============================================================================ */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 pb-16 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 pb-10 items-start">
           {/* CỘT TRÁI (BẢN TIN & THƯƠNG HIỆU - CHIẾM 5/12 CỘT TRÊN DESKTOP) */}
-          <div className="lg:col-span-5 space-y-8 text-left">
+          <div className="lg:col-span-5 space-y-6 text-left">
             <div className="space-y-4">
               <Link
                 href="/"
@@ -153,7 +154,7 @@ export function Footer() {
                   disabled={submitting}
                   className="rounded-full bg-white hover:bg-neutral-100 text-[10px] font-mono font-bold tracking-widest text-black border border-[#E1DDD5] px-4 py-2 uppercase shadow-sm transition-all shrink-0 cursor-pointer"
                 >
-                  {submitting ? "..." : "ĐĂNG KÝ"}
+                  {submitting ? "..." : "GET"}
                 </button>
               </form>
             </div>
@@ -220,20 +221,24 @@ export function Footer() {
           </div>
         </div>
 
-        <Separator className="bg-[#E1DDD5]/60 my-6" />
+        {/* NÂNG CẤP SPACER: Nén đệm dọc của mục updates giữa từ py-8 xuống py-5 */}
+        <div className="border-t border-[#E1DDD5]/80 py-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-6" />
+
+        {/* ĐƯỜNG KẺ CHẤM BI ĐÁY SƠ SÀI ĐÃ ĐƯỢC CHỈNH TỈ LỆ KHÍT mt-6 mb-4 */}
+        <Separator className="bg-[#E1DDD5]/60 mt-6 mb-4" />
 
         {/* ============================================================================
-           KHU VỰC DƯỚI: COPYRIGHT & SOCIALS (LIÊN KẾT ĐỘNG HOÀN TOÀN TỪ CONFIG.TS)
+           KHU VỰC DƯỚI: COPYRIGHT & SOCIALS (Đã loại bỏ ngắt dòng, dẹt ngang tối giản gọn gàng)
            ============================================================================ */}
         <div className="flex flex-col-reverse gap-4 sm:flex-row sm:items-center sm:justify-between text-left">
           <p className="text-[10px] font-mono text-[#786F66]/80 leading-relaxed">
             &copy; {siteConfig.copyrightYear} {siteConfig.name}. Khi tư duy sáng
-            tạo gặp gỡ lối sống tối giản.
-            <br className="sm:hidden" />
+            tạo gặp gỡ lối sống tối giản. Operating under the ethos of deep
+            focus.
           </p>
 
-          {/* HỆ THỐNG MẠNG XÃ HỘI TỰ ĐỘNG PHẢN HỒI THEO FILE CONFIG.TS */}
-          <div className="flex items-center gap-5 text-[#786F66]">
+          {/* HỆ THỐNG MẠNG XÃ HỘI TỰ ĐỘNG PHẢN HỒI THEO FILE CONFIG.TS (Nén khoảng cách gap-4) */}
+          <div className="flex items-center gap-4 text-[#786F66]">
             {siteConfig.social.twitter && (
               <a
                 href={siteConfig.social.twitter}

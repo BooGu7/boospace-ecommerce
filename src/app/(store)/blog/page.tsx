@@ -72,7 +72,7 @@ export default async function BlogIndex({ searchParams }: BlogIndexProps) {
             ) : (
               <p className="text-xs sm:text-sm font-mono text-[#786F66] uppercase tracking-wider flex items-center gap-1.5">
                 <BookOpen className="size-3.5 text-amber-600" />
-                Lưu trữ {pagination.total} bài viết &amp; cẩm nang thiết lập
+                Lưu trữ {pagination.total} {}bài viết &amp; cẩm nang thiết lập
                 không gian
               </p>
             )}
