@@ -6,8 +6,13 @@ import {
   brandRepository,
 } from "@/lib/repositories";
 
-// Static public routes. Admin, account, auth, and checkout are excluded
-// (covered by robots.txt disallow rules).
+// TỰ KHÔI PHỤC ĐƯỜNG DẪN: Ưu tiên đọc biến môi trường, tự động chuyển về tên miền chính thức nếu rỗng
+const baseUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  process.env.NEXT_PUBLIC_BASE_URL ||
+  "https://www.boospace.tech"; // Mặc định tên miền chính thức của bạn
+
+// Các đường dẫn tĩnh công khai
 const STATIC_PATHS = [
   { path: "", priority: 1, changeFrequency: "daily" as const },
   { path: "/shop", priority: 0.9, changeFrequency: "daily" as const },
@@ -40,8 +45,7 @@ const STATIC_PATHS = [
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  // Fetch all dynamic content from the repository layer so swapping
-  // backends (CMS, DB, API) doesn't break the sitemap.
+  // Đồng bộ nạp dữ liệu động từ lớp repository của Supabase
   const [productsResult, categories, brands] = await Promise.all([
     productRepository.list(undefined, undefined, { page: 1, limit: 10_000 }),
     categoryRepository.list(),
@@ -50,31 +54,35 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const now = new Date();
 
+  // Tạo liên kết cho các trang tĩnh
   const staticEntries: MetadataRoute.Sitemap = STATIC_PATHS.map((p) => ({
-    url: `${siteConfig.url}${p.path}`,
+    url: `${baseUrl}${p.path}`, // Gọi biến baseUrl chuẩn hóa
     lastModified: now,
     changeFrequency: p.changeFrequency,
     priority: p.priority,
   }));
 
+  // Tạo liên kết động cho Sản phẩm thực tế
   const productEntries: MetadataRoute.Sitemap = productsResult.items.map(
     (p) => ({
-      url: `${siteConfig.url}/${p.slug}`,
+      url: `${baseUrl}/${p.slug}`,
       lastModified: p.updatedAt ? new Date(p.updatedAt) : now,
       changeFrequency: "weekly",
       priority: 0.8,
     }),
   );
 
+  // Tạo liên kết động cho Danh mục/Bộ sưu tập thực tế
   const categoryEntries: MetadataRoute.Sitemap = categories.map((c) => ({
-    url: `${siteConfig.url}/${c.slug}`,
+    url: `${baseUrl}/${c.slug}`,
     lastModified: now,
     changeFrequency: "weekly",
     priority: c.parentId ? 0.6 : 0.8,
   }));
 
+  // Tạo liên kết động cho Thương hiệu
   const brandEntries: MetadataRoute.Sitemap = brands.map((b) => ({
-    url: `${siteConfig.url}/${b.slug}`,
+    url: `${baseUrl}/${b.slug}`,
     lastModified: now,
     changeFrequency: "weekly",
     priority: 0.6,
