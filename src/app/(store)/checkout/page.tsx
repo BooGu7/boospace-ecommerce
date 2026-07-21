@@ -51,6 +51,11 @@ export default function CheckoutPage() {
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // Quản lý cổng thanh toán lựa chọn: "cod" (Thanh toán khi nhận hàng) hoặc "vietqr" (Chuyển khoản QR)
+  const [paymentMethod, setPaymentMethod] = useState<"cod" | "vietqr">(
+    "vietqr",
+  );
+
   // Khởi tạo form với quốc gia mặc định là VN và đã bổ sung trường phone (số điện thoại), notes (ghi chú)
   const [form, setForm] = useState({
     email: "",
@@ -63,7 +68,7 @@ export default function CheckoutPage() {
     state: "Việt Nam",
     postalCode: "",
     country: "VN",
-    notes: "", // Thêm trường ghi chú đơn hàng
+    notes: "", // Trường ghi chú đơn hàng
   });
 
   const [marketingOptIn, setMarketingOptIn] = useState(false);
@@ -247,10 +252,12 @@ export default function CheckoutPage() {
     setLoading(true);
     const orderId = `ORD-${Date.now().toString(36).toUpperCase()}`;
 
-    // Ép kiểu any an toàn cho order để nạp các thuộc tính SĐT
+    // Ép kiểu an toàn cho order để nạp các thuộc tính SĐT và phương thức thanh toán
     const order: any = {
       id: orderId,
       orderNumber: orderId,
+      paymentMethod: paymentMethod === "vietqr" ? "VietQR" : "COD",
+      payment_method: paymentMethod === "vietqr" ? "VietQR" : "COD",
       items: items.map((item) => ({
         id: item.id,
         productId: item.productId,
@@ -264,7 +271,7 @@ export default function CheckoutPage() {
         total: item.lineTotal / 100,
       })),
       status: "processing",
-      paymentStatus: "captured",
+      paymentStatus: paymentMethod === "vietqr" ? "pending" : "captured",
       subtotal: subtotal / 100,
       tax: tax,
       shipping: shipping,
@@ -377,7 +384,6 @@ export default function CheckoutPage() {
 
   return (
     <div className="bg-[#FCFAF2] min-h-screen w-full relative">
-      {/* Sửa khoảng trắng không đẹp bằng cách bọc khung viền dọc cát mỏng bo chặt toàn trang */}
       <div className="mx-auto max-w-[1440px] px-4 py-12 sm:px-6 lg:px-8 border-x border-[#E1DDD5] bg-[#FCFAF2]/50 text-[#1E1C1A]">
         <h1 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-black border-b border-[#E1DDD5] pb-6 text-left">
           Thanh toán đơn hàng
@@ -578,7 +584,7 @@ export default function CheckoutPage() {
               </CardContent>
             </Card>
 
-            {/* NÂNG CẤP: KHU VỰC GHI CHÚ CHẾ TÁC & GIAO HÀNG ĐẶC BIỆT */}
+            {/* KHU VỰC GHI CHÚ CHẾ TÁC & GIAO HÀNG ĐẶC BIỆT */}
             <Card className="rounded-3xl border border-[#DCD6CC] bg-white p-6 shadow-sm text-left">
               <CardHeader className="p-0 pb-4 border-b border-[#E1DDD5]/40 mb-4">
                 <CardTitle className="font-serif text-lg font-bold text-black">
@@ -607,7 +613,7 @@ export default function CheckoutPage() {
               </CardContent>
             </Card>
 
-            {/* NÂNG CẤP: KHU VỰC THANH TOÁN KÉP (COD & PAYOO KHÓA TRƯỚC) */}
+            {/* KHU VỰC THANH TOÁN (COD & VIETQR TỰ ĐỘNG) */}
             <Card className="rounded-3xl border border-[#DCD6CC] bg-white p-6 shadow-sm text-left">
               <CardHeader className="p-0 pb-4 border-b border-[#E1DDD5]/40 mb-4">
                 <CardTitle className="font-serif text-lg font-bold text-black">
@@ -617,13 +623,32 @@ export default function CheckoutPage() {
               <CardContent className="p-0 space-y-6">
                 {/* 2 Khối chọn dẹt song song */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Cổng 1: COD (Active) */}
-                  <div className="border-2 border-[#FF9D00] bg-[#FCFAF2]/40 rounded-2xl p-4 flex flex-col justify-between min-h-[120px] relative cursor-pointer">
+                  {/* Cổng 1: COD */}
+                  <div
+                    onClick={() => setPaymentMethod("cod")}
+                    className={`border-2 rounded-2xl p-4 flex flex-col justify-between min-h-[120px] relative cursor-pointer transition-all ${
+                      paymentMethod === "cod"
+                        ? "border-[#FF9D00] bg-[#FCFAF2]/40"
+                        : "border-[#E1DDD5] bg-white hover:border-[#CFCABF]"
+                    }`}
+                  >
                     <div className="flex justify-between items-start w-full">
-                      <span className="text-xs font-mono font-bold text-[#FF9D00]">
+                      <span
+                        className={`text-xs font-mono font-bold ${
+                          paymentMethod === "cod"
+                            ? "text-[#FF9D00]"
+                            : "text-[#786F66]"
+                        }`}
+                      >
                         01 / COD
                       </span>
-                      <span className="size-4 rounded-full border-4 border-[#FF9D00] bg-white" />
+                      <span
+                        className={`size-4 rounded-full border-4 ${
+                          paymentMethod === "cod"
+                            ? "border-[#FF9D00] bg-white"
+                            : "border-[#CFCABF] bg-transparent"
+                        }`}
+                      />
                     </div>
                     <div className="space-y-1 mt-4">
                       <h4 className="font-serif text-sm font-bold text-black leading-tight">
@@ -636,29 +661,46 @@ export default function CheckoutPage() {
                     </div>
                   </div>
 
-                  {/* Cổng 2: Payoo (Khóa để phát triển sau) */}
-                  <div className="border border-[#E1DDD5] bg-[#EAE5D9]/10 rounded-2xl p-4 flex flex-col justify-between min-h-[120px] relative opacity-60 cursor-not-allowed">
+                  {/* Cổng 2: VietQR (Kích hoạt chính thức) */}
+                  <div
+                    onClick={() => setPaymentMethod("vietqr")}
+                    className={`border-2 rounded-2xl p-4 flex flex-col justify-between min-h-[120px] relative cursor-pointer transition-all ${
+                      paymentMethod === "vietqr"
+                        ? "border-[#FF9D00] bg-[#FCFAF2]/40"
+                        : "border-[#E1DDD5] bg-white hover:border-[#CFCABF]"
+                    }`}
+                  >
                     <div className="flex justify-between items-start w-full">
-                      <span className="text-[10px] font-mono text-[#786F66]">
-                        02 / PAYOO
+                      <span
+                        className={`text-xs font-mono font-bold ${
+                          paymentMethod === "vietqr"
+                            ? "text-[#FF9D00]"
+                            : "text-[#786F66]"
+                        }`}
+                      >
+                        02 / VIETQR
                       </span>
-                      <span className="text-[8px] font-mono font-bold text-white bg-black px-2 py-0.5 rounded-md uppercase tracking-wider scale-90">
-                        Sắp ra mắt
-                      </span>
+                      <span
+                        className={`size-4 rounded-full border-4 ${
+                          paymentMethod === "vietqr"
+                            ? "border-[#FF9D00] bg-white"
+                            : "border-[#CFCABF] bg-transparent"
+                        }`}
+                      />
                     </div>
                     <div className="space-y-1 mt-4">
-                      <h4 className="font-serif text-sm font-bold text-black/60 flex items-center gap-1.5 leading-tight">
-                        Thẻ ATM / Thẻ quốc tế / QR Code
+                      <h4 className="font-serif text-sm font-bold text-black flex items-center gap-1.5 leading-tight">
+                        Chuyển khoản VietQR
                       </h4>
-                      <p className="text-[10px] font-sans text-[#786F66]/60 leading-relaxed">
-                        Cổng thanh toán điện tử trực tuyến Payoo (Đang phát
-                        triển kỹ thuật).
+                      <p className="text-[10px] font-sans text-[#786F66] leading-relaxed">
+                        Quét mã QR tự động qua ứng dụng ngân hàng, xác nhận tức
+                        thì 24/7.
                       </p>
                     </div>
                   </div>
                 </div>
 
-                {/* 4. THANH TOÁN (COD TIÊU CHUẨN - ĐÃ ĐỊNH DẠNG CĂN LỀ XUỐNG DÒNG RÕ NÉT) [1.1] */}
+                {/* KHUNG HƯỚNG DẪN THANH TOÁN THAY ĐỔI THEO PHƯƠNG THỨC ĐƯỢC CHỌN */}
                 <div className="space-y-4">
                   <div className="space-y-1">
                     <h3 className="font-serif text-lg font-bold text-black">
@@ -669,31 +711,57 @@ export default function CheckoutPage() {
                     </p>
                   </div>
 
-                  <div className="border border-[#CFCABF] rounded-xl overflow-hidden bg-white text-left">
-                    <div className="p-4 bg-[#FAF5F2]/60 border-b border-[#E1DDD5] flex items-center justify-between">
-                      <span className="font-serif text-sm font-bold text-black">
-                        Thanh toán khi nhận hàng (COD)
-                      </span>
+                  {paymentMethod === "cod" ? (
+                    <div className="border border-[#CFCABF] rounded-xl overflow-hidden bg-white text-left">
+                      <div className="p-4 bg-[#FAF5F2]/60 border-b border-[#E1DDD5] flex items-center justify-between">
+                        <span className="font-serif text-sm font-bold text-black">
+                          Thanh toán khi nhận hàng (COD)
+                        </span>
+                      </div>
+                      <div className="p-5 bg-[#FCFAF2]/30 text-xs leading-relaxed text-[#5c544d] font-sans space-y-2.5">
+                        <p className="font-bold text-black flex items-center gap-1.5">
+                          <span>✓</span> Áp dụng giao hàng và thu tiền tận nơi
+                          trên toàn quốc.
+                        </p>
+                        <p className="font-bold text-[#3ECF8E] flex items-center gap-1.5">
+                          <span>✓</span> Miễn phí vận chuyển cho mọi đơn hàng
+                          tại Việt Nam.
+                        </p>
+                        <p className="italic text-[#786F66] leading-relaxed">
+                          Bạn chỉ cần kiểm tra chất lượng sản phẩm mộc/DIY khi
+                          nhận được từ shipper và thanh toán đúng số tiền hàng
+                          cho shipper, không chịu thêm bất kỳ chi phí phát sinh
+                          nào khác ✨
+                        </p>
+                      </div>
                     </div>
-
-                    {/* Đã bọc căn lề phân tách các dòng rõ ràng, mộc mạc và chuyên nghiệp chuẩn Daylight */}
-                    <div className="p-5 bg-[#FCFAF2]/30 text-xs leading-relaxed text-[#5c544d] font-sans space-y-2.5">
-                      <p className="font-bold text-black flex items-center gap-1.5">
-                        <span>✓</span> Hệ thống áp dụng phương thức Thanh toán
-                        khi nhận hàng (COD) trên toàn quốc.
-                      </p>
-                      <p className="font-bold text-[#3ECF8E] flex items-center gap-1.5">
-                        <span>✓</span> Miễn phí vận chuyển toàn quốc cho mọi đơn
-                        hàng tại Việt Nam.
-                      </p>
-                      <p className="italic text-[#786F66] leading-relaxed">
-                        Bạn chỉ cần kiểm tra chất lượng sản phẩm mộc/DIY khi
-                        nhận được từ shipper và thanh toán đúng số tiền hàng mộc
-                        mạc nguyên bản cho shipper, không chịu thêm bất kỳ chi
-                        phí phát sinh nào khác ✨
-                      </p>
+                  ) : (
+                    <div className="border border-[#CFCABF] rounded-xl overflow-hidden bg-white text-left">
+                      <div className="p-4 bg-[#FAF5F2]/60 border-b border-[#E1DDD5] flex items-center justify-between">
+                        <span className="font-serif text-sm font-bold text-black">
+                          Chuyển khoản VietQR tự động
+                        </span>
+                        <span className="text-[10px] font-mono font-bold text-[#FF9D00] uppercase tracking-wider">
+                          Xác nhận tức thì 24/7
+                        </span>
+                      </div>
+                      <div className="p-5 bg-[#FCFAF2]/30 text-xs leading-relaxed text-[#5c544d] font-sans space-y-2.5">
+                        <p className="font-bold text-black flex items-center gap-1.5">
+                          <span>✓</span> Mã QR tự động điền sẵn số tiền và nội
+                          dung chuyển khoản.
+                        </p>
+                        <p className="font-bold text-[#3ECF8E] flex items-center gap-1.5">
+                          <span>✓</span> Hệ thống tự đối soát ngân hàng và kích
+                          hoạt lệnh sản xuất trong 30 giây.
+                        </p>
+                        <p className="italic text-[#786F66] leading-relaxed">
+                          Sau khi nhấn "Thanh toán ngay", mã QR VietQR sẽ xuất
+                          hiện để bạn quét thanh toán trực tiếp qua App ngân
+                          hàng ✨
+                        </p>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -759,13 +827,11 @@ export default function CheckoutPage() {
                             )}
                         </div>
 
-                        {/* ĐỒNG BỘ: Chuyển giá tiền sang font-medium mộc mạc kèm nút Gỡ Bỏ linh hoạt */}
                         <div className="flex flex-col items-end gap-1.5 shrink-0">
                           <span className="text-xs sm:text-sm font-mono font-medium text-black">
                             {formatVND(item.lineTotal / 100)}
                           </span>
 
-                          {/* NÚT GỠ BỎ TƯƠNG TÁC CAO [1.1] */}
                           <button
                             type="button"
                             onClick={() =>
@@ -881,7 +947,7 @@ export default function CheckoutPage() {
 
                 <Separator className="bg-[#E1DDD5]" />
 
-                {/* Bảng kê tổng các chi phí sau chiết khấu (Bản dịch dẹt rõ nét) */}
+                {/* Bảng kê tổng các chi phí sau chiết khấu */}
                 <div className="space-y-3.5 text-xs font-sans text-left">
                   <div className="flex justify-between text-[#5c544d]">
                     <span>Tổng phụ</span>

@@ -9,11 +9,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { CheckCircle2, Loader2, Package, ShoppingBag } from "lucide-react";
 import { useOrdersStore } from "@/store/orders";
-import { formatDate } from "@/lib/utils";
-import { PLACEHOLDER_IMAGE } from "@/lib/constants"; // Import ảnh giữ chỗ
-import { motion, AnimatePresence } from "framer-motion";
+import { PLACEHOLDER_IMAGE } from "@/lib/constants";
+import { motion } from "framer-motion";
+import { VietQRPayment } from "@/components/checkout/vietqr-payment"; // Tích hợp cấu phần VietQR
 
-// Định dạng tiền tệ Việt Nam (VND) trực tiếp để tránh lỗi chênh lệch chia 100 của formatPrice
+// Định dạng tiền tệ Việt Nam (VND) trực tiếp
 const formatVND = (amount: number) => {
   return new Intl.NumberFormat("vi-VN", {
     style: "currency",
@@ -57,6 +57,15 @@ function CheckoutSuccessContent() {
   }
 
   const order = orderId ? getOrderById(orderId) : undefined;
+  // Ép kiểu an toàn sang any để tránh lỗi kiểm duyệt thuộc tính tĩnh của TypeScript
+  const rawOrder = order as any;
+
+  // Kiểm tra hình thức và trạng thái thanh toán thông qua rawOrder
+  const isVietQR =
+    rawOrder?.paymentMethod === "VietQR" ||
+    rawOrder?.payment_method === "VietQR";
+  const isPaid =
+    rawOrder?.paymentStatus === "Paid" || rawOrder?.payment_status === "Paid";
 
   return (
     <div className="bg-[#FCFAF2] text-[#1E1C1A] min-h-screen antialiased selection:bg-[#EAE5D9]">
@@ -86,6 +95,17 @@ function CheckoutSuccessContent() {
             </p>
           </div>
 
+          {/* NẾU CHỌN VIETQR VÀ CHƯA THANH TOÁN -> HIỂN THỊ MÃ QR TỰ ĐỘNG LẮNG NGHE */}
+          {order && isVietQR && !isPaid && (
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              className="w-full"
+            >
+              <VietQRPayment orderId={order.id} amount={order.total} />
+            </motion.div>
+          )}
+
           {/* KHUNG BIÊN NHẬN THẺ GIẤY DẸT CAO CẤP */}
           {order && (
             <motion.div
@@ -107,7 +127,17 @@ function CheckoutSuccessContent() {
                       Mã số đơn hàng
                     </span>
                     <span className="font-mono font-bold text-black">
-                      #{order.orderNumber}
+                      #{order.orderNumber || order.id}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[#786F66] font-mono uppercase tracking-wider">
+                      Phương thức thanh toán
+                    </span>
+                    <span className="font-bold text-black">
+                      {isVietQR
+                        ? "Chuyển khoản VietQR"
+                        : "Thanh toán khi nhận hàng (COD)"}
                     </span>
                   </div>
                   <div className="flex justify-between">
@@ -126,7 +156,7 @@ function CheckoutSuccessContent() {
                   </div>
                 </div>
 
-                {/* Items List (Đã sửa lỗi loại bỏ trường gọi trùng lặp .imageUrl) */}
+                {/* Items List */}
                 <div className="space-y-4">
                   <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold block">
                     Chi tiết sản phẩm
@@ -134,7 +164,6 @@ function CheckoutSuccessContent() {
 
                   <div className="space-y-4">
                     {order.items.map((item) => {
-                      // Trích xuất chuẩn xác đường dẫn ảnh đại diện theo kiểu dữ liệu OrderLineItem
                       const imgUrl = item.image?.url || PLACEHOLDER_IMAGE;
                       const imgAlt = item.image?.alt || item.name;
 
@@ -143,7 +172,6 @@ function CheckoutSuccessContent() {
                           key={item.id}
                           className="flex items-center gap-4 pb-3.5 border-b border-[#E1DDD5]/40 last:border-0 last:pb-0"
                         >
-                          {/* Khung chứa ảnh đại diện thu nhỏ */}
                           <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-[#E1DDD5] bg-[#EAE5D9]/20 shadow-sm">
                             <Image
                               src={imgUrl}
@@ -154,7 +182,6 @@ function CheckoutSuccessContent() {
                             />
                           </div>
 
-                          {/* Tên sản phẩm & phân loại */}
                           <div className="flex-1 min-w-0 text-left">
                             <p className="text-xs sm:text-sm font-serif font-bold text-black leading-snug truncate">
                               {item.name}
@@ -170,7 +197,6 @@ function CheckoutSuccessContent() {
                             </span>
                           </div>
 
-                          {/* Tổng giá của dòng hàng */}
                           <span className="shrink-0 text-xs sm:text-sm font-mono font-bold text-black">
                             {formatVND(item.total)}
                           </span>
