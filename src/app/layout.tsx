@@ -1,11 +1,12 @@
 import { Analytics } from "@vercel/analytics/next";
+import { VercelToolbar } from "@vercel/toolbar/next"; // Tích hợp công cụ Vercel Toolbar
 import type { Metadata } from "next";
 import { Inter, Instrument_Sans } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { Toaster } from "sonner";
 import { siteConfig } from "@/lib/config";
-import Script from "next/script"; // Nhập khẩu Script Next.js
+import Script from "next/script";
 import "./globals.css";
 
 // Tải phông chữ điều hướng Inter (Satoshi/Inter)
@@ -18,7 +19,7 @@ const sans = Inter({
 // Tải phông chữ nghệ thuật Instrument Sans
 const serif = Instrument_Sans({
   variable: "--font-serif",
-  subsets: ["latin"], // Đã hiệu chuẩn kiểu dữ liệu an toàn [2]
+  subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
 });
 
@@ -63,15 +64,20 @@ export default async function RootLayout({
   const locale = await getLocale();
   const messages = await getMessages();
 
+  // Hiển thị thanh công cụ Vercel Toolbar trong môi trường phát triển hoặc xem trước (Preview)
+  const shouldInjectToolbar =
+    process.env.NODE_ENV === "development" ||
+    process.env.VERCEL_ENV === "preview";
+
   return (
     <html
       lang={locale}
-      suppressHydrationWarning // Dập tắt cảnh báo lệch dữ liệu trên thẻ html [2]
-      className={`${sans.variable} ${serif.variable} h-full antialiased`} // Ánh xạ 2 biến phông
+      suppressHydrationWarning
+      className={`${sans.variable} ${serif.variable} h-full antialiased`}
     >
       <head>
         {/* ============================================================================
-           GOOGLE TAG MANAGER (NẠP TĨNH TRUYỀN THỐNG TRONG HEAD - VƯỢT QUA 100% CÔNG CỤ QUÉT)
+           GOOGLE TAG MANAGER (NẠP TĨNH TRUYỀN THỐNG TRONG HEAD)
            ============================================================================ */}
         <script
           dangerouslySetInnerHTML={{
@@ -86,23 +92,19 @@ export default async function RootLayout({
         />
       </head>
 
-      {/* 
-        ĐÃ CẬP NHẬT: Thêm suppressHydrationWarning vào thẻ body để triệt tiêu hoàn toàn
-        các cảnh báo lệch cấu trúc do Browser Extensions (như ap-style, grammarly...) tự ý chèn vào [2]
-      */}
       <body
         className="min-h-full flex flex-col bg-background relative"
         suppressHydrationWarning={true}
       >
         {/* ============================================================================
-           GOOGLE TAG MANAGER (KỊCH BẢN NOSCRIPT DỰ PHÒNG - ĐẶT NGAY SAU KHI MỞ BODY)
+           GOOGLE TAG MANAGER (KỊCH BẢN NOSCRIPT DỰ PHÒNG)
            ============================================================================ */}
         <noscript>
           <iframe
             src="https://www.googletagmanager.com/ns.html?id=GTM-5555NJ2R"
             height="0"
             width="0"
-            style={{ display: "none", visibility: "hidden" }} // Chuyển đổi chuẩn cú pháp JSX
+            style={{ display: "none", visibility: "hidden" }}
           />
         </noscript>
 
@@ -120,8 +122,11 @@ export default async function RootLayout({
         {/* Hộp thông báo nổi */}
         <Toaster position="bottom-right" />
 
-        {/* Đo đạc hiệu năng đám mây */}
+        {/* Đo đạc hiệu năng đám mây Vercel */}
         <Analytics />
+
+        {/* Thanh công cụ Vercel Toolbar */}
+        {shouldInjectToolbar && <VercelToolbar />}
       </body>
     </html>
   );
