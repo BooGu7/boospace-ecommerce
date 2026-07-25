@@ -3,12 +3,11 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Package, CalendarDays, Loader2, ArrowRight } from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
 import { OrderStatusBadge } from "@/components/ui/order-status-badge";
 import { useAuthGuard } from "@/hooks/use-auth-guard";
-import { formatPrice } from "@/lib/utils";
 import { PLACEHOLDER_IMAGE } from "@/lib/constants";
 import { motion, Variants } from "framer-motion";
 import { supabase } from "@/lib/supabase/client";
@@ -16,6 +15,7 @@ import { supabase } from "@/lib/supabase/client";
 interface OrderItem {
   id: string;
   name: string;
+  variantName?: string;
   quantity: number;
   price: number;
   imageUrl: string;
@@ -27,10 +27,10 @@ interface OrderDetail {
   createdAt: string;
   total: number;
   status: any;
+  paymentStatus: string;
   items: OrderItem[];
 }
 
-// Cấu hình Hoạt ảnh Spring mượt mà dẹt ngang (Type-safe)
 const containerVariants: Variants = {
   hidden: {},
   visible: {
@@ -54,7 +54,6 @@ const cardVariants: Variants = {
   },
 };
 
-// Định dạng trực tiếp tiền tệ Việt Nam (VND) không nhân chia
 const formatVNDDirect = (amount: number) => {
   return new Intl.NumberFormat("vi-VN", {
     style: "currency",
@@ -63,8 +62,8 @@ const formatVNDDirect = (amount: number) => {
   }).format(amount);
 };
 
-// Định dạng ngày tháng thủ công chuẩn xác dạng DD/MM/YYYY cho Việt Nam
 const formatVNDate = (dateStr: string) => {
+  if (!dateStr) return "N/A";
   const date = new Date(dateStr);
   const day = String(date.getDate()).padStart(2, "0");
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -77,16 +76,13 @@ export default function OrdersPage() {
   const [ordersList, setOrdersList] = useState<OrderDetail[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // KÉO DỮ LIỆU ĐƠN HÀNG THỜI GIAN THỰC TỪ SUPABASE
   useEffect(() => {
-    // 1. Kiểm tra an toàn cho TypeScript, hẹp phạm vi biến (Narrowing)
     if (!isReady || !user?.email) {
       setLoading(false);
       return;
     }
 
-    // 2. Gán hằng số cục bộ không đổi để pass kiểm tra TypeScript Closure
-    const userEmail = user.email;
+    const userEmail = user.email.trim().toLowerCase();
 
     async function fetchDetailedOrders() {
       try {
@@ -99,32 +95,37 @@ export default function OrdersPage() {
             created_at,
             total,
             order_status,
+            payment_status,
             order_items (
+              id,
+              product_name,
+              variant_name,
               quantity,
               unit_price,
-              products (
-                name,
-                images
-              )
+              total_price
             )
           `,
           )
-          .eq("customer_email", userEmail)
+          .ilike("customer_email", userEmail)
           .order("created_at", { ascending: false });
 
-        if (!error && data) {
+        if (error) {
+          console.error("[SUPABASE_FETCH_ORDERS_ERROR]", error);
+        } else if (data) {
           const mapped: OrderDetail[] = data.map((o: any) => ({
             id: o.id,
-            orderNumber: o.code,
+            orderNumber: o.code || o.id,
             createdAt: o.created_at,
-            total: Number(o.total ?? 0), // Lấy trực tiếp tiền tệ VND thực tế từ DB, không nhân 100
-            status: o.order_status,
+            total: Number(o.total ?? 0),
+            status: o.order_status || "pending",
+            paymentStatus: o.payment_status || "Pending",
             items: (o.order_items || []).map((oi: any, idx: number) => ({
-              id: `${o.id}-item-${idx}`,
-              name: oi.products?.name || "Sản phẩm chế tác",
-              quantity: oi.quantity,
-              price: Number(oi.unit_price ?? 0), // Lấy trực tiếp đơn giá VND thực tế từ DB, không nhân 100
-              imageUrl: oi.products?.images?.[0] || PLACEHOLDER_IMAGE,
+              id: oi.id || `${o.id}-item-${idx}`,
+              name: oi.product_name || "Sản phẩm chế tác 3D",
+              variantName: oi.variant_name || "Mặc định",
+              quantity: Number(oi.quantity ?? 1),
+              price: Number(oi.unit_price ?? 0),
+              imageUrl: PLACEHOLDER_IMAGE,
             })),
           }));
           setOrdersList(mapped);
@@ -144,7 +145,6 @@ export default function OrdersPage() {
   return (
     <div className="bg-[#FCFAF2] text-[#1E1C1A] min-h-screen antialiased selection:bg-[#EAE5D9]">
       <div className="mx-auto max-w-[1440px] px-4 py-16 sm:px-6 lg:px-8 border-x border-[#E1DDD5] bg-[#FCFAF2]/50">
-        {/* HEADER SECTION PHONG CÁCH TẠP CHÍ DẸT */}
         <div className="border-b border-[#E1DDD5] pb-8 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-4 text-left">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#EAE5D9] text-[#786F66] text-[10px] font-mono font-bold uppercase tracking-widest border border-[#DCD6CC] w-fit">
@@ -180,7 +180,6 @@ export default function OrdersPage() {
             actionHref="/shop"
           />
         ) : (
-          /* DANH SÁCH ĐƠN HÀNG HOẠT ẢNH STAGGERED FADE-UP */
           <motion.div
             variants={containerVariants}
             initial="hidden"
@@ -202,23 +201,32 @@ export default function OrdersPage() {
                       </p>
                       <p className="text-xs text-[#786F66] mt-1 flex items-center gap-1.5 font-mono">
                         <CalendarDays className="size-3.5" />
-                        {/* Cập nhật định dạng ngày Việt Nam chuẩn xác */}
                         {formatVNDate(order.createdAt)}
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-4">
-                      {/* Badge trạng thái dẹt */}
-                      <OrderStatusBadge status={order.status} />
+                    <div className="flex items-center gap-3 flex-wrap sm:flex-nowrap">
+                      {/* Ép kiểu an toàn status as any để tránh lỗi TypeScript build */}
+                      <OrderStatusBadge status={order.status as any} />
+                      <span
+                        className={`text-[10px] font-mono font-bold px-2.5 py-1 rounded-full border ${
+                          order.paymentStatus === "Paid"
+                            ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                            : "bg-amber-50 text-amber-700 border-amber-200"
+                        }`}
+                      >
+                        {order.paymentStatus === "Paid"
+                          ? "Đã thanh toán"
+                          : "Chờ thanh toán"}
+                      </span>
                       <span className="text-sm sm:text-base font-mono font-bold text-[#FF9D00]">
                         {formatVNDDirect(order.total)}
                       </span>
                     </div>
                   </div>
 
-                  {/* BẢNG KÊ CHI TIẾT SẢN PHẨM CÓ ẢNH THUMBNAIL DẸT TIN XẢO */}
                   <div className="border-t border-slate-100 pt-4 space-y-3.5">
-                    {order.items.map((item: any) => {
+                    {order.items.map((item) => {
                       const itemPrice = item.price ?? 0;
                       const imgUrl = item.imageUrl || PLACEHOLDER_IMAGE;
 
@@ -227,7 +235,6 @@ export default function OrdersPage() {
                           key={item.id}
                           className="flex items-center gap-4 text-xs font-sans font-medium animate-in fade-in duration-200"
                         >
-                          {/* Ảnh đại diện thu nhỏ sản phẩm đã mua */}
                           <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-[#E1DDD5] bg-[#EAE5D9]/20 shadow-sm">
                             <Image
                               src={imgUrl}
@@ -238,20 +245,19 @@ export default function OrdersPage() {
                             />
                           </div>
 
-                          {/* Tên sản phẩm */}
                           <div className="flex-1 min-w-0 pr-4 text-left">
                             <span className="text-black font-serif font-bold text-sm block leading-tight truncate">
                               {item.name}
                             </span>
                             {item.variantName &&
-                              item.variantName !== "Default Variant" && (
+                              item.variantName !== "Default Variant" &&
+                              item.variantName !== "Mặc định" && (
                                 <span className="text-[9px] font-mono text-[#786F66] bg-[#EAE5D9]/40 border border-[#DCD6CC] px-2 py-0.5 rounded-md mt-1 inline-block font-semibold uppercase tracking-wider">
                                   {item.variantName}
                                 </span>
                               )}
                           </div>
 
-                          {/* Đơn giá nhân số lượng mộc mạc rõ nét */}
                           <div className="font-mono text-right shrink-0">
                             <span className="text-slate-500 mr-1.5">
                               ({formatVNDDirect(itemPrice)})

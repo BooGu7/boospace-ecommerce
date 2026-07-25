@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 interface QRPaymentProps {
   orderId: string;
   amount: number;
-  sku?: string; // Bổ sung thuộc tính SKU sản phẩm
+  sku?: string;
 }
 
 const formatVND = (amount: number) => {
@@ -30,7 +30,9 @@ export function VietQRPayment({ orderId, amount, sku }: QRPaymentProps) {
   const router = useRouter();
   const [isPaid, setIsPaid] = React.useState(false);
   const [isChecking, setIsChecking] = React.useState(false);
-  const [timeLeft, setTimeLeft] = React.useState(300);
+
+  // Cấu hình đồng hồ đếm ngược 10 phút (600 giây)
+  const [timeLeft, setTimeLeft] = React.useState(600);
 
   const [bankInfo, setBankInfo] = React.useState({
     bankCode: "ACB",
@@ -64,7 +66,7 @@ export function VietQRPayment({ orderId, amount, sku }: QRPaymentProps) {
     loadPaymentGateway();
   }, []);
 
-  // Xử lý đếm ngược 5 phút
+  // Xử lý đếm ngược 10 phút
   React.useEffect(() => {
     if (timeLeft <= 0) return;
     const timer = setInterval(() => {
@@ -90,11 +92,13 @@ export function VietQRPayment({ orderId, amount, sku }: QRPaymentProps) {
           event: "UPDATE",
           schema: "public",
           table: "orders",
-          filter: `id=eq.${orderId}`,
         },
         (payload) => {
           const updatedOrder = payload.new;
-          if (updatedOrder.payment_status === "Paid") {
+          if (
+            (updatedOrder.code === orderId || updatedOrder.id === orderId) &&
+            updatedOrder.payment_status === "Paid"
+          ) {
             setIsPaid(true);
             toast.success(
               "Thanh toán thành công! Đơn hàng đang được gia công in ✨",
@@ -109,7 +113,7 @@ export function VietQRPayment({ orderId, amount, sku }: QRPaymentProps) {
     };
   }, [orderId]);
 
-  // Xử lý tạo Chuỗi Nội dung chuyển khoản kết hợp Mã Đơn Hàng + SKU (Làm sạch ký tự tiếng Việt)
+  // Xử lý tạo Chuỗi Nội dung chuyển khoản kết hợp Mã Đơn Hàng + SKU
   const cleanSku = sku ? sku.replace(/[^a-zA-Z0-9-]/g, "").toUpperCase() : "";
   const transferMemo = cleanSku ? `${orderId} ${cleanSku}` : orderId;
 
@@ -146,7 +150,7 @@ export function VietQRPayment({ orderId, amount, sku }: QRPaymentProps) {
       const { data, error } = await supabase
         .from("orders")
         .select("payment_status")
-        .eq("id", orderId)
+        .or(`code.eq.${orderId},id.eq.${orderId}`)
         .maybeSingle();
 
       if (!error && data?.payment_status === "Paid") {
@@ -165,8 +169,8 @@ export function VietQRPayment({ orderId, amount, sku }: QRPaymentProps) {
   };
 
   const handleResetTimer = () => {
-    setTimeLeft(300);
-    toast.success("Đã làm mới mã QR thêm 5 phút ✨");
+    setTimeLeft(600); // Gia hạn lại 10 phút
+    toast.success("Đã làm mới mã QR thêm 10 phút ✨");
   };
 
   const isExpired = timeLeft <= 0;
@@ -206,7 +210,7 @@ export function VietQRPayment({ orderId, amount, sku }: QRPaymentProps) {
         {isExpired && (
           <div className="absolute inset-0 bg-black/60 backdrop-blur-xs flex flex-col items-center justify-center p-4 text-center space-y-3">
             <p className="text-xs font-bold text-white leading-relaxed">
-              Mã QR đã hết hạn hiệu lực (5 phút).
+              Mã QR đã hết hạn hiệu lực (10 phút).
             </p>
             <Button
               type="button"
@@ -221,7 +225,6 @@ export function VietQRPayment({ orderId, amount, sku }: QRPaymentProps) {
         )}
       </div>
 
-      {/* Hiển thị chi tiết Nội dung chuyển khoản có kèm mã SKU */}
       <div className="space-y-2.5 border-t border-[#E1DDD5]/60 pt-4 text-xs font-sans">
         <div className="flex justify-between items-center">
           <span className="text-[#786F66]">Số tiền cần chuyển:</span>
