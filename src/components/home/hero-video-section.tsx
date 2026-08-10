@@ -88,15 +88,20 @@ export function HeroVideoSection({
         <div className="max-w-3xl space-y-6 pt-16 text-left">
           <MotionWrapper direction="up" delay={200}>
             <h1 className="text-5xl sm:text-7xl font-bold tracking-tight text-white leading-[1.05] font-serif text-drop-shadow">
-              Không gian độc bản.
+              KIẾN TẠO KHÔNG GIAN TẬP TRUNG SÂU.
               <br />
-              <span className="text-[#3ECF8E] font-serif">Thân thiện và Tinh tế.</span>
+              <span className="text-[#3ECF8E] font-serif">
+                Độc bản & Tối giản.
+              </span>
             </h1>
           </MotionWrapper>
           <MotionWrapper direction="up" delay={300}>
             <p className="text-base sm:text-lg text-neutral-200 leading-relaxed max-w-lg font-sans text-drop-shadow">
-              Định nghĩa lại góc sống bằng những chiếc đèn nghệ thuật và vật dụng in 3D mang ngôn ngữ tối giản. Chất
-              liệu sinh học lành tính giúp dọn dẹp mọi xao nhãng số, trả lại sự ấm áp thuần khiết cho tâm trí.
+              Giải phóng bàn làm việc khỏi những xao nhãng số bằng các vật phẩm
+              decor và phụ kiện workspace in 3D mang ngôn ngữ hình học tinh gọn.
+              Chất liệu kỹ thuật bền bỉ, lành tính giúp thiết lập lại ranh giới
+              của sự tập trung, trả lại năng lượng thuần khiết cho tâm trí sáng
+              tạo.
             </p>
           </MotionWrapper>
         </div>
@@ -135,7 +140,9 @@ export function HeroVideoSection({
                     ✕
                   </button>
                   <div className="space-y-1">
-                    <h4 className="font-bold text-xs text-slate-800 font-sans">Bản tin Boo Space</h4>
+                    <h4 className="font-bold text-xs text-slate-800 font-sans">
+                      Bản tin Boo Space
+                    </h4>
                     <p className="text-[9px] text-[#786F66] font-mono tracking-wider font-semibold">
                       NHẬT CẢM HỨNG KHÔNG GIAN · KHÔNG SPAM
                     </p>
