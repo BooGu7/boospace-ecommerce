@@ -90,7 +90,7 @@ export function HeroVideoSection({
             <h1 className="text-5xl sm:text-7xl font-bold tracking-tight text-white leading-[1.05] font-serif text-drop-shadow">
               Không gian độc bản.
               <br />
-              <span className="text-[#3ECF8E] italic font-medium font-serif">Thân thiện và Tinh tế.</span>
+              <span className="text-[#3ECF8E] font-serif">Thân thiện và Tinh tế.</span>
             </h1>
           </MotionWrapper>
           <MotionWrapper direction="up" delay={300}>

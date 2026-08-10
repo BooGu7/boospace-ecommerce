@@ -87,7 +87,7 @@ export default function OrdersPage() {
 
     async function fetchDetailedOrders() {
       try {
-        // Tìm đơn hàng theo cả Email HOẶC Customer ID
+        // Chỉ định rõ tên khóa ngoại order_items!fk_order_items_order để giải quyết triệt để lỗi PGRST201
         let query = supabase.from("orders").select(
           `
             id,
@@ -96,10 +96,9 @@ export default function OrdersPage() {
             total,
             order_status,
             payment_status,
-            order_items (
+            order_items!fk_order_items_order (
               id,
-              product_name,
-              variant_name,
+              product_id,
               quantity,
               unit_price,
               total_price
@@ -113,33 +112,75 @@ export default function OrdersPage() {
           query = query.ilike("customer_email", userEmail);
         }
 
-        const { data, error } = await query.order("created_at", {
+        const { data: ordersData, error: ordersError } = await query.order("created_at", {
           ascending: false,
         });
 
-        if (error) {
-          console.error("[SUPABASE_FETCH_ORDERS_ERROR]", error);
-        } else if (data) {
+        if (ordersError) {
+          console.error("[SUPABASE_FETCH_ORDERS_ERROR]", ordersError);
+          setLoading(false);
+          return;
+        }
+
+        if (!ordersData || ordersData.length === 0) {
+          setOrdersList([]);
+          setLoading(false);
+          return;
+        }
+
+        // Bước 2: Nạp thông tin sản phẩm từ bảng products
+        const productIds = new Set<string>();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ordersData.forEach((o: any) => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const mapped: OrderDetail[] = data.map((o: any) => ({
-            id: o.id,
-            orderNumber: o.code || o.id,
-            createdAt: o.created_at,
-            total: Number(o.total ?? 0),
-            status: o.order_status || "pending",
-            paymentStatus: o.payment_status || "Pending",
+          (o.order_items || []).forEach((item: any) => {
+            if (item.product_id) productIds.add(item.product_id);
+          });
+        });
+
+        const productMap: Record<string, { name: string; image: string }> = {};
+
+        if (productIds.size > 0) {
+          const { data: productsData } = await supabase
+            .from("products")
+            .select("id, name, images")
+            .in("id", Array.from(productIds));
+
+          if (productsData) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            items: (o.order_items || []).map((oi: any, idx: number) => ({
+            productsData.forEach((p: any) => {
+              productMap[p.id] = {
+                name: p.name,
+                image: p.images?.[0] || PLACEHOLDER_IMAGE,
+              };
+            });
+          }
+        }
+
+        // Bước 3: Ánh xạ dữ liệu hiển thị
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const mapped: OrderDetail[] = ordersData.map((o: any) => ({
+          id: o.id,
+          orderNumber: o.code || o.id,
+          createdAt: o.created_at,
+          total: Number(o.total ?? 0),
+          status: o.order_status || "pending",
+          paymentStatus: o.payment_status || "Pending",
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          items: (o.order_items || []).map((oi: any, idx: number) => {
+            const pInfo = productMap[oi.product_id];
+            return {
               id: oi.id || `${o.id}-item-${idx}`,
-              name: oi.product_name || "Sản phẩm chế tác 3D",
-              variantName: oi.variant_name || "Mặc định",
+              name: pInfo?.name || "Sản phẩm chế tác 3D",
+              variantName: "Mặc định",
               quantity: Number(oi.quantity ?? 1),
               price: Number(oi.unit_price ?? 0),
-              imageUrl: PLACEHOLDER_IMAGE,
-            })),
-          }));
-          setOrdersList(mapped);
-        }
+              imageUrl: pInfo?.image || PLACEHOLDER_IMAGE,
+            };
+          }),
+        }));
+
+        setOrdersList(mapped);
       } catch (err) {
         console.error("Lỗi đồng bộ hóa hóa đơn:", err);
       } finally {
@@ -246,13 +287,6 @@ export default function OrdersPage() {
                             <span className="text-black font-serif font-bold text-sm block leading-tight truncate">
                               {item.name}
                             </span>
-                            {item.variantName &&
-                              item.variantName !== "Default Variant" &&
-                              item.variantName !== "Mặc định" && (
-                                <span className="text-[9px] font-mono text-[#786F66] bg-[#EAE5D9]/40 border border-[#DCD6CC] px-2 py-0.5 rounded-md mt-1 inline-block font-semibold uppercase tracking-wider">
-                                  {item.variantName}
-                                </span>
-                              )}
                           </div>
 
                           <div className="font-mono text-right shrink-0">

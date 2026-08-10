@@ -2,7 +2,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { VercelToolbar } from "@vercel/toolbar/next";
 import type { Metadata } from "next";
-import { Instrument_Sans, Inter } from "next/font/google";
+import { Geist, Instrument_Sans } from "next/font/google";
 import Script from "next/script";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
@@ -10,17 +10,18 @@ import { Toaster } from "sonner";
 import { siteConfig } from "@/lib/config";
 import "./globals.css";
 
-// Tải phông chữ với thuộc tính display: "swap" để tránh nghẽn hiển thị văn bản
-const sans = Inter({
-  variable: "--font-sans",
+// Tải phông chữ Geist hiện đại, tối giản từ next/font/google
+const sans = Geist({
+  variable: "--font-app-sans",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
+// Instrument_Sans chỉ hỗ trợ subsets ["latin", "latin-ext"]
 const serif = Instrument_Sans({
-  variable: "--font-serif",
-  subsets: ["latin"],
+  variable: "--font-app-serif",
+  subsets: ["latin", "latin-ext"],
   weight: ["400", "500", "600", "700"],
   display: "swap",
 });
@@ -66,7 +67,6 @@ export default async function RootLayout({
   const locale = await getLocale();
   const messages = await getMessages();
 
-  // Hiển thị Vercel Toolbar ở môi trường phát triển hoặc xem trước (Preview)
   const shouldInjectToolbar = process.env.NODE_ENV === "development" || process.env.VERCEL_ENV === "preview";
 
   return (
@@ -74,9 +74,6 @@ export default async function RootLayout({
       <head />
 
       <body className="min-h-full flex flex-col bg-background relative" suppressHydrationWarning={true}>
-        {/* ============================================================================
-           GOOGLE TAG MANAGER (TỐI ƯU HÓA KHÔNG NGHẼN TẢI TRANG)
-           ============================================================================ */}
         <Script
           id="gtm-script"
           strategy="afterInteractive"
@@ -109,16 +106,10 @@ export default async function RootLayout({
 
         <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
 
-        {/* Hộp thông báo nổi */}
         <Toaster position="bottom-right" />
 
-        {/* Phân tích lượng truy cập */}
         <Analytics />
-
-        {/* Đo chỉ số tốc độ thực tế (TTFB, LCP, CLS) */}
         <SpeedInsights />
-
-        {/* Thanh công cụ Vercel Toolbar */}
         {shouldInjectToolbar && <VercelToolbar />}
       </body>
     </html>

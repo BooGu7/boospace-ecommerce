@@ -83,7 +83,7 @@ export default function CheckoutPage() {
     notes: "",
   });
 
-  const [saveInfo] = useState(true);
+  const [_saveInfo] = useState(true);
 
   const [couponCode, setCouponCode] = useState("");
   const [applying, setApplying] = useState(false);
@@ -262,11 +262,52 @@ export default function CheckoutPage() {
       formattedAddress: `${form.line1}${form.line2 ? `, ${form.line2}` : ""}, ${form.district}, ${form.city}, ${form.state}`,
     };
 
+    // ĐỒNG BỘ TÀI KHOẢN VÀO BẢNG PUBLIC.USERS TRƯỚC ĐỂ TRÁNH LỖI KHÓA NGOẠI 23503
+    let validCustomerId: string | null = null;
+
+    if (isAuthenticated && user?.id) {
+      try {
+        const { data: dbUser } = await supabase.from("users").select("data").eq("id", user.id).maybeSingle();
+
+        const currentData = dbUser?.data || {};
+        const currentAddresses = (currentData.addresses || []) as UserAddress[];
+
+        const updatedAddresses = [fullAddressObj, ...currentAddresses.map((a) => ({ ...a, isDefault: false }))].slice(
+          0,
+          5,
+        );
+
+        // Tạo/cập nhật tài khoản vào public.users
+        const { error: upsertUserError } = await supabase.from("users").upsert({
+          id: user.id,
+          email: form.email.trim().toLowerCase(),
+          data: {
+            ...currentData,
+            firstName: form.firstName || user.firstName || "",
+            lastName: form.lastName || user.lastName || "",
+            phone: form.phone,
+            addresses: updatedAddresses,
+          },
+          updated_at: new Date().toISOString(),
+        });
+
+        if (!upsertUserError) {
+          validCustomerId = user.id;
+          updateProfile({
+            ...user,
+            addresses: updatedAddresses,
+          } as unknown as typeof user);
+        }
+      } catch (err) {
+        console.warn("Chưa thể đồng bộ user vào public.users, khởi tạo dưới dạng đơn vãng lai:", err);
+      }
+    }
+
     const orderPayload = {
       id: orderId,
       orderNumber: orderId,
-      customerId: user?.id || null,
-      customer_id: user?.id || null,
+      customerId: validCustomerId,
+      customer_id: validCustomerId,
       paymentMethod: paymentMethod === "vietqr" ? "VietQR" : "COD",
       payment_method: paymentMethod === "vietqr" ? "VietQR" : "COD",
       items: items.map((item) => ({
@@ -298,33 +339,6 @@ export default function CheckoutPage() {
     };
 
     try {
-      if (isAuthenticated && user?.id && saveInfo) {
-        const { data: dbUser } = await supabase.from("users").select("data").eq("id", user.id).maybeSingle();
-
-        if (dbUser) {
-          const currentData = dbUser.data || {};
-          const currentAddresses = (currentData.addresses || []) as UserAddress[];
-
-          const updatedAddresses = [fullAddressObj, ...currentAddresses.map((a) => ({ ...a, isDefault: false }))].slice(
-            0,
-            5,
-          );
-
-          await supabase
-            .from("users")
-            .update({
-              data: { ...currentData, addresses: updatedAddresses },
-              updated_at: new Date().toISOString(),
-            })
-            .eq("id", user.id);
-
-          updateProfile({
-            ...user,
-            addresses: updatedAddresses,
-          } as unknown as typeof user);
-        }
-      }
-
       const response = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -719,7 +733,7 @@ export default function CheckoutPage() {
                         </div>
 
                         <div className="flex flex-col items-end gap-1.5 shrink-0">
-                          <span className="text-xs sm:text-sm font-mono font-medium text-black">
+                          <span className="text-xs sm:text-sm font-mono text-medium text-black">
                             {formatVND(item.lineTotal / 100)}
                           </span>
 

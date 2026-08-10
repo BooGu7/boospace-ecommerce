@@ -25,9 +25,9 @@
   --color-status-refunded-bg: var(--status-refunded-bg);
   --color-status-refunded-text: var(--status-refunded-text);
 
-  /* ĐỒNG BỘ HÓA FONT CHỮ CÓ CHÂN EDITORIAL CHO TIÊU ĐỀ DAYLIGHT */
-  --font-sans: var(--font-inter), "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: var(--font-serif), "Georgia", Cambria, "Times New Roman", serif;
+  /* BỎ PRODUCT SANS, ÉP 100% CẢ FONT-SANS VÀ FONT-SERIF SANG GEIST VÀ GOOGLE SANS */
+  --font-sans: "Geist", "Google Sans", var(--font-app-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Geist", "Google Sans", var(--font-app-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --font-heading: var(--font-sans);
 
@@ -72,9 +72,7 @@
 }
 
 :root {
-  /* HIỆU CHUẨN MÀU NỀN GIẤY KEM CỔ ĐIỂN CHUẨN #FAF5F2 */
   --background: oklch(0.975 0.006 45);
-  /* HIỆU CHUẨN MÀU CHỮ ĐEN MỜ THAN CHÌ CHUẨN #1E1C1A */
   --foreground: oklch(0.17 0.005 45);
 
   --card: oklch(0.985 0.003 45);
@@ -82,7 +80,6 @@
   --popover: oklch(0.985 0.003 45);
   --popover-foreground: oklch(0.17 0.005 45);
 
-  /* MÀU SẮC CHỦ ĐẠO TƯƠNG PHẢN CAO */
   --primary: oklch(0.17 0.005 45);
   --primary-foreground: oklch(0.975 0.006 45);
 
@@ -91,17 +88,14 @@
   --muted: oklch(0.94 0.008 45);
   --muted-foreground: oklch(0.48 0.01 45);
 
-  /* ĐỒNG BỘ KHỐI CÁT SÁNG #EAE5D9 */
   --accent: oklch(0.92 0.01 45);
   --accent-foreground: oklch(0.17 0.005 45);
 
   --destructive: oklch(0.577 0.245 27.325);
 
-  /* HIỆU CHUẨN ĐƯỜNG LƯỚI KỸ THUẬT MẢNH CHUẨN #E1DDD5 */
   --border: oklch(0.91 0.008 45);
   --input: oklch(0.91 0.008 45);
 
-  /* ĐIỂM NHẤN CAM HỔ PHÁCH CHUẨN #FF9D00 */
   --ring: oklch(0.73 0.217 60);
 
   --chart-1: oklch(0.73 0.217 60);
@@ -111,7 +105,6 @@
   --chart-5: oklch(0.269 0 0);
   --radius: 0.75rem;
 
-  /* ĐỒNG BỘ TOÀN BỘ ĐIỂM NHẤN SẢN PHẨM SANG MÀU CAM HỔ PHÁCH DAYLIGHT */
   --rating: oklch(0.73 0.217 60);
   --wishlist: oklch(0.637 0.237 25.331);
   --sale: oklch(0.73 0.217 60);
@@ -184,16 +177,15 @@
     @apply bg-background text-foreground relative min-h-screen overflow-x-hidden;
   }
 
-  /* HIỆU ỨNG TẠO HẠT GIẤY VẬT LÝ CAO CẤP TOÀN TRANG (PAPER GRAIN NOISE) */
   body::before {
     content: "";
     position: fixed;
     inset: 0;
     width: 100%;
     height: 100%;
-    opacity: 0.015; /* Độ mờ vừa đủ tinh tế để giả lập chất liệu */
+    opacity: 0.015;
     pointer-events: none;
-    z-index: 999; /* Đè lên toàn bộ nền để tạo chất liệu thô mộc khi cuộn trang */
+    z-index: 999;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
   }
 
@@ -201,10 +193,6 @@
     @apply font-sans;
   }
 }
-
-/* ============================================================================
-   .blog-body — Prose styles for rich HTML content
-   ============================================================================ */
 
 .blog-body {
   @apply text-base leading-7 text-foreground/90;
@@ -300,25 +288,19 @@
   @apply bg-muted font-semibold;
 }
 
-/* ============================================================================
-   HIỆU ỨNG ÁNH SÁNG NẮNG RỌI QUA KẼ LÁ (DAPPLED LEAF SHADOWS EFFECT)
-   ============================================================================ */
-
 .dappled-shadow-overlay {
   position: absolute;
   inset: 0;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.42; /* Tạo sắc thái bóng cây dịu mắt dẹp ngang */
+  opacity: 0.42;
   mix-blend-mode: multiply;
   background-image:
     radial-gradient(circle at 15% 22%, rgba(28, 28, 28, 0.08) 0%, transparent 45%),
     radial-gradient(circle at 85% 68%, rgba(28, 28, 28, 0.09) 0%, transparent 50%),
     radial-gradient(circle at 45% 82%, rgba(28, 28, 28, 0.06) 0%, transparent 40%);
 }
-/* ============================================================================
-   HOẠT ẢNH CHẠY VIỀN CHUYỂN MÀU PHÁT SÁNG (GLOWING GRADIENT BORDER) [1.1]
-   ============================================================================ */
+
 @keyframes gradientShift {
   0% {
     background-position: 0% 50%;

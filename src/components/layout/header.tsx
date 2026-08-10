@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ChevronDown, Heart, LogOut, Menu, Search, ShoppingBag, User } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -23,7 +24,6 @@ import { useCartStore } from "@/store/cart";
 import type { Category } from "@/types";
 
 interface HeaderProps {
-  /** All categories (top-level + subcategories) from the repository layer */
   categories?: Category[];
 }
 
@@ -45,10 +45,10 @@ export function Header({ categories = [] }: HeaderProps) {
   useEffect(() => setMounted(true), []);
   const itemCount = mounted ? getItemCount() : 0;
 
-  // Trích xuất đường dẫn ảnh đại diện Google từ Auth Store (đã gán kiểu an toàn)
+  // Trích xuất đường dẫn ảnh đại diện Google
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const userAvatar = (user as any)?.avatar;
 
-  // Phím tắt Cmd+K / Ctrl+K kích hoạt nhanh Modal tìm kiếm AI
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
@@ -64,7 +64,7 @@ export function Header({ categories = [] }: HeaderProps) {
     <>
       <header className="sticky top-0 z-50 w-full border-b border-[#E1DDD5] bg-[#FCFAF2]/95 backdrop-blur supports-[backdrop-filter]:bg-[#FCFAF2]/80">
         <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between px-4 sm:px-6 lg:px-8">
-          {/* Mobile menu Trượt êm ái */}
+          {/* Mobile menu Trượt */}
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger
               className="inline-flex items-center justify-center rounded-xl p-2 text-[#786F66] hover:bg-[#EAE5D9]/40 hover:text-black lg:hidden cursor-pointer"
@@ -80,6 +80,7 @@ export function Header({ categories = [] }: HeaderProps) {
             >
               <div className="shrink-0 px-6 pt-5 pb-2">
                 <button
+                  type="button"
                   onClick={() => setMobileMenuOpen(false)}
                   className="text-xs font-mono font-bold text-[#786F66] hover:text-black uppercase cursor-pointer"
                 >
@@ -107,13 +108,14 @@ export function Header({ categories = [] }: HeaderProps) {
                             <div className="flex items-center">
                               <Link
                                 href={item.href}
-                                className="flex-1 py-2.5 text-sm font-serif font-bold text-black hover:text-[#FF9D00] transition-colors"
+                                className="flex-1 py-2.5 text-sm font-sans font-bold text-black hover:text-[#FF9D00] transition-colors"
                                 onClick={() => setMobileMenuOpen(false)}
                               >
                                 {item.name}
                               </Link>
                               {hasSubcats && (
                                 <button
+                                  type="button"
                                   onClick={() => setExpandedCategory(isExpanded ? null : item.name)}
                                   className="p-2 text-[#786F66] hover:text-black cursor-pointer"
                                   aria-expanded={isExpanded}
@@ -148,7 +150,7 @@ export function Header({ categories = [] }: HeaderProps) {
             </SheetContent>
           </Sheet>
 
-          {/* LOGO CHUẨN SERIF DẸT EDITORIAL */}
+          {/* LOGO CHUẨN GOOGLE SANS EDITORIAL */}
           <Link
             href="/"
             className="font-serif text-xl sm:text-2xl font-bold tracking-tight uppercase text-black hover:text-[#FF9D00] transition-colors leading-none"
@@ -156,7 +158,7 @@ export function Header({ categories = [] }: HeaderProps) {
             {siteConfig.name}
           </Link>
 
-          {/* DESKTOP NAV ĐỊNH DẠNG FONT CHỮ KỸ THUẬT MẢNH */}
+          {/* DESKTOP NAV */}
           <nav className="hidden lg:flex lg:gap-8">
             {shopLinks.map((item) => (
               <Link
@@ -171,7 +173,6 @@ export function Header({ categories = [] }: HeaderProps) {
 
           {/* ACTIONS MENU */}
           <div className="flex items-center gap-1.5 text-black">
-            {/* Phím bấm Tìm kiếm */}
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={() => setSearchOpen(true)}
@@ -181,7 +182,6 @@ export function Header({ categories = [] }: HeaderProps) {
               <Search className="h-4.5 w-4.5" />
             </motion.button>
 
-            {/* Phím bấm Yêu thích */}
             <motion.div whileTap={{ scale: 0.95 }} className="hidden lg:block">
               <Link
                 href="/wishlist"
@@ -192,17 +192,16 @@ export function Header({ categories = [] }: HeaderProps) {
               </Link>
             </motion.div>
 
-            {/* Tài khoản Dropdown Menu */}
+            {/* Tài khoản Dropdown Menu (Đã chuyển sang font-sans sắc nét) */}
             {mounted && isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger
                   className="hidden h-10 w-10 items-center justify-center rounded-xl hover:bg-[#EAE5D9]/40 transition-colors lg:inline-flex cursor-pointer focus:outline-none"
                   aria-label={t("accountMenu")}
                 >
-                  {/* TỰ ĐỘNG PHẢN HỒI: Kết xuất ảnh đại diện Google nếu có, ngược lại hiện Monogram chữ cái đầu */}
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-black text-[10px] font-mono font-bold text-[#FCFAF2] uppercase overflow-hidden border border-[#E1DDD5]">
+                  <div className="relative flex h-6 w-6 items-center justify-center rounded-full bg-black text-[10px] font-mono font-bold text-[#FCFAF2] uppercase overflow-hidden border border-[#E1DDD5]">
                     {userAvatar ? (
-                      <img src={userAvatar} alt="Google Profile" className="h-full w-full object-cover" />
+                      <Image src={userAvatar} alt="Profile" fill className="object-cover" sizes="24px" />
                     ) : (
                       (user?.firstName?.[0] ?? "U")
                     )}
@@ -213,7 +212,7 @@ export function Header({ categories = [] }: HeaderProps) {
                   className="w-52 rounded-2xl border border-[#E1DDD5] bg-[#FCFAF2] p-2 text-black shadow-lg"
                 >
                   <div className="px-3 py-2 text-left">
-                    <p className="font-serif text-sm font-bold text-black">
+                    <p className="font-sans text-sm font-bold text-black">
                       {user?.firstName} {user?.lastName}
                     </p>
                     <p className="text-[10px] font-mono text-[#786F66] truncate mt-0.5">{user?.email}</p>
@@ -222,19 +221,19 @@ export function Header({ categories = [] }: HeaderProps) {
 
                   <DropdownMenuItem
                     onClick={() => router.push("/account")}
-                    className="rounded-lg font-serif text-xs font-semibold py-2 hover:bg-[#EAE5D9]/30 cursor-pointer"
+                    className="rounded-lg font-sans text-xs font-semibold py-2 hover:bg-[#EAE5D9]/30 cursor-pointer"
                   >
                     Bảng điều khiển
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => router.push("/account/orders")}
-                    className="rounded-lg font-serif text-xs font-semibold py-2 hover:bg-[#EAE5D9]/30 cursor-pointer"
+                    className="rounded-lg font-sans text-xs font-semibold py-2 hover:bg-[#EAE5D9]/30 cursor-pointer"
                   >
                     Đơn hàng của tôi
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => router.push("/account/settings")}
-                    className="rounded-lg font-serif text-xs font-semibold py-2 hover:bg-[#EAE5D9]/30 cursor-pointer"
+                    className="rounded-lg font-sans text-xs font-semibold py-2 hover:bg-[#EAE5D9]/30 cursor-pointer"
                   >
                     Thiết lập tài khoản
                   </DropdownMenuItem>
@@ -246,7 +245,7 @@ export function Header({ categories = [] }: HeaderProps) {
                       logout();
                       router.push("/");
                     }}
-                    className="rounded-lg font-serif text-xs font-bold text-red-600 py-2 hover:bg-red-50 focus:bg-red-50 cursor-pointer"
+                    className="rounded-lg font-sans text-xs font-bold text-red-600 py-2 hover:bg-red-50 focus:bg-red-50 cursor-pointer"
                   >
                     <LogOut className="mr-2 h-3.5 w-3.5" />
                     Đăng xuất
@@ -265,7 +264,6 @@ export function Header({ categories = [] }: HeaderProps) {
               </motion.div>
             )}
 
-            {/* Giỏ hàng dẹt với bộ số đếm nổi bật */}
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={openCart}
@@ -287,7 +285,6 @@ export function Header({ categories = [] }: HeaderProps) {
         </div>
       </header>
 
-      {/* MODAL TÌM KIẾM AI ĐÃ ĐƯỢC CHUẨN HÓA KHÔNG LỒI BIÊN DỊCH */}
       <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
   );
