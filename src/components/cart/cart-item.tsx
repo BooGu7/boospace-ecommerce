@@ -1,24 +1,24 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { X } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { QuantitySelector } from "@/components/products/quantity-selector"
-import { formatPrice } from "@/lib/utils"
-import { PLACEHOLDER_IMAGE } from "@/lib/constants"
-import { useCartStore } from "@/store/cart"
-import type { CartItem as CartItemType } from "@/types"
+import { X } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useState } from "react";
+import { QuantitySelector } from "@/components/products/quantity-selector";
+import { Button } from "@/components/ui/button";
+import { PLACEHOLDER_IMAGE } from "@/lib/constants";
+import { formatPrice } from "@/lib/utils";
+import { useCartStore } from "@/store/cart";
+import type { CartItem as CartItemType } from "@/types";
 
 interface CartItemProps {
-  item: CartItemType
+  item: CartItemType;
 }
 
 export function CartItem({ item }: CartItemProps) {
-  const updateQuantity = useCartStore((s) => s.updateQuantity)
-  const removeItem = useCartStore((s) => s.removeItem)
-  const [imgSrc, setImgSrc] = useState(item.image?.url || PLACEHOLDER_IMAGE)
+  const updateQuantity = useCartStore((s) => s.updateQuantity);
+  const removeItem = useCartStore((s) => s.removeItem);
+  const [imgSrc, setImgSrc] = useState(item.image?.url || PLACEHOLDER_IMAGE);
 
   return (
     <div className="flex gap-4 py-4">
@@ -41,20 +41,11 @@ export function CartItem({ item }: CartItemProps) {
       <div className="flex min-w-0 flex-1 flex-col justify-between">
         <div className="flex justify-between gap-2">
           <div className="min-w-0">
-            <Link
-              href={`/${item.slug}`}
-              className="block truncate text-sm font-medium hover:underline"
-            >
+            <Link href={`/${item.slug}`} className="block truncate text-sm font-medium hover:underline">
               {item.name}
             </Link>
-            {item.variantName !== "Default" && (
-              <p className="text-xs text-muted-foreground">
-                {item.variantName}
-              </p>
-            )}
-            <p className="text-xs text-muted-foreground">
-              {formatPrice(item.price)} each
-            </p>
+            {item.variantName !== "Default" && <p className="text-xs text-muted-foreground">{item.variantName}</p>}
+            <p className="text-xs text-muted-foreground">{formatPrice(item.price)} each</p>
           </div>
           <Button
             variant="ghost"
@@ -68,15 +59,10 @@ export function CartItem({ item }: CartItemProps) {
         </div>
 
         <div className="flex items-center justify-between gap-2">
-          <QuantitySelector
-            quantity={item.quantity}
-            onQuantityChange={(q) => updateQuantity(item.variantId, q)}
-          />
-          <span className="shrink-0 text-sm font-medium tabular-nums">
-            {formatPrice(item.lineTotal)}
-          </span>
+          <QuantitySelector quantity={item.quantity} onQuantityChange={(q) => updateQuantity(item.variantId, q)} />
+          <span className="shrink-0 text-sm font-medium tabular-nums">{formatPrice(item.lineTotal)}</span>
         </div>
       </div>
     </div>
-  )
+  );
 }

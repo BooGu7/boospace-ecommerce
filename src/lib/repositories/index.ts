@@ -1,9 +1,9 @@
 import {
-  supabaseProductRepository,
-  supabaseCategoryRepository,
-  supabaseBrandRepository,
-  supabasePageRepository,
   supabaseBlogRepository,
+  supabaseBrandRepository,
+  supabaseCategoryRepository,
+  supabasePageRepository,
+  supabaseProductRepository,
 } from "./supabase-repositories";
 
 /**

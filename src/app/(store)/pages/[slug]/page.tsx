@@ -9,18 +9,20 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { breadcrumbJsonLd } from "@/lib/structured-data";
-import { pageRepository } from "@/lib/repositories";
-import { formatDate } from "@/lib/utils";
 import { siteConfig } from "@/lib/config";
+import { pageRepository } from "@/lib/repositories";
+import { breadcrumbJsonLd } from "@/lib/structured-data";
+import { formatDate } from "@/lib/utils";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
+export const revalidate = 86400; // Cache 24 giờ
+
+// TỐI ƯU BỘ NHỚ: Trả về mảng rỗng để Next.js tạo trang tĩnh theo cơ chế ISR khi người dùng truy cập
 export async function generateStaticParams() {
-  const pages = await pageRepository.list();
-  return pages.map((p) => ({ slug: p.slug }));
+  return [];
 }
 
 export async function generateMetadata({
@@ -30,13 +32,15 @@ export async function generateMetadata({
   const page = await pageRepository.getBySlug(slug);
   if (!page) return { title: "Not Found" };
 
+  const excerpt = page.excerpt || page.title;
+
   return {
     title: page.title,
-    description: page.excerpt ?? page.title,
+    description: excerpt,
     alternates: { canonical: `/pages/${page.slug}` },
     openGraph: {
       title: page.title,
-      description: page.excerpt ?? page.title,
+      description: excerpt,
       type: "article",
       url: `${siteConfig.url}/pages/${page.slug}`,
     },
@@ -47,6 +51,12 @@ export default async function CmsPageDetail({ params }: PageProps) {
   const { slug } = await params;
   const page = await pageRepository.getBySlug(slug);
   if (!page) notFound();
+
+  // Ép kiểu an toàn hỗ trợ cả content và body
+  const pageContent =
+    (page as unknown as { content?: string; body?: string }).content ||
+    page.body ||
+    "";
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
@@ -76,17 +86,19 @@ export default async function CmsPageDetail({ params }: PageProps) {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <article className="mt-6">
+      <article className="mt-6 text-left">
         <header>
-          <h1 className="text-4xl font-bold tracking-tight">{page.title}</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <h1 className="text-4xl font-bold tracking-tight font-serif text-black">
+            {page.title}
+          </h1>
+          <p className="mt-2 text-sm font-mono text-[#786F66]">
             Updated {formatDate(page.updatedAt ?? page.publishedAt)}
           </p>
         </header>
 
         <div
-          className="blog-body mt-10"
-          dangerouslySetInnerHTML={{ __html: page.body }}
+          className="blog-body mt-10 font-sans text-base leading-relaxed text-[#1E1C1A]"
+          dangerouslySetInnerHTML={{ __html: pageContent }}
         />
       </article>
     </div>

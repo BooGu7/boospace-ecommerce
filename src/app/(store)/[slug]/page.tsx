@@ -1,15 +1,10 @@
-import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import {
-  productRepository,
-  categoryRepository,
-  brandRepository,
-} from "@/lib/repositories";
-import { ProductDetailView } from "./product-detail-view";
-import { CategoryView } from "./category-view";
-import { BrandView } from "./brand-view";
-import { formatPrice } from "@/lib/utils";
+import { notFound } from "next/navigation";
 import { siteConfig } from "@/lib/config";
+import { brandRepository, categoryRepository, productRepository } from "@/lib/repositories";
+import { BrandView } from "./brand-view";
+import { CategoryView } from "./category-view";
+import { ProductDetailView } from "./product-detail-view";
 
 interface SlugPageProps {
   params: Promise<{ slug: string }>;
@@ -19,7 +14,7 @@ interface SlugPageProps {
  * ISR
  * Rebuild cache every 60 seconds
  */
-export const revalidate = 60;
+export const revalidate = 600;
 
 /**
  * Allow new products/categories/brands
@@ -27,9 +22,7 @@ export const revalidate = 60;
  */
 export const dynamicParams = true;
 
-export async function generateMetadata({
-  params,
-}: SlugPageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: SlugPageProps): Promise<Metadata> {
   const { slug } = await params;
 
   const product = await productRepository.getBySlug(slug);
@@ -112,16 +105,11 @@ export default async function SlugPage({ params }: SlugPageProps) {
   const product = await productRepository.getBySlug(slug);
 
   if (product) {
-    const productCategories = await Promise.all(
-      product.categoryIds.map((id) => categoryRepository.getById(id)),
-    );
+    const productCategories = await Promise.all(product.categoryIds.map((id) => categoryRepository.getById(id)));
 
-    const validCategories = productCategories.filter(
-      (c): c is NonNullable<typeof c> => c !== null,
-    );
+    const validCategories = productCategories.filter((c): c is NonNullable<typeof c> => c !== null);
 
-    const primaryCategory =
-      validCategories.find((c) => c.parentId) ?? validCategories[0] ?? null;
+    const primaryCategory = validCategories.find((c) => c.parentId) ?? validCategories[0] ?? null;
 
     const [relatedProducts, brand, categoryAncestors] = await Promise.all([
       primaryCategory
@@ -135,9 +123,7 @@ export default async function SlugPage({ params }: SlugPageProps) {
 
       brandRepository.getById(product.brandId),
 
-      primaryCategory
-        ? categoryRepository.getAncestors(primaryCategory.id)
-        : Promise.resolve([]),
+      primaryCategory ? categoryRepository.getAncestors(primaryCategory.id) : Promise.resolve([]),
     ]);
 
     return (
@@ -154,15 +140,14 @@ export default async function SlugPage({ params }: SlugPageProps) {
   const category = await categoryRepository.getBySlug(slug);
 
   if (category) {
-    const [{ items: products, pagination }, subcategories, ancestors] =
-      await Promise.all([
-        productRepository.getByCategory(slug, {
-          page: 1,
-          limit: 40,
-        }),
-        categoryRepository.getChildren(category.id),
-        categoryRepository.getAncestors(category.id),
-      ]);
+    const [{ items: products, pagination }, subcategories, ancestors] = await Promise.all([
+      productRepository.getByCategory(slug, {
+        page: 1,
+        limit: 40,
+      }),
+      categoryRepository.getChildren(category.id),
+      categoryRepository.getAncestors(category.id),
+    ]);
 
     return (
       <CategoryView
@@ -179,14 +164,10 @@ export default async function SlugPage({ params }: SlugPageProps) {
   const brand = await brandRepository.getBySlug(slug);
 
   if (brand) {
-    const { items: products, pagination } = await productRepository.list(
-      { tags: [] },
-      undefined,
-      {
-        page: 1,
-        limit: 40,
-      },
-    );
+    const { items: products, pagination } = await productRepository.list({ tags: [] }, undefined, {
+      page: 1,
+      limit: 40,
+    });
 
     const brandProducts = products.filter((p) => p.brandId === brand.id);
 

@@ -1,36 +1,32 @@
+import { BookOpen, X } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
 import Image from "next/image";
-import { Sparkles, ArrowRight, BookOpen, X } from "lucide-react";
+import Link from "next/link";
 import { Pagination } from "@/components/products/pagination";
+import { siteConfig } from "@/lib/config";
+import { PLACEHOLDER_IMAGE } from "@/lib/constants";
 import { blogRepository } from "@/lib/repositories";
 import { formatDate } from "@/lib/utils";
-import { PLACEHOLDER_IMAGE } from "@/lib/constants";
-import { siteConfig } from "@/lib/config";
-import { Badge } from "@/components/ui/badge";
 
 interface BlogIndexProps {
   searchParams: Promise<{ page?: string; tag?: string }>;
 }
 
-export async function generateMetadata({
-  searchParams,
-}: BlogIndexProps): Promise<Metadata> {
+export async function generateMetadata({ searchParams }: BlogIndexProps): Promise<Metadata> {
   const params = await searchParams;
   const page = Number(params.page) || 1;
   const tag = params.tag ?? "";
 
-  const canonical =
-    page > 1 ? `${siteConfig.url}/blog?page=${page}` : `${siteConfig.url}/blog`;
+  const canonical = page > 1 ? `${siteConfig.url}/blog?page=${page}` : `${siteConfig.url}/blog`;
   return {
-    title: tag
-      ? `Chủ đề #${tag} — The Journal Boo Space`
-      : "The Journal — Boo Space Chronicles",
+    title: tag ? `Chủ đề #${tag} — The Journal Boo Space` : "The Journal — Boo Space Chronicles",
     description:
       "Hướng dẫn, câu chuyện và chia sẻ từ đội ngũ — về lối sống bền vững, cách bảo quản sản phẩm và những câu chuyện sáng tạo.",
     alternates: { canonical },
   };
 }
+
+export const revalidate = 3600; // Cache 1 giờ
 
 export default async function BlogIndex({ searchParams }: BlogIndexProps) {
   const params = await searchParams;
@@ -59,21 +55,15 @@ export default async function BlogIndex({ searchParams }: BlogIndexProps) {
             {/* Thanh hiển thị bộ lọc thẻ đang hoạt động nếu có */}
             {tag ? (
               <div className="flex items-center gap-2 bg-[#EAE5D9]/40 border border-[#DCD6CC] px-4 py-2 rounded-xl w-fit text-xs font-mono">
-                <span className="text-black font-bold">
-                  Đang xem thẻ: #{tag}
-                </span>
-                <Link
-                  href="/blog"
-                  className="text-red-500 hover:text-red-600 ml-2"
-                >
+                <span className="text-black font-bold">Đang xem thẻ: #{tag}</span>
+                <Link href="/blog" className="text-red-500 hover:text-red-600 ml-2">
                   <X className="h-3.5 w-3.5 inline" />
                 </Link>
               </div>
             ) : (
               <p className="text-xs sm:text-sm font-mono text-[#786F66] uppercase tracking-wider flex items-center gap-1.5">
                 <BookOpen className="size-3.5 text-amber-600" />
-                Lưu trữ {pagination.total} {}bài viết &amp; cẩm nang thiết lập
-                không gian
+                Lưu trữ {pagination.total} {}bài viết &amp; cẩm nang thiết lập không gian
               </p>
             )}
           </div>

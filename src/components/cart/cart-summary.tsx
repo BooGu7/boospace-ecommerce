@@ -1,8 +1,8 @@
 "use client";
 
-import { formatPrice } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import { siteConfig } from "@/lib/config";
+import { formatPrice } from "@/lib/utils";
 
 interface CartSummaryProps {
   subtotal: number;
@@ -39,8 +39,7 @@ export function CartSummary({ subtotal }: CartSummaryProps) {
 
       {subtotal > 0 && subtotal < siteConfig.freeShippingThreshold && (
         <p className="text-xs text-muted-foreground">
-          Thêm {formatPrice(siteConfig.freeShippingThreshold - subtotal)} để
-          được miễn phí vận chuyển
+          Thêm {formatPrice(siteConfig.freeShippingThreshold - subtotal)} để được miễn phí vận chuyển
         </p>
       )}
     </div>

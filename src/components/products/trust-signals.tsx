@@ -1,6 +1,6 @@
 "use client";
 
-import { Truck, RotateCcw, ShieldCheck } from "lucide-react";
+import { RotateCcw, ShieldCheck, Truck } from "lucide-react";
 
 export function TrustSignals() {
   return (

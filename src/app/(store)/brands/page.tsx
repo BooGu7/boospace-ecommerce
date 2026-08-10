@@ -4,6 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
 import { brandRepository } from "@/lib/repositories";
 
+export const revalidate = 3600; // Cache 1 giờ
+
 export const metadata: Metadata = {
   title: "Tất cả thương hiệu",
   description: "Khám phá tất cả thương hiệu có trong cửa hàng của chúng tôi.",
@@ -22,9 +24,7 @@ export default async function BrandsPage() {
             <Card className="h-full transition-shadow hover:shadow-md">
               <CardContent className="pt-6">
                 <h2 className="text-lg font-semibold">{brand.name}</h2>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {brand.description}
-                </p>
+                <p className="mt-2 text-sm text-muted-foreground">{brand.description}</p>
               </CardContent>
             </Card>
           </Link>

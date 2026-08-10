@@ -1,19 +1,19 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Image from "next/image"
-import type { ProductImage } from "@/types"
-import { PLACEHOLDER_IMAGE } from "@/lib/constants"
-import { cn } from "@/lib/utils"
+import Image from "next/image";
+import { useState } from "react";
+import { PLACEHOLDER_IMAGE } from "@/lib/constants";
+import { cn } from "@/lib/utils";
+import type { ProductImage } from "@/types";
 
 interface ProductGalleryProps {
-  images: ProductImage[]
-  productName?: string
+  images: ProductImage[];
+  productName?: string;
 }
 
 export function ProductGallery({ images, productName = "Product" }: ProductGalleryProps) {
-  const [selectedIndex, setSelectedIndex] = useState(0)
-  const currentImage = images[selectedIndex]
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const currentImage = images[selectedIndex];
 
   return (
     <div className="flex flex-col gap-4">
@@ -38,9 +38,7 @@ export function ProductGallery({ images, productName = "Product" }: ProductGalle
               onClick={() => setSelectedIndex(index)}
               className={cn(
                 "relative h-16 w-16 overflow-hidden rounded-md border-2 bg-neutral-100 transition-colors",
-                selectedIndex === index
-                  ? "border-foreground"
-                  : "border-transparent hover:border-neutral-300"
+                selectedIndex === index ? "border-foreground" : "border-transparent hover:border-neutral-300",
               )}
               aria-label={`View image ${index + 1}`}
             >
@@ -56,5 +54,5 @@ export function ProductGallery({ images, productName = "Product" }: ProductGalle
         </div>
       )}
     </div>
-  )
+  );
 }

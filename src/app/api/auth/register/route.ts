@@ -1,21 +1,14 @@
-import bcrypt from "bcryptjs";
 import { createClient } from "@supabase/supabase-js";
+import bcrypt from "bcryptjs";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-);
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
 export async function POST(req: Request) {
   try {
     const { firstName, lastName, email, password } = await req.json();
 
     // Kiểm tra email đã tồn tại chưa
-    const { data: existingUser } = await supabase
-      .from("users")
-      .select("id")
-      .eq("email", email)
-      .maybeSingle();
+    const { data: existingUser } = await supabase.from("users").select("id").eq("email", email).maybeSingle();
 
     if (existingUser) {
       return Response.json(

@@ -23,11 +23,7 @@ export default async function PagesIndex() {
             <Card className="h-full transition-shadow hover:shadow-md">
               <CardContent className="pt-6">
                 <h2 className="text-lg font-semibold">{page.title}</h2>
-                {page.excerpt && (
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    {page.excerpt}
-                  </p>
-                )}
+                {page.excerpt && <p className="mt-2 text-sm text-muted-foreground">{page.excerpt}</p>}
                 <p className="mt-4 text-xs text-muted-foreground">
                   Updated {formatDate(page.updatedAt ?? page.publishedAt)}
                 </p>

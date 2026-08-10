@@ -28,9 +28,6 @@ export async function POST(req: Request) {
     });
   } catch (error: any) {
     console.error("[SEARCH_API_ERROR]", error);
-    return NextResponse.json(
-      { products: [], success: false, error: error.message },
-      { status: 500 },
-    );
+    return NextResponse.json({ products: [], success: false, error: error.message }, { status: 500 });
   }
 }

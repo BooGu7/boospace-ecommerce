@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/auth";
 
 export function useAuthGuard() {
@@ -13,11 +13,7 @@ export function useAuthGuard() {
   useEffect(() => setMounted(true), []);
 
   useEffect(() => {
-    if (
-      mounted &&
-      !isAuthenticated &&
-      window.location.pathname !== "/auth/login"
-    ) {
+    if (mounted && !isAuthenticated && window.location.pathname !== "/auth/login") {
       router.push("/auth/login");
     }
   }, [mounted, isAuthenticated, router]);

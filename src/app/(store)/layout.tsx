@@ -1,17 +1,13 @@
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
-import { AnnouncementBar } from "@/components/layout/announcement-bar";
-import { CartDrawer } from "@/components/cart/cart-drawer";
-import { BackToTop } from "@/components/layout/back-to-top";
-import { categoryRepository } from "@/lib/repositories";
 import { AuthListener } from "@/components/auth/auth-listener"; // Đồng bộ hóa tài khoản Google OAuth [21]
+import { CartDrawer } from "@/components/cart/cart-drawer";
+import { AnnouncementBar } from "@/components/layout/announcement-bar";
+import { BackToTop } from "@/components/layout/back-to-top";
 import { CookieConsent } from "@/components/layout/cookie-consent"; // Khung thông báo bảo mật Cookie nổi
+import { Footer } from "@/components/layout/footer";
+import { Header } from "@/components/layout/header";
+import { categoryRepository } from "@/lib/repositories";
 
-export default async function StoreLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function StoreLayout({ children }: { children: React.ReactNode }) {
   // Lấy danh mục sản phẩm thời gian thực trực tiếp từ Supabase để Header luôn đồng bộ dữ liệu mới nhất
   const categories = await categoryRepository.list();
 

@@ -1,21 +1,15 @@
-"use client"
+"use client";
 
-import { Minus, Plus } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Minus, Plus } from "lucide-react";
 
 interface QuantitySelectorProps {
-  quantity: number
-  onQuantityChange: (quantity: number) => void
-  min?: number
-  max?: number
+  quantity: number;
+  onQuantityChange: (quantity: number) => void;
+  min?: number;
+  max?: number;
 }
 
-export function QuantitySelector({
-  quantity,
-  onQuantityChange,
-  min = 1,
-  max = 99,
-}: QuantitySelectorProps) {
+export function QuantitySelector({ quantity, onQuantityChange, min = 1, max = 99 }: QuantitySelectorProps) {
   return (
     <div className="flex items-center">
       <button
@@ -38,5 +32,5 @@ export function QuantitySelector({
         <Plus className="h-3 w-3" />
       </button>
     </div>
-  )
+  );
 }

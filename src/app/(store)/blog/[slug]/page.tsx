@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import { BlogComments } from "@/components/blog/blog-comments"; // Nhập khẩu khung bình luận động mới [21]
+import { Badge } from "@/components/ui/badge";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -10,20 +12,20 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Badge } from "@/components/ui/badge";
-import { breadcrumbJsonLd } from "@/lib/structured-data";
-import { blogRepository } from "@/lib/repositories";
-import { formatDate } from "@/lib/utils";
-import { PLACEHOLDER_IMAGE } from "@/lib/constants";
 import { siteConfig } from "@/lib/config";
-import { BlogComments } from "@/components/blog/blog-comments"; // Nhập khẩu khung bình luận động mới [21]
+import { PLACEHOLDER_IMAGE } from "@/lib/constants";
+import { blogRepository } from "@/lib/repositories";
+import { breadcrumbJsonLd } from "@/lib/structured-data";
+import { formatDate } from "@/lib/utils";
+
+export const revalidate = 3600; // Cache 1 giờ
 
 interface PostProps {
   params: Promise<{ slug: string }>;
 }
 
 export async function generateStaticParams() {
-  const { items } = await blogRepository.list({ page: 1, limit: 10_000 });
+  const { items } = await blogRepository.list({ page: 1, limit: 100 });
   return items.map((p) => ({ slug: p.slug }));
 }
 
@@ -57,8 +59,8 @@ export async function generateMetadata({
 function extractHeadings(html: string) {
   const regex = /<h2[^>]*>(.*?)<\/h2>/g;
   const headings: { text: string; id: string }[] = [];
-  let match;
-  while ((match = regex.exec(html)) !== null) {
+  const match: RegExpExecArray | null = regex.exec(html);
+  while (match !== null) {
     const text = match[1].replace(/<[^>]*>/g, ""); // Xóa bỏ thẻ HTML con nếu có
     const id = text
       .toLowerCase()

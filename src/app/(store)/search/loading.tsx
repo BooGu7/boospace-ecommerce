@@ -1,4 +1,4 @@
-import { Skeleton } from "@/components/ui/skeleton"
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function SearchLoading() {
   return (
@@ -6,5 +6,5 @@ export default function SearchLoading() {
       <Skeleton className="h-9 w-32" />
       <Skeleton className="mt-8 h-10 w-full max-w-lg" />
     </div>
-  )
+  );
 }

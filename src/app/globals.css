@@ -312,21 +312,9 @@
   opacity: 0.42; /* Tạo sắc thái bóng cây dịu mắt dẹp ngang */
   mix-blend-mode: multiply;
   background-image:
-    radial-gradient(
-      circle at 15% 22%,
-      rgba(28, 28, 28, 0.08) 0%,
-      transparent 45%
-    ),
-    radial-gradient(
-      circle at 85% 68%,
-      rgba(28, 28, 28, 0.09) 0%,
-      transparent 50%
-    ),
-    radial-gradient(
-      circle at 45% 82%,
-      rgba(28, 28, 28, 0.06) 0%,
-      transparent 40%
-    );
+    radial-gradient(circle at 15% 22%, rgba(28, 28, 28, 0.08) 0%, transparent 45%),
+    radial-gradient(circle at 85% 68%, rgba(28, 28, 28, 0.09) 0%, transparent 50%),
+    radial-gradient(circle at 45% 82%, rgba(28, 28, 28, 0.06) 0%, transparent 40%);
 }
 /* ============================================================================
    HOẠT ẢNH CHẠY VIỀN CHUYỂN MÀU PHÁT SÁNG (GLOWING GRADIENT BORDER) [1.1]
@@ -344,5 +332,5 @@
 }
 
 .animate-gradient-shift {
-  animation: gradientShift 6s ease infinite !important;
+  animation: gradientShift 6s ease infinite;
 }

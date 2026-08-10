@@ -1,16 +1,8 @@
 import type { MetadataRoute } from "next";
-import { siteConfig } from "@/lib/config";
-import {
-  productRepository,
-  categoryRepository,
-  brandRepository,
-} from "@/lib/repositories";
+import { brandRepository, categoryRepository, productRepository } from "@/lib/repositories";
 
 // TỰ KHÔI PHỤC ĐƯỜNG DẪN: Ưu tiên đọc biến môi trường, tự động chuyển về tên miền chính thức nếu rỗng
-const baseUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ||
-  process.env.NEXT_PUBLIC_BASE_URL ||
-  "https://www.boospace.tech"; // Mặc định tên miền chính thức của bạn
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_BASE_URL || "https://www.boospace.tech"; // Mặc định tên miền chính thức của bạn
 
 // Các đường dẫn tĩnh công khai
 const STATIC_PATHS = [
@@ -63,14 +55,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // Tạo liên kết động cho Sản phẩm thực tế
-  const productEntries: MetadataRoute.Sitemap = productsResult.items.map(
-    (p) => ({
-      url: `${baseUrl}/${p.slug}`,
-      lastModified: p.updatedAt ? new Date(p.updatedAt) : now,
-      changeFrequency: "weekly",
-      priority: 0.8,
-    }),
-  );
+  const productEntries: MetadataRoute.Sitemap = productsResult.items.map((p) => ({
+    url: `${baseUrl}/${p.slug}`,
+    lastModified: p.updatedAt ? new Date(p.updatedAt) : now,
+    changeFrequency: "weekly",
+    priority: 0.8,
+  }));
 
   // Tạo liên kết động cho Danh mục/Bộ sưu tập thực tế
   const categoryEntries: MetadataRoute.Sitemap = categories.map((c) => ({
@@ -88,10 +78,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  return [
-    ...staticEntries,
-    ...productEntries,
-    ...categoryEntries,
-    ...brandEntries,
-  ];
+  return [...staticEntries, ...productEntries, ...categoryEntries, ...brandEntries];
 }

@@ -1,9 +1,9 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
+import { Loader2, MessageSquare } from "lucide-react";
 import { useEffect, useState } from "react";
-import { MessageSquare, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { motion, AnimatePresence } from "framer-motion";
 
 interface Comment {
   id: string;
@@ -62,7 +62,7 @@ export function BlogComments({ postId }: { postId: string }) {
       } else {
         toast.error(data.error || "Gửi thất bại.");
       }
-    } catch (err) {
+    } catch (_err) {
       toast.error("Lỗi kết nối.");
     } finally {
       setSubmitting(false);
@@ -74,9 +74,7 @@ export function BlogComments({ postId }: { postId: string }) {
       <div className="grid gap-12 md:grid-cols-5 text-left">
         {/* FORM BÌNH LUẬN (BÊN TRÁI) */}
         <div className="md:col-span-2 space-y-4">
-          <h3 className="font-serif text-xl font-bold text-black">
-            Để lại bình luận
-          </h3>
+          <h3 className="font-serif text-xl font-bold text-black">Để lại bình luận</h3>
           <form onSubmit={handleSubmit} className="space-y-4">
             <input
               type="text"
@@ -107,11 +105,7 @@ export function BlogComments({ postId }: { postId: string }) {
               disabled={submitting}
               className="w-full bg-black hover:bg-[#33302C] text-white font-mono uppercase text-[10px] font-bold tracking-widest rounded-xl py-3 flex items-center justify-center gap-2 cursor-pointer"
             >
-              {submitting ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                "Gửi bình luận"
-              )}
+              {submitting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Gửi bình luận"}
             </button>
           </form>
         </div>
@@ -120,9 +114,7 @@ export function BlogComments({ postId }: { postId: string }) {
         <div className="md:col-span-3 space-y-4">
           <div className="flex items-center gap-2 border-b border-[#E1DDD5]/60 pb-3">
             <MessageSquare className="h-4.5 w-4.5 text-[#786F66]" />
-            <span className="font-serif text-base font-bold text-black">
-              Bình luận từ độc giả ({comments.length})
-            </span>
+            <span className="font-serif text-base font-bold text-black">Bình luận từ độc giả ({comments.length})</span>
           </div>
 
           {loading ? (
@@ -144,12 +136,8 @@ export function BlogComments({ postId }: { postId: string }) {
                     className="p-4 rounded-2xl bg-white border border-[#E1DDD5]/80 space-y-2"
                   >
                     <div className="flex justify-between items-center text-[10px] font-mono text-[#786F66]">
-                      <span className="font-serif text-xs font-bold text-black">
-                        {c.name}
-                      </span>
-                      <span>
-                        {new Date(c.created_at).toLocaleDateString("vi-VN")}
-                      </span>
+                      <span className="font-serif text-xs font-bold text-black">{c.name}</span>
+                      <span>{new Date(c.created_at).toLocaleDateString("vi-VN")}</span>
                     </div>
                     <p className="text-xs text-[#5C564E] leading-relaxed bg-[#FAF5F2]/40 p-3 rounded-lg border border-[#E1DDD5]/30">
                       {c.comment}

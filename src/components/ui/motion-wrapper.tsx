@@ -9,12 +9,7 @@ interface MotionWrapperProps {
   direction?: "up" | "down" | "left" | "right" | "none";
 }
 
-export function MotionWrapper({
-  children,
-  delay = 0,
-  className = "",
-  direction = "up",
-}: MotionWrapperProps) {
+export function MotionWrapper({ children, delay = 0, className = "", direction = "up" }: MotionWrapperProps) {
   const [isIntersecting, setIsIntersecting] = React.useState(false);
   const ref = React.useRef<HTMLDivElement>(null);
 

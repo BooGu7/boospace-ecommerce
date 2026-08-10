@@ -1,23 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { motion, type Variants } from "framer-motion";
+import { Heart, Loader2, LogOut, MapPin, Package, Settings } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Card, CardContent } from "@/components/ui/card";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Package,
-  MapPin,
-  Settings,
-  Heart,
-  LogOut,
-  Loader2,
-} from "lucide-react";
+import { Card } from "@/components/ui/card";
 import { useAuthGuard } from "@/hooks/use-auth-guard";
+import { supabase } from "@/lib/supabase/client"; // Gọi client Supabase để đồng bộ chỉ số thực tế [21]
 import { useAuthStore } from "@/store/auth";
 import { useWishlistStore } from "@/store/wishlist";
-import { motion, Variants } from "framer-motion";
-import { supabase } from "@/lib/supabase/client"; // Gọi client Supabase để đồng bộ chỉ số thực tế [21]
 
 // Cấu hình Hoạt ảnh Spring dẹt mượt mạc (Type-safe Variants)
 const containerVariants: Variants = {
@@ -108,8 +101,7 @@ export default function AccountPage() {
     },
     {
       name: "Sổ địa chỉ nhận",
-      description:
-        "Quản lý danh sách địa chỉ giao hàng và thông tin thanh toán",
+      description: "Quản lý danh sách địa chỉ giao hàng và thông tin thanh toán",
       href: "/account/addresses",
       icon: MapPin,
       iconClass: "group-hover:scale-110",
@@ -147,9 +139,7 @@ export default function AccountPage() {
             </h1>
             <p className="text-xs sm:text-sm font-mono text-[#786F66] uppercase tracking-wider flex items-center gap-1.5">
               Chào mừng quay trở lại,{" "}
-              <span className="font-bold text-[#FF9D00]">
-                {user?.firstName || "Khách hàng"}
-              </span>
+              <span className="font-bold text-[#FF9D00]">{user?.firstName || "Khách hàng"}</span>
             </p>
           </div>
         </div>
@@ -172,11 +162,7 @@ export default function AccountPage() {
               {/* Ảnh đại diện Google Avatar bo tròn sắc nét */}
               <div className="size-16 rounded-full bg-black flex items-center justify-center font-serif text-2xl font-bold text-white border border-[#DCD6CC] shadow-inner select-none uppercase overflow-hidden">
                 {userAvatar ? (
-                  <img
-                    src={userAvatar}
-                    alt="Google Avatar"
-                    className="h-full w-full object-cover"
-                  />
+                  <img src={userAvatar} alt="Google Avatar" className="h-full w-full object-cover" />
                 ) : (
                   (user?.firstName?.[0] ?? "U")
                 )}
@@ -193,22 +179,14 @@ export default function AccountPage() {
 
             <div className="space-y-4 font-mono text-xs text-[#5C564E] pt-2 text-left">
               <div className="space-y-1.5">
-                <span className="text-[10px] uppercase text-[#786F66] block">
-                  Địa chỉ Email
-                </span>
-                <p className="font-medium text-black break-all font-sans">
-                  {user?.email}
-                </p>
+                <span className="text-[10px] uppercase text-[#786F66] block">Địa chỉ Email</span>
+                <p className="font-medium text-black break-all font-sans">{user?.email}</p>
               </div>
 
               {userPhone && (
                 <div className="space-y-1.5">
-                  <span className="text-[10px] uppercase text-[#786F66] block">
-                    Số điện thoại di động
-                  </span>
-                  <p className="font-medium text-black font-sans">
-                    {userPhone}
-                  </p>
+                  <span className="text-[10px] uppercase text-[#786F66] block">Số điện thoại di động</span>
+                  <p className="font-medium text-black font-sans">{userPhone}</p>
                 </div>
               )}
             </div>
@@ -234,11 +212,7 @@ export default function AccountPage() {
             {accountLinks.map((item) => {
               const Icon = item.icon;
               return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="block h-full group"
-                >
+                <Link key={item.name} href={item.href} className="block h-full group">
                   <motion.div
                     variants={blockVariants}
                     whileHover="hover"

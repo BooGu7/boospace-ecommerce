@@ -1,7 +1,6 @@
 "use client";
 
-import React from "react";
-import { motion, Variants } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 
 const steps = [
   {
@@ -45,9 +44,7 @@ export function HowItWorks() {
           <span className="text-[10px] font-mono uppercase tracking-widest text-[#786F66] font-bold">
             QUY TRÌNH CHẾ TÁC ON-DEMAND
           </span>
-          <h2 className="text-3xl md:text-4xl font-serif text-black font-normal mt-2">
-            Sản phẩm sinh ra khi có bạn
-          </h2>
+          <h2 className="text-3xl md:text-4xl font-serif text-black font-normal mt-2">Sản phẩm sinh ra khi có bạn</h2>
         </motion.div>
 
         {/* Lưới Quy Trình */}
@@ -65,12 +62,8 @@ export function HowItWorks() {
                 <span className="text-4xl font-serif text-amber-600/30 group-hover:text-amber-600 transition-colors duration-300">
                   {step.num}
                 </span>
-                <h3 className="text-xl font-serif text-black font-bold mt-4 mb-3">
-                  {step.title}
-                </h3>
-                <p className="text-xs sm:text-sm text-[#5C564E] leading-relaxed">
-                  {step.desc}
-                </p>
+                <h3 className="text-xl font-serif text-black font-bold mt-4 mb-3">{step.title}</h3>
+                <p className="text-xs sm:text-sm text-[#5C564E] leading-relaxed">{step.desc}</p>
               </div>
 
               <div className="w-full h-1 bg-[#E1DDD5] mt-6 rounded-full overflow-hidden">

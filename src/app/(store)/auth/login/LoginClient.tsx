@@ -1,31 +1,24 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { toast } from "sonner";
+import { motion, type Variants } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
-
-import { loginSchema } from "@/lib/validators";
-import { useAuthStore } from "@/store/auth";
-import { supabase } from "@/lib/supabase/client";
-
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { AuthCardLayout } from "@/components/auth/auth-card-layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { motion, Variants } from "framer-motion";
+import { supabase } from "@/lib/supabase/client";
+import { loginSchema } from "@/lib/validators";
+import { useAuthStore } from "@/store/auth";
 
 // BIỂU TƯỢNG GOOGLE VECTOR
 function IconGoogle({ className }: { className?: string }) {
   return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden="true"
-    >
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <path
         d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
         fill="#4285F4"
@@ -133,7 +126,7 @@ export default function LoginClient() {
 
       setUser(data.user);
       toast.success(`Chào mừng trở lại, ${data.user.firstName} ✨`);
-    } catch (err) {
+    } catch (_err) {
       toast.error("Có lỗi xảy ra trong quá trình kết nối.");
     } finally {
       setLoading(false);
@@ -148,12 +141,7 @@ export default function LoginClient() {
       footerLinkText="Đăng ký tài khoản mới"
       footerLinkHref="/auth/register"
     >
-      <motion.div
-        variants={formContainerVariants}
-        initial="hidden"
-        animate="visible"
-        className="space-y-5"
-      >
+      <motion.div variants={formContainerVariants} initial="hidden" animate="visible" className="space-y-5">
         <motion.div variants={formItemVariants}>
           <Button
             type="button"
@@ -170,10 +158,7 @@ export default function LoginClient() {
           </Button>
         </motion.div>
 
-        <motion.div
-          variants={formItemVariants}
-          className="flex items-center gap-3 py-1"
-        >
+        <motion.div variants={formItemVariants} className="flex items-center gap-3 py-1">
           <Separator className="flex-1 bg-[#E1DDD5]" />
           <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-wider font-semibold">
             Hoặc sử dụng email

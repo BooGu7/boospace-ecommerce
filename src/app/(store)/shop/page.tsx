@@ -1,13 +1,16 @@
+import { LayoutGrid, SlidersHorizontal } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { Sparkles, SlidersHorizontal, LayoutGrid } from "lucide-react";
-import { productRepository, categoryRepository } from "@/lib/repositories";
-import { ProductGrid } from "@/components/products/product-grid";
 import { Pagination } from "@/components/products/pagination";
+import { ProductGrid } from "@/components/products/product-grid";
 import { SortDropdown } from "@/components/products/sort-dropdown";
-import type { SortOption } from "@/types";
 import { siteConfig } from "@/lib/config";
+import { categoryRepository, productRepository } from "@/lib/repositories";
+import type { SortOption } from "@/types";
+
+// Bật Cache ISR: Lưu kết quả trang trong 300 giây (5 phút)
+export const revalidate = 300;
 
 interface ShopPageProps {
   searchParams: Promise<{
@@ -18,18 +21,14 @@ interface ShopPageProps {
   }>;
 }
 
-export async function generateMetadata({
-  searchParams,
-}: ShopPageProps): Promise<Metadata> {
+export async function generateMetadata({ searchParams }: ShopPageProps): Promise<Metadata> {
   const params = await searchParams;
   const page = Number(params.page) || 1;
-  const canonical =
-    page > 1 ? `${siteConfig.url}/shop?page=${page}` : `${siteConfig.url}/shop`;
+  const canonical = page > 1 ? `${siteConfig.url}/shop?page=${page}` : `${siteConfig.url}/shop`;
 
   return {
     title: "Cửa hàng",
-    description:
-      "Khám phá những món đồ được tuyển chọn kỹ lưỡng, phù hợp với phong cách sống của bạn ✨",
+    description: "Khám phá những món đồ được tuyển chọn kỹ lưỡng, phù hợp với phong cách sống của bạn ✨",
     alternates: { canonical },
   };
 }
@@ -81,8 +80,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
 
             <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-black font-serif leading-none">
               {categorySlug
-                ? (categories.find((c) => c.slug === categorySlug)?.name ??
-                  "Shop")
+                ? (categories.find((c) => c.slug === categorySlug)?.name ?? "Shop")
                 : searchQuery
                   ? `Kết quả cho "${searchQuery}"`
                   : "Bộ sưu tập"}
@@ -100,9 +98,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
               <SlidersHorizontal className="size-3.5" /> Sort by:
             </span>
             <Suspense
-              fallback={
-                <div className="h-9 w-32 bg-[#EAE5D9]/40 animate-pulse rounded-lg border border-[#E1DDD5]" />
-              }
+              fallback={<div className="h-9 w-32 bg-[#EAE5D9]/40 animate-pulse rounded-lg border border-[#E1DDD5]" />}
             >
               <SortDropdown currentSort={sortKey} />
             </Suspense>
@@ -122,7 +118,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
             TẤT CẢ SẢN PHẨM
           </Link>
 
-          {categories.map((cat, idx) => {
+          {categories.map((cat, _idx) => {
             const isActive = categorySlug === cat.slug;
             return (
               <Link
@@ -154,11 +150,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
         {/* SECTION 4: PAGINATION (Bộ chuyển trang e-ink chuẩn Daylight) [1.1] */}
         {pagination.totalPages > 1 && (
           <div className="mt-16 border-t border-[#E1DDD5] pt-12 flex justify-center">
-            <Pagination
-              pagination={pagination}
-              basePath="/shop"
-              searchParams={currentParams}
-            />
+            <Pagination pagination={pagination} basePath="/shop" searchParams={currentParams} />
           </div>
         )}
       </div>

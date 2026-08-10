@@ -1,7 +1,7 @@
 "use server";
 
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { registerSchema } from "@/lib/validators";
 
 type RegisterInput = {
@@ -24,11 +24,7 @@ export async function registerUser(data: RegisterInput) {
   const admin = getSupabaseAdmin();
 
   // Kiểm tra xem email này đã tồn tại trong bảng 'users' hay chưa
-  const { data: existing } = await admin
-    .from("users")
-    .select("id")
-    .eq("email", normalizedEmail)
-    .maybeSingle();
+  const { data: existing } = await admin.from("users").select("id").eq("email", normalizedEmail).maybeSingle();
 
   if (existing) {
     throw new Error("Email này đã được sử dụng");

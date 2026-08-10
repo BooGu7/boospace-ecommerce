@@ -8,10 +8,7 @@ export async function GET(req: Request) {
     const productId = searchParams.get("productId");
 
     if (!productId) {
-      return NextResponse.json(
-        { success: false, error: "Thiếu tham số productId" },
-        { status: 400 },
-      );
+      return NextResponse.json({ success: false, error: "Thiếu tham số productId" }, { status: 400 });
     }
 
     const supabase = createSupabaseServerClient();
@@ -25,24 +22,17 @@ export async function GET(req: Request) {
 
     return NextResponse.json({ success: true, reviews: reviews || [] });
   } catch (error: any) {
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 },
-    );
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
 
 // 2. ĐĂNG ĐÁNH GIÁ MỚI (ĐÃ BỔ SUNG CỘT IMAGE_URL)
 export async function POST(req: Request) {
   try {
-    const { product_id, customer_name, rating, comment, image_url } =
-      await req.json();
+    const { product_id, customer_name, rating, comment, image_url } = await req.json();
 
     if (!product_id || !customer_name || !rating) {
-      return NextResponse.json(
-        { success: false, error: "Vui lòng nhập tên và chấm điểm số sao." },
-        { status: 400 },
-      );
+      return NextResponse.json({ success: false, error: "Vui lòng nhập tên và chấm điểm số sao." }, { status: 400 });
     }
 
     const supabase = createSupabaseServerClient();
@@ -64,9 +54,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true, review: data });
   } catch (error: any) {
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 },
-    );
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }

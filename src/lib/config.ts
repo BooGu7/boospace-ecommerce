@@ -15,8 +15,7 @@ export const siteConfig = {
   // Đã sửa: Bỏ bớt từ "in 3D" bị lặp lại nhiều lần, tập trung vào giá trị "giải quyết bất tiện" và "chế tác custom" đúng theo gu của bạn ở các câu trước.
 
   // Announcement bar (set to "" to hide)
-  announcement:
-    "Chào mừng bạn đến với Boo Space — Nơi biến mọi ý tưởng cá nhân thành sản phẩm thực tế ✨",
+  announcement: "Chào mừng bạn đến với Boo Space — Nơi biến mọi ý tưởng cá nhân thành sản phẩm thực tế ✨",
   // Đã sửa: Đồng bộ với concept "biến ý tưởng thành thực tế cầm trên tay".
   // URLs
   url: process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000",

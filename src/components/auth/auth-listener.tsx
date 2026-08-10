@@ -15,24 +15,15 @@ export function AuthListener() {
       if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
         if (session?.user) {
           const googleMeta = session.user.user_metadata || {};
-          const fullName = (
-            googleMeta.full_name ||
-            googleMeta.name ||
-            ""
-          ).trim();
+          const fullName = (googleMeta.full_name || googleMeta.name || "").trim();
 
           let googleFirstName = googleMeta.given_name || "";
           let googleLastName = googleMeta.family_name || "";
-          const googleAvatar =
-            googleMeta.avatar_url || googleMeta.picture || "";
+          const googleAvatar = googleMeta.avatar_url || googleMeta.picture || "";
 
           // QUÉT ĐA DIỆN SỐ ĐIỆN THOẠI TRÊN CLIENT SESSION [1.1]
           const googlePhone =
-            session.user.phone ||
-            googleMeta.phone ||
-            googleMeta.phone_number ||
-            googleMeta.mobile ||
-            "";
+            session.user.phone || googleMeta.phone || googleMeta.phone_number || googleMeta.mobile || "";
 
           // Thuật toán tách chữ thông minh (Smart Name Splitter) ở phía Client
           if (!googleFirstName && !googleLastName && fullName) {
@@ -47,17 +38,12 @@ export function AuthListener() {
           }
 
           // Kéo dữ liệu hồ sơ cá nhân thực tế từ bảng 'users' của Supabase
-          const { data: dbUser } = await supabase
-            .from("users")
-            .select("*")
-            .eq("id", session.user.id)
-            .maybeSingle();
+          const { data: dbUser } = await supabase.from("users").select("*").eq("id", session.user.id).maybeSingle();
 
           const storefrontUser = {
             id: session.user.id,
             email: session.user.email || dbUser?.email || "",
-            firstName:
-              dbUser?.data?.firstName || googleFirstName || "Khách hàng",
+            firstName: dbUser?.data?.firstName || googleFirstName || "Khách hàng",
             lastName: dbUser?.data?.lastName || googleLastName || "Boospace",
             phone: dbUser?.data?.phone || googlePhone || "",
             avatar: googleAvatar || dbUser?.data?.avatar || "",

@@ -1,20 +1,13 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import Link from "next/link";
+import { motion, useScroll, useSpring, useTransform, type Variants } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  motion,
-  useScroll,
-  useTransform,
-  useSpring,
-  Variants,
-} from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { useEffect, useRef } from "react";
+import { ProductGrid } from "@/components/products/product-grid";
 import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/utils";
-import { ProductGrid } from "@/components/products/product-grid";
 import { BentoPortalGrid } from "./bento-portal-grid";
 import { HeroVideoSection } from "./hero-video-section";
 import { HowItWorks } from "./how-it-works"; // Nhập khẩu quy trình chế tác mới
@@ -84,10 +77,10 @@ export function MainHorizontalScroll({
 
   // Tịnh tiến dịch chuyển: 11 Slide dịch tối đa -90.9%, 12 Slide dịch tối đa -91.66%
   const maxTranslateX = hasSaleProducts ? "-91.66%" : "-90.9%";
-  const activeSlideCount = hasSaleProducts ? 11 : 10; // Slide cuối cùng nhảy sang trang /shop
+  const _activeSlideCount = hasSaleProducts ? 11 : 10; // Slide cuối cùng nhảy sang trang /shop
 
   // HÀM TRƯỢT TRANG CHỦ THEO CHỈ SỐ SLIDE (UX CHUYỂN CẢNH MƯỢT MÀ)
-  const scrollToSlide = (slideIndex: number) => {
+  const _scrollToSlide = (slideIndex: number) => {
     if (typeof window !== "undefined") {
       const scrollAmount = window.innerHeight * slideIndex;
       window.scrollTo({
@@ -141,23 +134,14 @@ export function MainHorizontalScroll({
           <div className="relative z-10 space-y-6">
             <h2 className="text-3xl font-light font-serif leading-relaxed tracking-tight text-[#1E1C1A] max-w-4xl mx-auto">
               Chúng tôi từ chối chấp nhận một tương lai nơi các thiết bị làm ta{" "}
-              <span className="text-[#E26E67] font-semibold italic">
-                kiệt sức
-              </span>
-              ,{" "}
-              <span className="text-[#E26E67] font-semibold italic">
-                gây nghiện
-              </span>{" "}
-              và bủa vây bởi sự{" "}
+              <span className="text-[#E26E67] font-semibold italic">kiệt sức</span>,{" "}
+              <span className="text-[#E26E67] font-semibold italic">gây nghiện</span> và bủa vây bởi sự{" "}
               <span className="text-[#E26E67] font-semibold italic">
                 xao nhãng
-                <sup className="text-xs text-[#FF9D00] ml-0.5 not-italic">
-                  1
-                </sup>
+                <sup className="text-xs text-[#FF9D00] ml-0.5 not-italic">1</sup>
               </span>
-              . Boo Space tin rằng, một chiếc đèn tỏa ánh sáng dịu hay một mảng
-              xanh nhỏ gọn gàng có thể là điểm tựa kéo tâm trí bạn về với sự
-              bình yên.
+              . Boo Space tin rằng, một chiếc đèn tỏa ánh sáng dịu hay một mảng xanh nhỏ gọn gàng có thể là điểm tựa kéo
+              tâm trí bạn về với sự bình yên.
             </h2>
             <p className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest mt-8 font-bold">
               TUYÊN NGÔN BOOSPACE
@@ -174,10 +158,9 @@ export function MainHorizontalScroll({
             Vũ điệu dịu dàng của hình khối và ánh sáng
           </h2>
           <p className="text-sm text-[#5C564E] leading-relaxed">
-            Không còn những dải LED chói mắt gây mệt mỏi thị giác. Các thiết kế
-            đèn in 3D của Boo Space ứng dụng cấu trúc hình học đặc biệt để khúc
-            xạ ánh sáng thô thành những vầng sáng ambient dịu mát, ôm ấp không
-            gian sống của bạn khi đêm về.
+            Không còn những dải LED chói mắt gây mệt mỏi thị giác. Các thiết kế đèn in 3D của Boo Space ứng dụng cấu
+            trúc hình học đặc biệt để khúc xạ ánh sáng thô thành những vầng sáng ambient dịu mát, ôm ấp không gian sống
+            của bạn khi đêm về.
           </p>
           <div className="relative aspect-square w-full rounded-3xl overflow-hidden border border-[#E1DDD5] bg-white">
             <Image
@@ -199,10 +182,9 @@ export function MainHorizontalScroll({
             Khi sự sống ẩn mình trong những đường nét tối giản
           </h2>
           <p className="text-sm text-neutral-400 leading-relaxed">
-            Một góc xanh nhỏ là bộ lọc tự nhiên cho những áp lực thường nhật.
-            Dòng chậu cây sen đá sở hữu thiết kế nguyên khối gọn gàng cùng hệ
-            thống rãnh thoát nước ẩn thông minh, giữ cho mặt bàn làm việc của
-            bạn luôn khô ráo, ngăn nắp và thanh lịch.
+            Một góc xanh nhỏ là bộ lọc tự nhiên cho những áp lực thường nhật. Dòng chậu cây sen đá sở hữu thiết kế
+            nguyên khối gọn gàng cùng hệ thống rãnh thoát nước ẩn thông minh, giữ cho mặt bàn làm việc của bạn luôn khô
+            ráo, ngăn nắp và thanh lịch.
           </p>
           <div className="relative aspect-square w-full rounded-3xl overflow-hidden border border-white/10 bg-neutral-900">
             <Image
@@ -224,11 +206,9 @@ export function MainHorizontalScroll({
             Tác phẩm nghệ thuật từ chất liệu sinh học lành tính
           </h2>
           <p className="text-sm text-[#5C564E] leading-relaxed">
-            Mỗi sản phẩm được &quot;vẽ&quot; bằng nhựa PLA (chiết xuất từ tinh
-            bột ngô/mía) thân thiện tuyệt đối với sức khỏe. Chúng tôi tinh chỉnh
-            máy in để giữ lại cấu trúc vân nhám mịn tự nhiên — mộc mạc như gốm
-            đất nung, bền bỉ với thời gian nhưng mang tinh thần của công nghệ
-            tương lai.
+            Mỗi sản phẩm được &quot;vẽ&quot; bằng nhựa PLA (chiết xuất từ tinh bột ngô/mía) thân thiện tuyệt đối với sức
+            khỏe. Chúng tôi tinh chỉnh máy in để giữ lại cấu trúc vân nhám mịn tự nhiên — mộc mạc như gốm đất nung, bền
+            bỉ với thời gian nhưng mang tinh thần của công nghệ tương lai.
           </p>
           <div className="relative aspect-square w-full rounded-3xl overflow-hidden border border-[#E1DDD5] bg-white">
             <Image
@@ -249,9 +229,7 @@ export function MainHorizontalScroll({
         {/* Slide 7.1: Featured Products */}
         <section className="px-6 py-16 bg-[#F5F1E6] border-y border-[#E1DDD5]">
           <div className="flex justify-between items-end border-b pb-4 border-[#E1DDD5] mb-8">
-            <h2 className="text-3xl font-normal text-black font-serif">
-              Thiết kế nổi bật
-            </h2>
+            <h2 className="text-3xl font-normal text-black font-serif">Thiết kế nổi bật</h2>
             <Link
               href="/shop"
               className="text-xs font-mono uppercase tracking-widest text-[#1E1C1A] hover:text-[#FF9D00]"
@@ -266,9 +244,7 @@ export function MainHorizontalScroll({
         {hasSaleProducts && (
           <section className="px-6 py-16 bg-[#FBF9F4] border-y border-[#E1DDD5] relative overflow-hidden">
             <div className="flex justify-between items-end border-b pb-4 border-[#E1DDD5] mb-8">
-              <h2 className="text-3xl font-normal text-black font-serif">
-                Sản phẩm đang ưu đãi
-              </h2>
+              <h2 className="text-3xl font-normal text-black font-serif">Sản phẩm đang ưu đãi</h2>
               <Link
                 href="/shop?sale=true"
                 className="text-xs font-mono uppercase tracking-widest text-red-600 hover:text-[#FF9D00]"
@@ -293,13 +269,7 @@ export function MainHorizontalScroll({
                 className="group relative aspect-square rounded-3xl overflow-hidden border border-[#E1DDD5] bg-[#EAE5D9]/40 shadow-sm"
               >
                 <Image
-                  src={
-                    idx === 0
-                      ? config.diy_image
-                      : idx === 1
-                        ? config.tech_image
-                        : config.hero_image
-                  }
+                  src={idx === 0 ? config.diy_image : idx === 1 ? config.tech_image : config.hero_image}
                   alt={cat.name}
                   fill
                   sizes="100vw"
@@ -307,11 +277,7 @@ export function MainHorizontalScroll({
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent flex flex-col justify-end p-8 text-white">
                   <span className="text-[10px] font-mono uppercase tracking-widest text-amber-400 font-bold">
-                    {idx === 0
-                      ? "The Glow Space"
-                      : idx === 1
-                        ? "The Botanical Desk"
-                        : "Minimal Living"}
+                    {idx === 0 ? "The Glow Space" : idx === 1 ? "The Botanical Desk" : "Minimal Living"}
                   </span>
                   <h3 className="text-xl font-bold font-serif">{cat.name}</h3>
                 </div>
@@ -323,9 +289,7 @@ export function MainHorizontalScroll({
         {/* Slide 9: The Journal */}
         <section className="px-6 py-16 bg-[#F9F6ED] border-y border-[#E1DDD5]">
           <div className="flex justify-between items-end border-b pb-4 border-[#E1DDD5] mb-8">
-            <h2 className="text-3xl font-normal text-black font-serif">
-              The Journal
-            </h2>
+            <h2 className="text-3xl font-normal text-black font-serif">The Journal</h2>
             <Link
               href="/blog"
               className="text-xs font-mono uppercase tracking-widest text-[#1E1C1A] hover:text-amber-600"
@@ -335,29 +299,18 @@ export function MainHorizontalScroll({
           </div>
           <div className="grid gap-6 sm:grid-cols-2">
             {blogs?.map((post) => (
-              <Link
-                key={post.id}
-                href={`/blog/${post.slug}`}
-                className="space-y-3"
-              >
+              <Link key={post.id} href={`/blog/${post.slug}`} className="space-y-3">
                 <div className="relative aspect-video rounded-2xl overflow-hidden border border-[#E1DDD5]">
                   <Image
-                    src={
-                      post.coverImage?.url ||
-                      "https://placehold.co/800x400/e2dcd5/7a736e?text=Boospace+Blog"
-                    }
+                    src={post.coverImage?.url || "https://placehold.co/800x400/e2dcd5/7a736e?text=Boospace+Blog"}
                     alt={post.title}
                     fill
                     sizes="100vw"
                     className="object-cover"
                   />
                 </div>
-                <h3 className="font-bold text-lg font-serif text-black">
-                  {post.title}
-                </h3>
-                <p className="text-xs text-slate-500 line-clamp-2">
-                  {post.excerpt}
-                </p>
+                <h3 className="font-bold text-lg font-serif text-black">{post.title}</h3>
+                <p className="text-xs text-slate-500 line-clamp-2">{post.excerpt}</p>
               </Link>
             ))}
           </div>
@@ -366,12 +319,8 @@ export function MainHorizontalScroll({
         {/* Slide 10: Bento Grid */}
         <section className="px-6 py-16">
           <div className="border-b pb-4 border-[#E1DDD5] mb-8">
-            <span className="text-xs font-mono text-[#786F66] uppercase tracking-widest font-bold">
-              CỔNG TƯƠNG TÁC
-            </span>
-            <h2 className="text-3xl font-normal text-black font-serif mt-2">
-              Cổng tương tác
-            </h2>
+            <span className="text-xs font-mono text-[#786F66] uppercase tracking-widest font-bold">CỔNG TƯƠNG TÁC</span>
+            <h2 className="text-3xl font-normal text-black font-serif mt-2">Cổng tương tác</h2>
           </div>
           <BentoPortalGrid />
         </section>
@@ -381,16 +330,14 @@ export function MainHorizontalScroll({
           className="relative text-white py-20 overflow-hidden border-t border-white/5"
           style={{
             backgroundColor: "#151513",
-            backgroundImage:
-              "radial-gradient(circle, #2d2d2a 1px, transparent 1.2px)",
+            backgroundImage: "radial-gradient(circle, #2d2d2a 1px, transparent 1.2px)",
             backgroundSize: "4px 4px",
           }}
         >
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[120%] aspect-square rounded-full bg-gradient-radial from-[#FF8A00]/15 to-transparent blur-3xl -translate-y-[80%]" />
           <div className="px-6 relative z-10 text-center space-y-6">
             <h3 className="text-xl font-serif italic leading-relaxed text-white/95">
-              &quot;Mang sự tĩnh lặng và ấm áp về căn phòng của bạn ngay hôm
-              nay.&quot;
+              &quot;Mang sự tĩnh lặng và ấm áp về căn phòng của bạn ngay hôm nay.&quot;
             </h3>
             <Button
               asChild
@@ -411,19 +358,13 @@ export function MainHorizontalScroll({
         className={`hidden md:block relative w-full ${containerHeightClass}`} // Động bộ 1100vh hoặc 1200vh
       >
         {/* THANH TIẾN TRÌNH CUỘN NGANG */}
-        <motion.div
-          className="fixed top-0 left-0 right-0 h-[3px] bg-[#FF9D00] origin-left z-50"
-          style={{ scaleX }}
-        />
+        <motion.div className="fixed top-0 left-0 right-0 h-[3px] bg-[#FF9D00] origin-left z-50" style={{ scaleX }} />
 
         <div className="sticky top-0 h-screen w-full flex items-center overflow-hidden">
           <div className="absolute inset-0 opacity-15 bg-[linear-gradient(to_right,#E1DDD5_1px,transparent_1px),linear-gradient(to_bottom,#E1DDD5_1px,transparent_1px)] bg-[size:4rem_4rem] pointer-events-none" />
 
           {/* Dải trượt rộng w-[1100vw] hoặc w-[1200vw] tùy thuộc vào việc có sản phẩm giảm giá hay không */}
-          <motion.div
-            style={{ x }}
-            className={`flex h-full items-center ${containerWidthClass}`}
-          >
+          <motion.div style={{ x }} className={`flex h-full items-center ${containerWidthClass}`}>
             {/* SLIDE 1: HERO SECTION */}
             <div className="w-[100vw] h-full shrink-0 relative flex items-center justify-center border-r border-[#E1DDD5]/50 bg-[#FCFAF2]">
               <HeroVideoSection
@@ -450,31 +391,20 @@ export function MainHorizontalScroll({
                   TUYÊN NGÔN BOOSPACE
                 </span>
                 <h2 className="text-4xl sm:text-5xl lg:text-6xl font-light font-serif tracking-tight text-[#1E1C1A] leading-[1.25] max-w-4xl mx-auto">
-                  Chúng tôi từ chối chấp nhận một tương lai nơi các thiết bị làm
-                  ta{" "}
-                  <span className="text-[#E26E67] font-semibold italic">
-                    kiệt sức
-                  </span>
-                  ,{" "}
-                  <span className="text-[#E26E67] font-semibold italic">
-                    gây nghiện
-                  </span>{" "}
-                  và bủa vây bởi sự{" "}
+                  Chúng tôi từ chối chấp nhận một tương lai nơi các thiết bị làm ta{" "}
+                  <span className="text-[#E26E67] font-semibold italic">kiệt sức</span>,{" "}
+                  <span className="text-[#E26E67] font-semibold italic">gây nghiện</span> và bủa vây bởi sự{" "}
                   <span className="text-[#E26E67] font-semibold italic relative">
                     xao nhãng
-                    <sup className="text-xs text-[#FF9D00] ml-0.5 not-italic">
-                      1
-                    </sup>
+                    <sup className="text-xs text-[#FF9D00] ml-0.5 not-italic">1</sup>
                   </span>
                 </h2>
                 <p className="font-serif text-base sm:text-lg text-[#5C564E] leading-relaxed max-w-2xl mx-auto italic font-light pt-6 border-t border-[#E1DDD5]/60">
-                  Boo Space tin rằng, một chiếc đèn tỏa ánh sáng dịu hay một
-                  mảng xanh nhỏ gọn gàng có thể là điểm tựa kéo tâm trí bạn về
-                  với sự bình yên hằng ngày.
+                  Boo Space tin rằng, một chiếc đèn tỏa ánh sáng dịu hay một mảng xanh nhỏ gọn gàng có thể là điểm tựa
+                  kéo tâm trí bạn về với sự bình yên hằng ngày.
                 </p>
                 <div className="pt-4 text-[9px] font-mono text-[#786F66]/60 uppercase tracking-widest max-w-md mx-auto font-semibold">
-                  ¹ XAO NHÃNG: SỰ BỦA VÂY CỦA DÂY CÁP LỘN XỘN VÀ NHỮNG THÔNG BÁO
-                  ĐẨY LIÊN TỤC.
+                  ¹ XAO NHÃNG: SỰ BỦA VÂY CỦA DÂY CÁP LỘN XỘN VÀ NHỮNG THÔNG BÁO ĐẨY LIÊN TỤC.
                 </div>
               </motion.div>
             </div>
@@ -496,10 +426,9 @@ export function MainHorizontalScroll({
                     Vũ điệu dịu dàng của hình khối và ánh sáng
                   </h2>
                   <p className="text-sm text-[#5C564E] leading-relaxed max-w-md">
-                    Không còn những dải LED chói mắt gây mệt mỏi thị giác. Các
-                    thiết kế đèn in 3D của Boo Space ứng dụng cấu trúc hình học
-                    đặc biệt để khúc xạ ánh sáng thô thành những vầng sáng
-                    ambient dịu mát, ôm ấp không gian sống của bạn khi đêm về.
+                    Không còn những dải LED chói mắt gây mệt mỏi thị giác. Các thiết kế đèn in 3D của Boo Space ứng dụng
+                    cấu trúc hình học đặc biệt để khúc xạ ánh sáng thô thành những vầng sáng ambient dịu mát, ôm ấp
+                    không gian sống của bạn khi đêm về.
                   </p>
                 </motion.div>
                 <motion.div
@@ -537,11 +466,9 @@ export function MainHorizontalScroll({
                     Khi sự sống ẩn mình trong những đường nét tối giản
                   </h2>
                   <p className="text-sm text-[#5C564E] leading-relaxed max-w-md">
-                    Một góc xanh nhỏ là bộ lọc tự nhiên cho những áp lực thường
-                    nhật. Dòng chậu cây sen đá sở hữu thiết kế nguyên khối gọn
-                    gàng cùng hệ thống rãnh thoát nước ẩn thông minh, giữ cho
-                    mặt bàn làm việc của bạn luôn khô ráo, ngăn nắp và thanh
-                    lịch.
+                    Một góc xanh nhỏ là bộ lọc tự nhiên cho những áp lực thường nhật. Dòng chậu cây sen đá sở hữu thiết
+                    kế nguyên khối gọn gàng cùng hệ thống rãnh thoát nước ẩn thông minh, giữ cho mặt bàn làm việc của
+                    bạn luôn khô ráo, ngăn nắp và thanh lịch.
                   </p>
                 </motion.div>
                 <motion.div
@@ -579,11 +506,9 @@ export function MainHorizontalScroll({
                     Tác phẩm nghệ thuật từ chất liệu sinh học lành tính
                   </h2>
                   <p className="text-sm text-[#5C564E] leading-relaxed max-w-md">
-                    Mỗi sản phẩm được &quot;vẽ&quot; bằng nhựa PLA (chiết xuất
-                    từ tinh bột ngô/mía) thân thiện tuyệt đối với sức khỏe.
-                    Chúng tôi tinh chỉnh máy in để giữ lại cấu trúc vân nhám mịn
-                    tự nhiên — mộc mạc như gốm đất nung, bền bỉ với thời gian
-                    nhưng mang tinh thần của công nghệ tương lai.
+                    Mỗi sản phẩm được &quot;vẽ&quot; bằng nhựa PLA (chiết xuất từ tinh bột ngô/mía) thân thiện tuyệt đối
+                    với sức khỏe. Chúng tôi tinh chỉnh máy in để giữ lại cấu trúc vân nhám mịn tự nhiên — mộc mạc như
+                    gốm đất nung, bền bỉ với thời gian nhưng mang tinh thần của công nghệ tương lai.
                   </p>
                 </motion.div>
                 <motion.div
@@ -618,9 +543,7 @@ export function MainHorizontalScroll({
                     <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
                       THE CORE PORTFOLIO
                     </span>
-                    <h2 className="text-3xl sm:text-4xl font-normal text-black font-serif mt-2">
-                      Sản phẩm nổi bật
-                    </h2>
+                    <h2 className="text-3xl sm:text-4xl font-normal text-black font-serif mt-2">Sản phẩm nổi bật</h2>
                   </div>
                   <Link
                     href="/shop"
@@ -670,9 +593,7 @@ export function MainHorizontalScroll({
                   <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
                     COLLECTION
                   </span>
-                  <h2 className="text-4xl font-normal text-black font-serif mt-2">
-                    Bộ sưu tập không gian
-                  </h2>
+                  <h2 className="text-4xl font-normal text-black font-serif mt-2">Bộ sưu tập không gian</h2>
                 </div>
                 <div className="grid gap-6 grid-cols-3 bg-[#FCFAF2]">
                   {categories?.map((cat, idx) => (
@@ -690,13 +611,7 @@ export function MainHorizontalScroll({
                         className="group relative aspect-square rounded-3xl overflow-hidden border border-[#E1DDD5] bg-[#EAE5D9]/40 shadow-sm transition-all hover:border-[#1E1C1A] block"
                       >
                         <Image
-                          src={
-                            idx === 0
-                              ? config.diy_image
-                              : idx === 1
-                                ? config.tech_image
-                                : config.hero_image
-                          }
+                          src={idx === 0 ? config.diy_image : idx === 1 ? config.tech_image : config.hero_image}
                           alt={cat.name}
                           fill
                           sizes="(max-width: 1200px) 33vw, 25vw"
@@ -704,15 +619,9 @@ export function MainHorizontalScroll({
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent flex flex-col justify-end p-8 text-white text-left">
                           <span className="text-[10px] font-mono uppercase tracking-widest text-amber-400 font-bold">
-                            {idx === 0
-                              ? "The Glow Space"
-                              : idx === 1
-                                ? "The Botanical Desk"
-                                : "Minimal Living"}
+                            {idx === 0 ? "The Glow Space" : idx === 1 ? "The Botanical Desk" : "Minimal Living"}
                           </span>
-                          <h3 className="text-2xl font-bold font-serif mt-1">
-                            {cat.name}
-                          </h3>
+                          <h3 className="text-2xl font-bold font-serif mt-1">{cat.name}</h3>
                         </div>
                       </Link>
                     </motion.div>
@@ -729,9 +638,7 @@ export function MainHorizontalScroll({
                     <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
                       BLOG
                     </span>
-                    <h2 className="text-4xl font-normal text-black font-serif mt-2">
-                      The Journal
-                    </h2>
+                    <h2 className="text-4xl font-normal text-black font-serif mt-2">The Journal</h2>
                   </div>
                   <Link
                     href="/blog"
@@ -754,16 +661,11 @@ export function MainHorizontalScroll({
                         <h3 className="font-bold text-xl text-black group-hover:text-amber-600 font-serif leading-snug transition-colors">
                           {post.title}
                         </h3>
-                        <p className="text-xs text-[#5C564E] line-clamp-2 leading-relaxed font-light">
-                          {post.excerpt}
-                        </p>
+                        <p className="text-xs text-[#5C564E] line-clamp-2 leading-relaxed font-light">{post.excerpt}</p>
                       </div>
                       <div className="relative aspect-video rounded-xl overflow-hidden border border-[#E1DDD5] bg-[#EAE5D9]/20">
                         <Image
-                          src={
-                            post.coverImage?.url ||
-                            "https://placehold.co/800x400/e2dcd5/7a736e?text=Boospace+Blog"
-                          }
+                          src={post.coverImage?.url || "https://placehold.co/800x400/e2dcd5/7a736e?text=Boospace+Blog"}
                           alt={post.title}
                           fill
                           sizes="(max-width: 1200px) 33vw, 25vw"
@@ -783,9 +685,7 @@ export function MainHorizontalScroll({
                   <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
                     CỔNG TƯƠNG TÁC
                   </span>
-                  <h2 className="text-4xl font-normal text-black font-serif mt-2">
-                    Cổng tương tác
-                  </h2>
+                  <h2 className="text-4xl font-normal text-black font-serif mt-2">Cổng tương tác</h2>
                 </div>
                 <BentoPortalGrid />
               </div>
@@ -796,8 +696,7 @@ export function MainHorizontalScroll({
               className="w-[100vw] h-full shrink-0 relative flex items-center justify-center overflow-hidden border-l border-white/5"
               style={{
                 backgroundColor: "#151513", // Đen nhạt graphite đồng nhất
-                backgroundImage:
-                  "radial-gradient(circle, #2d2d2a 1.1px, transparent 1.2px)", // Lưới ma trận pixel tinh xảo
+                backgroundImage: "radial-gradient(circle, #2d2d2a 1.1px, transparent 1.2px)", // Lưới ma trận pixel tinh xảo
                 backgroundSize: "4px 4px", // Mật độ chấm lưới 4px đều tăm tắp
               }}
             >
@@ -805,10 +704,7 @@ export function MainHorizontalScroll({
 
               <div className="max-w-7xl px-24 relative z-10 w-full flex flex-col lg:flex-row items-center justify-between gap-12">
                 <div className="shrink-0 flex items-center justify-center bg-white/5 border border-white/10 rounded-full p-6 size-24">
-                  <svg
-                    viewBox="0 0 100 100"
-                    className="w-full h-full text-[#3ECF8E]"
-                  >
+                  <svg viewBox="0 0 100 100" className="w-full h-full text-[#3ECF8E]">
                     <circle
                       cx="50"
                       cy="50"
@@ -823,8 +719,7 @@ export function MainHorizontalScroll({
                 </div>
                 <div className="space-y-4 text-left flex-1 max-w-3xl">
                   <h3 className="text-2xl sm:text-3xl font-light font-serif leading-relaxed italic text-white/95">
-                    &quot;Mang sự tĩnh lặng và ấm áp về căn phòng của bạn ngay
-                    hôm nay.&quot;
+                    &quot;Mang sự tĩnh lặng và ấm áp về căn phòng của bạn ngay hôm nay.&quot;
                   </h3>
                   <p className="text-[10px] font-mono text-neutral-400 uppercase tracking-widest mt-4">
                     BOO SPACE • KHÔNG GIAN CỦA NHỮNG KẺ MƠ MỘNG THỰC TẾ

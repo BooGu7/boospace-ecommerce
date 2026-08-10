@@ -1,19 +1,16 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
-import { siteConfig } from "@/lib/config"
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
+import { siteConfig } from "@/lib/config";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
-export function formatPrice(
-  priceInCents: number,
-  currency?: string
-): string {
+export function formatPrice(priceInCents: number, currency?: string): string {
   return new Intl.NumberFormat(siteConfig.locale, {
     style: "currency",
     currency: currency ?? siteConfig.currency,
-  }).format(priceInCents / 100)
+  }).format(priceInCents / 100);
 }
 
 export function formatDate(date: string | Date): string {
@@ -21,12 +18,12 @@ export function formatDate(date: string | Date): string {
     month: "short",
     day: "numeric",
     year: "numeric",
-  }).format(new Date(date))
+  }).format(new Date(date));
 }
 
 export function truncate(str: string, length: number): string {
-  if (str.length <= length) return str
-  return str.slice(0, length) + "..."
+  if (str.length <= length) return str;
+  return `${str.slice(0, length)}...`;
 }
 
 export function slugify(str: string): string {
@@ -35,5 +32,5 @@ export function slugify(str: string): string {
     .replace(/[^\w\s-]/g, "")
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-")
-    .trim()
+    .trim();
 }

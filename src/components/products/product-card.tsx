@@ -1,15 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { formatPrice } from "@/lib/utils";
-import { PLACEHOLDER_IMAGE } from "@/lib/constants";
-import type { Product } from "@/types";
 import { motion } from "framer-motion";
 import { Heart } from "lucide-react"; // Nhập khẩu icon trái tim
-import { useWishlistStore } from "@/store/wishlist"; // Kết nối với Wishlist Store cục bộ [21]
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { PLACEHOLDER_IMAGE } from "@/lib/constants";
+import { formatPrice } from "@/lib/utils";
+import { useWishlistStore } from "@/store/wishlist"; // Kết nối với Wishlist Store cục bộ [21]
+import type { Product } from "@/types";
 
 interface ProductCardProps {
   product: Product;
@@ -26,23 +26,15 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  const isWishlisted =
-    mounted && wishlistItems.some((i) => i.productId === product.id);
+  const isWishlisted = mounted && wishlistItems.some((i) => i.productId === product.id);
 
   // Xử lý an toàn cấu trúc ảnh động từ cả database Supabase lẫn file JSON cũ
   const imgUrl =
-    typeof product.images?.[0] === "string"
-      ? product.images[0]
-      : (product.images?.[0]?.url ?? PLACEHOLDER_IMAGE);
+    typeof product.images?.[0] === "string" ? product.images[0] : (product.images?.[0]?.url ?? PLACEHOLDER_IMAGE);
 
-  const imgAlt =
-    typeof product.images?.[0] === "string"
-      ? product.name
-      : (product.images?.[0]?.alt ?? product.name);
+  const imgAlt = typeof product.images?.[0] === "string" ? product.name : (product.images?.[0]?.alt ?? product.name);
 
-  const isOnSale =
-    defaultVariant?.compareAtPrice &&
-    defaultVariant.compareAtPrice > defaultVariant.price;
+  const isOnSale = defaultVariant?.compareAtPrice && defaultVariant.compareAtPrice > defaultVariant.price;
 
   // Lập trình thả tim tương tác nhanh (Chặn nhảy link chuyển tiếp trang) [1.1]
   const handleToggleWishlist = (e: React.MouseEvent) => {
@@ -108,11 +100,7 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
               className="absolute bottom-4 right-4 z-20 h-9 w-9 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center border border-[#E1DDD5] text-[#786F66] hover:text-red-500 hover:bg-white shadow-sm transition-all cursor-pointer focus:outline-none"
               aria-label="Thêm vào yêu thích"
             >
-              <Heart
-                className={`h-4 w-4 transition-colors ${
-                  isWishlisted ? "fill-red-500 text-red-500" : ""
-                }`}
-              />
+              <Heart className={`h-4 w-4 transition-colors ${isWishlisted ? "fill-red-500 text-red-500" : ""}`} />
             </motion.button>
           )}
         </div>
@@ -126,8 +114,7 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
           <div className="flex items-center gap-2">
             {/* Chuyển sang font-medium mộc mạc, nhẹ nhàng hơn theo chuẩn tạp chí */}
             <span className="text-sm font-mono font-medium text-black/90">
-              {defaultVariant &&
-                formatPrice(defaultVariant.price, defaultVariant.currency)}
+              {defaultVariant && formatPrice(defaultVariant.price, defaultVariant.currency)}
             </span>
             {isOnSale && (
               <span className="text-xs font-mono text-[#786F66] line-through opacity-60">

@@ -1,18 +1,17 @@
 "use client";
 
+import { AnimatePresence, motion, type Variants } from "framer-motion";
+import { ArrowRight, MapPin, Plus, Trash2 } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { EmptyState } from "@/components/ui/empty-state";
-import { MapPin, Plus, Trash2, ArrowRight } from "lucide-react";
 import { useAuthGuard } from "@/hooks/use-auth-guard";
 import { useAuthStore } from "@/store/auth";
-import { toast } from "sonner";
-import Link from "next/link";
-import { motion, AnimatePresence, Variants } from "framer-motion";
 
 // Cấu hình Hoạt ảnh Spring dẹt mượt mà (Type-safe Variants)
 const listContainerVariants: Variants = {
@@ -287,12 +286,7 @@ export default function AddressesPage() {
             className="grid gap-6 md:grid-cols-2 text-left"
           >
             {addresses.map((addr) => (
-              <motion.div
-                key={addr.id}
-                variants={addressCardVariants}
-                whileHover="hover"
-                className="block"
-              >
+              <motion.div key={addr.id} variants={addressCardVariants} whileHover="hover" className="block">
                 <Card className="rounded-3xl border border-[#DCD6CC] bg-white p-6 flex flex-col justify-between min-h-[180px] shadow-sm relative transition-all">
                   <CardContent className="p-0 flex items-start justify-between h-full">
                     <div className="space-y-3.5 flex-1 min-w-0">

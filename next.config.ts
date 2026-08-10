@@ -1,10 +1,17 @@
+import withVercelToolbar from "@vercel/toolbar/plugins/next";
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 import { redirects as redirectRules } from "./src/lib/redirects";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
+const withToolbar = withVercelToolbar();
 
 const nextConfig: NextConfig = {
+  // TỐI ƯU BỘ NHỚ BUILD: Giảm số luồng xử lý từ 15 xuống 4 để tránh tràn RAM (Heap Out of Memory)
+  experimental: {
+    cpus: 4,
+  },
+
   // CẤP QUYỀN HÌNH ẢNH SUPABASE, PLACEHOLD VÀ UNSPLASH CHO STOREFRONT [21]
   images: {
     dangerouslyAllowSVG: true, // Cho phép hiển thị ảnh SVG từ placehold.co [21]
@@ -41,5 +48,5 @@ const nextConfig: NextConfig = {
   },
 };
 
-// ĐỒNG BỘ HÓA BỘ BỌC ĐA NGÔN NGỮ (NEXT-INTL)
-export default withNextIntl(nextConfig);
+// ĐỒNG BỘ HÓA BỘ BỌC ĐA NGÔN NGỮ (NEXT-INTL) VÀ VERCEL TOOLBAR
+export default withNextIntl(withToolbar(nextConfig));

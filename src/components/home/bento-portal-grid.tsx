@@ -1,20 +1,12 @@
 "use client";
 
-import { useState, useRef } from "react";
-import {
-  Search,
-  FileText,
-  Sparkles,
-  Loader2,
-  Upload,
-  Trash2,
-} from "lucide-react";
-import { motion, Variants } from "framer-motion";
-import { toast } from "sonner";
+import { motion, type Variants } from "framer-motion";
+import { FileText, Loader2, Search, Sparkles, Trash2, Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useRef, useState } from "react";
+import { toast } from "sonner";
 import { supabase } from "@/lib/supabase/client";
 
-// Cấu hình Hoạt ảnh Spring mượt mà cho các Card (Type-safe Variants)
 const bentoContainerVariants: Variants = {
   hidden: {},
   visible: {
@@ -35,7 +27,7 @@ const bentoCardVariants: Variants = {
   hover: {
     y: -6,
     boxShadow: "0 20px 40px -15px rgba(0, 225, 155, 0.15)",
-    borderColor: "rgba(0, 225, 155, 0.3)", // Glow viền xanh Neon nhẹ khi hover
+    borderColor: "rgba(0, 225, 155, 0.3)",
     transition: { type: "spring", stiffness: 300, damping: 18 },
   },
 };
@@ -43,29 +35,23 @@ const bentoCardVariants: Variants = {
 export function BentoPortalGrid() {
   const router = useRouter();
 
-  // States cho Form gửi ý tưởng in 3D (Thẻ số 2)
   const [idea, setIdea] = useState("");
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState(""); // Thêm State số điện thoại
+  const [phone, setPhone] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  // States quản lý file đính kèm 3D (.stl, .obj...) tối đa 5MB
   const [attachedFile, setAttachedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // States cho Form tìm kiếm AI nhanh (Thẻ số 1)
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Xử lý khi khách chọn file đính kèm (Giới hạn nghiêm ngặt 5MB)
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const maxFileSize = 5 * 1024 * 1024; // 5MB
+    const maxFileSize = 5 * 1024 * 1024;
     if (file.size > maxFileSize) {
-      toast.error(
-        "Dung lượng tệp vượt quá giới hạn 5MB. Vui lòng chọn tệp nhỏ hơn.",
-      );
+      toast.error("Dung lượng tệp vượt quá giới hạn 5MB. Vui lòng chọn tệp nhỏ hơn.");
       if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
@@ -77,20 +63,16 @@ export function BentoPortalGrid() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
-  // Chuyển hướng người dùng sang trang /search khi gõ từ khóa tìm kiếm AI
   function handleSearchSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (searchQuery.trim() === "") return;
     router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
   }
 
-  // Hàm xử lý gửi ý tưởng & tệp in 3D về Supabase DB & kích hoạt gửi mail báo giá qua Resend
   async function handleSubmitIdea(e: React.FormEvent) {
     e.preventDefault();
     if (!idea.trim() || !email.trim() || !phone.trim()) {
-      toast.error(
-        "Vui lòng điền đầy đủ ý tưởng, số điện thoại và email liên hệ.",
-      );
+      toast.error("Vui lòng điền đầy đủ ý tưởng, số điện thoại và email liên hệ.");
       return;
     }
 
@@ -98,14 +80,11 @@ export function BentoPortalGrid() {
     let uploadedFileUrl = "";
 
     try {
-      // 1. Tiến hành tải tệp đính kèm lên Supabase Storage nếu có
       if (attachedFile) {
         const fileExt = attachedFile.name.split(".").pop();
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 12)}.${fileExt}`;
 
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from("co-creation-files")
-          .upload(fileName, attachedFile);
+        const { error: uploadError } = await supabase.storage.from("co-creation-files").upload(fileName, attachedFile);
 
         if (uploadError) throw uploadError;
 
@@ -116,7 +95,6 @@ export function BentoPortalGrid() {
         uploadedFileUrl = publicUrl;
       }
 
-      // 2. Gửi dữ liệu về API liên hệ để lưu Supabase & bắn Email thông báo kèm SĐT
       const response = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -130,9 +108,7 @@ export function BentoPortalGrid() {
 
       const data = await response.json();
       if (response.ok && data.success) {
-        toast.success(
-          "Boo đã tiếp nhận! Báo giá chi tiết sẽ được gửi lại cho bạn sớm nhất ✨",
-        );
+        toast.success("Boo đã tiếp nhận! Báo giá chi tiết sẽ được gửi lại cho bạn sớm nhất ✨");
         setIdea("");
         setEmail("");
         setPhone("");
@@ -140,7 +116,7 @@ export function BentoPortalGrid() {
       } else {
         toast.error(data.error || "Gửi ý tưởng thất bại, vui lòng thử lại.");
       }
-    } catch (err) {
+    } catch (_err) {
       toast.error("Lỗi kết nối đến máy chủ.");
     } finally {
       setSubmitting(false);
@@ -155,23 +131,16 @@ export function BentoPortalGrid() {
       viewport={{ once: true, margin: "-100px" }}
       className="grid gap-6 md:grid-cols-3 w-full bg-[#151513] p-6 rounded-[36px] border border-white/5 dark-mesh-pattern select-none"
     >
-      {/* ==========================================
-         CARD 01 (Chiếm 2 cột): TÌM KIẾM Ý TƯỞNG BẰNG AI
-         ========================================== */}
       <motion.div
         variants={bentoCardVariants}
         whileHover="hover"
         className="col-span-1 md:col-span-2 bg-[#181816]/90 backdrop-blur-md border border-white/10 rounded-[32px] p-8 flex flex-col justify-between min-h-[380px] text-left"
       >
-        {/* Header */}
         <div className="flex items-center justify-between text-[#00E19B]">
-          <span className="text-xs font-mono tracking-widest font-semibold uppercase">
-            TÌM KIẾM Ý TƯỞNG
-          </span>
+          <span className="text-xs font-mono tracking-widest font-semibold uppercase">TÌM KIẾM Ý TƯỞNG</span>
           <Search className="h-4 w-4" />
         </div>
 
-        {/* Input Tìm kiếm kích hoạt chuyển hướng */}
         <form onSubmit={handleSearchSubmit} className="relative my-6 w-full">
           <input
             type="text"
@@ -188,33 +157,22 @@ export function BentoPortalGrid() {
           </button>
         </form>
 
-        {/* Footer */}
         <div className="text-[10px] font-mono tracking-widest text-white/40 uppercase">
           TÌM KIẾM GÓC BÌNH YÊN CỦA BẠN
         </div>
       </motion.div>
 
-      {/* ==========================================
-         CARD 02 (Chiếm 1 cột): Ý TƯỞNG ĐỘC BẢN (CO-CREATION) (HỖ TRỢ ĐÍNH KÈM FILE & ĐỒNG BỘ SĐT)
-         ========================================== */}
       <motion.div
         variants={bentoCardVariants}
         whileHover="hover"
         className="col-span-1 bg-[#181816]/90 backdrop-blur-md border border-white/10 rounded-[32px] p-8 flex flex-col justify-between min-h-[380px] text-left"
       >
-        {/* Header */}
         <div className="flex items-center justify-between text-[#00E19B]">
-          <span className="text-xs font-mono tracking-widest font-semibold uppercase">
-            Ý TƯỞNG
-          </span>
+          <span className="text-xs font-mono tracking-widest font-semibold uppercase">Ý TƯỞNG</span>
           <FileText className="h-4 w-4" />
         </div>
 
-        {/* Form nhập liệu kèm đính kèm file & số điện thoại */}
-        <form
-          onSubmit={handleSubmitIdea}
-          className="space-y-3.5 my-4 flex-1 flex flex-col justify-center"
-        >
+        <form onSubmit={handleSubmitIdea} className="space-y-3.5 my-4 flex-1 flex flex-col justify-center">
           <textarea
             value={idea}
             onChange={(e) => setIdea(e.target.value)}
@@ -225,7 +183,6 @@ export function BentoPortalGrid() {
           />
 
           <div className="grid grid-cols-1 gap-2.5">
-            {/* Trường đính kèm tệp đa định dạng */}
             {!attachedFile ? (
               <div
                 onClick={() => fileInputRef.current?.click()}
@@ -245,9 +202,7 @@ export function BentoPortalGrid() {
               </div>
             ) : (
               <div className="border border-white/10 rounded-xl px-4 py-2 bg-[#242421] flex items-center justify-between text-[10px] font-mono">
-                <span className="text-white/70 max-w-[150px] truncate">
-                  {attachedFile?.name}
-                </span>
+                <span className="text-white/70 max-w-[150px] truncate">{attachedFile?.name}</span>
                 <button
                   type="button"
                   onClick={handleRemoveFile}
@@ -258,7 +213,6 @@ export function BentoPortalGrid() {
               </div>
             )}
 
-            {/* Ô nhập Email */}
             <input
               type="email"
               value={email}
@@ -268,7 +222,6 @@ export function BentoPortalGrid() {
               className="w-full bg-[#242421] border border-white/5 rounded-2xl px-4 py-2.5 text-xs outline-none text-white placeholder:text-[#786F66]/65 font-sans"
             />
 
-            {/* Ô NHẬP SỐ ĐIỆN THOẠI MỚI CHUẨN XÁC ĐÃ TÍCH HỢP */}
             <input
               type="tel"
               value={phone}
@@ -296,7 +249,6 @@ export function BentoPortalGrid() {
           </motion.button>
         </form>
 
-        {/* Footer */}
         <div className="text-[10px] font-mono tracking-widest text-white/40 uppercase">
           Chúng tôi sẽ phản hồi lại bạn sớm nhất
         </div>

@@ -6,7 +6,7 @@
 
 export function trackEvent(name: string, properties?: Record<string, unknown>) {
   if (process.env.NODE_ENV === "development") {
-    console.debug("[analytics]", name, properties)
+    console.debug("[analytics]", name, properties);
   }
 
   // Example: Google Analytics
@@ -21,7 +21,7 @@ export function trackEvent(name: string, properties?: Record<string, unknown>) {
 
 export function trackPageView(url: string) {
   if (process.env.NODE_ENV === "development") {
-    console.debug("[analytics] pageview", url)
+    console.debug("[analytics] pageview", url);
   }
 
   // Example: Google Analytics
@@ -33,24 +33,18 @@ export const events = {
   addToCart: (product: { id: string; name: string; price: number; quantity: number }) =>
     trackEvent("add_to_cart", product),
 
-  removeFromCart: (product: { id: string; name: string }) =>
-    trackEvent("remove_from_cart", product),
+  removeFromCart: (product: { id: string; name: string }) => trackEvent("remove_from_cart", product),
 
-  addToWishlist: (product: { id: string; name: string }) =>
-    trackEvent("add_to_wishlist", product),
+  addToWishlist: (product: { id: string; name: string }) => trackEvent("add_to_wishlist", product),
 
-  beginCheckout: (total: number, itemCount: number) =>
-    trackEvent("begin_checkout", { total, itemCount }),
+  beginCheckout: (total: number, itemCount: number) => trackEvent("begin_checkout", { total, itemCount }),
 
-  purchase: (orderId: string, total: number) =>
-    trackEvent("purchase", { orderId, total }),
+  purchase: (orderId: string, total: number) => trackEvent("purchase", { orderId, total }),
 
-  search: (query: string, resultCount: number) =>
-    trackEvent("search", { query, resultCount }),
+  search: (query: string, resultCount: number) => trackEvent("search", { query, resultCount }),
 
-  viewProduct: (product: { id: string; name: string; price: number }) =>
-    trackEvent("view_product", product),
+  viewProduct: (product: { id: string; name: string; price: number }) => trackEvent("view_product", product),
 
   signUp: () => trackEvent("sign_up"),
   login: () => trackEvent("login"),
-}
+};

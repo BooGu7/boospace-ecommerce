@@ -5,22 +5,15 @@ type Context = {
   params: Promise<{ id: string }>;
 };
 
-export async function GET(req: Request, context: Context) {
+export async function GET(_req: Request, context: Context) {
   const { id } = await context.params;
 
   const supabase = getSupabaseAdmin();
 
-  const { data, error } = await supabase
-    .from("posts")
-    .select("*")
-    .eq("id", id)
-    .single();
+  const { data, error } = await supabase.from("posts").select("*").eq("id", id).single();
 
   if (error) {
-    return NextResponse.json(
-      { error: error.message },
-      { status: 404 }
-    );
+    return NextResponse.json({ error: error.message }, { status: 404 });
   }
 
   return NextResponse.json(data);
@@ -55,30 +48,21 @@ export async function PUT(req: Request, context: Context) {
     .single();
 
   if (error) {
-    return NextResponse.json(
-      { error: error.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
   return NextResponse.json(data);
 }
 
-export async function DELETE(req: Request, context: Context) {
+export async function DELETE(_req: Request, context: Context) {
   const { id } = await context.params;
 
   const supabase = getSupabaseAdmin();
 
-  const { error } = await supabase
-    .from("posts")
-    .delete()
-    .eq("id", id);
+  const { error } = await supabase.from("posts").delete().eq("id", id);
 
   if (error) {
-    return NextResponse.json(
-      { error: error.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
   return NextResponse.json({ success: true });

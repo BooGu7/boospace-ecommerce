@@ -1,10 +1,7 @@
 import type { MetadataRoute } from "next";
 
 // Khôi phục tên miền chính thức dự phòng
-const baseUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ||
-  process.env.NEXT_PUBLIC_BASE_URL ||
-  "https://www.boospace.tech";
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_BASE_URL || "https://www.boospace.tech";
 
 export default function robots(): MetadataRoute.Robots {
   return {

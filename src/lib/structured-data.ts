@@ -1,8 +1,8 @@
-import { siteConfig } from "./config"
+import { siteConfig } from "./config";
 
 interface BreadcrumbItem {
-  name: string
-  href: string
+  name: string;
+  href: string;
 }
 
 export function breadcrumbJsonLd(items: BreadcrumbItem[]) {
@@ -15,5 +15,5 @@ export function breadcrumbJsonLd(items: BreadcrumbItem[]) {
       name: item.name,
       item: `${siteConfig.url}${item.href}`,
     })),
-  }
+  };
 }

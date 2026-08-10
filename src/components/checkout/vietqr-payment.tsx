@@ -1,17 +1,11 @@
 "use client";
 
-import * as React from "react";
+import { CheckCircle2, Clock, RefreshCw, RotateCcw, ShieldCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
+import * as React from "react";
 import { toast } from "sonner";
-import {
-  RefreshCw,
-  ShieldCheck,
-  CheckCircle2,
-  Clock,
-  RotateCcw,
-} from "lucide-react";
-import { supabase } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/lib/supabase/client";
 
 interface QRPaymentProps {
   orderId: string;
@@ -27,7 +21,7 @@ const formatVND = (amount: number) => {
 };
 
 export function VietQRPayment({ orderId, amount, sku }: QRPaymentProps) {
-  const router = useRouter();
+  const _router = useRouter();
   const [isPaid, setIsPaid] = React.useState(false);
   const [isChecking, setIsChecking] = React.useState(false);
 
@@ -100,9 +94,7 @@ export function VietQRPayment({ orderId, amount, sku }: QRPaymentProps) {
             updatedOrder.payment_status === "Paid"
           ) {
             setIsPaid(true);
-            toast.success(
-              "Thanh toán thành công! Đơn hàng đang được gia công in ✨",
-            );
+            toast.success("Thanh toán thành công! Đơn hàng đang được gia công in ✨");
           }
         },
       )
@@ -128,16 +120,10 @@ export function VietQRPayment({ orderId, amount, sku }: QRPaymentProps) {
           <CheckCircle2 className="size-6" />
         </div>
         <div className="space-y-1">
-          <h4 className="font-serif text-base font-bold text-black">
-            Xác nhận thanh toán thành công!
-          </h4>
+          <h4 className="font-serif text-base font-bold text-black">Xác nhận thanh toán thành công!</h4>
           <p className="text-xs text-[#786F66]">
-            Hệ thống đã nhận đủ{" "}
-            <span className="font-mono font-bold text-black">
-              {formatVND(amount)}
-            </span>
-            . Đơn hàng <strong className="font-mono">{orderId}</strong> đã được
-            chuyển tới xưởng gia công.
+            Hệ thống đã nhận đủ <span className="font-mono font-bold text-black">{formatVND(amount)}</span>. Đơn hàng{" "}
+            <strong className="font-mono">{orderId}</strong> đã được chuyển tới xưởng gia công.
           </p>
         </div>
       </div>
@@ -157,9 +143,7 @@ export function VietQRPayment({ orderId, amount, sku }: QRPaymentProps) {
         setIsPaid(true);
         toast.success("Hệ thống đã ghi nhận thanh toán thành công!");
       } else {
-        toast.info(
-          "Chưa ghi nhận giao dịch chuyển khoản mới. Vui lòng đợi trong giây lát ✨",
-        );
+        toast.info("Chưa ghi nhận giao dịch chuyển khoản mới. Vui lòng đợi trong giây lát ✨");
       }
     } catch {
       toast.error("Có lỗi xảy ra khi kiểm tra đơn hàng");
@@ -190,9 +174,7 @@ export function VietQRPayment({ orderId, amount, sku }: QRPaymentProps) {
 
         <div
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-mono font-bold shrink-0 ${
-            isExpired
-              ? "bg-red-50 text-red-600 border-red-200"
-              : "bg-[#FCFAF2] text-[#FF9D00] border-[#FF9D00]/30"
+            isExpired ? "bg-red-50 text-red-600 border-red-200" : "bg-[#FCFAF2] text-[#FF9D00] border-[#FF9D00]/30"
           }`}
         >
           <Clock className={`size-3.5 ${!isExpired ? "animate-pulse" : ""}`} />
@@ -209,9 +191,7 @@ export function VietQRPayment({ orderId, amount, sku }: QRPaymentProps) {
 
         {isExpired && (
           <div className="absolute inset-0 bg-black/60 backdrop-blur-xs flex flex-col items-center justify-center p-4 text-center space-y-3">
-            <p className="text-xs font-bold text-white leading-relaxed">
-              Mã QR đã hết hạn hiệu lực (10 phút).
-            </p>
+            <p className="text-xs font-bold text-white leading-relaxed">Mã QR đã hết hạn hiệu lực (10 phút).</p>
             <Button
               type="button"
               onClick={handleResetTimer}
@@ -228,22 +208,17 @@ export function VietQRPayment({ orderId, amount, sku }: QRPaymentProps) {
       <div className="space-y-2.5 border-t border-[#E1DDD5]/60 pt-4 text-xs font-sans">
         <div className="flex justify-between items-center">
           <span className="text-[#786F66]">Số tiền cần chuyển:</span>
-          <span className="font-mono font-bold text-black text-sm">
-            {formatVND(amount)}
-          </span>
+          <span className="font-mono font-bold text-black text-sm">{formatVND(amount)}</span>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-[#786F66]">Nội dung chuyển khoản:</span>
-          <span className="font-mono font-bold text-red-500 text-xs tracking-wide">
-            {transferMemo}
-          </span>
+          <span className="font-mono font-bold text-red-500 text-xs tracking-wide">{transferMemo}</span>
         </div>
       </div>
 
       <div className="rounded-xl bg-[#FCFAF2] border border-[#E1DDD5] p-3 text-[10px] text-[#5c544d] leading-relaxed">
-        💡 <strong>Lưu ý:</strong> Vui lòng giữ nguyên nội dung{" "}
-        <strong>{transferMemo}</strong> khi chuyển khoản để máy chủ tự nhận diện
-        đơn hàng và mã SKU sản phẩm.
+        💡 <strong>Lưu ý:</strong> Vui lòng giữ nguyên nội dung <strong>{transferMemo}</strong> khi chuyển khoản để máy
+        chủ tự nhận diện đơn hàng và mã SKU sản phẩm.
       </div>
 
       <Button

@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase/client"; // Gọi client Supabase động
 import { useRecentlyViewedStore } from "@/store/recently-viewed";
 import { ProductCard } from "./product-card";
-import { supabase } from "@/lib/supabase/client"; // Gọi client Supabase động
 
 interface RecentlyViewedProps {
   excludeProductId?: string;
@@ -41,27 +41,21 @@ export function RecentlyViewed({ excludeProductId }: RecentlyViewedProps) {
 
           // Lọc sạch sản phẩm rác chỉ giữ lại các ID đang tồn tại thực tế trên database Supabase [1.1]
           // Không cần gọi hàm removeItem từ store để tránh lỗi chênh lệch phiên bản [1.1]
-          const validCachedItems = items.filter((cachedItem) =>
-            activeIds.has(cachedItem.productId),
-          );
+          const validCachedItems = items.filter((cachedItem) => activeIds.has(cachedItem.productId));
 
           // Ánh xạ các sản phẩm hợp lệ thành dạng đối tượng Product hoàn chỉnh để hiển thị mượt mà
           const mapped: any[] = validCachedItems
             .map((cachedItem) => {
-              const dbProduct = activeDbProducts.find(
-                (p) => p.id === cachedItem.productId,
-              );
+              const dbProduct = activeDbProducts.find((p) => p.id === cachedItem.productId);
               if (!dbProduct) return null;
 
               // Đồng bộ hóa cấu trúc ảnh và giá tiền chuẩn xác
               const price = Number(dbProduct.price ?? 0) * 100;
-              const mappedImages = (dbProduct.images || []).map(
-                (url: string, index: number) => ({
-                  id: `${dbProduct.id}-img-${index}`,
-                  url: url,
-                  alt: dbProduct.name,
-                }),
-              );
+              const mappedImages = (dbProduct.images || []).map((url: string, index: number) => ({
+                id: `${dbProduct.id}-img-${index}`,
+                url: url,
+                alt: dbProduct.name,
+              }));
 
               return {
                 id: dbProduct.id,
@@ -71,7 +65,7 @@ export function RecentlyViewed({ excludeProductId }: RecentlyViewedProps) {
                 status: "active",
                 variants: [
                   {
-                    id: dbProduct.id + "-default",
+                    id: `${dbProduct.id}-default`,
                     price: price,
                     compareAtPrice: null,
                     inventory: { quantity: 99, allowBackorder: true },
@@ -96,17 +90,13 @@ export function RecentlyViewed({ excludeProductId }: RecentlyViewedProps) {
   if (!mounted || items.length === 0 || loading) return null;
 
   // Lọc bỏ sản phẩm hiện tại đang xem khỏi danh sách Gợi ý đã xem
-  const filteredProducts = excludeProductId
-    ? validProducts.filter((p) => p.id !== excludeProductId)
-    : validProducts;
+  const filteredProducts = excludeProductId ? validProducts.filter((p) => p.id !== excludeProductId) : validProducts;
 
   if (filteredProducts.length === 0) return null;
 
   return (
     <section className="mt-16 border-t border-[#E1DDD5] pt-12 text-left">
-      <h2 className="text-xl font-bold tracking-tight font-serif text-black mb-6">
-        Sản phẩm đã xem gần đây
-      </h2>
+      <h2 className="text-xl font-bold tracking-tight font-serif text-black mb-6">Sản phẩm đã xem gần đây</h2>
 
       {/* Chỉ hiển thị các thẻ sản phẩm hợp lệ, không chứa rác ảnh chim cánh cụt */}
       <div className="grid grid-cols-2 gap-x-6 gap-y-12 md:grid-cols-3 lg:grid-cols-4 bg-transparent">

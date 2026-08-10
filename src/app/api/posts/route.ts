@@ -8,10 +8,7 @@ export async function POST(req: Request) {
     const { title, excerpt, content, featured_image } = body;
 
     if (!title) {
-      return NextResponse.json(
-        { error: "Hãy nhập tiêu đề để tiếp tục ✨" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Hãy nhập tiêu đề để tiếp tục ✨" }, { status: 400 });
     }
 
     const slug = title

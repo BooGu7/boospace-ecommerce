@@ -1,4 +1,6 @@
-import Link from "next/link"
+import Link from "next/link";
+import { Pagination } from "@/components/products/pagination";
+import { ProductGrid } from "@/components/products/product-grid";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -6,15 +8,13 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import { ProductGrid } from "@/components/products/product-grid"
-import { Pagination } from "@/components/products/pagination"
-import type { Brand, Product, PaginationMeta } from "@/types"
+} from "@/components/ui/breadcrumb";
+import type { Brand, PaginationMeta, Product } from "@/types";
 
 interface BrandViewProps {
-  brand: Brand
-  products: Product[]
-  pagination: PaginationMeta
+  brand: Brand;
+  products: Product[];
+  pagination: PaginationMeta;
 }
 
 export function BrandView({ brand, products, pagination }: BrandViewProps) {
@@ -34,9 +34,7 @@ export function BrandView({ brand, products, pagination }: BrandViewProps) {
 
       <div className="mt-2">
         <h1 className="text-3xl font-bold tracking-tight">{brand.name}</h1>
-        <p className="mt-2 text-muted-foreground">
-          {brand.description}
-        </p>
+        <p className="mt-2 text-muted-foreground">{brand.description}</p>
         <p className="mt-1 text-sm text-muted-foreground">
           {pagination.total} {pagination.total === 1 ? "product" : "products"}
         </p>
@@ -50,5 +48,5 @@ export function BrandView({ brand, products, pagination }: BrandViewProps) {
         <Pagination pagination={pagination} basePath={`/${brand.slug}`} />
       </div>
     </div>
-  )
+  );
 }

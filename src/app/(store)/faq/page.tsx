@@ -1,16 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link"; // ĐÃ SỬA LỖI: Bổ sung import Link từ next/link
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+
+export const revalidate = 86400; // Cache 24 giờ
 
 export const metadata: Metadata = {
   title: "Câu hỏi thường gặp — Boo Space FAQ",
-  description:
-    "Giải đáp các câu hỏi phổ biến về đơn hàng, vận chuyển, đổi trả và thiết kế in 3D custom ✨",
+  description: "Giải đáp các câu hỏi phổ biến về đơn hàng, vận chuyển, đổi trả và thiết kế in 3D custom ✨",
 };
 
 const faqs = [
@@ -58,28 +54,19 @@ export default function FAQPage() {
 
         <Accordion className="mt-8">
           {faqs.map((faq, index) => (
-            <AccordionItem
-              key={index}
-              value={`item-${index}`}
-              className="border-b border-[#E1DDD5]"
-            >
+            <AccordionItem key={index} value={`item-${index}`} className="border-b border-[#E1DDD5]">
               <AccordionTrigger className="text-left font-serif font-bold text-[#1E1C1A] hover:text-[#FF9D00] text-base py-4">
                 {faq.question}
               </AccordionTrigger>
-              <AccordionContent className="text-[#5C564E] text-sm leading-relaxed pb-4">
-                {faq.answer}
-              </AccordionContent>
+              <AccordionContent className="text-[#5C564E] text-sm leading-relaxed pb-4">{faq.answer}</AccordionContent>
             </AccordionItem>
           ))}
         </Accordion>
 
         <div className="mt-12 rounded-3xl border border-[#E1DDD5] bg-[#EAE5D9]/20 p-8 text-center space-y-4">
-          <h2 className="text-lg font-bold font-serif text-black">
-            Vẫn còn thắc mắc?
-          </h2>
+          <h2 className="text-lg font-bold font-serif text-black">Vẫn còn thắc mắc?</h2>
           <p className="text-xs sm:text-sm text-[#5C564E] max-w-md mx-auto leading-relaxed">
-            Không tìm thấy câu trả lời bạn cần? Đội ngũ hỗ trợ của Boo Space
-            luôn sẵn sàng đồng hành cùng bạn ✨
+            Không tìm thấy câu trả lời bạn cần? Đội ngũ hỗ trợ của Boo Space luôn sẵn sàng đồng hành cùng bạn ✨
           </p>
           <Link
             href="/contact"

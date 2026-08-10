@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion, AnimatePresence, Variants } from "framer-motion";
+import { AnimatePresence, motion, type Variants } from "framer-motion";
 import { ShieldCheck, X } from "lucide-react";
+import { useEffect, useState } from "react";
 
 // Cấu hình Hoạt ảnh Spring mượt mà dẹt dọc (Type-safe Variants)
 const bannerVariants: Variants = {
@@ -78,9 +78,8 @@ export function CookieConsent() {
 
           {/* Mô tả mộc mạc dễ chịu */}
           <p className="mt-3.5 text-[11px] sm:text-xs leading-relaxed text-[#5c544d] font-sans">
-            Boo Space sử dụng cookie để ghi nhận giỏ hàng, duy trì danh sách yêu
-            thích và mang lại trải nghiệm duyệt web tối giản, tĩnh lặng nhất của
-            bạn hằng ngày.
+            Boo Space sử dụng cookie để ghi nhận giỏ hàng, duy trì danh sách yêu thích và mang lại trải nghiệm duyệt web
+            tối giản, tĩnh lặng nhất của bạn hằng ngày.
           </p>
 
           {/* Hai phím bấm dẹt song song */}

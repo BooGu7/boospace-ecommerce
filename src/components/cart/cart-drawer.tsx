@@ -1,24 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Loader2, RotateCcw, ShieldCheck, ShoppingBag, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { X, ShoppingBag, Loader2, ShieldCheck, RotateCcw } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useCartStore } from "@/store/cart"; // Đã bổ sung dòng import chuẩn xác
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
-import { Separator } from "@/components/ui/separator";
-import { CartItem } from "./cart-item";
-import { formatPrice } from "@/lib/utils";
-import { PLACEHOLDER_IMAGE } from "@/lib/constants";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
+import { PLACEHOLDER_IMAGE } from "@/lib/constants";
 import { supabase } from "@/lib/supabase/client"; // Gọi client Supabase để lấy dữ liệu thực tế [21]
-import { motion, AnimatePresence } from "framer-motion";
+import { formatPrice } from "@/lib/utils";
+import { useCartStore } from "@/store/cart"; // Đã bổ sung dòng import chuẩn xác
+import { CartItem } from "./cart-item";
 
 interface AddonProduct {
   id: string;
@@ -86,7 +79,7 @@ export function CartDrawer() {
     }
 
     addToCart({
-      variantId: addon.id + "-default",
+      variantId: `${addon.id}-default`,
       productId: addon.id,
       name: addon.name,
       variantName: "Default Variant",
@@ -116,8 +109,7 @@ export function CartDrawer() {
         {/* HEADER GIỎ HÀNG DẸT COZY */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-[#E1DDD5]/60 bg-white/40">
           <SheetTitle className="font-serif text-lg font-bold text-black">
-            Giỏ hàng ({items.reduce((sum, item) => sum + item.quantity, 0)} sản
-            phẩm)
+            Giỏ hàng ({items.reduce((sum, item) => sum + item.quantity, 0)} sản phẩm)
           </SheetTitle>
           <button
             onClick={closeCart}
@@ -143,12 +135,8 @@ export function CartDrawer() {
                 <ShoppingBag className="h-8 w-8 stroke-[1.25]" />
               </div>
               <div className="space-y-1">
-                <h3 className="font-serif text-base font-bold text-black">
-                  Giỏ hàng của bạn đang trống
-                </h3>
-                <p className="text-xs text-[#786F66] font-sans">
-                  Bỏ vài món vào giỏ đi rồi bắt đầu mua sắm thôi 😎🛒
-                </p>
+                <h3 className="font-serif text-base font-bold text-black">Giỏ hàng của bạn đang trống</h3>
+                <p className="text-xs text-[#786F66] font-sans">Bỏ vài món vào giỏ đi rồi bắt đầu mua sắm thôi 😎🛒</p>
               </div>
               <button
                 onClick={closeCart}
@@ -166,9 +154,7 @@ export function CartDrawer() {
           {filteredAddons.length > 0 && (
             <div className="bg-white border border-[#E1DDD5] rounded-3xl p-5 space-y-4 shadow-sm text-left">
               <div className="space-y-0.5 border-b border-[#E1DDD5]/40 pb-2">
-                <h4 className="font-serif text-sm font-bold text-black">
-                  Complete your Setup
-                </h4>
+                <h4 className="font-serif text-sm font-bold text-black">Complete your Setup</h4>
                 <p className="text-[10px] font-mono text-[#786F66] uppercase tracking-wider font-semibold">
                   Hoàn thiện không gian mộc mạc
                 </p>
@@ -190,13 +176,7 @@ export function CartDrawer() {
                         <div className="flex items-center gap-4 flex-1 min-w-0">
                           {/* Thumbnail */}
                           <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-[#E1DDD5] bg-[#EAE5D9]/20 shadow-inner">
-                            <Image
-                              src={imgUrl}
-                              alt={addon.name}
-                              fill
-                              sizes="48px"
-                              className="object-cover"
-                            />
+                            <Image src={imgUrl} alt={addon.name} fill sizes="48px" className="object-cover" />
                           </div>
                           {/* Title & Price */}
                           <div className="text-left space-y-0.5 min-w-0">
@@ -232,12 +212,8 @@ export function CartDrawer() {
           {items.length > 0 && (
             <div className="space-y-4">
               <div className="flex justify-between items-baseline text-left">
-                <span className="font-serif text-sm font-semibold text-[#5c544d]">
-                  Tạm tính:
-                </span>
-                <span className="font-mono text-base font-bold text-black">
-                  {formatPrice(subtotal)}
-                </span>
+                <span className="font-serif text-sm font-semibold text-[#5c544d]">Tạm tính:</span>
+                <span className="font-mono text-base font-bold text-black">{formatPrice(subtotal)}</span>
               </div>
               <p className="text-[10px] font-mono text-[#3ECF8E] uppercase tracking-wider font-bold text-left">
                 ✓ Miễn phí vận chuyển toàn quốc tại Việt Nam
@@ -259,17 +235,13 @@ export function CartDrawer() {
           <div className="pt-2 border-t border-dashed border-[#E1DDD5] grid grid-cols-2 gap-4 text-left text-[10px] text-[#786F66]">
             <div className="space-y-1">
               <span className="font-semibold text-black flex items-center gap-1">
-                <ShieldCheck className="h-3 w-3 text-[#3ECF8E]" /> Secure
-                Payments
+                <ShieldCheck className="h-3 w-3 text-[#3ECF8E]" /> Secure Payments
               </span>
-              <p className="leading-tight scale-90 origin-left text-neutral-400">
-                Thanh toán bảo mật.
-              </p>
+              <p className="leading-tight scale-90 origin-left text-neutral-400">Thanh toán bảo mật.</p>
             </div>
             <div className="space-y-1">
               <span className="font-semibold text-black flex items-center gap-1">
-                <RotateCcw className="h-3 w-3 text-[#3ECF8E]" /> 30-Day
-                Guarantee
+                <RotateCcw className="h-3 w-3 text-[#3ECF8E]" /> 30-Day Guarantee
               </span>
               <p className="leading-tight scale-90 origin-left text-neutral-400">
                 Đổi trả bảo hành dễ dàng trong 30 ngày.

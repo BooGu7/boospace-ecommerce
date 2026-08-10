@@ -1,17 +1,11 @@
 "use client";
 
+import { motion } from "framer-motion";
+import { AlertOctagon, RotateCcw } from "lucide-react";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { AlertOctagon, RotateCcw } from "lucide-react";
-import { motion } from "framer-motion";
 
-export default function Error({
-  error,
-  reset,
-}: {
-  error: Error & { digest?: string };
-  reset: () => void;
-}) {
+export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   useEffect(() => {
     // Ghi nhận chi tiết lỗi hệ thống vào console của máy chủ phục vụ kiểm lỗi
     console.error("GLOBAL_SYSTEM_ERROR:", error);
@@ -36,18 +30,15 @@ export default function Error({
         </div>
 
         <div className="space-y-1.5">
-          <p className="text-[10px] font-mono text-red-500 uppercase tracking-widest font-bold">
-            SYSTEM ERROR 500
-          </p>
+          <p className="text-[10px] font-mono text-red-500 uppercase tracking-widest font-bold">SYSTEM ERROR 500</p>
           <h1 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-black leading-tight">
             Hệ thống gặp trục trặc nhỏ
           </h1>
         </div>
 
         <p className="text-xs sm:text-sm leading-relaxed text-[#786F66] font-sans">
-          Xin lỗi bạn, có lỗi bất ngờ xảy ra trong quá trình xử lý dữ liệu của
-          xưởng. Bạn có thể bấm nút thử lại dưới đây hoặc quay lại sau ít phút
-          nhé ✨
+          Xin lỗi bạn, có lỗi bất ngờ xảy ra trong quá trình xử lý dữ liệu của xưởng. Bạn có thể bấm nút thử lại dưới
+          đây hoặc quay lại sau ít phút nhé ✨
         </p>
 
         {/* Phím bấm Thử lại dẹt lớn màu cam hổ phách */}

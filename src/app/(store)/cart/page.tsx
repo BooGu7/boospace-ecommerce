@@ -1,20 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
+import { Loader2, ShoppingBag } from "lucide-react";
 import Image from "next/image";
-import { Button } from "@/components/ui/button"; // Đã bổ sung dòng import chuẩn xác
-import { ShoppingBag, Loader2 } from "lucide-react";
-import { PageHeader } from "@/components/ui/page-header";
-import { EmptyState } from "@/components/ui/empty-state";
-import { useCartStore } from "@/store/cart";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { CartItem } from "@/components/cart/cart-item";
 import { CartSummary } from "@/components/cart/cart-summary";
+import { Button } from "@/components/ui/button"; // Đã bổ sung dòng import chuẩn xác
+import { EmptyState } from "@/components/ui/empty-state";
+import { PageHeader } from "@/components/ui/page-header";
 import { Separator } from "@/components/ui/separator";
-import { toast } from "sonner";
-import { supabase } from "@/lib/supabase/client"; // Gọi client Supabase để lấy dữ liệu thực tế [21]
 import { PLACEHOLDER_IMAGE } from "@/lib/constants";
+import { supabase } from "@/lib/supabase/client"; // Gọi client Supabase để lấy dữ liệu thực tế [21]
 import { formatPrice } from "@/lib/utils";
+import { useCartStore } from "@/store/cart";
 
 interface AddonProduct {
   id: string;
@@ -28,7 +28,7 @@ export default function CartPage() {
   const items = useCartStore((s) => s.items);
   const getSubtotal = useCartStore((s) => s.getSubtotal);
   const addToCart = useCartStore((s) => s.addItem);
-  const openCart = useCartStore((s) => s.openCart);
+  const _openCart = useCartStore((s) => s.openCart);
 
   const [mounted, setMounted] = useState(false);
 
@@ -82,7 +82,7 @@ export default function CartPage() {
     }
 
     addToCart({
-      variantId: addon.id + "-default",
+      variantId: `${addon.id}-default`,
       productId: addon.id,
       name: addon.name,
       variantName: "Default Variant",
@@ -133,9 +133,7 @@ export default function CartPage() {
           <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
             08 / SHOPPING BAG
           </span>
-          <h1 className="font-serif text-3xl font-bold text-black">
-            Giỏ hàng của bạn
-          </h1>
+          <h1 className="font-serif text-3xl font-bold text-black">Giỏ hàng của bạn</h1>
         </div>
 
         {/* DANH SÁCH GIỎ HÀNG */}
@@ -155,12 +153,8 @@ export default function CartPage() {
           {filteredAddons.length > 0 && (
             <div className="mt-12 bg-white border border-[#E1DDD5] rounded-3xl p-6 space-y-5">
               <div className="space-y-1">
-                <h4 className="font-serif text-base font-bold text-black">
-                  Complete your Setup
-                </h4>
-                <p className="text-xs text-[#786F66] leading-none">
-                  Hoàn thiện không gian bằng các sản phẩm đi kèm.
-                </p>
+                <h4 className="font-serif text-base font-bold text-black">Complete your Setup</h4>
+                <p className="text-xs text-[#786F66] leading-none">Hoàn thiện không gian bằng các sản phẩm đi kèm.</p>
               </div>
 
               {addonsLoading ? (
@@ -179,22 +173,14 @@ export default function CartPage() {
                         <div className="flex items-center gap-4 flex-1 min-w-0">
                           {/* Thumbnail */}
                           <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-[#E1DDD5] bg-[#EAE5D9]/20 shadow-inner">
-                            <Image
-                              src={imgUrl}
-                              alt={addon.name}
-                              fill
-                              sizes="56px"
-                              className="object-cover"
-                            />
+                            <Image src={imgUrl} alt={addon.name} fill sizes="56px" className="object-cover" />
                           </div>
                           {/* Title & Price */}
                           <div className="text-left space-y-0.5">
                             <h5 className="font-serif text-sm font-bold text-black truncate max-w-[200px] sm:max-w-none">
                               {addon.name}
                             </h5>
-                            <p className="font-mono text-xs text-[#786F66] font-semibold">
-                              {formatPrice(addon.price)}
-                            </p>
+                            <p className="font-mono text-xs text-[#786F66] font-semibold">{formatPrice(addon.price)}</p>
                           </div>
                         </div>
 

@@ -1,4 +1,4 @@
-import type { Cart, CheckoutProvider, CheckoutSession, WebhookResult, Address } from "@/types"
+import type { Address, Cart, CheckoutProvider, CheckoutSession, WebhookResult } from "@/types";
 
 /**
  * Demo checkout provider that works without any external services.
@@ -6,12 +6,9 @@ import type { Cart, CheckoutProvider, CheckoutSession, WebhookResult, Address } 
  * the same CheckoutProvider interface.
  */
 export const demoCheckoutProvider: CheckoutProvider = {
-  async createSession(
-    cart: Cart,
-    customer?: { email: string; shippingAddress?: Address }
-  ): Promise<CheckoutSession> {
+  async createSession(cart: Cart, customer?: { email: string; shippingAddress?: Address }): Promise<CheckoutSession> {
     // Simulate creating a checkout session
-    const sessionId = `demo_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`
+    const sessionId = `demo_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
 
     return {
       id: sessionId,
@@ -22,7 +19,7 @@ export const demoCheckoutProvider: CheckoutProvider = {
         itemCount: String(cart.itemCount),
         total: String(cart.total),
       },
-    }
+    };
   },
 
   async getSession(sessionId: string): Promise<CheckoutSession> {
@@ -32,17 +29,14 @@ export const demoCheckoutProvider: CheckoutProvider = {
       url: `/checkout/success?session_id=${sessionId}`,
       status: "complete",
       orderId: `ORD-${sessionId.slice(-6).toUpperCase()}`,
-    }
+    };
   },
 
-  async handleWebhook(
-    _payload: unknown,
-    _signature: string
-  ): Promise<WebhookResult> {
+  async handleWebhook(_payload: unknown, _signature: string): Promise<WebhookResult> {
     // Demo webhook always succeeds
     return {
       success: true,
       orderId: `ORD-${Date.now().toString(36).toUpperCase()}`,
-    }
+    };
   },
-}
+};

@@ -1,28 +1,23 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { AnimatePresence, motion, type Variants } from "framer-motion";
+import { ArrowRight, ExternalLink, Loader2, Mail } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { AuthCardLayout } from "@/components/auth/auth-card-layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AuthCardLayout } from "@/components/auth/auth-card-layout";
 import { Separator } from "@/components/ui/separator";
-import { toast } from "sonner";
-import { motion, AnimatePresence, Variants } from "framer-motion";
-import { Loader2, Mail, ExternalLink, ArrowRight } from "lucide-react";
-import { registerUser } from "./action";
 import { supabase } from "@/lib/supabase/client";
 import { useAuthStore } from "@/store/auth";
+import { registerUser } from "./action";
 
 function IconGoogle({ className }: { className?: string }) {
   return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden="true"
-    >
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <path
         d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
         fill="#4285F4"
@@ -133,9 +128,7 @@ export default function RegisterPage() {
           ? "Kích hoạt không gian cá nhân của bạn"
           : "Tạo tài khoản để may đo và tùy chỉnh Workspace riêng của bạn"
       }
-      footerText={
-        isSubmitted ? "Chưa nhận được Email?" : "Bạn đã có tài khoản?"
-      }
+      footerText={isSubmitted ? "Chưa nhận được Email?" : "Bạn đã có tài khoản?"}
       footerLinkText={isSubmitted ? "Thử gửi lại yêu cầu" : "Đăng nhập ngay"}
       footerLinkHref={isSubmitted ? "/auth/forgot-password" : "/auth/login"}
     >
@@ -165,10 +158,7 @@ export default function RegisterPage() {
               </Button>
             </motion.div>
 
-            <motion.div
-              variants={itemVariants}
-              className="flex items-center gap-3 py-1"
-            >
+            <motion.div variants={itemVariants} className="flex items-center gap-3 py-1">
               <Separator className="flex-1 bg-[#E1DDD5]" />
               <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-wider font-semibold">
                 Hoặc điền thủ công
@@ -179,9 +169,7 @@ export default function RegisterPage() {
             <form onSubmit={handleSubmit} className="space-y-4 text-left">
               <div className="grid grid-cols-2 gap-4">
                 <motion.div variants={itemVariants} className="space-y-1.5">
-                  <Label className="text-[11px] font-mono font-bold text-[#5c544d] uppercase tracking-wider">
-                    Họ
-                  </Label>
+                  <Label className="text-[11px] font-mono font-bold text-[#5c544d] uppercase tracking-wider">Họ</Label>
                   <Input
                     name="lastName"
                     placeholder="Nguyễn"
@@ -192,9 +180,7 @@ export default function RegisterPage() {
                   />
                 </motion.div>
                 <motion.div variants={itemVariants} className="space-y-1.5">
-                  <Label className="text-[11px] font-mono font-bold text-[#5c544d] uppercase tracking-wider">
-                    Tên
-                  </Label>
+                  <Label className="text-[11px] font-mono font-bold text-[#5c544d] uppercase tracking-wider">Tên</Label>
                   <Input
                     name="firstName"
                     placeholder="An"
@@ -295,12 +281,9 @@ export default function RegisterPage() {
 
             <p className="text-xs sm:text-sm leading-relaxed text-[#5c544d] bg-[#fbf9f4] border border-[#e8e2d2] rounded-2xl p-5 italic text-left">
               &quot;Một liên kết kích hoạt tài khoản vừa được gửi tới hòm thư{" "}
-              <strong className="text-black not-italic font-bold">
-                {form.email}
-              </strong>
-              . Bạn hãy mở ứng dụng Gmail, kiểm tra Hộp thư đến (hoặc hòm thư
-              Rác - Spam) và nhấp vào liên kết để chính thức kích hoạt tài khoản
-              trước khi đăng nhập nhé ✨&quot;
+              <strong className="text-black not-italic font-bold">{form.email}</strong>. Bạn hãy mở ứng dụng Gmail, kiểm
+              tra Hộp thư đến (hoặc hòm thư Rác - Spam) và nhấp vào liên kết để chính thức kích hoạt tài khoản trước khi
+              đăng nhập nhé ✨&quot;
             </p>
 
             <div className="space-y-3 pt-2">
@@ -308,13 +291,8 @@ export default function RegisterPage() {
                 asChild
                 className="w-full bg-[#FF9D00] hover:bg-[#E68A00] text-black font-mono uppercase text-xs font-bold tracking-wider py-4 rounded-xl flex items-center justify-center gap-2 cursor-pointer shadow-sm"
               >
-                <a
-                  href="https://mail.google.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Mở ứng dụng Gmail{" "}
-                  <ExternalLink className="h-3.5 w-3.5 text-black" />
+                <a href="https://mail.google.com" target="_blank" rel="noopener noreferrer">
+                  Mở ứng dụng Gmail <ExternalLink className="h-3.5 w-3.5 text-black" />
                 </a>
               </Button>
 

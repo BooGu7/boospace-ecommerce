@@ -1,25 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
+import { motion } from "framer-motion";
+import { Award, Cpu, Heart, Layers, ShoppingBag } from "lucide-react";
 import Image from "next/image";
-import {
-  ShoppingBag,
-  Heart,
-  Layers,
-  ShieldCheck,
-  Cpu,
-  Award,
-} from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { useCartStore } from "@/store/cart";
-import { useWishlistStore } from "@/store/wishlist";
-import { useRecentlyViewedStore } from "@/store/recently-viewed";
+import { ProductGallery } from "@/components/products/product-gallery";
+import { ProductGrid } from "@/components/products/product-grid";
+import { QuantitySelector } from "@/components/products/quantity-selector";
 import { RecentlyViewed } from "@/components/products/recently-viewed";
+import { ReviewsSection } from "@/components/products/reviews-section";
 import { StarRating } from "@/components/products/star-rating";
 import { TrustSignals } from "@/components/products/trust-signals";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import { VariantSelector } from "@/components/products/variant-selector";
 import { Badge } from "@/components/ui/badge";
 import {
   Breadcrumb,
@@ -29,17 +23,15 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { ProductGallery } from "@/components/products/product-gallery";
-import { VariantSelector } from "@/components/products/variant-selector";
-import { QuantitySelector } from "@/components/products/quantity-selector";
-import { ProductGrid } from "@/components/products/product-grid";
-import { formatPrice } from "@/lib/utils";
-import { breadcrumbJsonLd } from "@/lib/structured-data";
+import { Button } from "@/components/ui/button";
 import { PLACEHOLDER_IMAGE } from "@/lib/constants";
-import type { Product, Brand, Category } from "@/types";
-import { ReviewsSection } from "@/components/products/reviews-section";
+import { breadcrumbJsonLd } from "@/lib/structured-data";
 import { supabase } from "@/lib/supabase/client";
-import { motion } from "framer-motion"; // Đã bổ sung import motion để kích hoạt hiệu ứng
+import { formatPrice } from "@/lib/utils";
+import { useCartStore } from "@/store/cart";
+import { useRecentlyViewedStore } from "@/store/recently-viewed";
+import { useWishlistStore } from "@/store/wishlist";
+import type { Brand, Category, Product } from "@/types";
 
 interface ProductDetailViewProps {
   product: Product;
@@ -109,29 +101,39 @@ export function ProductDetailView({
       imageUrl: product.images[0]?.url ?? "",
       imageAlt: product.images[0]?.alt ?? product.name,
     });
-  }, [product.id]);
+  }, [
+    product.id,
+    product.slug,
+    product.images,
+    product.variants,
+    product.name,
+    addRecentlyViewed,
+  ]);
 
   const selectedVariant = product.variants.find(
     (v) => v.id === selectedVariantId,
   );
   if (!selectedVariant) return null;
 
-  const isOnSale =
+  const isOnSale = Boolean(
     selectedVariant.compareAtPrice &&
-    selectedVariant.compareAtPrice > selectedVariant.price;
+    selectedVariant.compareAtPrice > selectedVariant.price,
+  );
   const inStock =
     selectedVariant.inventory.quantity > 0 ||
     selectedVariant.inventory.allowBackorder;
 
   function handleAddToCart() {
+    if (!selectedVariant) return;
+
     addToCart({
-      variantId: selectedVariant!.id,
+      variantId: selectedVariant.id,
       productId: product.id,
       name: product.name,
-      variantName: selectedVariant!.name,
+      variantName: selectedVariant.name,
       image: product.images[0] ?? { url: "", alt: product.name },
       slug: product.slug,
-      price: selectedVariant!.price,
+      price: selectedVariant.price,
       quantity,
     });
     openCart();
@@ -157,6 +159,8 @@ export function ProductDetailView({
   }
 
   function handleToggleWishlist() {
+    if (!selectedVariant) return;
+
     if (isWishlisted) {
       removeFromWishlist(product.id);
       toast("Đã xóa khỏi danh sách yêu thích");
@@ -165,7 +169,7 @@ export function ProductDetailView({
         productId: product.id,
         name: product.name,
         slug: product.slug,
-        price: selectedVariant!.price,
+        price: selectedVariant.price,
         image: product.images[0] ?? { url: "", alt: product.name },
       });
       toast.success("Đã lưu vào danh sách yêu thích ✨");
@@ -201,6 +205,7 @@ export function ProductDetailView({
     },
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const attrs = (product as any).attributes || {};
 
   return (
@@ -279,28 +284,23 @@ export function ProductDetailView({
               </Link>
             )}
 
-            {/* ============================================================================
-               NÂNG CẤP HOẠT ẢNH & ĐỘ MẢNH PHÔNG CHỮ GIÁ TIỀN (PREMIUM TACTILE INTERACTION) [1]
-               ============================================================================ */}
+            {/* NÂNG CẤP HOẠT ẢNH & ĐỘ MẢNH PHÔNG CHỮ GIÁ TIỀN */}
             <motion.div
-              whileHover={{ scale: 1.02, x: 4 }} // Nhấp nổi tịnh tiến nhẹ khi di chuột
+              whileHover={{ scale: 1.02, x: 4 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
               className="mt-4 flex items-baseline gap-3 w-fit cursor-pointer group select-none"
             >
-              {/* Giá thực tế (Chuyển sang font-light serif mảnh dẻ thanh lịch) */}
               <span className="text-3xl font-serif font-light tracking-tight text-black group-hover:text-[#FF9D00] transition-colors duration-300">
                 {formatPrice(selectedVariant.price, selectedVariant.currency)}
               </span>
 
-              {/* Giá cũ gạch ngang mờ */}
-              {isOnSale && (
+              {isOnSale && selectedVariant.compareAtPrice && (
                 <span className="text-xs sm:text-sm font-mono text-[#786F66] line-through opacity-55">
-                  {formatPrice(selectedVariant.compareAtPrice!)}
+                  {formatPrice(selectedVariant.compareAtPrice)}
                 </span>
               )}
 
-              {/* Huy hiệu tỉ lệ % giảm giá mộc */}
-              {isOnSale && (
+              {isOnSale && selectedVariant.compareAtPrice && (
                 <Badge
                   variant="secondary"
                   className="bg-[#EAE5D9]/40 border border-[#DCD6CC] text-[#786F66] text-[10px] font-mono uppercase px-2 py-0.5 rounded-md"
@@ -308,7 +308,7 @@ export function ProductDetailView({
                   -
                   {Math.round(
                     (1 -
-                      selectedVariant.price / selectedVariant.compareAtPrice!) *
+                      selectedVariant.price / selectedVariant.compareAtPrice) *
                       100,
                   )}
                   %
@@ -371,7 +371,7 @@ export function ProductDetailView({
               </p>
             )}
 
-            {/* BẢNG SẢN PHẨM MUA KÈM ƯU ĐÃI (COMPLETE YOUR SETUP) */}
+            {/* BẢNG SẢN PHẨM MUA KÈM ƯU ĐÃI */}
             {relatedProducts.length > 0 && (
               <div
                 style={{
@@ -400,9 +400,10 @@ export function ProductDetailView({
                         ? item.images[0]
                         : item.images?.[0]?.url || PLACEHOLDER_IMAGE;
                     const addonVariant = item.variants?.[0];
-                    const isAddonSale =
+                    const isAddonSale = Boolean(
                       addonVariant?.compareAtPrice &&
-                      addonVariant.compareAtPrice > addonVariant.price;
+                      addonVariant.compareAtPrice > addonVariant.price,
+                    );
 
                     return (
                       <div
@@ -429,9 +430,9 @@ export function ProductDetailView({
                                 {addonVariant &&
                                   formatPrice(addonVariant.price)}
                               </span>
-                              {isAddonSale && (
+                              {isAddonSale && addonVariant?.compareAtPrice && (
                                 <span className="text-[#786F66] line-through opacity-60">
-                                  {formatPrice(addonVariant.compareAtPrice!)}
+                                  {formatPrice(addonVariant.compareAtPrice)}
                                 </span>
                               )}
                             </div>
@@ -439,6 +440,7 @@ export function ProductDetailView({
                         </div>
 
                         <button
+                          type="button"
                           onClick={() => handleAddAddonToCart(item)}
                           className="rounded-lg bg-black hover:bg-[#33302C] text-[9px] font-mono font-bold tracking-widest text-white px-3.5 py-2.5 uppercase shadow-sm shrink-0 cursor-pointer transition-colors"
                         >
@@ -455,9 +457,7 @@ export function ProductDetailView({
           </div>
         </div>
 
-        {/* ============================================================================
-           BỘ PHÂN GIẢI THÔNG SỐ MA TRẬN ĐỘNG (MAKERWORLD-STYLE DYNAMIC RENDERING) [21]
-           ============================================================================ */}
+        {/* BỘ PHÂN GIẢI THÔNG SỐ MA TRẬN ĐỘNG */}
         <div className="py-20 border-b border-[#E1DDD5]/60 text-left">
           <div className="bg-black text-white p-4 rounded-full flex items-center max-w-full justify-between select-none mb-12 shadow-sm">
             <span className="font-serif text-lg font-bold pl-4">
@@ -468,7 +468,6 @@ export function ProductDetailView({
             </span>
           </div>
 
-          {/* 1. Bento Cards hiển thị tính năng độc bản */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
             <div className="p-8 bg-[#FAF5F2] border border-[#E1DDD5] rounded-3xl flex flex-col justify-between min-h-[180px]">
               <Layers className="size-6 text-[#FF9D00]" />
@@ -510,9 +509,7 @@ export function ProductDetailView({
             </div>
           </div>
 
-          {/* 2. Dotted Spec Table - NẠP DỮ LIỆU ĐỘNG TỪ SUPABASE */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 font-sans text-sm">
-            {/* Cột 1 */}
             <div className="space-y-5">
               <h4 className="font-serif text-base font-bold text-black border-b border-[#E1DDD5]/60 pb-2">
                 Cơ lý tính &amp; Vật liệu
@@ -539,7 +536,6 @@ export function ProductDetailView({
               </div>
             </div>
 
-            {/* Cột 2 */}
             <div className="space-y-5">
               <h4 className="font-serif text-base font-bold text-black border-b border-[#E1DDD5]/60 pb-2">
                 Thông số in 3D
@@ -566,7 +562,6 @@ export function ProductDetailView({
               </div>
             </div>
 
-            {/* Cột 3 */}
             <div className="space-y-5">
               <h4 className="font-serif text-base font-bold text-black border-b border-[#E1DDD5]/60 pb-2">
                 Đặc tính phần cứng
@@ -595,7 +590,6 @@ export function ProductDetailView({
           </div>
         </div>
 
-        {/* Full HTML description (Nếu có) */}
         {product.body && (
           <section className="py-12">
             <div className="mx-auto max-w-3xl">
@@ -609,7 +603,6 @@ export function ProductDetailView({
 
         <ReviewsSection productId={product.id} />
 
-        {/* Related products */}
         {relatedProducts.length > 0 && (
           <section className="mt-16 border-t border-[#E1DDD5] pt-12 text-left">
             <h2 className="text-xl font-bold tracking-tight font-serif text-black">
@@ -621,7 +614,6 @@ export function ProductDetailView({
           </section>
         )}
 
-        {/* Recently viewed */}
         <RecentlyViewed excludeProductId={product.id} />
       </div>
     </div>

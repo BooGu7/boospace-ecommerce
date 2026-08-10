@@ -1,22 +1,18 @@
 "use client";
 
+import { motion, type Variants } from "framer-motion";
+import { Loader2, Lock, Settings } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PageHeader } from "@/components/ui/page-header";
 import { Separator } from "@/components/ui/separator";
-
-import { supabase } from "@/lib/supabase/client";
 import { useAuthGuard } from "@/hooks/use-auth-guard";
+import { supabase } from "@/lib/supabase/client";
 import { useAuthStore } from "@/store/auth";
 
-import { toast } from "sonner";
-import { motion, Variants } from "framer-motion";
-import { Loader2, Settings } from "lucide-react";
-
-// Cấu hình Hoạt ảnh Spring dẹt mượt mà (Type-safe Variants)
 const pageEntranceVariants: Variants = {
   hidden: { opacity: 0, y: 16, scale: 0.99 },
   visible: {
@@ -31,7 +27,7 @@ export default function SettingsPage() {
   const { user, isReady } = useAuthGuard();
   const updateProfile = useAuthStore((s) => s.updateProfile);
 
-  // GIẢI PHÁP ĐỒNG BỘ TUYỆT ĐỐI: Ép kiểu u thành any để vượt qua tất cả kiểm tra nghiêm ngặt của TypeScript compiler
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const u = user as any;
 
   const [firstName, setFirstName] = useState("");
@@ -47,7 +43,7 @@ export default function SettingsPage() {
     setFirstName(u.firstName || "");
     setLastName(u.lastName || "");
     setEmail(u.email || "");
-    setPhone(u.phone || ""); // Hoàn toàn an toàn kiểu dữ liệu, không báo lỗi nữa!
+    setPhone(u.phone || "");
   }, [u]);
 
   if (!isReady) {
@@ -68,34 +64,10 @@ export default function SettingsPage() {
       const normalizedEmail = email.trim().toLowerCase();
       const normalizedFirstName = firstName.trim();
       const normalizedLastName = lastName.trim();
-      const normalizedPhone = phone.trim(); // Định nghĩa biến chuẩn xác tại trang thiết lập
+      const normalizedPhone = phone.trim();
 
-      // Sử dụng u.id đã được ép kiểu an toàn
-      const { data: existingUser, error: emailCheckError } = await supabase
-        .from("users")
-        .select("id")
-        .eq("email", normalizedEmail)
-        .neq("id", u.id)
-        .maybeSingle();
-
-      if (emailCheckError) {
-        throw emailCheckError;
-      }
-
-      if (existingUser) {
-        toast.error("Email đã được sử dụng");
-        return;
-      }
-
-      const { data: dbUser, error: loadError } = await supabase
-        .from("users")
-        .select("data")
-        .eq("id", u.id)
-        .single();
-
-      if (loadError) {
-        throw loadError;
-      }
+      // Nạp dữ liệu hiện tại (Dùng maybeSingle() tránh lỗi PGRST116 khi không tìm thấy dòng nào)
+      const { data: dbUser } = await supabase.from("users").select("data").eq("id", u.id).maybeSingle();
 
       const updatedData = {
         ...(dbUser?.data ?? {}),
@@ -106,20 +78,18 @@ export default function SettingsPage() {
         updatedAt: new Date().toISOString(),
       };
 
-      const { error: updateError } = await supabase
-        .from("users")
-        .update({
-          email: normalizedEmail,
-          data: updatedData,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", u.id);
+      // Dùng upsert để tạo mới hoặc cập nhật bản ghi trong bảng public.users
+      const { error: updateError } = await supabase.from("users").upsert({
+        id: u.id,
+        email: normalizedEmail,
+        data: updatedData,
+        updated_at: new Date().toISOString(),
+      });
 
       if (updateError) {
         throw updateError;
       }
 
-      // Đồng bộ thông tin mới về Auth Store
       updateProfile({
         ...u,
         firstName: normalizedFirstName,
@@ -131,9 +101,7 @@ export default function SettingsPage() {
       toast.success("Cập nhật hồ sơ thành công ✨");
     } catch (error) {
       console.error(error);
-      toast.error(
-        error instanceof Error ? error.message : "Không thể cập nhật hồ sơ",
-      );
+      toast.error(error instanceof Error ? error.message : "Không thể cập nhật hồ sơ");
     } finally {
       setSavingProfile(false);
     }
@@ -142,7 +110,6 @@ export default function SettingsPage() {
   return (
     <div className="bg-[#FCFAF2] text-[#1E1C1A] min-h-screen antialiased selection:bg-[#EAE5D9]">
       <div className="mx-auto max-w-[1440px] px-4 py-16 sm:px-6 lg:px-8 border-x border-[#E1DDD5] bg-[#FCFAF2]/50">
-        {/* HEADER SECTION PHONG CÁCH TẠP CHÍ DẸT */}
         <div className="border-b border-[#E1DDD5] pb-8 mb-12">
           <div className="space-y-4 text-left">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#EAE5D9] text-[#786F66] text-[10px] font-mono font-bold uppercase tracking-widest border border-[#DCD6CC] w-fit">
@@ -158,13 +125,7 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* CONTAINER FORM TÍCH HỢP HOẠT ẢNH SPRING CHUẨN ĐẸP */}
-        <motion.div
-          variants={pageEntranceVariants}
-          initial="hidden"
-          animate="visible"
-          className="max-w-3xl text-left"
-        >
+        <motion.div variants={pageEntranceVariants} initial="hidden" animate="visible" className="max-w-3xl text-left">
           <Card className="rounded-3xl border border-[#DCD6CC] bg-white p-8 shadow-xs">
             <CardHeader className="p-0 pb-4 border-b border-[#E1DDD5]/40 mb-6">
               <CardTitle className="font-serif text-xl font-bold text-black flex items-center gap-2.5">
@@ -175,7 +136,6 @@ export default function SettingsPage() {
 
             <CardContent className="p-0">
               <form onSubmit={handleSave} className="space-y-6">
-                {/* 1. Họ và Tên song song */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <Label
@@ -189,7 +149,7 @@ export default function SettingsPage() {
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                       placeholder="Nguyễn"
-                      className="rounded-xl border-[#CFCABF] focus:border-[#FF9D00] text-sm text-black font-sans font-medium focus-visible:ring-1 focus-visible:ring-[#FF9D00] bg-white px-4 py-2.5"
+                      className="rounded-xl border-[#CFCABF] focus:border-[#FF9D00] text-sm text-black font-sans font-medium bg-white px-4 py-2.5"
                     />
                   </div>
 
@@ -205,27 +165,27 @@ export default function SettingsPage() {
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
                       placeholder="Văn An"
-                      className="rounded-xl border-[#CFCABF] focus:border-[#FF9D00] text-sm text-black font-sans font-medium focus-visible:ring-1 focus-visible:ring-[#FF9D00] bg-white px-4 py-2.5"
+                      className="rounded-xl border-[#CFCABF] focus:border-[#FF9D00] text-sm text-black font-sans font-medium bg-white px-4 py-2.5"
                     />
                   </div>
                 </div>
 
-                {/* 2. Email và Số điện thoại song song */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Ô Email đã được KHÓA CHỈNH SỬA */}
                   <div className="space-y-1.5">
                     <Label
                       htmlFor="email"
-                      className="text-[11px] font-mono font-bold text-[#5c544d] uppercase tracking-wider"
+                      className="text-[11px] font-mono font-bold text-[#5c544d] uppercase tracking-wider flex items-center gap-1.5"
                     >
-                      Địa chỉ Email
+                      Địa chỉ Email <Lock className="size-3 text-[#786F66]" />
                     </Label>
                     <Input
                       id="email"
                       type="email"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="you@example.com"
-                      className="rounded-xl border-[#CFCABF] focus:border-[#FF9D00] text-sm text-black font-sans font-medium focus-visible:ring-1 focus-visible:ring-[#FF9D00] bg-white px-4 py-2.5"
+                      disabled
+                      readOnly
+                      className="rounded-xl border-[#E1DDD5] bg-[#EAE5D9]/30 text-sm text-[#786F66] font-sans font-medium px-4 py-2.5 cursor-not-allowed select-none"
                     />
                   </div>
 
@@ -242,12 +202,11 @@ export default function SettingsPage() {
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder="09xx xxx xxx"
-                      className="rounded-xl border-[#CFCABF] focus:border-[#FF9D00] text-sm text-black font-sans font-medium focus-visible:ring-1 focus-visible:ring-[#FF9D00] bg-white px-4 py-2.5"
+                      className="rounded-xl border-[#CFCABF] focus:border-[#FF9D00] text-sm text-black font-sans font-medium bg-white px-4 py-2.5"
                     />
                   </div>
                 </div>
 
-                {/* Nút lưu thay đổi dẹt lớn màu cam hổ phách */}
                 <div className="pt-2">
                   <Button
                     type="submit"

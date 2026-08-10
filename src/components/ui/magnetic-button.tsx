@@ -1,8 +1,8 @@
 "use client";
 
-import * as React from "react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
 import { Loader2 } from "lucide-react";
+import * as React from "react";
 
 interface MagneticButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
@@ -11,12 +11,7 @@ interface MagneticButtonProps extends React.ButtonHTMLAttributes<HTMLButtonEleme
 
 const MotionButton = motion.button as any;
 
-export function MagneticButton({
-  children,
-  loading = false,
-  className = "",
-  ...props
-}: MagneticButtonProps) {
+export function MagneticButton({ children, loading = false, className = "", ...props }: MagneticButtonProps) {
   const ref = React.useRef<HTMLButtonElement>(null);
 
   const x = useMotionValue(0);
@@ -56,9 +51,7 @@ export function MagneticButton({
       className={`relative inline-flex items-center justify-center cursor-pointer transition-colors duration-200 select-none ${className}`}
       {...props}
     >
-      <span
-        className={`flex items-center justify-center gap-2 ${loading ? "opacity-0" : "opacity-100"}`}
-      >
+      <span className={`flex items-center justify-center gap-2 ${loading ? "opacity-0" : "opacity-100"}`}>
         {children}
       </span>
       {loading && (

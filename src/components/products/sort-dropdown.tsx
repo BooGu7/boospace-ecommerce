@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
 import { ChevronDown } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const sortOptions = [
   { value: "newest", label: "Mới nhất" },

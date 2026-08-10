@@ -1,8 +1,8 @@
 "use client";
 
+import { motion } from "framer-motion";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
 
 export default function NotFound() {
   return (
@@ -28,9 +28,8 @@ export default function NotFound() {
 
         {/* Mô tả Việt hóa mộc mạc */}
         <p className="text-sm text-[#786F66] leading-relaxed font-sans max-w-md mx-auto">
-          Trang bạn đang tìm kiếm có vẻ đã “đi lạc” hoặc đã được chuyển dịch
-          khỏi xưởng chế tác của Boo Space. Bạn thử quay lại trang chủ hoặc tiếp
-          tục khám phá những sản phẩm độc bản khác nhé ✨
+          Trang bạn đang tìm kiếm có vẻ đã “đi lạc” hoặc đã được chuyển dịch khỏi xưởng chế tác của Boo Space. Bạn thử
+          quay lại trang chủ hoặc tiếp tục khám phá những sản phẩm độc bản khác nhé ✨
         </p>
 
         {/* Nút điều hướng dẹt bo tròn dứt khoát */}

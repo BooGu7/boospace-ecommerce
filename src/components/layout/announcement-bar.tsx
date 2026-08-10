@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { siteConfig } from "@/lib/config";
-import { motion, AnimatePresence } from "framer-motion";
 
 export function AnnouncementBar() {
   const [dismissed, setDismissed] = useState(false);
@@ -49,15 +49,9 @@ export function AnnouncementBar() {
               }}
               className="flex shrink-0 items-center justify-around min-w-full gap-16 pr-16"
             >
-              <span className="font-mono text-[10px] sm:text-xs uppercase tracking-widest font-bold">
-                {text} •
-              </span>
-              <span className="font-mono text-[10px] sm:text-xs uppercase tracking-widest font-bold">
-                {text} •
-              </span>
-              <span className="font-mono text-[10px] sm:text-xs uppercase tracking-widest font-bold">
-                {text} •
-              </span>
+              <span className="font-mono text-[10px] sm:text-xs uppercase tracking-widest font-bold">{text} •</span>
+              <span className="font-mono text-[10px] sm:text-xs uppercase tracking-widest font-bold">{text} •</span>
+              <span className="font-mono text-[10px] sm:text-xs uppercase tracking-widest font-bold">{text} •</span>
             </motion.div>
 
             {/* Luồng chạy số 2 (Đảm bảo lặp liền mạch, không có khoảng trắng) */}
@@ -71,15 +65,9 @@ export function AnnouncementBar() {
               className="flex shrink-0 items-center justify-around min-w-full gap-16 pr-16"
               aria-hidden="true"
             >
-              <span className="font-mono text-[10px] sm:text-xs uppercase tracking-widest font-bold">
-                {text} •
-              </span>
-              <span className="font-mono text-[10px] sm:text-xs uppercase tracking-widest font-bold">
-                {text} •
-              </span>
-              <span className="font-mono text-[10px] sm:text-xs uppercase tracking-widest font-bold">
-                {text} •
-              </span>
+              <span className="font-mono text-[10px] sm:text-xs uppercase tracking-widest font-bold">{text} •</span>
+              <span className="font-mono text-[10px] sm:text-xs uppercase tracking-widest font-bold">{text} •</span>
+              <span className="font-mono text-[10px] sm:text-xs uppercase tracking-widest font-bold">{text} •</span>
             </motion.div>
           </div>
 

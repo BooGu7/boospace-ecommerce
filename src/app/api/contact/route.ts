@@ -18,9 +18,7 @@ export async function POST(req: Request) {
     const supabase = createSupabaseServerClient();
 
     // 1. Lưu bản ghi liên hệ vào table contact_messages của Supabase
-    const { error: dbError } = await supabase
-      .from("contact_messages")
-      .insert([{ name, email, subject, message }]);
+    const { error: dbError } = await supabase.from("contact_messages").insert([{ name, email, subject, message }]);
 
     if (dbError) {
       throw dbError;
@@ -58,14 +56,10 @@ export async function POST(req: Request) {
       });
 
       if (!emailResponse.ok) {
-        console.error(
-          "[EMAIL_SEND_FAILED] Không thể chuyển tiếp email qua Resend",
-        );
+        console.error("[EMAIL_SEND_FAILED] Không thể chuyển tiếp email qua Resend");
       }
     } else {
-      console.warn(
-        "[RESEND_KEY_MISSING] Thiếu RESEND_API_KEY trong .env.local. Hệ thống chỉ lưu database.",
-      );
+      console.warn("[RESEND_KEY_MISSING] Thiếu RESEND_API_KEY trong .env.local. Hệ thống chỉ lưu database.");
     }
 
     return NextResponse.json({
@@ -74,9 +68,6 @@ export async function POST(req: Request) {
     });
   } catch (error: any) {
     console.error("[CONTACT_API_ERROR]", error);
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 },
-    );
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }

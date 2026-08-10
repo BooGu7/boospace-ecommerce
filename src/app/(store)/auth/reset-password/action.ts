@@ -3,16 +3,9 @@
 import { createClient } from "@supabase/supabase-js";
 import bcrypt from "bcryptjs";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-);
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
-export async function resetPassword(
-  token: string,
-  password: string,
-  confirmPassword: string,
-) {
+export async function resetPassword(token: string, password: string, confirmPassword: string) {
   if (!token) {
     throw new Error("Token không hợp lệ");
   }
@@ -40,10 +33,7 @@ export async function resetPassword(
   }
 
   const userData = user.data;
-  if (
-    !userData?.resetTokenExpiresAt ||
-    new Date(userData.resetTokenExpiresAt).getTime() < Date.now()
-  ) {
+  if (!userData?.resetTokenExpiresAt || new Date(userData.resetTokenExpiresAt).getTime() < Date.now()) {
     throw new Error("Token đã hết hạn");
   }
 

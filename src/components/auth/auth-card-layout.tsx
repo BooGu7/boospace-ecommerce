@@ -1,14 +1,14 @@
-import Link from "next/link"
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
+import Link from "next/link";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 interface AuthCardLayoutProps {
-  title: string
-  subtitle: string
-  footerText: string
-  footerLinkText: string
-  footerLinkHref: string
-  children: React.ReactNode
+  title: string;
+  subtitle: string;
+  footerText: string;
+  footerLinkText: string;
+  footerLinkHref: string;
+  children: React.ReactNode;
 }
 
 export function AuthCardLayout({
@@ -31,15 +31,12 @@ export function AuthCardLayout({
         <CardFooter className="justify-center pt-6">
           <p className="text-sm text-muted-foreground">
             {footerText}{" "}
-            <Link
-              href={footerLinkHref}
-              className="font-medium text-foreground underline"
-            >
+            <Link href={footerLinkHref} className="font-medium text-foreground underline">
               {footerLinkText}
             </Link>
           </p>
         </CardFooter>
       </Card>
     </div>
-  )
+  );
 }

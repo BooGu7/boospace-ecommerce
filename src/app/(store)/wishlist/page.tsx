@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { motion, type Variants } from "framer-motion";
 import { Heart } from "lucide-react";
-import { EmptyState } from "@/components/ui/empty-state";
+import { useEffect, useState } from "react";
 import { ProductCard } from "@/components/products/product-card";
+import { EmptyState } from "@/components/ui/empty-state";
 import { useWishlistStore } from "@/store/wishlist";
 import type { Product } from "@/types";
-import { motion, Variants } from "framer-motion";
 
 // Cấu hình Hoạt ảnh xuất hiện tuần tự (Type-safe Variants)
 const containerVariants: Variants = {
@@ -35,9 +35,7 @@ export default function WishlistPage() {
     return (
       <div className="bg-[#FCFAF2] text-[#1E1C1A] min-h-screen antialiased">
         <div className="mx-auto max-w-[1440px] px-4 py-16 sm:px-6 lg:px-8 border-x border-[#E1DDD5]">
-          <h1 className="font-serif text-4xl font-bold tracking-tight">
-            Yêu thích
-          </h1>
+          <h1 className="font-serif text-4xl font-bold tracking-tight">Yêu thích</h1>
         </div>
       </div>
     );
@@ -84,8 +82,7 @@ export default function WishlistPage() {
               Yêu thích
             </h1>
             <p className="text-xs sm:text-sm font-mono text-[#786F66] uppercase tracking-wider font-semibold">
-              Có {wishlistedProducts.length} sản phẩm đang nằm trong danh sách
-              chờ của bạn
+              Có {wishlistedProducts.length} sản phẩm đang nằm trong danh sách chờ của bạn
             </p>
           </div>
         </div>

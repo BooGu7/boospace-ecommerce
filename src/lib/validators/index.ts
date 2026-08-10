@@ -1,4 +1,4 @@
-import { z } from "zod"
+import { z } from "zod";
 
 // --- Address ---
 
@@ -12,14 +12,14 @@ export const addressSchema = z.object({
   postalCode: z.string().min(1, "Postal code is required"),
   country: z.string().min(1, "Country is required"),
   phone: z.string().optional(),
-})
+});
 
 // --- Auth ---
 
 export const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
-})
+});
 
 export const registerSchema = z
   .object({
@@ -32,11 +32,11 @@ export const registerSchema = z
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
     path: ["confirmPassword"],
-  })
+  });
 
 export const forgotPasswordSchema = z.object({
   email: z.string().email("Invalid email address"),
-})
+});
 
 // --- Checkout ---
 
@@ -45,7 +45,7 @@ export const checkoutFormSchema = z.object({
   shippingAddress: addressSchema,
   billingAddress: addressSchema.optional(),
   sameAsShipping: z.boolean().default(true),
-})
+});
 
 // --- Contact ---
 
@@ -54,20 +54,20 @@ export const contactFormSchema = z.object({
   email: z.string().email("Invalid email address"),
   subject: z.string().min(1, "Subject is required"),
   message: z.string().min(10, "Message must be at least 10 characters"),
-})
+});
 
 // --- Newsletter ---
 
 export const newsletterSchema = z.object({
   email: z.string().email("Invalid email address"),
-})
+});
 
 // --- Type exports ---
 
-export type AddressFormData = z.infer<typeof addressSchema>
-export type LoginFormData = z.infer<typeof loginSchema>
-export type RegisterFormData = z.infer<typeof registerSchema>
-export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>
-export type CheckoutFormData = z.infer<typeof checkoutFormSchema>
-export type ContactFormData = z.infer<typeof contactFormSchema>
-export type NewsletterFormData = z.infer<typeof newsletterSchema>
+export type AddressFormData = z.infer<typeof addressSchema>;
+export type LoginFormData = z.infer<typeof loginSchema>;
+export type RegisterFormData = z.infer<typeof registerSchema>;
+export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
+export type CheckoutFormData = z.infer<typeof checkoutFormSchema>;
+export type ContactFormData = z.infer<typeof contactFormSchema>;
+export type NewsletterFormData = z.infer<typeof newsletterSchema>;

@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
-import Link from "next/link";
+import { motion, type Variants } from "framer-motion";
+import { ArrowRight, Loader2, Search, Star, X } from "lucide-react";
 import Image from "next/image";
-import { Search, X, ArrowRight, Loader2, Star } from "lucide-react";
+import Link from "next/link";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { PLACEHOLDER_IMAGE } from "@/lib/constants";
-import { motion, Variants } from "framer-motion";
 import { supabase } from "@/lib/supabase/client"; // Kết nối client Supabase thời gian thực
 
 interface SearchModalProps {
@@ -59,9 +59,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [loading, setLoading] = useState(false);
 
   // State lưu trữ danh sách sản phẩm đánh giá cao tải từ Supabase
-  const [suggestedProducts, setSuggestedProducts] = useState<SearchProduct[]>(
-    [],
-  );
+  const [suggestedProducts, setSuggestedProducts] = useState<SearchProduct[]>([]);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
@@ -200,14 +198,9 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
             placeholder="Nhập tên sản phẩm cần tìm bằng AI..."
             className="flex-1 border-0 bg-transparent px-4 py-4 text-base font-sans outline-none placeholder:text-muted-foreground/60 text-black"
           />
-          {loading && (
-            <Loader2 className="h-4 w-4 animate-spin text-[#FF9D00] mr-2" />
-          )}
+          {loading && <Loader2 className="h-4 w-4 animate-spin text-[#FF9D00] mr-2" />}
           {hasQuery ? (
-            <button
-              onClick={() => setQuery("")}
-              className="rounded-md p-1 text-muted-foreground hover:text-foreground"
-            >
+            <button onClick={() => setQuery("")} className="rounded-md p-1 text-muted-foreground hover:text-foreground">
               <X className="h-4 w-4" />
             </button>
           ) : (
@@ -233,9 +226,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                     : (product.images?.[0]?.url ?? PLACEHOLDER_IMAGE);
 
                 const imgAlt =
-                  typeof product.images?.[0] === "string"
-                    ? product.name
-                    : (product.images?.[0]?.alt ?? product.name);
+                  typeof product.images?.[0] === "string" ? product.name : (product.images?.[0]?.alt ?? product.name);
 
                 return (
                   <motion.div
@@ -247,24 +238,12 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                     }}
                     className="rounded-lg transition-colors"
                   >
-                    <Link
-                      href={`/${product.slug}`}
-                      onClick={handleClose}
-                      className="flex items-center gap-4 p-3"
-                    >
+                    <Link href={`/${product.slug}`} onClick={handleClose} className="flex items-center gap-4 p-3">
                       <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-md bg-neutral-100 border border-[#E1DDD5]">
-                        <Image
-                          src={imgUrl}
-                          alt={imgAlt}
-                          fill
-                          className="object-cover"
-                          sizes="56px"
-                        />
+                        <Image src={imgUrl} alt={imgAlt} fill className="object-cover" sizes="56px" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-black truncate font-sans">
-                          {product.name}
-                        </p>
+                        <p className="text-sm font-medium text-black truncate font-sans">{product.name}</p>
                       </div>
 
                       <span className="shrink-0 text-sm font-mono font-medium text-black">
@@ -329,19 +308,9 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                         }}
                         className="rounded-xl transition-all border border-transparent"
                       >
-                        <Link
-                          href={`/${product.slug}`}
-                          onClick={handleClose}
-                          className="flex items-center gap-4 p-3"
-                        >
+                        <Link href={`/${product.slug}`} onClick={handleClose} className="flex items-center gap-4 p-3">
                           <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-neutral-100 border border-[#E1DDD5]">
-                            <Image
-                              src={imgUrl}
-                              alt={imgAlt}
-                              fill
-                              className="object-cover"
-                              sizes="48px"
-                            />
+                            <Image src={imgUrl} alt={imgAlt} fill className="object-cover" sizes="48px" />
                           </div>
 
                           {/* Name + 5 Stars */}
@@ -353,10 +322,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                             {/* Chấm 5 sao vàng mộc mạc đặc trưng */}
                             <div className="flex gap-0.5 mt-1 text-[#FF9D00]">
                               {Array.from({ length: 5 }).map((_, i) => (
-                                <Star
-                                  key={i}
-                                  className="h-3 w-3 fill-[#FF9D00] text-[#FF9D00]"
-                                />
+                                <Star key={i} className="h-3 w-3 fill-[#FF9D00] text-[#FF9D00]" />
                               ))}
                             </div>
                           </div>

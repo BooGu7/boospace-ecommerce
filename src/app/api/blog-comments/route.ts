@@ -7,10 +7,7 @@ export async function GET(req: Request) {
     const postId = searchParams.get("postId");
 
     if (!postId) {
-      return NextResponse.json(
-        { success: false, error: "Thiếu postId" },
-        { status: 400 },
-      );
+      return NextResponse.json({ success: false, error: "Thiếu postId" }, { status: 400 });
     }
 
     const supabase = createSupabaseServerClient();
@@ -23,10 +20,7 @@ export async function GET(req: Request) {
     if (error) throw error;
     return NextResponse.json({ success: true, comments: data || [] });
   } catch (error: any) {
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 },
-    );
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
 
@@ -35,10 +29,7 @@ export async function POST(req: Request) {
     const { post_id, name, email, comment } = await req.json();
 
     if (!post_id || !name || !email || !comment) {
-      return NextResponse.json(
-        { success: false, error: "Vui lòng nhập đủ thông tin" },
-        { status: 400 },
-      );
+      return NextResponse.json({ success: false, error: "Vui lòng nhập đủ thông tin" }, { status: 400 });
     }
 
     const supabase = createSupabaseServerClient();
@@ -51,9 +42,6 @@ export async function POST(req: Request) {
     if (error) throw error;
     return NextResponse.json({ success: true, comment: data });
   } catch (error: any) {
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 },
-    );
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }

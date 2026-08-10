@@ -1,15 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { toast } from "sonner";
+import { motion, type Variants } from "framer-motion";
 import { Loader2 } from "lucide-react";
-
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
 import { AuthCardLayout } from "@/components/auth/auth-card-layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { motion, Variants } from "framer-motion";
 
 import { resetPassword } from "./action";
 
@@ -76,10 +75,7 @@ export default function ResetPasswordContent() {
       >
         {/* Khối nhập liệu Mật khẩu mới */}
         <motion.div variants={formItemVariants} className="space-y-1.5">
-          <Label
-            htmlFor="password"
-            className="text-[11px] font-mono font-bold text-[#5c544d] uppercase tracking-wider"
-          >
+          <Label htmlFor="password" className="text-[11px] font-mono font-bold text-[#5c544d] uppercase tracking-wider">
             Mật khẩu mới
           </Label>
 

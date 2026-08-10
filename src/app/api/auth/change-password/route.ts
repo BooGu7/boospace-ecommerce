@@ -1,10 +1,7 @@
-import bcrypt from "bcryptjs";
 import { createClient } from "@supabase/supabase-js";
+import bcrypt from "bcryptjs";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-);
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
 export async function POST(req: Request) {
   try {
@@ -15,27 +12,17 @@ export async function POST(req: Request) {
     }
 
     // Đọc thông tin từ bảng 'users'
-    const { data: user, error } = await supabase
-      .from("users")
-      .select("*")
-      .eq("id", userId)
-      .single();
+    const { data: user, error } = await supabase.from("users").select("*").eq("id", userId).single();
 
     if (error || !user) {
-      return Response.json(
-        { message: "Không tìm thấy tài khoản" },
-        { status: 404 },
-      );
+      return Response.json({ message: "Không tìm thấy tài khoản" }, { status: 404 });
     }
 
     const storedPassword = user.data?.password;
     const isValid = await bcrypt.compare(currentPassword, storedPassword);
 
     if (!isValid) {
-      return Response.json(
-        { message: "Mật khẩu hiện tại không đúng" },
-        { status: 400 },
-      );
+      return Response.json({ message: "Mật khẩu hiện tại không đúng" }, { status: 400 });
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -59,9 +46,6 @@ export async function POST(req: Request) {
 
     return Response.json({ success: true });
   } catch (error) {
-    return Response.json(
-      { message: error instanceof Error ? error.message : "Server error" },
-      { status: 500 },
-    );
+    return Response.json({ message: error instanceof Error ? error.message : "Server error" }, { status: 500 });
   }
 }

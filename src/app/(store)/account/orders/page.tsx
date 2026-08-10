@@ -1,15 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
+import { motion, type Variants } from "framer-motion";
+import { ArrowRight, CalendarDays, Loader2, Package } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Package, CalendarDays, Loader2, ArrowRight } from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
 import { OrderStatusBadge } from "@/components/ui/order-status-badge";
 import { useAuthGuard } from "@/hooks/use-auth-guard";
 import { PLACEHOLDER_IMAGE } from "@/lib/constants";
-import { motion, Variants } from "framer-motion";
 import { supabase } from "@/lib/supabase/client";
 
 interface OrderItem {
@@ -26,6 +26,7 @@ interface OrderDetail {
   orderNumber: string;
   createdAt: string;
   total: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   status: any;
   paymentStatus: string;
   items: OrderItem[];
@@ -86,10 +87,9 @@ export default function OrdersPage() {
 
     async function fetchDetailedOrders() {
       try {
-        const { data, error } = await supabase
-          .from("orders")
-          .select(
-            `
+        // Tìm đơn hàng theo cả Email HOẶC Customer ID
+        let query = supabase.from("orders").select(
+          `
             id,
             code,
             created_at,
@@ -105,13 +105,22 @@ export default function OrdersPage() {
               total_price
             )
           `,
-          )
-          .ilike("customer_email", userEmail)
-          .order("created_at", { ascending: false });
+        );
+
+        if (user?.id) {
+          query = query.or(`customer_email.ilike.${userEmail},customer_id.eq.${user.id}`);
+        } else {
+          query = query.ilike("customer_email", userEmail);
+        }
+
+        const { data, error } = await query.order("created_at", {
+          ascending: false,
+        });
 
         if (error) {
           console.error("[SUPABASE_FETCH_ORDERS_ERROR]", error);
         } else if (data) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const mapped: OrderDetail[] = data.map((o: any) => ({
             id: o.id,
             orderNumber: o.code || o.id,
@@ -119,6 +128,7 @@ export default function OrdersPage() {
             total: Number(o.total ?? 0),
             status: o.order_status || "pending",
             paymentStatus: o.payment_status || "Pending",
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             items: (o.order_items || []).map((oi: any, idx: number) => ({
               id: oi.id || `${o.id}-item-${idx}`,
               name: oi.product_name || "Sản phẩm chế tác 3D",
@@ -187,12 +197,7 @@ export default function OrdersPage() {
             className="space-y-4 max-w-4xl mx-auto text-left"
           >
             {ordersList.map((order) => (
-              <motion.div
-                key={order.id}
-                variants={cardVariants}
-                whileHover="hover"
-                className="block"
-              >
+              <motion.div key={order.id} variants={cardVariants} whileHover="hover" className="block">
                 <Card className="rounded-[32px] border border-[#DCD6CC] bg-white shadow-xs p-6 space-y-5 transition-all">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
@@ -206,7 +211,7 @@ export default function OrdersPage() {
                     </div>
 
                     <div className="flex items-center gap-3 flex-wrap sm:flex-nowrap">
-                      {/* Ép kiểu an toàn status as any để tránh lỗi TypeScript build */}
+                      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                       <OrderStatusBadge status={order.status as any} />
                       <span
                         className={`text-[10px] font-mono font-bold px-2.5 py-1 rounded-full border ${
@@ -215,9 +220,7 @@ export default function OrdersPage() {
                             : "bg-amber-50 text-amber-700 border-amber-200"
                         }`}
                       >
-                        {order.paymentStatus === "Paid"
-                          ? "Đã thanh toán"
-                          : "Chờ thanh toán"}
+                        {order.paymentStatus === "Paid" ? "Đã thanh toán" : "Chờ thanh toán"}
                       </span>
                       <span className="text-sm sm:text-base font-mono font-bold text-[#FF9D00]">
                         {formatVNDDirect(order.total)}
@@ -236,13 +239,7 @@ export default function OrdersPage() {
                           className="flex items-center gap-4 text-xs font-sans font-medium animate-in fade-in duration-200"
                         >
                           <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-[#E1DDD5] bg-[#EAE5D9]/20 shadow-sm">
-                            <Image
-                              src={imgUrl}
-                              alt={item.name}
-                              fill
-                              sizes="48px"
-                              className="object-cover"
-                            />
+                            <Image src={imgUrl} alt={item.name} fill sizes="48px" className="object-cover" />
                           </div>
 
                           <div className="flex-1 min-w-0 pr-4 text-left">
@@ -259,12 +256,8 @@ export default function OrdersPage() {
                           </div>
 
                           <div className="font-mono text-right shrink-0">
-                            <span className="text-slate-500 mr-1.5">
-                              ({formatVNDDirect(itemPrice)})
-                            </span>
-                            <span className="text-black font-bold">
-                              × {item.quantity}
-                            </span>
+                            <span className="text-slate-500 mr-1.5">({formatVNDDirect(itemPrice)})</span>
+                            <span className="text-black font-bold">× {item.quantity}</span>
                           </div>
                         </div>
                       );

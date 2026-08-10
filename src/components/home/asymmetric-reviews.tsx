@@ -1,7 +1,7 @@
 "use client";
 
+import { motion, type Variants } from "framer-motion";
 import Image from "next/image";
-import { motion, Variants } from "framer-motion";
 
 interface Testimonial {
   name: string;
@@ -16,8 +16,7 @@ const testimonials: Testimonial[] = [
   {
     name: "Akshay Kothari",
     role: "Co-Founder @NotionHQ",
-    avatar:
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80",
+    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80",
     quote:
       "“Đây là sản phẩm bàn làm việc duy nhất mà tôi cảm thấy hoàn toàn yên tâm và hào hứng khi chia sẻ không gian sáng tạo cùng con cái của mình!”",
     date: "9:02 PM • May 23, 2024",
@@ -26,8 +25,7 @@ const testimonials: Testimonial[] = [
   {
     name: "Waqas Ali",
     role: "Founder @Atoms",
-    avatar:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80",
     quote:
       "“Boospace thực sự thấu hiểu điều đó. Một thiết kế tối giản mang sự mộc mạc và tĩnh lặng nguyên bản quay trở lại cuộc sống số bận rộn.”",
     date: "8:28 PM • May 23, 2024",
@@ -36,8 +34,7 @@ const testimonials: Testimonial[] = [
   {
     name: "Soleio",
     role: "Early Design @Meta @Dropbox",
-    avatar:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&q=80",
+    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&q=80",
     quote:
       "“Góc làm việc của tương lai. Nó không nhấn chìm bạn trong mớ dây cáp lộn xộn hay những thông báo đẩy dồn dập. Nhanh, mượt và thô mộc, tựa như một tác phẩm thủ công đích thực.”",
     date: "10:26 AM • May 22, 2024",
@@ -125,32 +122,19 @@ export function AsymmetricReviews() {
               {/* Profile Header */}
               <div className="flex items-center gap-4 mb-4">
                 <div className="relative h-10 w-10 overflow-hidden rounded-full border border-white/20 bg-neutral-800">
-                  <Image
-                    src={t.avatar}
-                    alt={t.name}
-                    fill
-                    className="object-cover"
-                  />
+                  <Image src={t.avatar} alt={t.name} fill className="object-cover" />
                 </div>
                 <div>
-                  <h4 className="font-serif text-sm font-semibold text-white">
-                    {t.name}
-                  </h4>
-                  <p className="text-[10px] font-mono text-white/60 tracking-wider uppercase">
-                    {t.role}
-                  </p>
+                  <h4 className="font-serif text-sm font-semibold text-white">{t.name}</h4>
+                  <p className="text-[10px] font-mono text-white/60 tracking-wider uppercase">{t.role}</p>
                 </div>
               </div>
 
               {/* Quote */}
-              <p className="font-sans text-xs sm:text-sm text-white/90 leading-relaxed italic mb-4">
-                {t.quote}
-              </p>
+              <p className="font-sans text-xs sm:text-sm text-white/90 leading-relaxed italic mb-4">{t.quote}</p>
 
               {/* Date Footer */}
-              <div className="border-t border-white/10 pt-3 text-[10px] font-mono text-white/40">
-                {t.date}
-              </div>
+              <div className="border-t border-white/10 pt-3 text-[10px] font-mono text-white/40">{t.date}</div>
             </motion.div>
           ))}
         </motion.div>

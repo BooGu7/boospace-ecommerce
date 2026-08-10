@@ -1,13 +1,8 @@
 import type { Metadata } from "next";
-import {
-  productRepository,
-  categoryRepository,
-  blogRepository,
-} from "@/lib/repositories";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
-
 // IMPORT COMPONENT ĐIỀU PHỐI TRƯỢT NGANG TOÀN TRANG
 import { MainHorizontalScroll } from "@/components/home/main-horizontal-scroll";
+import { blogRepository, categoryRepository, productRepository } from "@/lib/repositories";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 // GIỮ NGUYÊN TOÀN BỘ CẤU HÌNH SEO METADATA CHUẨN CỦA BẠN
 export const metadata: Metadata = {
@@ -19,8 +14,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "Boospace — Custom 3D Printed Workspace",
-    description:
-      "Thiết kế và sản xuất sản phẩm in 3D cho workspace và DIY theo yêu cầu tại Boospace.",
+    description: "Thiết kế và sản xuất sản phẩm in 3D cho workspace và DIY theo yêu cầu tại Boospace.",
     type: "website",
     url: "https://boospace.tech/",
   },
@@ -36,19 +30,17 @@ export const metadata: Metadata = {
   ],
 };
 
-export const revalidate = 0; // Đảm bảo luôn lấy dữ liệu mới nhất từ Supabase khi F5
+export const revalidate = 600; // Đảm bảo luôn lấy dữ liệu mới nhất từ Supabase khi F5
 
 // BỘ CHUYỂN ĐỔI DỮ LIỆU ĐỂ MAP HÌNH ẢNH SẢN PHẨM KHÔNG BỊ LỖI
 function mapDbProductToStorefront(dbProduct: any) {
   if (!dbProduct) return null;
 
   const price = Number(dbProduct.price ?? 0) * 100;
-  const comparePrice = dbProduct.compare_price
-    ? Number(dbProduct.compare_price) * 100
-    : null;
+  const comparePrice = dbProduct.compare_price ? Number(dbProduct.compare_price) * 100 : null;
 
   const defaultVariant = {
-    id: dbProduct.id + "-default",
+    id: `${dbProduct.id}-default`,
     name: "Default Variant",
     sku: dbProduct.sku || "",
     price: price,
@@ -88,36 +80,19 @@ export default async function HomePage() {
   const supabase = createSupabaseServerClient();
 
   // TRUY VẤN DỮ LIỆU ĐỒNG THỜI TỪ SUPABASE
-  const [
-    categories,
-    featuredProducts,
-    blogsResult,
-    settingsRes,
-    saleProductsRes,
-  ] = await Promise.all([
+  const [categories, featuredProducts, blogsResult, settingsRes, saleProductsRes] = await Promise.all([
     categoryRepository.list(),
     productRepository.getFeatured(4),
     blogRepository.list({ page: 1, limit: 3 }),
-    supabase
-      .from("settings")
-      .select("value")
-      .eq("key", "homepage")
-      .maybeSingle(),
+    supabase.from("settings").select("value").eq("key", "homepage").maybeSingle(),
     // TRUY VẤN ĐỘNG: Lấy ra các sản phẩm đang giảm giá thực tế (compare_price không null) [21]
-    supabase
-      .from("products")
-      .select("*")
-      .not("compare_price", "is", null)
-      .eq("published", true)
-      .limit(4),
+    supabase.from("products").select("*").not("compare_price", "is", null).eq("published", true).limit(4),
   ]);
 
   const blogs = blogsResult?.items || [];
 
   // Ánh xạ danh sách sản phẩm giảm giá chuẩn cấu hình storefront
-  const saleProducts = (saleProductsRes.data || [])
-    .map(mapDbProductToStorefront)
-    .filter((p) => p !== null);
+  const saleProducts = (saleProductsRes.data || []).map(mapDbProductToStorefront).filter((p) => p !== null);
 
   const config = settingsRes?.data?.value || {
     hero_image:

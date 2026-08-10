@@ -2,25 +2,18 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { User, Address } from "@/types";
+import type { Address, User } from "@/types";
 
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
 
   login: (email: string, password: string) => boolean;
-  register: (data: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    password: string;
-  }) => boolean;
+  register: (data: { firstName: string; lastName: string; email: string; password: string }) => boolean;
 
   logout: () => void;
 
-  updateProfile: (
-    data: Partial<Pick<User, "firstName" | "lastName" | "email">>,
-  ) => void;
+  updateProfile: (data: Partial<Pick<User, "firstName" | "lastName" | "email">>) => void;
 
   addAddress: (address: Omit<Address, "id">) => void;
   removeAddress: (id: string) => void;

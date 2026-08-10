@@ -1,10 +1,12 @@
+import { HelpCircle, Search, Sparkles } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Input } from "@/components/ui/input";
-import { Search, Sparkles, HelpCircle } from "lucide-react";
-import { productRepository } from "@/lib/repositories";
-import { ProductGrid } from "@/components/products/product-grid";
 import { Pagination } from "@/components/products/pagination";
+import { ProductGrid } from "@/components/products/product-grid";
+import { Input } from "@/components/ui/input";
+import { productRepository } from "@/lib/repositories";
+
+export const revalidate = 60; // Cache 1 phút
 
 export const metadata: Metadata = {
   title: "Tìm kiếm thiết kế — Boo Space",
@@ -17,14 +19,7 @@ interface SearchPageProps {
 }
 
 // Danh sách từ khóa gợi ý tìm kiếm mộc mạc cao cấp
-const suggestedKeywords = [
-  "Kệ gỗ",
-  "Chậu cây",
-  "Công thái học",
-  "Setup tối giản",
-  "Gỗ sồi",
-  "Khay cắm",
-];
+const suggestedKeywords = ["Kệ gỗ", "Chậu cây", "Công thái học", "Setup tối giản", "Gỗ sồi", "Khay cắm"];
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const params = await searchParams;
@@ -34,9 +29,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const hasQuery = query.trim().length > 0;
 
   // Truy cập cơ sở dữ liệu Supabase để tìm kiếm sản phẩm thời gian thực
-  const results = hasQuery
-    ? await productRepository.search(query, { page, limit: 12 })
-    : null;
+  const results = hasQuery ? await productRepository.search(query, { page, limit: 12 }) : null;
 
   return (
     <div className="bg-[#FCFAF2] text-[#1E1C1A] min-h-screen antialiased selection:bg-[#EAE5D9]">
@@ -98,11 +91,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
             {/* Phân trang đồng bộ */}
             <div className="mt-16">
-              <Pagination
-                pagination={results.pagination}
-                basePath="/search"
-                searchParams={{ q: query }}
-              />
+              <Pagination pagination={results.pagination} basePath="/search" searchParams={{ q: query }} />
             </div>
           </div>
         )}
@@ -118,9 +107,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 Bạn đang tìm kiếm điều gì?
               </h3>
               <p className="text-xs leading-relaxed text-[#786F66] font-sans">
-                Hãy thử nhập tên sản phẩm, chất liệu gỗ sồi tự nhiên, dòng chậu
-                cây in 3D chịu lực hoặc các giải pháp giấu dây gọn gàng cho góc
-                làm việc của bạn.
+                Hãy thử nhập tên sản phẩm, chất liệu gỗ sồi tự nhiên, dòng chậu cây in 3D chịu lực hoặc các giải pháp
+                giấu dây gọn gàng cho góc làm việc của bạn.
               </p>
             </div>
 
@@ -151,15 +139,11 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           <div className="mt-20 text-center max-w-md mx-auto space-y-4 py-12 rounded-3xl border border-dashed border-[#E1DDD5] bg-[#EAE5D9]/10 animate-in fade-in duration-300">
             <p className="text-sm font-sans text-[#786F66] leading-relaxed px-6">
               Không tìm thấy sản phẩm thủ công nào phù hợp với từ khóa &quot;
-              <strong className="text-black">{query}</strong>&quot;. Bạn hãy thử
-              đổi từ khóa đơn giản hơn như &quot;kệ&quot; hoặc &quot;chậu&quot;
-              xem sao nhé ✨
+              <strong className="text-black">{query}</strong>&quot;. Bạn hãy thử đổi từ khóa đơn giản hơn như
+              &quot;kệ&quot; hoặc &quot;chậu&quot; xem sao nhé ✨
             </p>
             <div className="pt-2">
-              <Link
-                href="/shop"
-                className="text-xs font-mono uppercase tracking-widest text-black hover:underline"
-              >
+              <Link href="/shop" className="text-xs font-mono uppercase tracking-widest text-black hover:underline">
                 Khám phá toàn bộ danh mục sản phẩm →
               </Link>
             </div>

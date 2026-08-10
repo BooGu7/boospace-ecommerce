@@ -1,14 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { motion, type Variants } from "framer-motion";
+import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
+import { AuthCardLayout } from "@/components/auth/auth-card-layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AuthCardLayout } from "@/components/auth/auth-card-layout";
-import { toast } from "sonner";
-import { motion, Variants } from "framer-motion";
-import { Loader2 } from "lucide-react";
 
 import { forgotPassword } from "./action";
 
@@ -31,7 +31,7 @@ const formItemVariants: Variants = {
 };
 
 export default function ForgotPasswordPage() {
-  const router = useRouter();
+  const _router = useRouter();
 
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -42,11 +42,9 @@ export default function ForgotPasswordPage() {
     try {
       setLoading(true);
 
-      const result = await forgotPassword(email);
+      const _result = await forgotPassword(email);
 
-      toast.success(
-        "Yêu cầu thành công! Chúng tôi đã gửi link đặt lại mật khẩu tới Gmail của bạn.",
-      );
+      toast.success("Yêu cầu thành công! Chúng tôi đã gửi link đặt lại mật khẩu tới Gmail của bạn.");
 
       setEmail("");
     } catch (error) {
@@ -72,10 +70,7 @@ export default function ForgotPasswordPage() {
         className="space-y-5 text-left"
       >
         <motion.div variants={formItemVariants} className="space-y-1.5">
-          <Label
-            htmlFor="email"
-            className="text-[11px] font-mono font-bold text-[#5c544d] uppercase tracking-wider"
-          >
+          <Label htmlFor="email" className="text-[11px] font-mono font-bold text-[#5c544d] uppercase tracking-wider">
             Địa chỉ Email khôi phục
           </Label>
 

@@ -1,16 +1,12 @@
 "use client";
 
+import { motion } from "framer-motion";
+import { ChevronDown, Heart, LogOut, Menu, Search, ShoppingBag, User } from "lucide-react";
 import Link from "next/link";
-import {
-  Search,
-  ShoppingBag,
-  User,
-  Menu,
-  Heart,
-  LogOut,
-  ChevronDown,
-} from "lucide-react";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
+import { SearchModal } from "@/components/search/search-modal";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,17 +14,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { SearchModal } from "@/components/search/search-modal";
-import { cn } from "@/lib/utils";
-import { shopLinks, mobileMenuSections } from "@/lib/navigation";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { siteConfig } from "@/lib/config";
-import { useTranslations } from "next-intl";
-import { useState, useEffect } from "react";
-import type { Category } from "@/types";
-import { useCartStore } from "@/store/cart";
+import { mobileMenuSections, shopLinks } from "@/lib/navigation";
+import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/auth";
-import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { useCartStore } from "@/store/cart";
+import type { Category } from "@/types";
 
 interface HeaderProps {
   /** All categories (top-level + subcategories) from the repository layer */
@@ -98,23 +90,15 @@ export function Header({ categories = [] }: HeaderProps) {
               <nav className="flex flex-1 flex-col overflow-y-auto px-6 pb-8 text-left">
                 {mobileMenuSections.map((section, sectionIdx) => (
                   <div key={section.label}>
-                    {sectionIdx > 0 && (
-                      <div className="my-4 border-t border-[#E1DDD5]/60" />
-                    )}
+                    {sectionIdx > 0 && <div className="my-4 border-t border-[#E1DDD5]/60" />}
                     <p className="mb-2 mt-4 text-[10px] font-mono font-bold uppercase tracking-widest text-[#786F66]">
                       {section.label}
                     </p>
                     <div className="ml-3">
                       {section.items.map((item) => {
                         const slug = item.href.replace("/", "");
-                        const parentCat = allCategories.find(
-                          (c) => c.slug === slug,
-                        );
-                        const subcats = parentCat
-                          ? allCategories.filter(
-                              (c) => c.parentId === parentCat.id,
-                            )
-                          : [];
+                        const parentCat = allCategories.find((c) => c.slug === slug);
+                        const subcats = parentCat ? allCategories.filter((c) => c.parentId === parentCat.id) : [];
                         const hasSubcats = subcats.length > 0;
                         const isExpanded = expandedCategory === item.name;
 
@@ -130,19 +114,12 @@ export function Header({ categories = [] }: HeaderProps) {
                               </Link>
                               {hasSubcats && (
                                 <button
-                                  onClick={() =>
-                                    setExpandedCategory(
-                                      isExpanded ? null : item.name,
-                                    )
-                                  }
+                                  onClick={() => setExpandedCategory(isExpanded ? null : item.name)}
                                   className="p-2 text-[#786F66] hover:text-black cursor-pointer"
                                   aria-expanded={isExpanded}
                                 >
                                   <ChevronDown
-                                    className={cn(
-                                      "h-4 w-4 transition-transform",
-                                      isExpanded && "rotate-180",
-                                    )}
+                                    className={cn("h-4 w-4 transition-transform", isExpanded && "rotate-180")}
                                   />
                                 </button>
                               )}
@@ -225,11 +202,7 @@ export function Header({ categories = [] }: HeaderProps) {
                   {/* TỰ ĐỘNG PHẢN HỒI: Kết xuất ảnh đại diện Google nếu có, ngược lại hiện Monogram chữ cái đầu */}
                   <div className="flex h-6 w-6 items-center justify-center rounded-full bg-black text-[10px] font-mono font-bold text-[#FCFAF2] uppercase overflow-hidden border border-[#E1DDD5]">
                     {userAvatar ? (
-                      <img
-                        src={userAvatar}
-                        alt="Google Profile"
-                        className="h-full w-full object-cover"
-                      />
+                      <img src={userAvatar} alt="Google Profile" className="h-full w-full object-cover" />
                     ) : (
                       (user?.firstName?.[0] ?? "U")
                     )}
@@ -243,9 +216,7 @@ export function Header({ categories = [] }: HeaderProps) {
                     <p className="font-serif text-sm font-bold text-black">
                       {user?.firstName} {user?.lastName}
                     </p>
-                    <p className="text-[10px] font-mono text-[#786F66] truncate mt-0.5">
-                      {user?.email}
-                    </p>
+                    <p className="text-[10px] font-mono text-[#786F66] truncate mt-0.5">{user?.email}</p>
                   </div>
                   <DropdownMenuSeparator className="bg-[#E1DDD5]/60" />
 
@@ -283,10 +254,7 @@ export function Header({ categories = [] }: HeaderProps) {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <motion.div
-                whileTap={{ scale: 0.95 }}
-                className="hidden lg:block"
-              >
+              <motion.div whileTap={{ scale: 0.95 }} className="hidden lg:block">
                 <Link
                   href="/auth/login"
                   className="inline-flex h-10 w-10 items-center justify-center rounded-xl hover:bg-[#EAE5D9]/40 text-[#786F66] hover:text-black transition-colors"

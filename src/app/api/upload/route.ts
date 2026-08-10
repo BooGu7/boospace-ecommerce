@@ -7,10 +7,7 @@ export async function POST(req: Request) {
     const file = formData.get("file") as File;
 
     if (!file) {
-      return NextResponse.json(
-        { error: "Bạn chưa chọn tệp nào cả ✨" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Bạn chưa chọn tệp nào cả ✨" }, { status: 400 });
     }
 
     const supabase = getSupabaseAdmin();
@@ -19,12 +16,10 @@ export async function POST(req: Request) {
 
     const buffer = new Uint8Array(await file.arrayBuffer());
 
-    const { error } = await supabase.storage
-      .from("media")
-      .upload(filename, buffer, {
-        contentType: file.type,
-        upsert: false,
-      });
+    const { error } = await supabase.storage.from("media").upload(filename, buffer, {
+      contentType: file.type,
+      upsert: false,
+    });
 
     if (error) throw error;
 
@@ -38,10 +33,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json(
       {
-        error:
-          error instanceof Error
-            ? error.message
-            : "Có lỗi xảy ra khi tải lên, bạn thử lại nhé ✨",
+        error: error instanceof Error ? error.message : "Có lỗi xảy ra khi tải lên, bạn thử lại nhé ✨",
       },
       { status: 500 },
     );
