@@ -40,15 +40,8 @@ interface ProductDetailViewProps {
   categoryAncestors?: Category[];
 }
 
-export function ProductDetailView({
-  product,
-  relatedProducts,
-  brand,
-  categoryAncestors = [],
-}: ProductDetailViewProps) {
-  const [selectedVariantId, setSelectedVariantId] = useState(
-    product.variants[0]?.id ?? "",
-  );
+export function ProductDetailView({ product, relatedProducts, brand, categoryAncestors = [] }: ProductDetailViewProps) {
+  const [selectedVariantId, setSelectedVariantId] = useState(product.variants[0]?.id ?? "");
   const [quantity, setQuantity] = useState(1);
 
   // States quản lý đánh giá sao động nạp từ Supabase Reviews
@@ -65,17 +58,13 @@ export function ProductDetailView({
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
-  const isWishlisted =
-    mounted && wishlistItems.some((i) => i.productId === product.id);
+  const isWishlisted = mounted && wishlistItems.some((i) => i.productId === product.id);
 
   // KÉO DỮ LIỆU ĐÁNH GIÁ THỰC TẾ CỦA NGƯỜI DÙNG TỪ SUPABASE ĐỂ TÍNH ĐIỂM SAO ĐỘNG
   useEffect(() => {
     async function fetchDynamicRatings() {
       try {
-        const { data, error } = await supabase
-          .from("reviews")
-          .select("rating")
-          .eq("product_id", product.id);
+        const { data, error } = await supabase.from("reviews").select("rating").eq("product_id", product.id);
 
         if (!error && data && data.length > 0) {
           const total = data.length;
@@ -101,27 +90,13 @@ export function ProductDetailView({
       imageUrl: product.images[0]?.url ?? "",
       imageAlt: product.images[0]?.alt ?? product.name,
     });
-  }, [
-    product.id,
-    product.slug,
-    product.images,
-    product.variants,
-    product.name,
-    addRecentlyViewed,
-  ]);
+  }, [product.id, product.slug, product.images, product.variants, product.name, addRecentlyViewed]);
 
-  const selectedVariant = product.variants.find(
-    (v) => v.id === selectedVariantId,
-  );
+  const selectedVariant = product.variants.find((v) => v.id === selectedVariantId);
   if (!selectedVariant) return null;
 
-  const isOnSale = Boolean(
-    selectedVariant.compareAtPrice &&
-    selectedVariant.compareAtPrice > selectedVariant.price,
-  );
-  const inStock =
-    selectedVariant.inventory.quantity > 0 ||
-    selectedVariant.inventory.allowBackorder;
+  const isOnSale = Boolean(selectedVariant.compareAtPrice && selectedVariant.compareAtPrice > selectedVariant.price);
+  const inStock = selectedVariant.inventory.quantity > 0 || selectedVariant.inventory.allowBackorder;
 
   function handleAddToCart() {
     if (!selectedVariant) return;
@@ -199,9 +174,7 @@ export function ProductDetailView({
       "@type": "Offer",
       price: (selectedVariant.price / 100).toFixed(2),
       priceCurrency: selectedVariant.currency,
-      availability: inStock
-        ? "https://schema.org/InStock"
-        : "https://schema.org/OutOfStock",
+      availability: inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
     },
   };
 
@@ -222,9 +195,7 @@ export function ProductDetailView({
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink render={<Link href="/shop" />}>
-                Cửa hàng
-              </BreadcrumbLink>
+              <BreadcrumbLink render={<Link href="/shop" />}>Cửa hàng</BreadcrumbLink>
             </BreadcrumbItem>
             {categoryAncestors.map((cat, idx) => {
               const isLast = idx === categoryAncestors.length - 1;
@@ -235,9 +206,7 @@ export function ProductDetailView({
                     {isLast ? (
                       <BreadcrumbPage>{cat.name}</BreadcrumbPage>
                     ) : (
-                      <BreadcrumbLink render={<Link href={`/${cat.slug}`} />}>
-                        {cat.name}
-                      </BreadcrumbLink>
+                      <BreadcrumbLink render={<Link href={`/${cat.slug}`} />}>{cat.name}</BreadcrumbLink>
                     )}
                   </BreadcrumbItem>
                 </div>
@@ -271,9 +240,7 @@ export function ProductDetailView({
               )}
             </div>
 
-            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-black font-serif">
-              {product.name}
-            </h1>
+            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-black font-serif">{product.name}</h1>
 
             {brand && (
               <Link
@@ -305,20 +272,12 @@ export function ProductDetailView({
                   variant="secondary"
                   className="bg-[#EAE5D9]/40 border border-[#DCD6CC] text-[#786F66] text-[10px] font-mono uppercase px-2 py-0.5 rounded-md"
                 >
-                  -
-                  {Math.round(
-                    (1 -
-                      selectedVariant.price / selectedVariant.compareAtPrice) *
-                      100,
-                  )}
-                  %
+                  -{Math.round((1 - selectedVariant.price / selectedVariant.compareAtPrice) * 100)}%
                 </Badge>
               )}
             </motion.div>
 
-            <p className="mt-4 text-sm sm:text-base text-[#5C564E] leading-relaxed font-sans">
-              {product.description}
-            </p>
+            <p className="mt-4 text-sm sm:text-base text-[#5C564E] leading-relaxed font-sans">{product.description}</p>
 
             {/* Variants Selection */}
             {product.variants.length > 1 && (
@@ -342,15 +301,11 @@ export function ProductDetailView({
                 <Button
                   variant="outline"
                   size="icon"
-                  aria-label={
-                    isWishlisted ? "Remove from wishlist" : "Add to wishlist"
-                  }
+                  aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
                   onClick={handleToggleWishlist}
                   className="rounded-xl border-[#E1DDD5] hover:bg-[#EAE5D9]/20"
                 >
-                  <Heart
-                    className={`h-4 w-4 ${isWishlisted ? "fill-wishlist text-wishlist" : ""}`}
-                  />
+                  <Heart className={`h-4 w-4 ${isWishlisted ? "fill-wishlist text-wishlist" : ""}`} />
                 </Button>
               </div>
 
@@ -401,8 +356,7 @@ export function ProductDetailView({
                         : item.images?.[0]?.url || PLACEHOLDER_IMAGE;
                     const addonVariant = item.variants?.[0];
                     const isAddonSale = Boolean(
-                      addonVariant?.compareAtPrice &&
-                      addonVariant.compareAtPrice > addonVariant.price,
+                      addonVariant?.compareAtPrice && addonVariant.compareAtPrice > addonVariant.price,
                     );
 
                     return (
@@ -412,13 +366,7 @@ export function ProductDetailView({
                       >
                         <div className="flex items-center gap-4 flex-1 min-w-0">
                           <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-[#E1DDD5] bg-[#EAE5D9]/20 shadow-inner">
-                            <Image
-                              src={addonImgUrl}
-                              alt={item.name}
-                              fill
-                              sizes="64px"
-                              className="object-cover"
-                            />
+                            <Image src={addonImgUrl} alt={item.name} fill sizes="64px" className="object-cover" />
                           </div>
 
                           <div className="text-left min-w-0 flex-1">
@@ -427,8 +375,7 @@ export function ProductDetailView({
                             </p>
                             <div className="flex items-baseline gap-1.5 mt-1 font-mono text-[10px] sm:text-xs">
                               <span className="font-bold text-black">
-                                {addonVariant &&
-                                  formatPrice(addonVariant.price)}
+                                {addonVariant && formatPrice(addonVariant.price)}
                               </span>
                               {isAddonSale && addonVariant?.compareAtPrice && (
                                 <span className="text-[#786F66] line-through opacity-60">
@@ -460,9 +407,7 @@ export function ProductDetailView({
         {/* BỘ PHÂN GIẢI THÔNG SỐ MA TRẬN ĐỘNG */}
         <div className="py-20 border-b border-[#E1DDD5]/60 text-left">
           <div className="bg-black text-white p-4 rounded-full flex items-center max-w-full justify-between select-none mb-12 shadow-sm">
-            <span className="font-serif text-lg font-bold pl-4">
-              Product Specifications
-            </span>
+            <span className="font-serif text-lg font-bold pl-4">Product Specifications</span>
             <span className="text-[10px] font-mono text-white/50 tracking-widest uppercase pr-4">
               Hệ sinh thái in 3D
             </span>
@@ -472,12 +417,9 @@ export function ProductDetailView({
             <div className="p-8 bg-[#FAF5F2] border border-[#E1DDD5] rounded-3xl flex flex-col justify-between min-h-[180px]">
               <Layers className="size-6 text-[#FF9D00]" />
               <div className="space-y-2 mt-6">
-                <h3 className="font-serif text-lg font-bold text-black leading-none">
-                  Vật liệu sinh học
-                </h3>
+                <h3 className="font-serif text-lg font-bold text-black leading-none">Vật liệu sinh học</h3>
                 <p className="text-xs text-[#5C564E] leading-relaxed">
-                  {attrs.material ||
-                    "Chế tác từ nhựa sinh học phân hủy hữu cơ PLA lành tính, không mùi."}
+                  {attrs.material || "Chế tác từ nhựa sinh học phân hủy hữu cơ PLA lành tính, không mùi."}
                 </p>
               </div>
             </div>
@@ -485,12 +427,10 @@ export function ProductDetailView({
             <div className="p-8 bg-[#FAF5F2] border border-[#E1DDD5] rounded-3xl flex flex-col justify-between min-h-[180px]">
               <Cpu className="size-6 text-[#FF9D00]" />
               <div className="space-y-2 mt-6">
-                <h3 className="font-serif text-lg font-bold text-black leading-none">
-                  Độ mịn lớp in
-                </h3>
+                <h3 className="font-serif text-lg font-bold text-black leading-none">Độ mịn lớp in</h3>
                 <p className="text-xs text-[#5C564E] leading-relaxed">
-                  Độ phân giải siêu mịn {attrs.layer_height || "0.15mm"} dệt nên
-                  cấu trúc hình học nguyên khối bóng nhám.
+                  Độ phân giải siêu mịn {attrs.layer_height || "0.15mm"} dệt nên cấu trúc hình học nguyên khối bóng
+                  nhám.
                 </p>
               </div>
             </div>
@@ -498,12 +438,9 @@ export function ProductDetailView({
             <div className="p-8 bg-[#FAF5F2] border border-[#E1DDD5] rounded-3xl flex flex-col justify-between min-h-[180px]">
               <Award className="size-6 text-[#FF9D00]" />
               <div className="space-y-2 mt-6">
-                <h3 className="font-serif text-lg font-bold text-black leading-none">
-                  Bản quyền thiết kế
-                </h3>
+                <h3 className="font-serif text-lg font-bold text-black leading-none">Bản quyền thiết kế</h3>
                 <p className="text-xs text-[#5C564E] leading-relaxed">
-                  Tác phẩm sở hữu giấy phép {attrs.license || "CC BY-NC-SA 4.0"}{" "}
-                  phân phối mộc mạc và an toàn.
+                  Tác phẩm sở hữu giấy phép {attrs.license || "CC BY-NC-SA 4.0"} phân phối mộc mạc và an toàn.
                 </p>
               </div>
             </div>
@@ -517,21 +454,15 @@ export function ProductDetailView({
               <div className="space-y-3 font-mono text-xs text-[#5C564E]">
                 <div className="flex justify-between border-b border-dashed border-[#E1DDD5]/80 pb-2.5">
                   <span>Chất liệu chính</span>
-                  <span className="text-black font-bold truncate max-w-[150px]">
-                    {attrs.material || "Matte PLA"}
-                  </span>
+                  <span className="text-black font-bold truncate max-w-[150px]">{attrs.material || "Matte PLA"}</span>
                 </div>
                 <div className="flex justify-between border-b border-dashed border-[#E1DDD5]/80 pb-2.5">
                   <span>Kháng nước</span>
-                  <span className="text-black font-bold">
-                    Kháng nước &amp; bụi mịn
-                  </span>
+                  <span className="text-black font-bold">Kháng nước &amp; bụi mịn</span>
                 </div>
                 <div className="flex justify-between pb-1">
                   <span>Hệ số an toàn</span>
-                  <span className="text-black font-bold">
-                    Không mùi sinh học
-                  </span>
+                  <span className="text-black font-bold">Không mùi sinh học</span>
                 </div>
               </div>
             </div>
@@ -543,21 +474,15 @@ export function ProductDetailView({
               <div className="space-y-3 font-mono text-xs text-[#5C564E]">
                 <div className="flex justify-between border-b border-dashed border-[#E1DDD5]/80 pb-2.5">
                   <span>Cấu trúc Infill</span>
-                  <span className="text-[#3ECF8E] font-bold">
-                    {attrs.infill || "Gyroid Infill"}
-                  </span>
+                  <span className="text-[#3ECF8E] font-bold">{attrs.infill || "Gyroid Infill"}</span>
                 </div>
                 <div className="flex justify-between border-b border-dashed border-[#E1DDD5]/80 pb-2.5">
                   <span>Độ mịn lớp in</span>
-                  <span className="text-black font-bold">
-                    {attrs.layer_height || "0.15mm"}
-                  </span>
+                  <span className="text-black font-bold">{attrs.layer_height || "0.15mm"}</span>
                 </div>
                 <div className="flex justify-between pb-1">
                   <span>Phương thức lắp</span>
-                  <span className="text-black font-bold truncate max-w-[150px]">
-                    {attrs.assembly || "Nguyên khối"}
-                  </span>
+                  <span className="text-black font-bold truncate max-w-[150px]">{attrs.assembly || "Nguyên khối"}</span>
                 </div>
               </div>
             </div>
@@ -569,15 +494,11 @@ export function ProductDetailView({
               <div className="space-y-3 font-mono text-xs text-[#5C564E]">
                 <div className="flex justify-between border-b border-dashed border-[#E1DDD5]/80 pb-2.5">
                   <span>Tương thích cứng</span>
-                  <span className="text-black font-bold truncate max-w-[150px]">
-                    {attrs.hardware || "N/A"}
-                  </span>
+                  <span className="text-black font-bold truncate max-w-[150px]">{attrs.hardware || "N/A"}</span>
                 </div>
                 <div className="flex justify-between border-b border-dashed border-[#E1DDD5]/80 pb-2.5">
                   <span>Hình thức đóng gói</span>
-                  <span className="text-black font-bold">
-                    Hộp giấy Kraft mộc
-                  </span>
+                  <span className="text-black font-bold">Hộp giấy Kraft mộc</span>
                 </div>
                 <div className="flex justify-between pb-1">
                   <span>Bản quyền tác giả</span>
@@ -593,10 +514,7 @@ export function ProductDetailView({
         {product.body && (
           <section className="py-12">
             <div className="mx-auto max-w-3xl">
-              <div
-                className="blog-body text-left"
-                dangerouslySetInnerHTML={{ __html: product.body }}
-              />
+              <div className="blog-body text-left" dangerouslySetInnerHTML={{ __html: product.body }} />
             </div>
           </section>
         )}
@@ -605,9 +523,7 @@ export function ProductDetailView({
 
         {relatedProducts.length > 0 && (
           <section className="mt-16 border-t border-[#E1DDD5] pt-12 text-left">
-            <h2 className="text-xl font-bold tracking-tight font-serif text-black">
-              Có thể bạn cũng thích
-            </h2>
+            <h2 className="text-xl font-bold tracking-tight font-serif text-black">Có thể bạn cũng thích</h2>
             <div className="mt-6">
               <ProductGrid products={relatedProducts} />
             </div>

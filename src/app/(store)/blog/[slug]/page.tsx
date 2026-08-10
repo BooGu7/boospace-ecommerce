@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { BlogComments } from "@/components/blog/blog-comments"; // Nhập khẩu khung bình luận động mới [21]
+import { BlogComments } from "@/components/blog/blog-comments";
 import { Badge } from "@/components/ui/badge";
 import {
   Breadcrumb,
@@ -24,14 +24,12 @@ interface PostProps {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateStaticParams() {
-  const { items } = await blogRepository.list({ page: 1, limit: 100 });
-  return items.map((p) => ({ slug: p.slug }));
+// BỘ TẠO THAM SỐ TĨNH: Trả về mảng rỗng chuẩn kiểu Promise<{ slug: string }[]>
+export async function generateStaticParams(): Promise<{ slug: string }[]> {
+  return [];
 }
 
-export async function generateMetadata({
-  params,
-}: PostProps): Promise<Metadata> {
+export async function generateMetadata({ params }: PostProps): Promise<Metadata> {
   const { slug } = await params;
   const post = await blogRepository.getBySlug(slug);
   if (!post) return { title: "Not Found" };
@@ -48,29 +46,25 @@ export async function generateMetadata({
       publishedTime: post.publishedAt,
       authors: [post.author],
       tags: post.tags,
-      images: post.coverImage
-        ? [{ url: post.coverImage.url, alt: post.coverImage.alt }]
-        : [],
+      images: post.coverImage ? [{ url: post.coverImage.url, alt: post.coverImage.alt }] : [],
     },
   };
 }
 
-// BỘ TRÍCH XUẤT ĐỘNG CÁC THẺ TIÊU ĐỀ H2 ĐỂ BIÊN SOẠN MỤC LỤC TỰ ĐỘNG CHUẨN ĐẸP [21]
+// BỘ TRÍCH XUẤT ĐỘNG CÁC THẺ TIÊU ĐỀ H2
 function extractHeadings(html: string) {
   const regex = /<h2[^>]*>(.*?)<\/h2>/g;
   const headings: { text: string; id: string }[] = [];
-  const match: RegExpExecArray | null = regex.exec(html);
+  let match: RegExpExecArray | null = regex.exec(html);
   while (match !== null) {
-    const text = match[1].replace(/<[^>]*>/g, ""); // Xóa bỏ thẻ HTML con nếu có
+    const text = match[1].replace(/<[^>]*>/g, "");
     const id = text
       .toLowerCase()
       .trim()
-      .replace(
-        /[^a-z0-9àáảãạâầấẩẫậăằắẳẵặèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ\s]+/g,
-        "",
-      )
+      .replace(/[^a-z0-9àáảãạâầấẩẫậăằắẳẵặèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ\s]+/g, "")
       .replace(/\s+/g, "-");
     headings.push({ text, id });
+    match = regex.exec(html);
   }
   return headings;
 }
@@ -80,14 +74,10 @@ export default async function BlogPostPage({ params }: PostProps) {
   const post = await blogRepository.getBySlug(slug);
   if (!post) notFound();
 
-  // Bóc tách tiêu đề và gán ID liên kết mượt mà cho Mục Lục
   const headings = extractHeadings(post.body);
   let processedBody = post.body;
   headings.forEach((h) => {
-    processedBody = processedBody.replace(
-      `<h2>${h.text}</h2>`,
-      `<h2 id="${h.id}">${h.text}</h2>`,
-    );
+    processedBody = processedBody.replace(`<h2>${h.text}</h2>`, `<h2 id="${h.id}">${h.text}</h2>`);
   });
 
   const articleJsonLd = {
@@ -122,9 +112,7 @@ export default async function BlogPostPage({ params }: PostProps) {
           }}
         />
 
-        {/* BỐ CỤC 12 CỘT TÍCH HỢP MỤC LỤC STICKY BÊN TRÁI ĐÚNG CHUẨN SANG TRỌNG */}
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-12 items-start text-left">
-          {/* CỘT TRÁI (3/12): MỤC LỤC STICKY CHỈ HIỂN THỊ TRÊN DESKTOP */}
           <aside className="hidden xl:block xl:col-span-3 sticky top-28 h-fit bg-[#FAF5F2]/60 border border-[#E1DDD5] rounded-3xl p-6 space-y-4">
             <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold block border-b border-[#E1DDD5]/60 pb-2">
               Table of Contents
@@ -143,20 +131,15 @@ export default async function BlogPostPage({ params }: PostProps) {
                 ))}
               </ul>
             ) : (
-              <p className="text-xs text-[#786F66] italic">
-                Nhật ký thô mộc ngắn.
-              </p>
+              <p className="text-xs text-[#786F66] italic">Nhật ký thô mộc ngắn.</p>
             )}
           </aside>
 
-          {/* CỘT PHẢI (9/12): THÂN BÀI VIẾT CHÍNH */}
           <div className="xl:col-span-9 max-w-3xl mx-auto w-full space-y-8">
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem>
-                  <BreadcrumbLink render={<Link href="/blog" />}>
-                    Blog
-                  </BreadcrumbLink>
+                  <BreadcrumbLink render={<Link href="/blog" />}>Blog</BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
@@ -170,21 +153,16 @@ export default async function BlogPostPage({ params }: PostProps) {
             <article className="space-y-8">
               <header className="space-y-4">
                 <div className="flex items-center gap-2 text-xs font-mono text-[#786F66] uppercase font-semibold">
-                  <time dateTime={post.publishedAt}>
-                    {formatDate(post.publishedAt)}
-                  </time>
+                  <time dateTime={post.publishedAt}>{formatDate(post.publishedAt)}</time>
                   <span>·</span>
                   <span>by {post.author}</span>
                 </div>
                 <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-black font-serif leading-tight">
                   {post.title}
                 </h1>
-                <p className="text-base sm:text-lg text-[#5C564E] leading-relaxed font-light">
-                  {post.excerpt}
-                </p>
+                <p className="text-base sm:text-lg text-[#5C564E] leading-relaxed font-light">{post.excerpt}</p>
               </header>
 
-              {/* 16:10 cover */}
               <div className="relative aspect-[16/10] overflow-hidden rounded-3xl border border-[#E1DDD5] bg-[#EAE5D9]/20 shadow-sm">
                 <Image
                   src={post.coverImage?.url ?? PLACEHOLDER_IMAGE}
@@ -196,7 +174,6 @@ export default async function BlogPostPage({ params }: PostProps) {
                 />
               </div>
 
-              {/* Thân bài viết xử lý id động cho mục lục tự cuộn */}
               <div
                 className="blog-body prose prose-stone max-w-none text-[#1E1C1A] text-sm sm:text-base leading-relaxed space-y-6 scroll-smooth"
                 dangerouslySetInnerHTML={{ __html: processedBody }}
@@ -205,14 +182,9 @@ export default async function BlogPostPage({ params }: PostProps) {
               {post.tags.length > 0 && (
                 <footer className="border-t border-[#E1DDD5] pt-6 mt-12">
                   <div className="flex flex-wrap items-center gap-2.5">
-                    <span className="text-xs font-mono text-[#786F66] uppercase tracking-wider font-bold">
-                      Tags:
-                    </span>
+                    <span className="text-xs font-mono text-[#786F66] uppercase tracking-wider font-bold">Tags:</span>
                     {post.tags.map((tag) => (
-                      <Link
-                        key={tag}
-                        href={`/blog?tag=${encodeURIComponent(tag)}`}
-                      >
+                      <Link key={tag} href={`/blog?tag=${encodeURIComponent(tag)}`}>
                         <Badge
                           variant="secondary"
                           className="text-[10px] rounded-lg px-2.5 py-0.5 font-mono cursor-pointer hover:bg-black hover:text-white transition-colors border border-[#DCD6CC] bg-[#EAE5D9]/40 text-[#786F66]"
@@ -226,7 +198,6 @@ export default async function BlogPostPage({ params }: PostProps) {
               )}
             </article>
 
-            {/* KHUNG BÌNH LUẬN ĐỘNG KẾT NỐI SUPABASE ĐÃ ĐƯỢC CHÈN DƯỚI ĐÁY BÀI VIẾT */}
             <BlogComments postId={post.id} />
           </div>
         </div>

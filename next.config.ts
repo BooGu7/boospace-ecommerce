@@ -9,7 +9,7 @@ const withToolbar = withVercelToolbar();
 const nextConfig: NextConfig = {
   // GIỚI HẠN 1 WORKER ĐỂ TIẾT KIỆM RAM TRÊN VERCEL
   experimental: {
-    cpus: 1,
+    cpus: 4,
   },
 
   images: {

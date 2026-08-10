@@ -25,9 +25,7 @@ export async function generateStaticParams() {
   return [];
 }
 
-export async function generateMetadata({
-  params,
-}: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const page = await pageRepository.getBySlug(slug);
   if (!page) return { title: "Not Found" };
@@ -53,10 +51,7 @@ export default async function CmsPageDetail({ params }: PageProps) {
   if (!page) notFound();
 
   // Ép kiểu an toàn hỗ trợ cả content và body
-  const pageContent =
-    (page as unknown as { content?: string; body?: string }).content ||
-    page.body ||
-    "";
+  const pageContent = (page as unknown as { content?: string; body?: string }).content || page.body || "";
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
@@ -75,9 +70,7 @@ export default async function CmsPageDetail({ params }: PageProps) {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink render={<Link href="/pages" />}>
-              Pages
-            </BreadcrumbLink>
+            <BreadcrumbLink render={<Link href="/pages" />}>Pages</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
@@ -88,9 +81,7 @@ export default async function CmsPageDetail({ params }: PageProps) {
 
       <article className="mt-6 text-left">
         <header>
-          <h1 className="text-4xl font-bold tracking-tight font-serif text-black">
-            {page.title}
-          </h1>
+          <h1 className="text-4xl font-bold tracking-tight font-serif text-black">{page.title}</h1>
           <p className="mt-2 text-sm font-mono text-[#786F66]">
             Updated {formatDate(page.updatedAt ?? page.publishedAt)}
           </p>
