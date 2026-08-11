@@ -1,7 +1,14 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Award, Cpu, Heart, Layers, ShoppingBag } from "lucide-react";
+import {
+  AlertTriangle,
+  Award,
+  Cpu,
+  Heart,
+  Layers,
+  ShoppingBag,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -25,6 +32,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
+import { siteConfig } from "@/lib/config"; // Tự động nạp cấu hình hotline/email
 import { PLACEHOLDER_IMAGE } from "@/lib/constants";
 import { breadcrumbJsonLd } from "@/lib/structured-data";
 import { supabase } from "@/lib/supabase/client";
@@ -41,9 +49,16 @@ interface ProductDetailViewProps {
   categoryAncestors?: Category[];
 }
 
-export function ProductDetailView({ product, relatedProducts, brand, categoryAncestors = [] }: ProductDetailViewProps) {
+export function ProductDetailView({
+  product,
+  relatedProducts,
+  brand,
+  categoryAncestors = [],
+}: ProductDetailViewProps) {
   const router = useRouter();
-  const [selectedVariantId, setSelectedVariantId] = useState(product.variants[0]?.id ?? "");
+  const [selectedVariantId, setSelectedVariantId] = useState(
+    product.variants[0]?.id ?? "",
+  );
   const [quantity, setQuantity] = useState(1);
 
   const [avgRating, setAvgRating] = useState(product.rating || 5);
@@ -58,12 +73,16 @@ export function ProductDetailView({ product, relatedProducts, brand, categoryAnc
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
-  const isWishlisted = mounted && wishlistItems.some((i) => i.productId === product.id);
+  const isWishlisted =
+    mounted && wishlistItems.some((i) => i.productId === product.id);
 
   useEffect(() => {
     async function fetchDynamicRatings() {
       try {
-        const { data, error } = await supabase.from("reviews").select("rating").eq("product_id", product.id);
+        const { data, error } = await supabase
+          .from("reviews")
+          .select("rating")
+          .eq("product_id", product.id);
 
         if (!error && data && data.length > 0) {
           const total = data.length;
@@ -89,14 +108,25 @@ export function ProductDetailView({ product, relatedProducts, brand, categoryAnc
     });
   }, [product, addRecentlyViewed]);
 
-  const selectedVariant = product.variants.find((v) => v.id === selectedVariantId);
+  const selectedVariant = product.variants.find(
+    (v) => v.id === selectedVariantId,
+  );
   if (!selectedVariant) return null;
 
-  const isOnSale = Boolean(selectedVariant.compareAtPrice && selectedVariant.compareAtPrice > selectedVariant.price);
-  const inStock = selectedVariant.inventory.quantity > 0 || selectedVariant.inventory.allowBackorder;
+  // KIỂM TRA SỐ LƯỢNG KHO (STOCK <= 0 HOẶC KHÔNG HỢP LỆ TRONG DATABASE)
+  const currentStock =
+    (product as { stock?: number }).stock ??
+    selectedVariant.inventory.quantity ??
+    0;
+  const isOutOfStock = currentStock <= 0;
+
+  const isOnSale = Boolean(
+    selectedVariant.compareAtPrice &&
+    selectedVariant.compareAtPrice > selectedVariant.price,
+  );
 
   function handleAddToCart() {
-    if (!selectedVariant) return;
+    if (!selectedVariant || isOutOfStock) return;
 
     addToCart({
       variantId: selectedVariant.id,
@@ -170,7 +200,9 @@ export function ProductDetailView({ product, relatedProducts, brand, categoryAnc
       "@type": "Offer",
       price: (selectedVariant.price / 100).toFixed(2),
       priceCurrency: selectedVariant.currency,
-      availability: inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      availability: !isOutOfStock
+        ? "https://schema.org/InStock"
+        : "https://schema.org/OutOfStock",
     },
   };
 
@@ -190,7 +222,9 @@ export function ProductDetailView({ product, relatedProducts, brand, categoryAnc
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink render={<Link href="/shop" />}>Cửa hàng</BreadcrumbLink>
+              <BreadcrumbLink render={<Link href="/shop" />}>
+                Cửa hàng
+              </BreadcrumbLink>
             </BreadcrumbItem>
             {categoryAncestors.map((cat, idx) => {
               const isLast = idx === categoryAncestors.length - 1;
@@ -201,7 +235,9 @@ export function ProductDetailView({ product, relatedProducts, brand, categoryAnc
                     {isLast ? (
                       <BreadcrumbPage>{cat.name}</BreadcrumbPage>
                     ) : (
-                      <BreadcrumbLink render={<Link href={`/${cat.slug}`} />}>{cat.name}</BreadcrumbLink>
+                      <BreadcrumbLink render={<Link href={`/${cat.slug}`} />}>
+                        {cat.name}
+                      </BreadcrumbLink>
                     )}
                   </BreadcrumbItem>
                 </div>
@@ -218,8 +254,18 @@ export function ProductDetailView({ product, relatedProducts, brand, categoryAnc
               <StarRating rating={avgRating} reviewCount={reviewCount} />
             </div>
 
-            {/* BẬT TÍNH NĂNG CLICK CHUYỂN HƯỚNG VỀ BỘ LỌC CỬA HÀNG HÀNG TRÍ KHI CLICK VÀO TAG */}
-            <div className="flex flex-wrap gap-2.5 mt-3 mb-1">
+            {/* THẺ TAGS CHUYỂN HƯỚNG VÀ BADGE TRẠNG THÁI HÀNG */}
+            <div className="flex flex-wrap items-center gap-2.5 mt-3 mb-1">
+              {isOutOfStock ? (
+                <span className="text-[10px] font-mono font-bold text-white bg-slate-800 px-3 py-1 rounded-full uppercase tracking-wider shadow-xs">
+                  🚫 HẾT HÀNG TẠM THỜI
+                </span>
+              ) : (
+                <span className="text-[10px] font-mono font-bold text-emerald-800 bg-emerald-100 border border-emerald-300 px-3 py-1 rounded-full uppercase tracking-wider">
+                  ✓ SẴN HÀNG TRONG KHO ({currentStock})
+                </span>
+              )}
+
               {isOnSale && (
                 <button
                   type="button"
@@ -240,7 +286,9 @@ export function ProductDetailView({ product, relatedProducts, brand, categoryAnc
               )}
             </div>
 
-            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-black font-serif">{product.name}</h1>
+            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-black font-serif mt-1">
+              {product.name}
+            </h1>
 
             {brand && (
               <Link
@@ -251,26 +299,37 @@ export function ProductDetailView({ product, relatedProducts, brand, categoryAnc
               </Link>
             )}
 
-            {/* STYLE GIÁ BÁN & HUY HIỆU GIẢM GIÁ ĐƯỢC TĂNG TƯƠNG PHẢN NỔI BẬT */}
-            <motion.div whileHover={{ scale: 1.01 }} className="mt-4 flex items-baseline gap-3 w-fit select-none">
-              <span className="text-3xl font-sans font-bold tracking-tight text-black">
+            {/* STYLE GIÁ BÁN & HUY HIỆU GIẢM GIÁ TƯƠNG PHẢN NỔI BẬT */}
+            <motion.div
+              whileHover={{ scale: 1.01 }}
+              className="mt-4 flex items-center gap-3 w-fit select-none"
+            >
+              <span className="text-3xl sm:text-4xl font-sans font-extrabold tracking-tight text-[#1E1C1A]">
                 {formatPrice(selectedVariant.price, selectedVariant.currency)}
               </span>
 
               {isOnSale && selectedVariant.compareAtPrice && (
-                <span className="text-sm sm:text-base font-mono text-slate-500 line-through font-medium">
+                <span className="text-base sm:text-lg font-mono text-slate-400 line-through font-medium">
                   {formatPrice(selectedVariant.compareAtPrice)}
                 </span>
               )}
 
               {isOnSale && selectedVariant.compareAtPrice && (
-                <Badge className="bg-red-600 text-white font-bold text-[10px] font-mono uppercase px-2 py-0.5 rounded-md border-0">
-                  -{Math.round((1 - selectedVariant.price / selectedVariant.compareAtPrice) * 100)}%
+                <Badge className="bg-red-600 text-white font-bold text-xs font-mono uppercase px-2.5 py-1 rounded-md border-0 shadow-xs animate-pulse">
+                  -
+                  {Math.round(
+                    (1 -
+                      selectedVariant.price / selectedVariant.compareAtPrice) *
+                      100,
+                  )}
+                  %
                 </Badge>
               )}
             </motion.div>
 
-            <p className="mt-4 text-sm sm:text-base text-[#5C564E] leading-relaxed font-sans">{product.description}</p>
+            <p className="mt-4 text-sm sm:text-base text-[#5C564E] leading-relaxed font-sans">
+              {product.description}
+            </p>
 
             {product.variants.length > 1 && (
               <div className="mt-6 mb-6">
@@ -287,34 +346,58 @@ export function ProductDetailView({ product, relatedProducts, brand, categoryAnc
                 <QuantitySelector
                   quantity={quantity}
                   onQuantityChange={setQuantity}
-                  max={selectedVariant.inventory.quantity || 99}
+                  max={currentStock > 0 ? currentStock : 1}
+                  disabled={isOutOfStock}
                 />
                 <Button
                   variant="outline"
                   size="icon"
-                  aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                  aria-label={
+                    isWishlisted ? "Remove from wishlist" : "Add to wishlist"
+                  }
                   onClick={handleToggleWishlist}
                   className="rounded-xl border-[#E1DDD5] hover:bg-[#EAE5D9]/20"
                 >
-                  <Heart className={`h-4 w-4 ${isWishlisted ? "fill-wishlist text-wishlist" : ""}`} />
+                  <Heart
+                    className={`h-4 w-4 ${isWishlisted ? "fill-wishlist text-wishlist" : ""}`}
+                  />
                 </Button>
               </div>
 
+              {/* NÚT BẤM TỰ ĐỘNG KHÓA KHI STOCK = 0 */}
               <Button
                 size="lg"
-                className="w-full sm:flex-1 bg-black hover:bg-[#33302C] text-white font-mono uppercase text-xs tracking-wider rounded-xl py-4 flex items-center justify-center gap-2 cursor-pointer transition-colors"
-                disabled={!inStock}
+                className={`w-full sm:flex-1 font-mono uppercase text-xs tracking-wider rounded-xl py-4 flex items-center justify-center gap-2 transition-colors ${
+                  isOutOfStock
+                    ? "bg-slate-300 text-slate-600 cursor-not-allowed hover:bg-slate-300"
+                    : "bg-black hover:bg-[#33302C] text-white cursor-pointer"
+                }`}
+                disabled={isOutOfStock}
                 onClick={handleAddToCart}
               >
-                <ShoppingBag className="h-4 w-4 text-white" />
-                {inStock ? "Thêm vào giỏ hàng" : "Hết hàng tạm thời"}
+                <ShoppingBag className="h-4 w-4" />
+                {isOutOfStock ? "HẾT HÀNG TẠM THỜI" : "THÊM VÀO GIỎ HÀNG"}
               </Button>
             </div>
 
-            {!inStock && (
-              <p className="mt-2 text-xs font-mono text-red-500 uppercase tracking-wider font-semibold">
-                Sản phẩm này hiện đang hết hàng tạm thời.
-              </p>
+            {/* CẢNH BÁO KHI SẢN PHẨM HẾT HÀNG — SỬ DỤNG SỐ ĐIỆN THOẠI TỪ CONFIG */}
+            {isOutOfStock && (
+              <div className="mt-4 p-3.5 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-2.5 text-xs text-amber-900 font-sans leading-relaxed">
+                <AlertTriangle className="size-4 text-amber-600 shrink-0 mt-0.5" />
+                <div>
+                  <strong>Sản phẩm đang tạm hết hàng trong kho.</strong> Bạn có
+                  thể liên hệ Zalo hotline{" "}
+                  <a
+                    href={`https://zalo.me/${siteConfig.contact.phone.replace(/\s+/g, "")}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="underline font-bold text-black"
+                  >
+                    {siteConfig.contact.phone}
+                  </a>{" "}
+                  để đặt ưu tiên chế tác cho đợt tiếp theo.
+                </div>
+              </div>
             )}
 
             {/* UPSELL MUA KÈM CÓ NÚT "THÊM" TIẾNG VIỆT HOÀN TOÀN */}
@@ -337,7 +420,8 @@ export function ProductDetailView({ product, relatedProducts, brand, categoryAnc
                         : item.images?.[0]?.url || PLACEHOLDER_IMAGE;
                     const addonVariant = item.variants?.[0];
                     const isAddonSale = Boolean(
-                      addonVariant?.compareAtPrice && addonVariant.compareAtPrice > addonVariant.price,
+                      addonVariant?.compareAtPrice &&
+                      addonVariant.compareAtPrice > addonVariant.price,
                     );
 
                     return (
@@ -347,7 +431,13 @@ export function ProductDetailView({ product, relatedProducts, brand, categoryAnc
                       >
                         <div className="flex items-center gap-3.5 flex-1 min-w-0">
                           <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-[#E1DDD5] bg-white shadow-xs">
-                            <Image src={addonImgUrl} alt={item.name} fill sizes="56px" className="object-cover" />
+                            <Image
+                              src={addonImgUrl}
+                              alt={item.name}
+                              fill
+                              sizes="56px"
+                              className="object-cover"
+                            />
                           </div>
 
                           <div className="text-left min-w-0 flex-1">
@@ -356,7 +446,8 @@ export function ProductDetailView({ product, relatedProducts, brand, categoryAnc
                             </p>
                             <div className="flex items-baseline gap-1.5 mt-1 font-mono text-xs">
                               <span className="font-bold text-black">
-                                {addonVariant && formatPrice(addonVariant.price)}
+                                {addonVariant &&
+                                  formatPrice(addonVariant.price)}
                               </span>
                               {isAddonSale && addonVariant?.compareAtPrice && (
                                 <span className="text-slate-400 line-through text-[10px]">
@@ -385,10 +476,12 @@ export function ProductDetailView({ product, relatedProducts, brand, categoryAnc
           </div>
         </div>
 
-        {/* MA TRẬN THÔNG SỐ TỐI GIẢN TẬP TRUNG VÀO CÔNG NĂNG & ĐỘ BỀN THỰC TẾ */}
+        {/* BẢNG THÔNG SỐ TỐI GIẢN */}
         <div className="py-16 border-b border-[#E1DDD5]/60 text-left">
           <div className="bg-black text-white p-4 rounded-2xl flex items-center max-w-full justify-between select-none mb-10 shadow-xs">
-            <span className="font-serif text-lg font-bold pl-2">Thông số chế tác &amp; Công năng</span>
+            <span className="font-serif text-lg font-bold pl-2">
+              Thông số chế tác &amp; Công năng
+            </span>
             <span className="text-[10px] font-mono text-white/60 tracking-widest uppercase pr-2">
               Sản phẩm On-Demand
             </span>
@@ -398,9 +491,12 @@ export function ProductDetailView({ product, relatedProducts, brand, categoryAnc
             <div className="p-6 bg-[#FAF5F2] border border-[#E1DDD5] rounded-3xl flex flex-col justify-between min-h-[160px]">
               <Layers className="size-6 text-[#FF9D00]" />
               <div className="space-y-1.5 mt-4">
-                <h3 className="font-serif text-base font-bold text-black leading-none">Vật liệu</h3>
+                <h3 className="font-serif text-base font-bold text-black leading-none">
+                  Vật liệu
+                </h3>
                 <p className="text-xs text-[#5C564E] leading-relaxed">
-                  {attrs.material || "Nhựa kỹ thuật CR-PETG chịu lực và chịu nhiệt cao (∼70–80°C)."}
+                  {attrs.material ||
+                    "Nhựa kỹ thuật CR-PETG chịu lực và chịu nhiệt cao (∼70–80°C)."}
                 </p>
               </div>
             </div>
@@ -408,9 +504,12 @@ export function ProductDetailView({ product, relatedProducts, brand, categoryAnc
             <div className="p-6 bg-[#FAF5F2] border border-[#E1DDD5] rounded-3xl flex flex-col justify-between min-h-[160px]">
               <Cpu className="size-6 text-[#FF9D00]" />
               <div className="space-y-1.5 mt-4">
-                <h3 className="font-serif text-base font-bold text-black leading-none">Đặc tính</h3>
+                <h3 className="font-serif text-base font-bold text-black leading-none">
+                  Đặc tính
+                </h3>
                 <p className="text-xs text-[#5C564E] leading-relaxed">
-                  Không mùi sinh học, chống ẩm mốc tuyệt đối, kháng nước &amp; bụi mịn.
+                  Không mùi sinh học, chống ẩm mốc tuyệt đối, kháng nước &amp;
+                  bụi mịn.
                 </p>
               </div>
             </div>
@@ -418,9 +517,12 @@ export function ProductDetailView({ product, relatedProducts, brand, categoryAnc
             <div className="p-6 bg-[#FAF5F2] border border-[#E1DDD5] rounded-3xl flex flex-col justify-between min-h-[160px]">
               <Award className="size-6 text-[#FF9D00]" />
               <div className="space-y-1.5 mt-4">
-                <h3 className="font-serif text-base font-bold text-black leading-none">Công năng</h3>
+                <h3 className="font-serif text-base font-bold text-black leading-none">
+                  Công năng
+                </h3>
                 <p className="text-xs text-[#5C564E] leading-relaxed">
-                  Thiết kế nguyên khối, tích hợp rãnh thoát nước ẩn ngầm thông minh.
+                  Thiết kế nguyên khối, tích hợp rãnh thoát nước ẩn ngầm thông
+                  minh.
                 </p>
               </div>
             </div>
@@ -430,7 +532,10 @@ export function ProductDetailView({ product, relatedProducts, brand, categoryAnc
         {product.body && (
           <section className="py-12">
             <div className="mx-auto max-w-3xl">
-              <div className="blog-body text-left" dangerouslySetInnerHTML={{ __html: product.body }} />
+              <div
+                className="blog-body text-left"
+                dangerouslySetInnerHTML={{ __html: product.body }}
+              />
             </div>
           </section>
         )}
@@ -439,7 +544,9 @@ export function ProductDetailView({ product, relatedProducts, brand, categoryAnc
 
         {relatedProducts.length > 0 && (
           <section className="mt-16 border-t border-[#E1DDD5] pt-12 text-left">
-            <h2 className="text-xl font-bold tracking-tight font-serif text-black">Có thể bạn cũng thích</h2>
+            <h2 className="text-xl font-bold tracking-tight font-serif text-black">
+              Có thể bạn cũng thích
+            </h2>
             <div className="mt-6">
               <ProductGrid products={relatedProducts} />
             </div>

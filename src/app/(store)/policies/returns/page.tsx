@@ -1,106 +1,186 @@
 import type { Metadata } from "next";
+import { AlertCircle, CheckCircle2, RotateCcw } from "lucide-react";
 
 export const revalidate = 86400; // Cache 24 giờ
 
 export const metadata: Metadata = {
-  title: "Đổi trả & hoàn tiền",
-  description: "Chính sách đổi trả và hoàn tiền dành cho khách hàng tại Boo Space.",
+  title: "Chính sách đổi trả & hoàn tiền",
+  description:
+    "Quy trình đổi trả 4 bước minh bạch, điều kiện hoàn tiền và chính sách bảo hành sản phẩm chế tác 3D tại Boo Space.",
 };
 
 export default function ReturnsPolicyPage() {
   return (
-    <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
-      <h1 className="text-3xl font-bold tracking-tight">Chính sách đổi trả & hoàn tiền</h1>
+    <div className="bg-[#FCFAF2] min-h-screen text-[#1E1C1A] antialiased selection:bg-[#EAE5D9]">
+      <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="border-b border-[#E1DDD5] pb-8 text-left space-y-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#EAE5D9] text-[#786F66] text-[10px] font-mono font-bold uppercase tracking-widest border border-[#DCD6CC]">
+            <RotateCcw className="size-3.5 text-[#FF9D00]" /> REFUND &amp;
+            RETURN POLICY
+          </div>
+          <h1 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-black">
+            Chính sách đổi trả &amp; hoàn tiền
+          </h1>
+          <p className="text-xs font-mono text-[#786F66] uppercase tracking-wider">
+            Tuân thủ Luật Thương mại 2005 &amp; Tiêu chuẩn bảo vệ người tiêu
+            dùng 2026
+          </p>
+        </div>
 
-      <div className="mt-8 space-y-6 text-muted-foreground">
-        <p>
-          Tại Boo Space, chúng tôi cam kết mang đến sản phẩm chất lượng và trải nghiệm mua sắm đáng tin cậy. Nếu sản
-          phẩm gặp lỗi hoặc không đúng mô tả, khách hàng có thể yêu cầu đổi trả theo chính sách dưới đây.
-        </p>
+        {/* Content Body */}
+        <div className="mt-8 space-y-10 text-left font-sans text-sm sm:text-base leading-relaxed text-[#5C564E]">
+          <p className="italic text-black font-serif text-base border-l-2 border-[#FF9D00] pl-4 py-1">
+            &quot;Tại Boo Space, chúng tôi cam kết bảo vệ tuyệt đối quyền lợi
+            của bạn bằng việc cung cấp một chính sách đổi trả minh bạch và nhất
+            quán. Đây là lớp bảo hiểm đáng tin cậy giúp bạn hoàn toàn an tâm khi
+            sở hữu những thiết kế độc bản.&quot;
+          </p>
 
-        <h2 className="text-xl font-semibold text-foreground">1. Quy trình đổi trả</h2>
+          {/* Section 1 */}
+          <section className="space-y-4">
+            <h2 className="font-serif text-xl sm:text-2xl font-bold text-black border-b border-[#E1DDD5]/60 pb-2">
+              1. Thời hạn &amp; Trường hợp áp dụng đổi trả
+            </h2>
 
-        <ol className="list-inside list-decimal space-y-2">
-          <li>Liên hệ bộ phận Chăm sóc khách hàng của Boo Space để đăng ký đổi trả.</li>
-          <li>Boo Space xác nhận thông tin đơn hàng và điều kiện áp dụng đổi trả.</li>
-          <li>Tiến hành đổi sản phẩm hoặc hoàn tiền theo chính sách hiện hành.</li>
-        </ol>
+            <div className="space-y-4">
+              <div className="p-5 bg-white border border-[#E1DDD5] rounded-2xl space-y-2">
+                <h3 className="font-serif font-bold text-black text-base flex items-center gap-2">
+                  <CheckCircle2 className="size-4 text-[#3ECF8E]" /> Trường hợp
+                  1: Lỗi từ phía Boo Space hoặc do vận chuyển
+                </h3>
+                <ul className="list-disc pl-5 space-y-1.5 text-xs text-[#5C564E]">
+                  <li>
+                    <strong>Thời hạn:</strong> Trong vòng{" "}
+                    <strong>07 ngày</strong> kể từ khi đơn hàng giao thành công.
+                  </li>
+                  <li>
+                    <strong>Lỗi chấp nhận:</strong> Sản phẩm bị vỡ hỏng do vận
+                    chuyển, giao sai mẫu/màu, hoặc lỗi kỹ thuật nghiêm trọng từ
+                    khâu chế tác.
+                  </li>
+                  <li>
+                    <strong>Chi phí:</strong> Boo Space chịu{" "}
+                    <strong>100% phí vận chuyển hai chiều</strong>.
+                  </li>
+                </ul>
+              </div>
 
-        <p>
-          <strong>Lưu ý:</strong> Khách hàng cần cung cấp hình ảnh hoặc video sản phẩm lỗi để được hỗ trợ nhanh chóng.
-          Thời gian xử lý yêu cầu đổi trả trong vòng <strong>07 ngày làm việc</strong> kể từ khi nhận đầy đủ thông tin.
-        </p>
+              <div className="p-5 bg-white border border-[#E1DDD5] rounded-2xl space-y-2">
+                <h3 className="font-serif font-bold text-black text-base flex items-center gap-2">
+                  <RotateCcw className="size-4 text-[#FF9D00]" /> Trường hợp 2:
+                  Đổi size hoặc đổi màu do chọn nhầm
+                </h3>
+                <ul className="list-disc pl-5 space-y-1.5 text-xs text-[#5C564E]">
+                  <li>
+                    <strong>Thời hạn:</strong> Trong vòng{" "}
+                    <strong>03 ngày</strong> kể từ khi nhận hàng.
+                  </li>
+                  <li>
+                    <strong>Điều kiện:</strong> Sản phẩm còn mới 100%, chưa qua
+                    sử dụng, còn nguyên nhãn mác và vỏ hộp.
+                  </li>
+                  <li>
+                    <strong>Chi phí:</strong> Khách hàng chịu{" "}
+                    <strong>100% phí vận chuyển hai chiều</strong>.
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </section>
 
-        <h2 className="text-xl font-semibold text-foreground">2. Thời gian đổi trả</h2>
+          {/* Section 2 */}
+          <section className="space-y-4">
+            <h2 className="font-serif text-xl sm:text-2xl font-bold text-black border-b border-[#E1DDD5]/60 pb-2 flex items-center gap-2">
+              <AlertCircle className="size-5 text-red-500" /> 2. Các trường hợp
+              không hỗ trợ đổi trả
+            </h2>
+            <div className="p-5 bg-red-50/40 border border-red-200/80 rounded-2xl space-y-2 text-xs text-red-950">
+              <p className="font-bold">
+                Boo Space không hỗ trợ đổi trả đối với:
+              </p>
+              <ul className="list-disc pl-5 space-y-1.5">
+                <li>
+                  <strong>Sản phẩm Custom theo yêu cầu riêng:</strong> Các sản
+                  phẩm in tên riêng, chỉnh kích thước riêng hoặc in từ file
+                  `.STL`/`.3MF` do khách hàng cung cấp.
+                </li>
+                <li>
+                  Sản phẩm bị biến dạng do bảo quản sai cách (như để trong cabin
+                  ô tô phơi nắng gắt quá 80°C hoặc dùng dung môi Acetone/xăng
+                  thơm để lau chùi).
+                </li>
+                <li>
+                  Gửi yêu cầu quá thời hạn quy định hoặc không cung cấp được
+                  video clip mở hộp (unboxing).
+                </li>
+              </ul>
+            </div>
+          </section>
 
-        <h3 className="text-lg font-medium text-foreground">Trong vòng 30 ngày kể từ ngày nhận hàng</h3>
+          {/* Section 3 */}
+          <section className="space-y-4">
+            <h2 className="font-serif text-xl sm:text-2xl font-bold text-black border-b border-[#E1DDD5]/60 pb-2">
+              3. Quy trình thực hiện đổi trả 4 bước
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 font-sans text-xs">
+              <div className="p-4 bg-white border border-[#E1DDD5] rounded-2xl space-y-1">
+                <span className="font-mono font-bold text-[#FF9D00]">
+                  BƯỚC 01 / GỬI YÊU CẦU
+                </span>
+                <p className="text-black font-semibold">
+                  Nhắn tin Zalo/Email đính kèm clip unboxing mở hộp.
+                </p>
+              </div>
+              <div className="p-4 bg-white border border-[#E1DDD5] rounded-2xl space-y-1">
+                <span className="font-mono font-bold text-[#FF9D00]">
+                  BƯỚC 02 / THẨM ĐỊNH
+                </span>
+                <p className="text-black font-semibold">
+                  Boo Space xác minh hồ sơ trong 24 – 48 giờ làm việc.
+                </p>
+              </div>
+              <div className="p-4 bg-white border border-[#E1DDD5] rounded-2xl space-y-1">
+                <span className="font-mono font-bold text-[#FF9D00]">
+                  BƯỚC 03 / GỬI HÀNG HOÀN
+                </span>
+                <p className="text-black font-semibold">
+                  Khách đóng gói cẩn thận gửi về địa chỉ kho xưởng.
+                </p>
+              </div>
+              <div className="p-4 bg-white border border-[#E1DDD5] rounded-2xl space-y-1">
+                <span className="font-mono font-bold text-[#FF9D00]">
+                  BƯỚC 04 / ĐỔI HÀNG / HOÀN TIỀN
+                </span>
+                <p className="text-black font-semibold">
+                  Xưởng gửi sản phẩm mới hoặc hoàn tiền ngay.
+                </p>
+              </div>
+            </div>
+          </section>
 
-        <ul className="list-inside list-disc space-y-2">
-          <li>
-            <strong>Sản phẩm lỗi từ nhà sản xuất:</strong> Đổi mới hoặc hoàn tiền 100% nếu không có sản phẩm thay thế.
-          </li>
-          <li>
-            <strong>Sản phẩm không lỗi:</strong> Hỗ trợ đổi/trả theo điều kiện áp dụng.
-          </li>
-          <li>
-            <strong>Lỗi do người sử dụng:</strong> Không hỗ trợ đổi trả.
-          </li>
-        </ul>
-
-        <h3 className="text-lg font-medium text-foreground">Sau 30 ngày kể từ ngày nhận hàng</h3>
-
-        <ul className="list-inside list-disc space-y-2">
-          <li>
-            <strong>Sản phẩm lỗi từ nhà sản xuất:</strong> Hỗ trợ bảo hành hoặc hoàn tiền tùy theo tình trạng thực tế.
-          </li>
-          <li>
-            <strong>Sản phẩm không lỗi:</strong> Xem xét hỗ trợ đổi/trả theo từng trường hợp cụ thể.
-          </li>
-          <li>
-            <strong>Lỗi do người sử dụng:</strong> Hỗ trợ sửa chữa có tính phí (nếu có).
-          </li>
-        </ul>
-
-        <h2 className="text-xl font-semibold text-foreground">3. Điều kiện đổi trả</h2>
-
-        <p>Sản phẩm được chấp nhận đổi trả khi đáp ứng các điều kiện sau:</p>
-
-        <ul className="list-inside list-disc space-y-2">
-          <li>Còn nguyên tem niêm phong (nếu có).</li>
-          <li>Còn đầy đủ phụ kiện, quà tặng kèm và chứng từ mua hàng.</li>
-          <li>Không bị hư hỏng, trầy xước hoặc biến dạng do người sử dụng.</li>
-          <li>Được xác nhận lỗi kỹ thuật từ nhà sản xuất hoặc thuộc trường hợp hỗ trợ đổi trả theo quy định.</li>
-        </ul>
-
-        <h2 className="text-xl font-semibold text-foreground">4. Chi phí đổi trả</h2>
-
-        <ul className="list-inside list-disc space-y-2">
-          <li>Sản phẩm lỗi từ nhà sản xuất: Boo Space hỗ trợ toàn bộ chi phí vận chuyển đổi trả.</li>
-          <li>Sản phẩm không lỗi: Khách hàng chịu các chi phí vận chuyển phát sinh.</li>
-          <li>Trường hợp đổi sang sản phẩm khác: Khách hàng thanh toán phần chênh lệch giá trị (nếu có).</li>
-        </ul>
-
-        <h2 className="text-xl font-semibold text-foreground">5. Các trường hợp không hỗ trợ đổi trả</h2>
-
-        <ul className="list-inside list-disc space-y-2">
-          <li>Sản phẩm hư hỏng do sử dụng sai hướng dẫn.</li>
-          <li>Sản phẩm bị rách bao bì, trầy xước, móp méo hoặc vỡ do người sử dụng.</li>
-          <li>Yêu cầu đổi trả không được thông báo trước với bộ phận Chăm sóc khách hàng.</li>
-          <li>Sản phẩm thuộc chương trình giảm giá từ 30% trở lên (nếu có quy định riêng).</li>
-          <li>Các trường hợp bất khả kháng như thiên tai, dịch bệnh hoặc sự cố ngoài tầm kiểm soát.</li>
-        </ul>
-
-        <h2 className="text-xl font-semibold text-foreground">6. Hoàn tiền</h2>
-
-        <p>
-          Khách hàng cung cấp thông tin tài khoản ngân hàng để nhận hoàn tiền. Thời gian hoàn tiền dự kiến từ{" "}
-          <strong>07–14 ngày làm việc</strong> sau khi yêu cầu đổi trả được xác nhận đủ điều kiện.
-        </p>
-
-        <p>
-          Nếu cần hỗ trợ thêm, vui lòng liên hệ Boo Space qua email <strong>boospace7@gmail.com</strong> hoặc fanpage
-          chính thức của chúng tôi.
-        </p>
+          {/* Section 4 */}
+          <section className="space-y-4">
+            <h2 className="font-serif text-xl sm:text-2xl font-bold text-black border-b border-[#E1DDD5]/60 pb-2">
+              4. Chính sách hoàn tiền
+            </h2>
+            <p>
+              Boo Space hoàn tiền thông qua hình thức{" "}
+              <strong>chuyển khoản ngân hàng trực tiếp / VietQR</strong> về đúng
+              tài khoản chính chủ mua hàng.
+            </p>
+            <ul className="list-disc pl-6 space-y-1.5 text-xs">
+              <li>
+                Lệnh hoàn tiền được duyệt trong 01–03 ngày làm việc sau khi kho
+                nhận lại hàng.
+              </li>
+              <li>
+                Tiền sẽ ghi có vào tài khoản khách hàng từ 03–07 ngày làm việc
+                tùy ngân hàng.
+              </li>
+            </ul>
+          </section>
+        </div>
       </div>
     </div>
   );

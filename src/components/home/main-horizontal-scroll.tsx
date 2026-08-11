@@ -79,7 +79,6 @@ export function MainHorizontalScroll({
     }
   }, []);
 
-  // NẠP 100% CÂU CHỮ ĐỘNG TỪ BẢNG SETTINGS (SUPABASE)
   const manifestoHeading = config.manifesto_heading;
   const manifestoDesc = config.manifesto_desc;
 
@@ -151,55 +150,59 @@ export function MainHorizontalScroll({
           </section>
         )}
 
-        {/* Collections Mobile */}
+        {/* BỘ SƯU TẬP KHÔNG GIAN (MOBILE - ĐÃ NẠP MÔ TẢ TỪ SUPABASE) */}
         <section className="px-6 py-16">
           <h2 className="text-3xl font-bold text-black font-serif border-b pb-4 border-[#E1DDD5] mb-8">
             Bộ sưu tập không gian
           </h2>
           <div className="grid gap-6 sm:grid-cols-2">
-            {categories?.map((cat, idx) => (
-              <Link
-                key={cat.id}
-                href={`/shop?category=${cat.slug}`}
-                className="group relative aspect-square rounded-3xl overflow-hidden border border-[#E1DDD5] bg-[#EAE5D9]/40 shadow-sm"
-              >
-                <Image
-                  src={
-                    cat.image_url ||
-                    (idx === 0
-                      ? config.diy_image
-                      : idx === 1
-                        ? config.tech_image
-                        : config.hero_image)
-                  }
-                  alt={cat.name}
-                  fill
-                  sizes="100vw"
-                  className="object-cover mix-blend-multiply opacity-80"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex flex-col justify-end p-8 text-white">
-                  <span className="text-[10px] font-mono uppercase tracking-widest text-amber-400 font-bold">
-                    {cat.name}
-                  </span>
-                  <h3 className="text-xl font-bold font-serif mt-1">
-                    {cat.name}
-                  </h3>
-                  {cat.description && (
-                    <p className="text-xs text-neutral-300 font-sans mt-1 line-clamp-2 leading-relaxed">
-                      {cat.description}
+            {categories
+              ?.filter((c) => c.active !== false)
+              .map((cat, idx) => (
+                <Link
+                  key={cat.id}
+                  href={`/shop?category=${cat.slug}`}
+                  className="group relative aspect-square rounded-3xl overflow-hidden border border-[#E1DDD5] bg-[#EAE5D9]/40 shadow-sm"
+                >
+                  <Image
+                    src={
+                      cat.image_url ||
+                      cat.imageUrl ||
+                      (idx === 0
+                        ? config.diy_image
+                        : idx === 1
+                          ? config.tech_image
+                          : config.hero_image)
+                    }
+                    alt={cat.name}
+                    fill
+                    sizes="100vw"
+                    className="object-cover mix-blend-multiply opacity-80"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex flex-col justify-end p-6 text-white text-left">
+                    <span className="text-[10px] font-mono uppercase tracking-widest text-amber-400 font-bold">
+                      {cat.name}
+                    </span>
+                    <h3 className="text-xl font-bold font-serif mt-1">
+                      {cat.name}
+                    </h3>
+                    {/* HIỂN THỊ MÔ TẢ TỪ SUPABASE (CÓ FALLBACK NẾU NULL) */}
+                    <p className="text-xs text-neutral-200 font-sans mt-1 line-clamp-2 leading-relaxed font-medium">
+                      {cat.description ||
+                        cat.desc ||
+                        `Khám phá các thiết kế không gian độc bản thuộc bộ sưu tập ${cat.name}.`}
                     </p>
-                  )}
-                </div>
-              </Link>
-            ))}
+                  </div>
+                </Link>
+              ))}
           </div>
         </section>
 
-        {/* The Journal Mobile */}
+        {/* NHẬT KÝ HÀNH TRÌNH (MOBILE) */}
         <section className="px-6 py-16 bg-[#F9F6ED] border-y border-[#E1DDD5]">
           <div className="flex justify-between items-end border-b pb-4 border-[#E1DDD5] mb-8">
             <h2 className="text-3xl font-bold text-black font-serif">
-              The Journal
+              Nhật ký hành trình
             </h2>
             <Link
               href="/blog"
@@ -488,7 +491,7 @@ export function MainHorizontalScroll({
               </div>
             )}
 
-            {/* SLIDE 8 COLLECTIONS */}
+            {/* SLIDE 8 COLLECTIONS (DESKTOP - HIỂN THỊ CÂU MÔ TẢ TỪ SUPABASE) */}
             <div className="w-[100vw] h-full shrink-0 flex items-center justify-center px-24 border-r border-[#E1DDD5]/50 bg-[#FCFAF2]">
               <div className="w-full max-w-7xl">
                 <div className="border-b pb-6 border-[#E1DDD5] mb-8 text-left">
@@ -500,47 +503,51 @@ export function MainHorizontalScroll({
                   </h2>
                 </div>
                 <div className="grid gap-6 grid-cols-3 bg-[#FCFAF2]">
-                  {categories?.map((cat, idx) => (
-                    <motion.div key={cat.id} whileHover={{ y: -8 }}>
-                      <Link
-                        href={`/shop?category=${cat.slug}`}
-                        className="group relative aspect-square rounded-3xl overflow-hidden border border-[#E1DDD5] bg-[#EAE5D9]/40 shadow-sm transition-all hover:border-[#1E1C1A] block"
-                      >
-                        <Image
-                          src={
-                            cat.image_url ||
-                            (idx === 0
-                              ? config.diy_image
-                              : idx === 1
-                                ? config.tech_image
-                                : config.hero_image)
-                          }
-                          alt={cat.name}
-                          fill
-                          sizes="33vw"
-                          className="object-cover mix-blend-multiply opacity-80 group-hover:opacity-90"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex flex-col justify-end p-8 text-white text-left">
-                          <span className="text-[10px] font-mono uppercase tracking-widest text-amber-400 font-bold">
-                            {cat.name}
-                          </span>
-                          <h3 className="text-2xl font-bold font-serif mt-1">
-                            {cat.name}
-                          </h3>
-                          {cat.description && (
-                            <p className="text-xs text-neutral-300 font-sans mt-1.5 line-clamp-2 leading-relaxed">
-                              {cat.description}
+                  {categories
+                    ?.filter((c) => c.active !== false)
+                    .map((cat, idx) => (
+                      <motion.div key={cat.id} whileHover={{ y: -8 }}>
+                        <Link
+                          href={`/shop?category=${cat.slug}`}
+                          className="group relative aspect-square rounded-3xl overflow-hidden border border-[#E1DDD5] bg-[#EAE5D9]/40 shadow-sm transition-all hover:border-[#1E1C1A] block"
+                        >
+                          <Image
+                            src={
+                              cat.image_url ||
+                              cat.imageUrl ||
+                              (idx === 0
+                                ? config.diy_image
+                                : idx === 1
+                                  ? config.tech_image
+                                  : config.hero_image)
+                            }
+                            alt={cat.name}
+                            fill
+                            sizes="33vw"
+                            className="object-cover mix-blend-multiply opacity-80 group-hover:opacity-90"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex flex-col justify-end p-8 text-white text-left">
+                            {/* <span className="text-[10px] font-mono uppercase tracking-widest text-amber-400 font-bold">
+                              {cat.name}
+                            </span> */}
+                            <h3 className="text-2xl  text-amber-400 font-bold font-serif mt-1">
+                              {cat.name}
+                            </h3>
+                            {/* HIỂN THỊ DÒNG MÔ TẢ DỮ LIỆU TỪ SUPABASE CSDL */}
+                            <p className="text-xs text-neutral-200 font-sans mt-1.5 line-clamp-2 leading-relaxed font-medium">
+                              {cat.description ||
+                                cat.desc ||
+                                `Khám phá các thiết kế không gian độc bản thuộc bộ sưu tập ${cat.name}.`}
                             </p>
-                          )}
-                        </div>
-                      </Link>
-                    </motion.div>
-                  ))}
+                          </div>
+                        </Link>
+                      </motion.div>
+                    ))}
                 </div>
               </div>
             </div>
 
-            {/* SLIDE 9 THE JOURNAL */}
+            {/* SLIDE 9 THE JOURNAL - ĐỔI TIÊU ĐỀ THÀNH "NHẬT KÝ HÀNH TRÌNH" */}
             <div className="w-[100vw] h-full shrink-0 flex items-center justify-center px-24 border-r border-[#E1DDD5]/50 bg-[#F9F6ED]">
               <div className="w-full max-w-7xl">
                 <div className="flex justify-between items-end border-b pb-6 border-[#E1DDD5] mb-8 text-left">
@@ -549,7 +556,7 @@ export function MainHorizontalScroll({
                       JOURNAL
                     </span>
                     <h2 className="text-4xl font-bold text-black font-serif mt-2">
-                      The Journal
+                      Nhật ký hành trình
                     </h2>
                   </div>
                   <Link

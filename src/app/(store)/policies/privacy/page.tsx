@@ -1,111 +1,114 @@
 import type { Metadata } from "next";
+import { Database, Lock, ShieldCheck } from "lucide-react";
 
 export const revalidate = 86400; // Cache 24 giờ
 
 export const metadata: Metadata = {
-  title: "Chính sách bảo mật",
-  description: "Cách chúng tôi thu thập, sử dụng và bảo vệ thông tin cá nhân của bạn tại Boo Space.",
+  title: "Chính sách bảo mật thông tin",
+  description:
+    "Cam kết bảo vệ dữ liệu cá nhân theo Luật Bảo vệ dữ liệu số 91/2025/QH15 & Nghị định 356/2025/NĐ-CP tại Boo Space.",
 };
 
 export default function PrivacyPolicyPage() {
   return (
-    <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
-      <h1 className="text-3xl font-bold tracking-tight">Chính sách bảo mật thông tin</h1>
+    <div className="bg-[#FCFAF2] min-h-screen text-[#1E1C1A] antialiased selection:bg-[#EAE5D9]">
+      <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="border-b border-[#E1DDD5] pb-8 text-left space-y-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#EAE5D9] text-[#786F66] text-[10px] font-mono font-bold uppercase tracking-widest border border-[#DCD6CC]">
+            <Lock className="size-3.5 text-[#3ECF8E]" /> DATA PRIVACY &amp;
+            SECURITY
+          </div>
+          <h1 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-black">
+            Chính sách bảo mật thông tin
+          </h1>
+          <p className="text-xs font-mono text-[#786F66] uppercase tracking-wider">
+            Tuân thủ Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15 &amp; Nghị định
+            356/2025/NĐ-CP
+          </p>
+        </div>
 
-      <p className="mt-4 text-sm text-muted-foreground">Cập nhật lần cuối: 01/01/2026</p>
+        {/* Content Body */}
+        <div className="mt-8 space-y-10 text-left font-sans text-sm sm:text-base leading-relaxed text-[#5C564E]">
+          <p className="italic text-black font-serif text-base border-l-2 border-[#FF9D00] pl-4 py-1">
+            &quot;Boo Space hiểu rằng thông tin cá nhân là tài sản riêng tư và
+            nhạy cảm nhất của bạn. Chúng tôi cam kết bảo vệ dữ liệu cá nhân bằng
+            việc tuân thủ tuyệt đối các tiêu chuẩn an toàn thông tin hiện
+            đại.&quot;
+          </p>
 
-      <div className="mt-8 space-y-6 text-muted-foreground">
-        <h2 className="text-xl font-semibold text-foreground">1. Giới thiệu</h2>
+          {/* Section 1 */}
+          <section className="space-y-4">
+            <h2 className="font-serif text-xl sm:text-2xl font-bold text-black border-b border-[#E1DDD5]/60 pb-2">
+              1. Các loại dữ liệu thu thập &amp; Mục đích sử dụng
+            </h2>
+            <ul className="list-disc pl-6 space-y-2">
+              <li>
+                <strong>Thông tin thu thập:</strong> Họ tên, số điện thoại, địa
+                chỉ email, địa chỉ giao nhận hàng và ghi chú đơn hàng.
+              </li>
+              <li>
+                <strong>Mục đích:</strong> Xử lý đơn hàng qua đơn vị GHN/J&amp;T
+                Express, khởi tạo mã VietQR động, hỗ trợ bảo hành chất liệu
+                CR-PETG và đối soát thuế điện tử.
+              </li>
+            </ul>
+          </section>
 
-        <p>
-          Boo Space cam kết tôn trọng và bảo vệ quyền riêng tư của khách hàng. Chính sách này giải thích cách chúng tôi
-          thu thập, sử dụng, lưu trữ và bảo vệ thông tin cá nhân khi bạn sử dụng website, sản phẩm và dịch vụ của Boo
-          Space.
-        </p>
+          {/* Section 2 */}
+          <section className="space-y-4">
+            <h2 className="font-serif text-xl sm:text-2xl font-bold text-black border-b border-[#E1DDD5]/60 pb-2 flex items-center gap-2">
+              <ShieldCheck className="size-5 text-[#3ECF8E]" /> 2. Nguyên tắc sự
+              đồng ý của chủ thể dữ liệu
+            </h2>
+            <p>
+              Việc thu thập dữ liệu chỉ tiến hành khi bạn chủ động xác nhận tại
+              trang Checkout. Theo đúng quy định 2026,{" "}
+              <strong>
+                sự im lặng hoặc không phản hồi hoàn toàn không được coi là sự
+                đồng ý
+              </strong>
+              .
+            </p>
+            <p className="text-xs italic text-[#786F66]">
+              *Bạn có quyền rút lại sự đồng ý bất kỳ lúc nào. Boo Space sẽ xử lý
+              yêu cầu dừng lưu trữ trong vòng 24 giờ.
+            </p>
+          </section>
 
-        <p>
-          Khi sử dụng dịch vụ của Boo Space, bạn đồng ý với các nội dung được quy định trong Chính sách bảo mật này.
-        </p>
+          {/* Section 3 */}
+          <section className="space-y-4">
+            <h2 className="font-serif text-xl sm:text-2xl font-bold text-black border-b border-[#E1DDD5]/60 pb-2 flex items-center gap-2">
+              <Database className="size-5 text-[#FF9D00]" /> 3. Lưu trữ dữ liệu
+              trong nước
+            </h2>
+            <p>
+              Toàn bộ dữ liệu người dùng tại Việt Nam được lưu trữ an toàn trong
+              nước thông qua hệ thống cơ sở dữ liệu PostgreSQL bảo mật cao
+              (triển khai trên Supabase đặt tại trung tâm dữ liệu Việt Nam)
+              trong thời hạn tối thiểu <strong>24 tháng</strong> theo Nghị định
+              53.
+            </p>
+          </section>
 
-        <h2 className="text-xl font-semibold text-foreground">2. Thông tin chúng tôi thu thập</h2>
-
-        <p>Chúng tôi có thể thu thập các thông tin sau:</p>
-
-        <ul className="list-inside list-disc space-y-2">
-          <li>Họ và tên</li>
-          <li>Số điện thoại</li>
-          <li>Địa chỉ email</li>
-          <li>Địa chỉ nhận hàng</li>
-          <li>Thông tin thanh toán (nếu cần)</li>
-          <li>Thông tin thiết bị, trình duyệt và hành vi sử dụng website</li>
-        </ul>
-
-        <p>Thông tin được thu thập khi bạn:</p>
-
-        <ul className="list-inside list-disc space-y-2">
-          <li>Đăng ký tài khoản hoặc đặt hàng</li>
-          <li>Liên hệ với Boo Space</li>
-          <li>Tham gia chương trình khuyến mãi, sự kiện hoặc khảo sát</li>
-          <li>Sử dụng website và các dịch vụ của chúng tôi</li>
-        </ul>
-
-        <h2 className="text-xl font-semibold text-foreground">3. Mục đích sử dụng thông tin</h2>
-
-        <ul className="list-inside list-disc space-y-2">
-          <li>Xử lý đơn hàng và giao dịch</li>
-          <li>Liên hệ và hỗ trợ khách hàng</li>
-          <li>Cập nhật sản phẩm, dịch vụ và ưu đãi</li>
-          <li>Nâng cao chất lượng trải nghiệm người dùng</li>
-          <li>Đáp ứng yêu cầu theo quy định pháp luật</li>
-        </ul>
-
-        <h2 className="text-xl font-semibold text-foreground">4. Chia sẻ thông tin</h2>
-
-        <p>Boo Space không bán hoặc trao đổi thông tin cá nhân của khách hàng cho bên thứ ba.</p>
-
-        <p>Thông tin chỉ được chia sẻ trong các trường hợp cần thiết như:</p>
-
-        <ul className="list-inside list-disc space-y-2">
-          <li>Đơn vị vận chuyển và thanh toán</li>
-          <li>Đối tác hỗ trợ vận hành dịch vụ</li>
-          <li>Cơ quan nhà nước có thẩm quyền theo yêu cầu pháp luật</li>
-        </ul>
-
-        <p>Tất cả các bên liên quan đều có trách nhiệm bảo mật thông tin khách hàng.</p>
-
-        <h2 className="text-xl font-semibold text-foreground">5. Bảo mật thông tin</h2>
-
-        <p>
-          Boo Space áp dụng các biện pháp kỹ thuật và quản lý phù hợp để bảo vệ dữ liệu cá nhân khỏi việc truy cập, sử
-          dụng hoặc tiết lộ trái phép.
-        </p>
-
-        <p>
-          Tuy nhiên, không có phương thức truyền tải dữ liệu nào trên Internet đảm bảo an toàn tuyệt đối. Chúng tôi luôn
-          nỗ lực bảo vệ thông tin ở mức cao nhất có thể.
-        </p>
-
-        <h2 className="text-xl font-semibold text-foreground">6. Quyền của khách hàng</h2>
-
-        <ul className="list-inside list-disc space-y-2">
-          <li>Yêu cầu xem, cập nhật hoặc chỉnh sửa thông tin cá nhân</li>
-          <li>Yêu cầu xóa dữ liệu theo quy định pháp luật</li>
-          <li>Rút lại sự đồng ý đối với việc xử lý dữ liệu cá nhân</li>
-        </ul>
-
-        <h2 className="text-xl font-semibold text-foreground">7. Thay đổi chính sách</h2>
-
-        <p>
-          Boo Space có thể cập nhật chính sách bảo mật theo từng thời điểm để phù hợp với quy định pháp luật và hoạt
-          động kinh doanh. Mọi thay đổi sẽ được công bố trên website.
-        </p>
-
-        <h2 className="text-xl font-semibold text-foreground">8. Liên hệ</h2>
-
-        <p>
-          Nếu có bất kỳ thắc mắc nào liên quan đến chính sách bảo mật, vui lòng liên hệ Boo Space qua email{" "}
-          <strong>boospace7@gmail.com</strong> hoặc các kênh hỗ trợ chính thức trên website.
-        </p>
+          {/* Section 4 */}
+          <section className="space-y-4">
+            <h2 className="font-serif text-xl sm:text-2xl font-bold text-black border-b border-[#E1DDD5]/60 pb-2">
+              4. Biện pháp bảo mật &amp; Quyền người dùng
+            </h2>
+            <ul className="list-disc pl-6 space-y-2">
+              <li>
+                Mã hóa dữ liệu truyền tải chuẩn SSL/TLS và cài đặt MFA cho hệ
+                thống Admin.
+              </li>
+              <li>
+                Bạn có quyền gửi yêu cầu xóa sạch dữ liệu cá nhân qua email{" "}
+                <strong>support@boospace.tech</strong> (xử lý trong 03 ngày làm
+                việc).
+              </li>
+            </ul>
+          </section>
+        </div>
       </div>
     </div>
   );

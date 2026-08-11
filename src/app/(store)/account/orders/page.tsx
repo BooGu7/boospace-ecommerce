@@ -1,7 +1,14 @@
 "use client";
 
 import { motion, type Variants } from "framer-motion";
-import { ArrowRight, CalendarDays, Headphones, Loader2, Package, QrCode } from "lucide-react";
+import {
+  ArrowRight,
+  CalendarDays,
+  Headphones,
+  Loader2,
+  Package,
+  QrCode,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -12,6 +19,7 @@ import { OrderStatusBadge } from "@/components/ui/order-status-badge";
 import { useAuthGuard } from "@/hooks/use-auth-guard";
 import { PLACEHOLDER_IMAGE } from "@/lib/constants";
 import { supabase } from "@/lib/supabase/client";
+import { siteConfig } from "@/lib/config"; // Tự động nạp thông tin liên hệ động
 
 interface OrderItem {
   id: string;
@@ -82,7 +90,9 @@ export default function OrdersPage() {
   const [ordersList, setOrdersList] = useState<OrderDetail[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [selectedQROrder, setSelectedQROrder] = useState<OrderDetail | null>(null);
+  const [selectedQROrder, setSelectedQROrder] = useState<OrderDetail | null>(
+    null,
+  );
 
   useEffect(() => {
     if (!isReady || !user?.email) {
@@ -115,14 +125,19 @@ export default function OrdersPage() {
         );
 
         if (user?.id) {
-          query = query.or(`customer_email.ilike.${userEmail},customer_id.eq.${user.id}`);
+          query = query.or(
+            `customer_email.ilike.${userEmail},customer_id.eq.${user.id}`,
+          );
         } else {
           query = query.ilike("customer_email", userEmail);
         }
 
-        const { data: ordersData, error: ordersError } = await query.order("created_at", {
-          ascending: false,
-        });
+        const { data: ordersData, error: ordersError } = await query.order(
+          "created_at",
+          {
+            ascending: false,
+          },
+        );
 
         if (ordersError) {
           console.error("[SUPABASE_FETCH_ORDERS_ERROR]", ordersError);
@@ -245,7 +260,12 @@ export default function OrdersPage() {
             className="space-y-4 max-w-4xl mx-auto text-left"
           >
             {ordersList.map((order) => (
-              <motion.div key={order.id} variants={cardVariants} whileHover="hover" className="block">
+              <motion.div
+                key={order.id}
+                variants={cardVariants}
+                whileHover="hover"
+                className="block"
+              >
                 <Card className="rounded-[32px] border border-[#DCD6CC] bg-white shadow-xs p-6 space-y-5 transition-all">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
@@ -269,7 +289,9 @@ export default function OrdersPage() {
                             : "bg-amber-50 text-amber-700 border-amber-200"
                         }`}
                       >
-                        {order.paymentStatus === "Paid" ? "Đã thanh toán" : "Chờ thanh toán"}
+                        {order.paymentStatus === "Paid"
+                          ? "Đã thanh toán"
+                          : "Chờ thanh toán"}
                       </span>
 
                       <span className="text-sm sm:text-base font-mono font-bold text-[#FF9D00]">
@@ -284,9 +306,18 @@ export default function OrdersPage() {
                       const imgUrl = item.imageUrl || PLACEHOLDER_IMAGE;
 
                       return (
-                        <div key={item.id} className="flex items-center gap-4 text-xs font-sans font-medium">
+                        <div
+                          key={item.id}
+                          className="flex items-center gap-4 text-xs font-sans font-medium"
+                        >
                           <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-[#E1DDD5] bg-[#EAE5D9]/20 shadow-xs">
-                            <Image src={imgUrl} alt={item.name} fill sizes="48px" className="object-cover" />
+                            <Image
+                              src={imgUrl}
+                              alt={item.name}
+                              fill
+                              sizes="48px"
+                              className="object-cover"
+                            />
                           </div>
 
                           <div className="flex-1 min-w-0 pr-4 text-left">
@@ -296,8 +327,12 @@ export default function OrdersPage() {
                           </div>
 
                           <div className="font-mono text-right shrink-0">
-                            <span className="text-slate-500 mr-1.5">({formatVNDDirect(itemPrice)})</span>
-                            <span className="text-black font-bold">× {item.quantity}</span>
+                            <span className="text-slate-500 mr-1.5">
+                              ({formatVNDDirect(itemPrice)})
+                            </span>
+                            <span className="text-black font-bold">
+                              × {item.quantity}
+                            </span>
                           </div>
                         </div>
                       );
@@ -306,7 +341,7 @@ export default function OrdersPage() {
 
                   <div className="border-t border-slate-100 pt-4 flex flex-wrap items-center justify-between gap-3">
                     <a
-                      href="https://zalo.me/0901234567"
+                      href={`https://zalo.me/${siteConfig.contact.phone.replace(/\s+/g, "")}`}
                       target="_blank"
                       rel="noreferrer"
                       className="inline-flex items-center gap-1.5 text-xs font-mono text-[#786F66] hover:text-black transition-colors"
@@ -314,15 +349,17 @@ export default function OrdersPage() {
                       <Headphones className="size-3.5" /> Liên hệ hỗ trợ
                     </a>
 
-                    {order.paymentStatus !== "Paid" && order.paymentMethod === "VietQR" && (
-                      <button
-                        type="button"
-                        onClick={() => setSelectedQROrder(order)}
-                        className="inline-flex items-center gap-2 rounded-xl bg-[#FF9D00] hover:bg-amber-500 text-black text-xs font-mono font-bold uppercase tracking-wider px-4 py-2 cursor-pointer transition-all shadow-xs"
-                      >
-                        <QrCode className="size-4" /> Tiếp tục thanh toán VietQR
-                      </button>
-                    )}
+                    {order.paymentStatus !== "Paid" &&
+                      order.paymentMethod === "VietQR" && (
+                        <button
+                          type="button"
+                          onClick={() => setSelectedQROrder(order)}
+                          className="inline-flex items-center gap-2 rounded-xl bg-[#FF9D00] hover:bg-amber-500 text-black text-xs font-mono font-bold uppercase tracking-wider px-4 py-2 cursor-pointer transition-all shadow-xs"
+                        >
+                          <QrCode className="size-4" /> Tiếp tục thanh toán
+                          VietQR
+                        </button>
+                      )}
                   </div>
                 </Card>
               </motion.div>

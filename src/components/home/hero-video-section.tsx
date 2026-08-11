@@ -190,7 +190,7 @@ export function HeroVideoSection({
               </MagneticButton>
               {/* TĂNG ĐỘ TƯƠNG PHẢN CHO DÒNG MIỄN PHÍ VẬN CHUYỂN */}
               <p className="text-center text-xs text-white font-mono tracking-wider font-semibold">
-                {"✓"} MIỄN PHÍ VẬN CHUYỂN NỘI THÀNH TP.HCM
+                {"✓"} Miễn phí vận chuyển nội thành TP. Hồ Chí Minh
               </p>
             </MotionWrapper>
           </div>

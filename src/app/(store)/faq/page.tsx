@@ -1,79 +1,174 @@
 import type { Metadata } from "next";
-import Link from "next/link"; // ĐÃ SỬA LỖI: Bổ sung import Link từ next/link
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import Link from "next/link";
+import { HelpCircle, Headphones, Mail, Phone } from "lucide-react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { siteConfig } from "@/lib/config"; // Tự động nạp thông tin liên hệ động
 
 export const revalidate = 86400; // Cache 24 giờ
 
 export const metadata: Metadata = {
   title: "Câu hỏi thường gặp — Boo Space FAQ",
-  description: "Giải đáp các câu hỏi phổ biến về đơn hàng, vận chuyển, đổi trả và thiết kế in 3D custom ✨",
+  description:
+    "Giải đáp chi tiết về chất liệu nhựa kỹ thuật CR-PETG, quy trình in 3D custom, phí vận chuyển và chính sách bảo hành tại Boo Space ✨",
 };
 
-const faqs = [
+const faqSections = [
   {
-    question: "Xưởng in 3D Boo Space sử dụng phôi liệu nhựa gì?",
-    answer:
-      "Chúng tôi ưu tiên sử dụng nhựa PLA tự nhiên phân hủy sinh học (thân thiện với môi trường) và nhựa gỗ hữu cơ chứa phôi gỗ thông để gia công mộc mạc, tạo cảm giác xúc giác chân thực.",
+    id: "product-materials",
+    title: "I. SẢN PHẨM & CHẤT LIỆU",
+    items: [
+      {
+        q: "01. Sản phẩm của Boo Space được chế tác từ chất liệu gì?",
+        a: "Toàn bộ sản phẩm Decor và phụ kiện Workspace của Boo Space đều được chế tác từ dòng nhựa kỹ thuật CR-PETG cao cấp.\n\nKhác biệt hoàn toàn so với các loại nhựa giòn thông thường hoặc nhựa PLA chịu nhiệt kém, CR-PETG sở hữu đặc tính vật lý vượt trội: chịu nhiệt cao (∼70–80°C), kháng nước, chống ẩm mốc tuyệt đối và cực kỳ bền bỉ cùng thời gian. Đặc biệt, bề mặt sản phẩm được tinh chỉnh thủ công để lưu giữ cấu trúc vân nhám mịn mộc mạc như gốm nung.",
+      },
+      {
+        q: "02. Chất liệu CR-PETG có an toàn cho không gian sống không?",
+        a: "Tuyệt đối an toàn. Nhựa CR-PETG do Boo Space sử dụng là chất liệu kỹ thuật cao cấp, hoàn toàn không mùi, không giải phóng hạt vi nhựa hay chất độc hại trong suốt quá trình sử dụng. Bạn hoàn toàn có thể yên tâm bài trí sản phẩm trong phòng ngủ, góc làm việc kín hoặc môi trường bếp ẩm ướt.",
+      },
+      {
+        q: "03. Làm thế nào để vệ sinh và bảo quản sản phẩm in 3D đúng cách?",
+        a: "• Vệ sinh hằng ngày: Bạn có thể dễ dàng lau sạch bụi mịn bằng khăn mềm ẩm hoặc rửa trực tiếp bằng nước ấm và xà phòng nhẹ.\n• Lưu ý nhiệt độ: Mặc dù CR-PETG chịu nhiệt rất tốt, khuyến cáo tránh để sản phẩm bên trong cabin ô tô đóng kín cửa đỗ lâu ngày dưới trời nắng gắt (nơi nhiệt độ có thể tích tụ vượt quá 80°C gây biến dạng kết cấu nhựa).\n• Hóa chất cần tránh: Tuyệt đối không sử dụng các dung môi hòa tan mạnh như Acetone, cồn nồng độ cao hoặc xăng thơm để lau chùi bề mặt sản phẩm.",
+      },
+    ],
   },
   {
-    question: "Có hỗ trợ chỉnh sửa kích thước mô hình theo yêu cầu không?",
-    answer:
-      "Có! Bạn có thể vào trang liên hệ để gửi file STL/OBJ hoặc ý tưởng, đội ngũ kỹ sư của Boo Space sẽ hỗ trợ Slicing và in 3D đúng chuẩn kích thước bạn cần.",
+    id: "custom-workflow",
+    title: "II. THIẾT KẾ THEO YÊU CẦU (CUSTOM WORKFLOW)",
+    items: [
+      {
+        q: "04. Tôi muốn đặt thiết kế và in 3D theo yêu cầu riêng thì làm thế nào?",
+        a: "Boo Space luôn sẵn sàng hiện thực hóa các ý tưởng độc bản của bạn qua 3 bước:\n\n1. Gửi yêu cầu: Bạn chỉ cần điền thông tin vào Form Thiết Kế Theo Yêu Cầu trên website hoặc nhắn tin Zalo hỗ trợ kỹ thuật để gửi mô tả/kích thước hoặc upload file định dạng .STL / .3MF.\n2. Hạch toán chi phí: Hệ thống phần mềm Slicer tính toán chính xác chi phí dựa trên khối lượng nhựa CR-PETG tiêu tốn (120đ/g) và tổng số giờ in thực tế của máy, đảm bảo báo giá minh bạch nhất.\n3. Xác nhận sản xuất: Boo Space sẽ gửi báo giá chi tiết và tiến độ hoàn thiện qua Zalo. Sản phẩm sẽ được đưa vào hàng chờ in ngay sau khi bạn xác nhận cọc/thanh toán.",
+      },
+    ],
   },
   {
-    question: "Thời gian in 3D và giao hàng mất bao lâu?",
-    answer:
-      "Do đặc thù chế tác chậm, các đơn hàng in 3D thường mất 2-3 ngày để hoàn thiện thô và đóng gói, sau đó vận chuyển tiêu chuẩn đến tay bạn trong 2-3 ngày tiếp theo.",
+    id: "payment-shipping",
+    title: "III. THANH TOÁN & GIAO NHẬN",
+    items: [
+      {
+        q: "05. Boo Space tính phí vận chuyển như thế nào? Có được miễn phí không?",
+        a: "• Miễn phí vận chuyển (Free Shipping): Boo Space áp dụng chính sách miễn phí giao hàng duy nhất đối với các đơn hàng tại khu vực nội thành TP. Hồ Chí Minh.\n• Khu vực ngoại thành & tỉnh lẻ: Cước phí vận chuyển được tính toán tự động theo biểu phí thực tế của các đơn vị vận chuyển liên kết (GHN / J&T Express) dựa trên khoảng cách địa lý và kích thước đóng gói của kiện hàng. Mức phí hiển thị minh bạch tại bước checkout.",
+      },
+      {
+        q: "06. Tôi có thể thanh toán đơn hàng bằng những phương thức nào?",
+        a: "Chúng tôi cung cấp hai phương thức giao dịch tối giản và bảo mật tuyệt đối:\n\n1. Chuyển khoản VietQR tự động: Giao diện thanh toán khởi tạo mã VietQR động chứa chính xác số tiền và cú pháp mã đơn hàng (#BSxxx). Hệ thống đối soát ngân hàng tự động xác nhận trạng thái 'Đã thanh toán' trong vài giây.\n2. Thanh toán khi nhận hàng (COD): Áp dụng cho đơn hàng tiêu chuẩn trên toàn quốc. Bạn thanh toán tiền mặt trực tiếp cho nhân viên giao hàng của GHN / J&T Express sau khi kiểm hàng thành công.",
+      },
+      {
+        q: "07. Tôi có được đồng kiểm (kiểm tra hàng) khi nhận không?",
+        a: "Có. Boo Space luôn khuyến khích khách hàng đồng kiểm cùng shipper khi nhận hàng. Bạn được quyền mở hộp để kiểm tra ngoại quan sản phẩm (đúng mẫu mã, màu sắc, số lượng, sản phẩm nguyên vẹn không sứt mẻ/nứt vỡ do va đập vận chuyển). Việc kiểm hàng không bao gồm dùng thử hoặc bóc seal vận hành sản phẩm.",
+      },
+    ],
   },
   {
-    question: "Lại thế nào để bảo quản gỗ của Sol-01?",
-    answer:
-      "Bộ gỗ SOL-01 đã được phủ sẵn dầu bảo quản tự nhiên. Bạn chỉ cần lau chùi bằng khăn giấy khô mềm hàng tuần, tránh tiếp xúc trực tiếp với nước hoặc ánh nắng gắt nhiệt độ cao.",
+    id: "after-sales",
+    title: "IV. CHÍNH SÁCH HẬU MÃI (BẢO HÀNH & ĐỔI TRẢ)",
+    items: [
+      {
+        q: "08. Chính sách đổi trả và hoàn tiền của Boo Space quy định thế nào?",
+        a: "Chúng tôi cung cấp lớp bảo hiểm minh bạch để bạn hoàn toàn an tâm khi mua sắm:\n\n• Đổi 1-đổi-1 miễn phí trong 07 ngày: Áp dụng nếu sản phẩm phát sinh lỗi kỹ thuật từ xưởng (nứt vỡ kết cấu, rỗng sợi) hoặc bị hư hỏng do vận chuyển. Boo Space chịu 100% phí ship 2 chiều.\n• Hỗ trợ đổi mẫu/size trong 03 ngày: Áp dụng cho sản phẩm bán sẵn (Standard SKU) còn nguyên vẹn vỏ hộp, tem mác và chưa qua sử dụng, khách hàng chịu chi phí vận chuyển 2 chiều.\n• Ngoại lệ: Chúng tôi không hỗ trợ đổi trả vì lý do đổi ý cá nhân đối với các sản phẩm đặt thiết kế và in Custom riêng theo yêu cầu (do sản phẩm mang tính cá nhân hóa cao không thể tái bán).",
+      },
+    ],
   },
 ];
 
 export default function FAQPage() {
+  const cleanPhoneLink = siteConfig.contact.phone.replace(/[^0-9+]/g, "");
+
   return (
     <div className="bg-[#FCFAF2] text-[#1E1C1A] min-h-screen antialiased selection:bg-[#EAE5D9]">
-      <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8 border-x border-[#E1DDD5] bg-[#FCFAF2]/50">
+      <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8 border-x border-[#E1DDD5] bg-[#FCFAF2]/50 text-left">
         {/* HEADER SECTION */}
-        <div className="border-b border-[#E1DDD5] pb-8 mb-12">
+        <div className="border-b border-[#E1DDD5] pb-8 mb-10">
           <div className="space-y-4">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#EAE5D9] text-[#786F66] text-xs font-mono uppercase tracking-widest border border-[#DCD6CC] w-fit">
-              <span className="size-1.5 rounded-full bg-amber-500 animate-pulse" />
+              <HelpCircle className="size-3.5 text-[#FF9D00]" />
               07 / USER HELP &amp; FAQ
             </div>
             <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-black font-serif leading-none">
               Câu hỏi thường gặp
             </h1>
-            <p className="text-xs sm:text-sm font-mono text-[#786F66] uppercase tracking-wider">
-              Giải đáp các câu hỏi phổ biến về vận hành và chính sách cửa hàng
+            <p className="text-xs sm:text-sm font-sans text-[#5C564E] leading-relaxed max-w-2xl pt-1">
+              Tại Boo Space, chúng tôi tin rằng sự tĩnh lặng và ngăn nắp của
+              không gian sống bắt đầu từ sự minh bạch hằng ngày. Dưới đây là
+              những giải đáp giúp bạn hiểu rõ hơn về chất liệu chế tác, quy
+              trình đặt hàng và các cam kết bảo vệ quyền lợi của chúng tôi.
             </p>
           </div>
         </div>
 
-        <Accordion className="mt-8">
-          {faqs.map((faq, index) => (
-            <AccordionItem key={index} value={`item-${index}`} className="border-b border-[#E1DDD5]">
-              <AccordionTrigger className="text-left font-serif font-bold text-[#1E1C1A] hover:text-[#FF9D00] text-base py-4">
-                {faq.question}
-              </AccordionTrigger>
-              <AccordionContent className="text-[#5C564E] text-sm leading-relaxed pb-4">{faq.answer}</AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
+        {/* ACCORDION FAQ BY SECTIONS */}
+        <div className="space-y-10">
+          {faqSections.map((section) => (
+            <div key={section.id} className="space-y-4">
+              <h2 className="font-serif text-lg sm:text-xl font-bold text-black border-b border-[#E1DDD5] pb-2 text-amber-900/80">
+                {section.title}
+              </h2>
 
-        <div className="mt-12 rounded-3xl border border-[#E1DDD5] bg-[#EAE5D9]/20 p-8 text-center space-y-4">
-          <h2 className="text-lg font-bold font-serif text-black">Vẫn còn thắc mắc?</h2>
-          <p className="text-xs sm:text-sm text-[#5C564E] max-w-md mx-auto leading-relaxed">
-            Không tìm thấy câu trả lời bạn cần? Đội ngũ hỗ trợ của Boo Space luôn sẵn sàng đồng hành cùng bạn ✨
-          </p>
-          <Link
-            href="/contact"
-            className="inline-block text-xs font-mono uppercase tracking-widest text-[#FF9D00] font-bold hover:underline"
-          >
-            Liên hệ hỗ trợ ngay →
-          </Link>
+              <Accordion className="space-y-2">
+                {section.items.map((item, index) => (
+                  <AccordionItem
+                    key={`${section.id}-${index}`}
+                    value={`${section.id}-${index}`}
+                    className="border border-[#E1DDD5] bg-white rounded-2xl px-5 transition-all"
+                  >
+                    <AccordionTrigger className="text-left font-serif font-bold text-[#1E1C1A] hover:text-[#FF9D00] text-sm sm:text-base py-4 leading-snug">
+                      {item.q}
+                    </AccordionTrigger>
+                    <AccordionContent className="text-[#5C564E] text-xs sm:text-sm leading-relaxed pb-5 whitespace-pre-line font-sans border-t border-[#E1DDD5]/40 pt-3">
+                      {item.a}
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            </div>
+          ))}
+        </div>
+
+        {/* SUPPORT CALLOUT BOX — NẠP SỐ ĐIỆN THOẠI VÀ EMAIL ĐỘNG TỪ CONFIG */}
+        <div className="mt-14 rounded-3xl border border-[#E1DDD5] bg-[#EAE5D9]/30 p-8 text-center space-y-4 shadow-xs">
+          <div className="size-12 rounded-full bg-white border border-[#E1DDD5] flex items-center justify-center mx-auto text-[#FF9D00]">
+            <Headphones className="size-6" />
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-xl font-bold font-serif text-black">
+              Vẫn còn thắc mắc?
+            </h2>
+            <p className="text-xs sm:text-sm text-[#5C564E] max-w-md mx-auto leading-relaxed">
+              Không tìm thấy câu trả lời bạn cần? Đội ngũ hỗ trợ kỹ thuật của
+              Boo Space luôn sẵn sàng đồng hành và tư vấn file in cùng bạn.
+            </p>
+          </div>
+
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-4 text-xs font-mono font-bold text-black">
+            <a
+              href={`tel:${cleanPhoneLink}`}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-[#E1DDD5] hover:border-[#FF9D00] transition-colors"
+            >
+              <Phone className="size-3.5 text-[#FF9D00]" />{" "}
+              {siteConfig.contact.phone}
+            </a>
+            <a
+              href={`mailto:${siteConfig.contact.email}`}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-[#E1DDD5] hover:border-[#FF9D00] transition-colors"
+            >
+              <Mail className="size-3.5 text-[#FF9D00]" />{" "}
+              {siteConfig.contact.email}
+            </a>
+          </div>
+
+          <div className="pt-2">
+            <Link
+              href="/contact"
+              className="inline-block text-xs font-mono uppercase tracking-widest text-[#FF9D00] font-bold hover:underline"
+            >
+              Liên hệ gửi file thiết kế ngay →
+            </Link>
+          </div>
         </div>
       </div>
     </div>

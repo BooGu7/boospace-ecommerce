@@ -240,7 +240,7 @@ export function CartDrawer() {
                 </span>
               </div>
               <p className="text-[10px] font-mono text-[#3ECF8E] uppercase tracking-wider font-bold text-left">
-                ✓ MIỄN PHÍ VẬN CHUYỂN NỘI THÀNH TP.HCM
+                ✓ Miễn phí vận chuyển nội thành TP. Hồ Chí Minh
               </p>
 
               <Button

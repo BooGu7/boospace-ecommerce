@@ -11,14 +11,15 @@ export const siteConfig = {
   description:
     "Boo Space là studio thiết kế và chế tác các giải pháp tinh gọn, đa năng, minimal và cozy dành riêng cho góc làm việc của bạn. Chúng tôi hiện thực hóa mọi ý tưởng cá nhân, giải quyết những bất tiện hằng ngày bằng chất liệu kỹ thuật cao cấp.",
 
-  announcement: "Chào mừng bạn đến với Boo Space — Nơi biến mọi ý tưởng cá nhân thành sản phẩm thực tế ✨",
+  announcement:
+    "Chào mừng bạn đến với Boo Space — Nơi biến mọi ý tưởng cá nhân thành sản phẩm thực tế ✨",
 
   url: process.env.NEXT_PUBLIC_BASE_URL ?? "https://www.boospace.tech",
 
   // Thông tin liên hệ
   contact: {
-    email: "hello@boospace.tech",
-    phone: "0901 234 567",
+    email: "boospace7@gmail.com",
+    phone: "0972 306 562",
     address: {
       street: "",
       suite: "",

@@ -1,40 +1,32 @@
 import type { Metadata } from "next";
 import { MainHorizontalScroll } from "@/components/home/main-horizontal-scroll";
-import { siteConfig } from "@/lib/config";
 import {
   blogRepository,
   categoryRepository,
   productRepository,
-} from "@/lib/repositories";
+} from "@/lib/repositories"; // Tên import đã được điều chỉnh chuẩn xác
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
-  title: `${siteConfig.name} — Custom 3D Printed Workspace & DIY Design Studio`,
+  title: "Boo Space — Custom 3D Printed Workspace & Design Studio",
   description:
-    "Boo Space cung cấp giải pháp chế tác On-Demand cho workspace và góc làm việc tối giản. Thiết kế tùy chỉnh, sản xuất theo ý tưởng riêng bằng chất liệu kỹ thuật cao cấp.",
+    "Boo Space cung cấp sản phẩm in 3D theo yêu cầu cho workspace và DIY. Thiết kế tùy chỉnh, sản xuất theo ý tưởng riêng và tạo ra các giải pháp không gian làm việc độc đáo bằng chất liệu CR-PETG cao cấp.",
   alternates: {
-    canonical: `${siteConfig.url}/`,
+    canonical: "https://www.boospace.tech/",
   },
   openGraph: {
-    title: `${siteConfig.name} — Custom 3D Printed Workspace`,
+    title: "Boo Space — Custom 3D Printed Workspace",
     description:
-      "Thiết kế và sản xuất sản phẩm cho workspace và DIY theo yêu cầu tại Boo Space.",
+      "Thiết kế và sản xuất sản phẩm in 3D cho workspace và DIY theo yêu cầu tại Boo Space.",
     type: "website",
-    url: `${siteConfig.url}/`,
+    url: "https://www.boospace.tech/",
   },
-  keywords: [
-    "3d printed workspace",
-    "custom 3d print",
-    "3d printing service",
-    "workspace accessories",
-    "custom desk setup",
-    "boo space",
-    "boo space tech",
-  ],
 };
 
-export const revalidate = 600;
+// Đặt revalidate = 0 để tự động làm mới dữ liệu từ Supabase ngay lập tức khi F5
+export const revalidate = 0;
 
+// Bộ chuyển đổi sản phẩm từ Supabase CSDL
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mapDbProductToStorefront(dbProduct: any) {
   if (!dbProduct) return null;
@@ -51,8 +43,8 @@ function mapDbProductToStorefront(dbProduct: any) {
     price: price,
     compareAtPrice: comparePrice,
     inventory: {
-      quantity: dbProduct.stock ?? 99,
-      allowBackorder: true,
+      quantity: dbProduct.stock ?? 0,
+      allowBackorder: false,
     },
   };
 
@@ -74,6 +66,7 @@ function mapDbProductToStorefront(dbProduct: any) {
     images: mappedImages,
     categoryIds: dbProduct.category_id ? [dbProduct.category_id] : [],
     brandId: dbProduct.brand_id,
+    stock: dbProduct.stock ?? 0,
     tags: [],
     variants: [defaultVariant],
     createdAt: dbProduct.created_at || new Date().toISOString(),
@@ -84,16 +77,17 @@ function mapDbProductToStorefront(dbProduct: any) {
 export default async function HomePage() {
   const supabase = createSupabaseServerClient();
 
+  // NẠP ĐỒNG THỜI TOÀN BỘ CÁC BẢNG TỪ SUPABASE DATABASE
   const [
     categories,
-    featuredProducts,
+    featuredResult,
     blogsResult,
     siteConfigRes,
     homepageRes,
     saleProductsRes,
   ] = await Promise.all([
     categoryRepository.list(),
-    productRepository.getFeatured(4),
+    productRepository.getFeatured(8),
     blogRepository.list({ page: 1, limit: 3 }),
     supabase
       .from("settings")
@@ -110,40 +104,27 @@ export default async function HomePage() {
       .select("*")
       .not("compare_price", "is", null)
       .eq("published", true)
-      .limit(4),
+      .limit(8),
   ]);
 
   const blogs = blogsResult?.items || [];
+
+  // Ánh xạ sản phẩm ưu đãi
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const saleProducts = (saleProductsRes.data || [])
     .map(mapDbProductToStorefront)
-    .filter((p): p is any => p !== null);
+    .filter((p) => p !== null);
 
-  const homepageVal = homepageRes?.data?.value || {};
-  const siteConfigVal = siteConfigRes?.data?.value || {};
-
-  // 100% LẤY HÌNH ẢNH MẶC ĐỊNH TỪ SUPABASE STORAGE CỦA DỰ ÁN
-  const fallbackConfig = {
-    hero_image:
-      "https://amukhgkamrokbbcjgusf.supabase.co/storage/v1/object/public/product-images/assets/hero-desk-setup.jpg",
-    diy_image:
-      "https://amukhgkamrokbbcjgusf.supabase.co/storage/v1/object/public/product-images/assets/diy-collection.jpg",
-    tech_image:
-      "https://amukhgkamrokbbcjgusf.supabase.co/storage/v1/object/public/product-images/assets/tech-collection.jpg",
-    hero_video:
-      "https://amukhgkamrokbbcjgusf.supabase.co/storage/v1/object/public/co-creation-files/hero-ambient.mp4",
-  };
-
+  // GỘP CẢ 2 BẢNG HỒ SƠ CONFIG VÀ HOMEPAGE TỪ SUPABASE
   const config = {
-    ...fallbackConfig,
-    ...homepageVal,
-    ...siteConfigVal,
+    ...(homepageRes.data?.value || {}),
+    ...(siteConfigRes.data?.value || {}),
   };
 
   return (
     <MainHorizontalScroll
       categories={categories}
-      featuredProducts={featuredProducts}
+      featuredProducts={featuredResult}
       saleProducts={saleProducts}
       blogs={blogs}
       config={config}
