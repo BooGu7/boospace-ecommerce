@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Award, Cpu, Heart, Layers, ShoppingBag } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ProductGallery } from "@/components/products/product-gallery";
@@ -41,10 +42,10 @@ interface ProductDetailViewProps {
 }
 
 export function ProductDetailView({ product, relatedProducts, brand, categoryAncestors = [] }: ProductDetailViewProps) {
+  const router = useRouter();
   const [selectedVariantId, setSelectedVariantId] = useState(product.variants[0]?.id ?? "");
   const [quantity, setQuantity] = useState(1);
 
-  // States quản lý đánh giá sao động nạp từ Supabase Reviews
   const [avgRating, setAvgRating] = useState(product.rating || 5);
   const [reviewCount, setReviewCount] = useState(product.reviewCount || 0);
 
@@ -53,14 +54,12 @@ export function ProductDetailView({ product, relatedProducts, brand, categoryAnc
   const wishlistItems = useWishlistStore((s) => s.items);
   const addToWishlist = useWishlistStore((s) => s.addItem);
   const removeFromWishlist = useWishlistStore((s) => s.removeItem);
-
   const addRecentlyViewed = useRecentlyViewedStore((s) => s.addItem);
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   const isWishlisted = mounted && wishlistItems.some((i) => i.productId === product.id);
 
-  // KÉO DỮ LIỆU ĐÁNH GIÁ THỰC TẾ CỦA NGƯỜI DÙNG TỪ SUPABASE ĐỂ TÍNH ĐIỂM SAO ĐỘNG
   useEffect(() => {
     async function fetchDynamicRatings() {
       try {
@@ -69,8 +68,7 @@ export function ProductDetailView({ product, relatedProducts, brand, categoryAnc
         if (!error && data && data.length > 0) {
           const total = data.length;
           const sum = data.reduce((acc, curr) => acc + curr.rating, 0);
-          const average = Number((sum / total).toFixed(1));
-          setAvgRating(average);
+          setAvgRating(Number((sum / total).toFixed(1)));
           setReviewCount(total);
         }
       } catch (err) {
@@ -80,7 +78,6 @@ export function ProductDetailView({ product, relatedProducts, brand, categoryAnc
     fetchDynamicRatings();
   }, [product.id]);
 
-  // Theo dõi lịch sử xem sản phẩm
   useEffect(() => {
     addRecentlyViewed({
       productId: product.id,
@@ -90,7 +87,7 @@ export function ProductDetailView({ product, relatedProducts, brand, categoryAnc
       imageUrl: product.images[0]?.url ?? "",
       imageAlt: product.images[0]?.alt ?? product.name,
     });
-  }, [product.id, product.slug, product.images, product.variants, product.name, addRecentlyViewed]);
+  }, [product, addRecentlyViewed]);
 
   const selectedVariant = product.variants.find((v) => v.id === selectedVariantId);
   if (!selectedVariant) return null;
@@ -114,7 +111,6 @@ export function ProductDetailView({ product, relatedProducts, brand, categoryAnc
     openCart();
   }
 
-  // Hàm thêm nhanh sản phẩm mua kèm vào giỏ hàng dứt khoát
   function handleAddAddonToCart(addon: Product) {
     const addonVariant = addon.variants?.[0];
     if (addonVariant) {
@@ -191,7 +187,6 @@ export function ProductDetailView({ product, relatedProducts, brand, categoryAnc
           }}
         />
 
-        {/* Breadcrumbs */}
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
@@ -215,28 +210,33 @@ export function ProductDetailView({ product, relatedProducts, brand, categoryAnc
           </BreadcrumbList>
         </Breadcrumb>
 
-        {/* Main Product Section */}
         <div className="mt-8 grid gap-8 lg:grid-cols-2 lg:gap-16 items-start pb-16 border-b border-[#E1DDD5]/60">
-          {/* Gallery */}
           <ProductGallery images={product.images} productName={product.name} />
 
-          {/* Info */}
           <div className="flex flex-col text-left">
             <div>
               <StarRating rating={avgRating} reviewCount={reviewCount} />
             </div>
 
-            {/* DẢI BADGES GIẢM GIÁ / BÁN CHẠY NHẤP NHÁY MƯỢT Ở TRÊN TIÊU ĐỀ */}
+            {/* BẬT TÍNH NĂNG CLICK CHUYỂN HƯỚNG VỀ BỘ LỌC CỬA HÀNG HÀNG TRÍ KHI CLICK VÀO TAG */}
             <div className="flex flex-wrap gap-2.5 mt-3 mb-1">
               {isOnSale && (
-                <span className="text-[9px] font-mono font-bold text-white bg-[#E26E67] px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm animate-pulse select-none">
+                <button
+                  type="button"
+                  onClick={() => router.push("/shop?sale=true")}
+                  className="text-[9px] font-mono font-bold text-white bg-red-600 hover:bg-red-700 px-2.5 py-1 rounded-full uppercase tracking-wider shadow-xs transition-all cursor-pointer"
+                >
                   ⚡ GIẢM GIÁ
-                </span>
+                </button>
               )}
               {product.featured && (
-                <span className="text-[9px] font-mono font-bold text-black bg-[#FF9D00] px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm animate-pulse select-none">
+                <button
+                  type="button"
+                  onClick={() => router.push("/shop?sort=newest")}
+                  className="text-[9px] font-mono font-bold text-black bg-[#FF9D00] hover:bg-amber-500 px-2.5 py-1 rounded-full uppercase tracking-wider shadow-xs transition-all cursor-pointer"
+                >
                   🔥 BÁN CHẠY
-                </span>
+                </button>
               )}
             </div>
 
@@ -251,27 +251,20 @@ export function ProductDetailView({ product, relatedProducts, brand, categoryAnc
               </Link>
             )}
 
-            {/* NÂNG CẤP HOẠT ẢNH & ĐỘ MẢNH PHÔNG CHỮ GIÁ TIỀN */}
-            <motion.div
-              whileHover={{ scale: 1.02, x: 4 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              className="mt-4 flex items-baseline gap-3 w-fit cursor-pointer group select-none"
-            >
-              <span className="text-3xl font-serif font-light tracking-tight text-black group-hover:text-[#FF9D00] transition-colors duration-300">
+            {/* STYLE GIÁ BÁN & HUY HIỆU GIẢM GIÁ ĐƯỢC TĂNG TƯƠNG PHẢN NỔI BẬT */}
+            <motion.div whileHover={{ scale: 1.01 }} className="mt-4 flex items-baseline gap-3 w-fit select-none">
+              <span className="text-3xl font-sans font-bold tracking-tight text-black">
                 {formatPrice(selectedVariant.price, selectedVariant.currency)}
               </span>
 
               {isOnSale && selectedVariant.compareAtPrice && (
-                <span className="text-xs sm:text-sm font-mono text-[#786F66] line-through opacity-55">
+                <span className="text-sm sm:text-base font-mono text-slate-500 line-through font-medium">
                   {formatPrice(selectedVariant.compareAtPrice)}
                 </span>
               )}
 
               {isOnSale && selectedVariant.compareAtPrice && (
-                <Badge
-                  variant="secondary"
-                  className="bg-[#EAE5D9]/40 border border-[#DCD6CC] text-[#786F66] text-[10px] font-mono uppercase px-2 py-0.5 rounded-md"
-                >
+                <Badge className="bg-red-600 text-white font-bold text-[10px] font-mono uppercase px-2 py-0.5 rounded-md border-0">
                   -{Math.round((1 - selectedVariant.price / selectedVariant.compareAtPrice) * 100)}%
                 </Badge>
               )}
@@ -279,7 +272,6 @@ export function ProductDetailView({ product, relatedProducts, brand, categoryAnc
 
             <p className="mt-4 text-sm sm:text-base text-[#5C564E] leading-relaxed font-sans">{product.description}</p>
 
-            {/* Variants Selection */}
             {product.variants.length > 1 && (
               <div className="mt-6 mb-6">
                 <VariantSelector
@@ -290,7 +282,6 @@ export function ProductDetailView({ product, relatedProducts, brand, categoryAnc
               </div>
             )}
 
-            {/* Quantity Selector + Add to Cart */}
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4 mt-6 border-b border-[#E1DDD5]/60 pb-8">
               <div className="flex items-center gap-4">
                 <QuantitySelector
@@ -326,25 +317,15 @@ export function ProductDetailView({ product, relatedProducts, brand, categoryAnc
               </p>
             )}
 
-            {/* BẢNG SẢN PHẨM MUA KÈM ƯU ĐÃI */}
+            {/* UPSELL MUA KÈM CÓ NÚT "THÊM" TIẾNG VIỆT HOÀN TOÀN */}
             {relatedProducts.length > 0 && (
-              <div
-                style={{
-                  border: "1px solid transparent",
-                  backgroundImage:
-                    "linear-gradient(#ffffff, #ffffff), linear-gradient(135deg, #FF9D00, #E26E67, #3ECF8E, #FF9D00)",
-                  backgroundOrigin: "border-box",
-                  backgroundClip: "padding-box, border-box",
-                  backgroundSize: "300% 300%",
-                }}
-                className="mt-8 rounded-[28px] p-6 bg-white flex flex-col gap-4 shadow-sm relative overflow-hidden transition-all duration-500 hover:shadow-md animate-gradient-shift"
-              >
-                <div className="space-y-1 relative z-10">
-                  <h4 className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
-                    Mua kèm ưu đãi
+              <div className="mt-8 rounded-3xl p-6 bg-white border border-[#E1DDD5] flex flex-col gap-4 shadow-xs relative overflow-hidden">
+                <div className="space-y-1 relative z-10 text-left">
+                  <h4 className="text-xs font-mono text-amber-600 uppercase tracking-widest font-bold">
+                    Hoàn thiện không gian mộc mạc
                   </h4>
-                  <p className="text-[11px] text-[#5C564E] font-sans leading-none">
-                    Hoàn thiện không gian sống Cozy tối giản của bạn.
+                  <p className="text-xs text-[#5C564E] font-sans">
+                    Sản phẩm gợi ý mua kèm hoàn hảo cho góc làm việc tối giản.
                   </p>
                 </div>
 
@@ -362,23 +343,23 @@ export function ProductDetailView({ product, relatedProducts, brand, categoryAnc
                     return (
                       <div
                         key={item.id}
-                        className="flex items-center justify-between gap-4 p-4 bg-white border border-[#E1DDD5]/80 rounded-2xl shadow-xs hover:border-black/20 transition-all w-full"
+                        className="flex items-center justify-between gap-4 p-3.5 bg-[#FCFAF2]/50 border border-[#E1DDD5] rounded-2xl shadow-xs w-full"
                       >
-                        <div className="flex items-center gap-4 flex-1 min-w-0">
-                          <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-[#E1DDD5] bg-[#EAE5D9]/20 shadow-inner">
-                            <Image src={addonImgUrl} alt={item.name} fill sizes="64px" className="object-cover" />
+                        <div className="flex items-center gap-3.5 flex-1 min-w-0">
+                          <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-[#E1DDD5] bg-white shadow-xs">
+                            <Image src={addonImgUrl} alt={item.name} fill sizes="56px" className="object-cover" />
                           </div>
 
                           <div className="text-left min-w-0 flex-1">
-                            <p className="text-xs sm:text-sm font-serif font-bold text-black truncate leading-snug pr-2">
+                            <p className="text-xs font-serif font-bold text-black truncate leading-snug pr-2">
                               {item.name}
                             </p>
-                            <div className="flex items-baseline gap-1.5 mt-1 font-mono text-[10px] sm:text-xs">
+                            <div className="flex items-baseline gap-1.5 mt-1 font-mono text-xs">
                               <span className="font-bold text-black">
                                 {addonVariant && formatPrice(addonVariant.price)}
                               </span>
                               {isAddonSale && addonVariant?.compareAtPrice && (
-                                <span className="text-[#786F66] line-through opacity-60">
+                                <span className="text-slate-400 line-through text-[10px]">
                                   {formatPrice(addonVariant.compareAtPrice)}
                                 </span>
                               )}
@@ -389,9 +370,9 @@ export function ProductDetailView({ product, relatedProducts, brand, categoryAnc
                         <button
                           type="button"
                           onClick={() => handleAddAddonToCart(item)}
-                          className="rounded-lg bg-black hover:bg-[#33302C] text-[9px] font-mono font-bold tracking-widest text-white px-3.5 py-2.5 uppercase shadow-sm shrink-0 cursor-pointer transition-colors"
+                          className="rounded-lg bg-black hover:bg-[#33302C] text-[10px] font-sans font-bold text-white px-3.5 py-2 uppercase shadow-xs shrink-0 cursor-pointer transition-colors"
                         >
-                          ADD +
+                          Thêm
                         </button>
                       </div>
                     );
@@ -404,108 +385,43 @@ export function ProductDetailView({ product, relatedProducts, brand, categoryAnc
           </div>
         </div>
 
-        {/* BỘ PHÂN GIẢI THÔNG SỐ MA TRẬN ĐỘNG */}
-        <div className="py-20 border-b border-[#E1DDD5]/60 text-left">
-          <div className="bg-black text-white p-4 rounded-full flex items-center max-w-full justify-between select-none mb-12 shadow-sm">
-            <span className="font-serif text-lg font-bold pl-4">Product Specifications</span>
-            <span className="text-[10px] font-mono text-white/50 tracking-widest uppercase pr-4">
-              Hệ sinh thái in 3D
+        {/* MA TRẬN THÔNG SỐ TỐI GIẢN TẬP TRUNG VÀO CÔNG NĂNG & ĐỘ BỀN THỰC TẾ */}
+        <div className="py-16 border-b border-[#E1DDD5]/60 text-left">
+          <div className="bg-black text-white p-4 rounded-2xl flex items-center max-w-full justify-between select-none mb-10 shadow-xs">
+            <span className="font-serif text-lg font-bold pl-2">Thông số chế tác &amp; Công năng</span>
+            <span className="text-[10px] font-mono text-white/60 tracking-widest uppercase pr-2">
+              Sản phẩm On-Demand
             </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-            <div className="p-8 bg-[#FAF5F2] border border-[#E1DDD5] rounded-3xl flex flex-col justify-between min-h-[180px]">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+            <div className="p-6 bg-[#FAF5F2] border border-[#E1DDD5] rounded-3xl flex flex-col justify-between min-h-[160px]">
               <Layers className="size-6 text-[#FF9D00]" />
-              <div className="space-y-2 mt-6">
-                <h3 className="font-serif text-lg font-bold text-black leading-none">Vật liệu sinh học</h3>
+              <div className="space-y-1.5 mt-4">
+                <h3 className="font-serif text-base font-bold text-black leading-none">Vật liệu</h3>
                 <p className="text-xs text-[#5C564E] leading-relaxed">
-                  {attrs.material || "Chế tác từ nhựa sinh học phân hủy hữu cơ PLA lành tính, không mùi."}
+                  {attrs.material || "Nhựa kỹ thuật CR-PETG chịu lực và chịu nhiệt cao (∼70–80°C)."}
                 </p>
               </div>
             </div>
 
-            <div className="p-8 bg-[#FAF5F2] border border-[#E1DDD5] rounded-3xl flex flex-col justify-between min-h-[180px]">
+            <div className="p-6 bg-[#FAF5F2] border border-[#E1DDD5] rounded-3xl flex flex-col justify-between min-h-[160px]">
               <Cpu className="size-6 text-[#FF9D00]" />
-              <div className="space-y-2 mt-6">
-                <h3 className="font-serif text-lg font-bold text-black leading-none">Độ mịn lớp in</h3>
+              <div className="space-y-1.5 mt-4">
+                <h3 className="font-serif text-base font-bold text-black leading-none">Đặc tính</h3>
                 <p className="text-xs text-[#5C564E] leading-relaxed">
-                  Độ phân giải siêu mịn {attrs.layer_height || "0.15mm"} dệt nên cấu trúc hình học nguyên khối bóng
-                  nhám.
+                  Không mùi sinh học, chống ẩm mốc tuyệt đối, kháng nước &amp; bụi mịn.
                 </p>
               </div>
             </div>
 
-            <div className="p-8 bg-[#FAF5F2] border border-[#E1DDD5] rounded-3xl flex flex-col justify-between min-h-[180px]">
+            <div className="p-6 bg-[#FAF5F2] border border-[#E1DDD5] rounded-3xl flex flex-col justify-between min-h-[160px]">
               <Award className="size-6 text-[#FF9D00]" />
-              <div className="space-y-2 mt-6">
-                <h3 className="font-serif text-lg font-bold text-black leading-none">Bản quyền thiết kế</h3>
+              <div className="space-y-1.5 mt-4">
+                <h3 className="font-serif text-base font-bold text-black leading-none">Công năng</h3>
                 <p className="text-xs text-[#5C564E] leading-relaxed">
-                  Tác phẩm sở hữu giấy phép {attrs.license || "CC BY-NC-SA 4.0"} phân phối mộc mạc và an toàn.
+                  Thiết kế nguyên khối, tích hợp rãnh thoát nước ẩn ngầm thông minh.
                 </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 font-sans text-sm">
-            <div className="space-y-5">
-              <h4 className="font-serif text-base font-bold text-black border-b border-[#E1DDD5]/60 pb-2">
-                Cơ lý tính &amp; Vật liệu
-              </h4>
-              <div className="space-y-3 font-mono text-xs text-[#5C564E]">
-                <div className="flex justify-between border-b border-dashed border-[#E1DDD5]/80 pb-2.5">
-                  <span>Chất liệu chính</span>
-                  <span className="text-black font-bold truncate max-w-[150px]">{attrs.material || "Matte PLA"}</span>
-                </div>
-                <div className="flex justify-between border-b border-dashed border-[#E1DDD5]/80 pb-2.5">
-                  <span>Kháng nước</span>
-                  <span className="text-black font-bold">Kháng nước &amp; bụi mịn</span>
-                </div>
-                <div className="flex justify-between pb-1">
-                  <span>Hệ số an toàn</span>
-                  <span className="text-black font-bold">Không mùi sinh học</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-5">
-              <h4 className="font-serif text-base font-bold text-black border-b border-[#E1DDD5]/60 pb-2">
-                Thông số in 3D
-              </h4>
-              <div className="space-y-3 font-mono text-xs text-[#5C564E]">
-                <div className="flex justify-between border-b border-dashed border-[#E1DDD5]/80 pb-2.5">
-                  <span>Cấu trúc Infill</span>
-                  <span className="text-[#3ECF8E] font-bold">{attrs.infill || "Gyroid Infill"}</span>
-                </div>
-                <div className="flex justify-between border-b border-dashed border-[#E1DDD5]/80 pb-2.5">
-                  <span>Độ mịn lớp in</span>
-                  <span className="text-black font-bold">{attrs.layer_height || "0.15mm"}</span>
-                </div>
-                <div className="flex justify-between pb-1">
-                  <span>Phương thức lắp</span>
-                  <span className="text-black font-bold truncate max-w-[150px]">{attrs.assembly || "Nguyên khối"}</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-5">
-              <h4 className="font-serif text-base font-bold text-black border-b border-[#E1DDD5]/60 pb-2">
-                Đặc tính phần cứng
-              </h4>
-              <div className="space-y-3 font-mono text-xs text-[#5C564E]">
-                <div className="flex justify-between border-b border-dashed border-[#E1DDD5]/80 pb-2.5">
-                  <span>Tương thích cứng</span>
-                  <span className="text-black font-bold truncate max-w-[150px]">{attrs.hardware || "N/A"}</span>
-                </div>
-                <div className="flex justify-between border-b border-dashed border-[#E1DDD5]/80 pb-2.5">
-                  <span>Hình thức đóng gói</span>
-                  <span className="text-black font-bold">Hộp giấy Kraft mộc</span>
-                </div>
-                <div className="flex justify-between pb-1">
-                  <span>Bản quyền tác giả</span>
-                  <span className="text-[#3ECF8E] font-bold truncate max-w-[150px]">
-                    {attrs.license || "CC License"}
-                  </span>
-                </div>
               </div>
             </div>
           </div>

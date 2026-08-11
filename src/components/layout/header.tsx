@@ -42,10 +42,11 @@ export function Header({ categories = [] }: HeaderProps) {
   const router = useRouter();
 
   const [mounted, setMounted] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
+
   useEffect(() => setMounted(true), []);
   const itemCount = mounted ? getItemCount() : 0;
 
-  // Trích xuất đường dẫn ảnh đại diện Google
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const userAvatar = (user as any)?.avatar;
 
@@ -64,12 +65,10 @@ export function Header({ categories = [] }: HeaderProps) {
     <>
       <header className="sticky top-0 z-50 w-full border-b border-[#E1DDD5] bg-[#FCFAF2]/95 backdrop-blur supports-[backdrop-filter]:bg-[#FCFAF2]/80">
         <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between px-4 sm:px-6 lg:px-8">
-          {/* Mobile menu Trượt */}
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger
               className="inline-flex items-center justify-center rounded-xl p-2 text-[#786F66] hover:bg-[#EAE5D9]/40 hover:text-black lg:hidden cursor-pointer"
               aria-label={t("openMenu")}
-              aria-expanded={mobileMenuOpen}
             >
               <Menu className="h-5 w-5" />
             </SheetTrigger>
@@ -118,7 +117,6 @@ export function Header({ categories = [] }: HeaderProps) {
                                   type="button"
                                   onClick={() => setExpandedCategory(isExpanded ? null : item.name)}
                                   className="p-2 text-[#786F66] hover:text-black cursor-pointer"
-                                  aria-expanded={isExpanded}
                                 >
                                   <ChevronDown
                                     className={cn("h-4 w-4 transition-transform", isExpanded && "rotate-180")}
@@ -150,7 +148,7 @@ export function Header({ categories = [] }: HeaderProps) {
             </SheetContent>
           </Sheet>
 
-          {/* LOGO CHUẨN GOOGLE SANS EDITORIAL */}
+          {/* TÊN THƯƠNG HIỆU CHUẨN BOO SPACE */}
           <Link
             href="/"
             className="font-serif text-xl sm:text-2xl font-bold tracking-tight uppercase text-black hover:text-[#FF9D00] transition-colors leading-none"
@@ -158,7 +156,6 @@ export function Header({ categories = [] }: HeaderProps) {
             {siteConfig.name}
           </Link>
 
-          {/* DESKTOP NAV */}
           <nav className="hidden lg:flex lg:gap-8">
             {shopLinks.map((item) => (
               <Link
@@ -171,7 +168,6 @@ export function Header({ categories = [] }: HeaderProps) {
             ))}
           </nav>
 
-          {/* ACTIONS MENU */}
           <div className="flex items-center gap-1.5 text-black">
             <motion.button
               whileTap={{ scale: 0.95 }}
@@ -192,18 +188,25 @@ export function Header({ categories = [] }: HeaderProps) {
               </Link>
             </motion.div>
 
-            {/* Tài khoản Dropdown Menu (Đã chuyển sang font-sans sắc nét) */}
+            {/* AVATAR KHẮC PHỤC HOÀN TOÀN LỖI VỠ LAYOUT */}
             {mounted && isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger
                   className="hidden h-10 w-10 items-center justify-center rounded-xl hover:bg-[#EAE5D9]/40 transition-colors lg:inline-flex cursor-pointer focus:outline-none"
                   aria-label={t("accountMenu")}
                 >
-                  <div className="relative flex h-6 w-6 items-center justify-center rounded-full bg-black text-[10px] font-mono font-bold text-[#FCFAF2] uppercase overflow-hidden border border-[#E1DDD5]">
-                    {userAvatar ? (
-                      <Image src={userAvatar} alt="Profile" fill className="object-cover" sizes="24px" />
+                  <div className="relative flex h-7 w-7 items-center justify-center rounded-full bg-black text-[10px] font-mono font-bold text-[#FCFAF2] uppercase overflow-hidden border border-[#E1DDD5]">
+                    {userAvatar && !avatarError ? (
+                      <Image
+                        src={userAvatar}
+                        alt="Profile"
+                        fill
+                        sizes="28px"
+                        className="object-cover"
+                        onError={() => setAvatarError(true)}
+                      />
                     ) : (
-                      (user?.firstName?.[0] ?? "U")
+                      <span>{user?.firstName?.[0] ?? user?.email?.[0] ?? "U"}</span>
                     )}
                   </div>
                 </DropdownMenuTrigger>
@@ -212,30 +215,25 @@ export function Header({ categories = [] }: HeaderProps) {
                   className="w-52 rounded-2xl border border-[#E1DDD5] bg-[#FCFAF2] p-2 text-black shadow-lg"
                 >
                   <div className="px-3 py-2 text-left">
-                    <p className="font-sans text-sm font-bold text-black">
+                    <p className="font-sans text-sm font-bold text-black truncate">
                       {user?.firstName} {user?.lastName}
                     </p>
                     <p className="text-[10px] font-mono text-[#786F66] truncate mt-0.5">{user?.email}</p>
                   </div>
                   <DropdownMenuSeparator className="bg-[#E1DDD5]/60" />
 
+                  {/* Đổi tên Bảng điều khiển -> Tài khoản, Ẩn mục Thiết lập tài khoản trùng lặp */}
                   <DropdownMenuItem
                     onClick={() => router.push("/account")}
                     className="rounded-lg font-sans text-xs font-semibold py-2 hover:bg-[#EAE5D9]/30 cursor-pointer"
                   >
-                    Bảng điều khiển
+                    Tài khoản
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => router.push("/account/orders")}
                     className="rounded-lg font-sans text-xs font-semibold py-2 hover:bg-[#EAE5D9]/30 cursor-pointer"
                   >
                     Đơn hàng của tôi
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => router.push("/account/settings")}
-                    className="rounded-lg font-sans text-xs font-semibold py-2 hover:bg-[#EAE5D9]/30 cursor-pointer"
-                  >
-                    Thiết lập tài khoản
                   </DropdownMenuItem>
 
                   <DropdownMenuSeparator className="bg-[#E1DDD5]/60" />
@@ -275,7 +273,6 @@ export function Header({ categories = [] }: HeaderProps) {
                 <span
                   className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-black text-[9px] font-mono font-bold text-white shadow-sm"
                   aria-live="polite"
-                  aria-atomic="true"
                 >
                   {itemCount > 9 ? "9+" : itemCount}
                 </span>

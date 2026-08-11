@@ -1,14 +1,7 @@
 "use client";
 
 import { motion, type Variants } from "framer-motion";
-import {
-  FileText,
-  Loader2,
-  Search,
-  Sparkles,
-  Trash2,
-  Upload,
-} from "lucide-react";
+import { FileText, Loader2, Search, Sparkles, Trash2, Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
@@ -58,9 +51,7 @@ export function BentoPortalGrid() {
 
     const maxFileSize = 5 * 1024 * 1024;
     if (file.size > maxFileSize) {
-      toast.error(
-        "Dung lượng tệp vượt quá giới hạn 5MB. Vui lòng chọn tệp nhỏ hơn.",
-      );
+      toast.error("Dung lượng tệp vượt quá giới hạn 5MB. Vui lòng chọn tệp nhỏ hơn.");
       if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
@@ -81,9 +72,7 @@ export function BentoPortalGrid() {
   async function handleSubmitIdea(e: React.FormEvent) {
     e.preventDefault();
     if (!idea.trim() || !email.trim() || !phone.trim()) {
-      toast.error(
-        "Vui lòng điền đầy đủ ý tưởng, số điện thoại và email liên hệ.",
-      );
+      toast.error("Vui lòng điền đầy đủ ý tưởng, số điện thoại và email liên hệ.");
       return;
     }
 
@@ -95,9 +84,7 @@ export function BentoPortalGrid() {
         const fileExt = attachedFile.name.split(".").pop();
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 12)}.${fileExt}`;
 
-        const { error: uploadError } = await supabase.storage
-          .from("co-creation-files")
-          .upload(fileName, attachedFile);
+        const { error: uploadError } = await supabase.storage.from("co-creation-files").upload(fileName, attachedFile);
 
         if (uploadError) throw uploadError;
 
@@ -121,9 +108,7 @@ export function BentoPortalGrid() {
 
       const data = await response.json();
       if (response.ok && data.success) {
-        toast.success(
-          "Boo đã tiếp nhận! Báo giá chi tiết sẽ được gửi lại cho bạn sớm nhất ✨",
-        );
+        toast.success("Boo đã tiếp nhận! Báo giá chi tiết sẽ được gửi lại cho bạn sớm nhất ✨");
         setIdea("");
         setEmail("");
         setPhone("");
@@ -152,9 +137,7 @@ export function BentoPortalGrid() {
         className="col-span-1 md:col-span-2 bg-[#181816]/90 backdrop-blur-md border border-white/10 rounded-[32px] p-8 flex flex-col justify-between min-h-[380px] text-left"
       >
         <div className="flex items-center justify-between text-[#00E19B]">
-          <span className="text-xs font-mono tracking-widest font-semibold uppercase">
-            TÌM KIẾM Ý TƯỞNG
-          </span>
+          <span className="text-xs font-mono tracking-widest font-semibold uppercase">TÌM KIẾM Ý TƯỞNG</span>
           <Search className="h-4 w-4" />
         </div>
 
@@ -188,16 +171,11 @@ export function BentoPortalGrid() {
         className="col-span-1 bg-[#181816]/90 backdrop-blur-md border border-white/10 rounded-[32px] p-8 flex flex-col justify-between min-h-[380px] text-left"
       >
         <div className="flex items-center justify-between text-[#00E19B]">
-          <span className="text-xs font-mono tracking-widest font-semibold uppercase">
-            Ý TƯỞNG
-          </span>
+          <span className="text-xs font-mono tracking-widest font-semibold uppercase">Ý TƯỞNG</span>
           <FileText className="h-4 w-4" />
         </div>
 
-        <form
-          onSubmit={handleSubmitIdea}
-          className="space-y-3.5 my-4 flex-1 flex flex-col justify-center"
-        >
+        <form onSubmit={handleSubmitIdea} className="space-y-3.5 my-4 flex-1 flex flex-col justify-center">
           <textarea
             value={idea}
             onChange={(e) => setIdea(e.target.value)}
@@ -227,9 +205,7 @@ export function BentoPortalGrid() {
               </div>
             ) : (
               <div className="border border-white/10 rounded-xl px-4 py-2 bg-[#242421] flex items-center justify-between text-[10px] font-mono">
-                <span className="text-white/70 max-w-[150px] truncate">
-                  {attachedFile?.name}
-                </span>
+                <span className="text-white/70 max-w-[150px] truncate">{attachedFile?.name}</span>
                 <button
                   type="button"
                   onClick={handleRemoveFile}

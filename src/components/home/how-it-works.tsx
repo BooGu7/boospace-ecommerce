@@ -18,17 +18,17 @@ const DEFAULT_STEPS: StepItem[] = [
   {
     num: "01",
     title: "Chọn Gu & Tinh Chỉnh",
-    desc: "Lựa chọn thiết kế nguyên bản từ BooSpace, tự do cá nhân hóa kích thước và màu sắc nhám mờ (được giới hạn chọn lọc dưới 4 tone màu tối giản).",
+    desc: "Lựa chọn thiết kế nguyên bản từ Boo Space, tự do cá nhân hóa kích thước và màu sắc nhám mờ (được giới hạn chọn lọc dưới 4 tone màu tối giản).",
   },
   {
     num: "02",
     title: "Chế Tác Chính Xác",
-    desc: "Hệ thống máy in Flashforge Creator 5 Pro vận hành liên tục từ 12-24 giờ để dệt nên cấu trúc hình học nguyên khối với độ chuẩn xác cao nhất.",
+    desc: "Hệ thống máy in kỹ thuật cao vận hành liên tục từ 12-24 giờ để dệt nên cấu trúc hình học nguyên khối với độ chuẩn xác cao nhất.",
   },
   {
     num: "03",
     title: "Đóng Gói Thủ Công",
-    desc: "Sản phẩm được xử lý nguội thủ công tỉ mỉ, làm sạch mọi chi tiết thừa và đóng gói gọn gàng trong hộp giấy Kraft thân thiện môi trường trước khi gửi qua GHN / J&T Express.",
+    desc: "Sản phẩm được xử lý nguội thủ công tỉ mỉ, làm sạch mọi chi tiết thừa và đóng gói bảo vệ gọn gàng trước khi giao tận tay bạn.",
   },
 ];
 
@@ -42,9 +42,28 @@ const blockVariants: Variants = {
   },
 };
 
+// Bộ lọc tự động làm sạch từ ngữ kỹ thuật sâu bị sót từ Supabase
+function sanitizeStepDesc(desc: string): string {
+  if (!desc) return "";
+  return desc
+    .replace(/Flashforge Creator 5 Pro/gi, "kỹ thuật cao")
+    .replace(
+      /hộp giấy Kraft thân thiện môi trường trước khi gửi qua GHN \/ J&T Express/gi,
+      "bảo vệ gọn gàng trước khi giao tận tay bạn",
+    )
+    .replace(/GHN \/ J&T Express/gi, "đơn vị vận chuyển uy tín")
+    .replace(/BooSpace/g, "Boo Space");
+}
+
 export function HowItWorks({ steps, title, tagline }: HowItWorksProps) {
-  // Lấy dữ liệu động từ Supabase props, nếu không có sẽ lấy bộ chữ mặc định
-  const displaySteps = steps && steps.length > 0 ? steps : DEFAULT_STEPS;
+  const rawSteps = steps && steps.length > 0 ? steps : DEFAULT_STEPS;
+
+  // Tự động làm sạch dữ liệu cũ
+  const displaySteps = rawSteps.map((s) => ({
+    ...s,
+    desc: sanitizeStepDesc(s.desc),
+  }));
+
   const displayTitle = title || "Sản phẩm sinh ra khi có bạn";
   const displayTagline = tagline || "QUY TRÌNH CHẾ TÁC ON-DEMAND";
 

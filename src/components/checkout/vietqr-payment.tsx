@@ -1,8 +1,7 @@
 "use client";
 
 import { CheckCircle2, Clock, RefreshCw, RotateCcw, ShieldCheck } from "lucide-react";
-import { useRouter } from "next/navigation";
-import * as React from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase/client";
@@ -11,6 +10,7 @@ interface QRPaymentProps {
   orderId: string;
   amount: number;
   sku?: string;
+  onSuccess?: () => void;
 }
 
 const formatVND = (amount: number) => {
@@ -20,22 +20,18 @@ const formatVND = (amount: number) => {
   return `${formatted} VNĐ`;
 };
 
-export function VietQRPayment({ orderId, amount, sku }: QRPaymentProps) {
-  const _router = useRouter();
-  const [isPaid, setIsPaid] = React.useState(false);
-  const [isChecking, setIsChecking] = React.useState(false);
+export function VietQRPayment({ orderId, amount, sku, onSuccess }: QRPaymentProps) {
+  const [isPaid, setIsPaid] = useState(false);
+  const [isChecking, setIsChecking] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(600);
 
-  // Cấu hình đồng hồ đếm ngược 10 phút (600 giây)
-  const [timeLeft, setTimeLeft] = React.useState(600);
-
-  const [bankInfo, setBankInfo] = React.useState({
+  const [bankInfo, setBankInfo] = useState({
     bankCode: "ACB",
     accountNumber: "2077867",
     accountName: "TON THAT TRONG",
   });
 
-  // Tải cấu hình ngân hàng từ Supabase
-  React.useEffect(() => {
+  useEffect(() => {
     async function loadPaymentGateway() {
       try {
         const { data, error } = await supabase
@@ -60,8 +56,7 @@ export function VietQRPayment({ orderId, amount, sku }: QRPaymentProps) {
     loadPaymentGateway();
   }, []);
 
-  // Xử lý đếm ngược 10 phút
-  React.useEffect(() => {
+  useEffect(() => {
     if (timeLeft <= 0) return;
     const timer = setInterval(() => {
       setTimeLeft((prev) => prev - 1);
@@ -76,8 +71,7 @@ export function VietQRPayment({ orderId, amount, sku }: QRPaymentProps) {
     return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
   };
 
-  // Đăng ký kênh lắng nghe trạng thái thanh toán Realtime từ Supabase
-  React.useEffect(() => {
+  useEffect(() => {
     const channel = supabase
       .channel(`order-status-${orderId}`)
       .on(
@@ -95,6 +89,7 @@ export function VietQRPayment({ orderId, amount, sku }: QRPaymentProps) {
           ) {
             setIsPaid(true);
             toast.success("Thanh toán thành công! Đơn hàng đang được gia công in ✨");
+            onSuccess?.();
           }
         },
       )
@@ -103,13 +98,11 @@ export function VietQRPayment({ orderId, amount, sku }: QRPaymentProps) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [orderId]);
+  }, [orderId, onSuccess]);
 
-  // Xử lý tạo Chuỗi Nội dung chuyển khoản kết hợp Mã Đơn Hàng + SKU
   const cleanSku = sku ? sku.replace(/[^a-zA-Z0-9-]/g, "").toUpperCase() : "";
   const transferMemo = cleanSku ? `${orderId} ${cleanSku}` : orderId;
 
-  // Sinh mã QR VietQR chứa chuỗi Nội dung chuyển khoản Mới
   const template = "compact2";
   const qrImageUrl = `https://img.vietqr.io/image/${bankInfo.bankCode}-${bankInfo.accountNumber}-${template}.png?amount=${amount}&addInfo=${encodeURIComponent(transferMemo)}&accountName=${encodeURIComponent(bankInfo.accountName)}`;
 
@@ -142,6 +135,7 @@ export function VietQRPayment({ orderId, amount, sku }: QRPaymentProps) {
       if (!error && data?.payment_status === "Paid") {
         setIsPaid(true);
         toast.success("Hệ thống đã ghi nhận thanh toán thành công!");
+        onSuccess?.();
       } else {
         toast.info("Chưa ghi nhận giao dịch chuyển khoản mới. Vui lòng đợi trong giây lát ✨");
       }
@@ -153,7 +147,7 @@ export function VietQRPayment({ orderId, amount, sku }: QRPaymentProps) {
   };
 
   const handleResetTimer = () => {
-    setTimeLeft(600); // Gia hạn lại 10 phút
+    setTimeLeft(600);
     toast.success("Đã làm mới mã QR thêm 10 phút ✨");
   };
 
@@ -183,6 +177,7 @@ export function VietQRPayment({ orderId, amount, sku }: QRPaymentProps) {
       </div>
 
       <div className="relative aspect-square w-full rounded-2xl border border-[#E1DDD5] bg-[#FCFAF2]/40 overflow-hidden flex items-center justify-center p-3">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={qrImageUrl}
           alt={`Mã VietQR thanh toán đơn hàng ${orderId}`}
@@ -218,7 +213,7 @@ export function VietQRPayment({ orderId, amount, sku }: QRPaymentProps) {
 
       <div className="rounded-xl bg-[#FCFAF2] border border-[#E1DDD5] p-3 text-[10px] text-[#5c544d] leading-relaxed">
         💡 <strong>Lưu ý:</strong> Vui lòng giữ nguyên nội dung <strong>{transferMemo}</strong> khi chuyển khoản để máy
-        chủ tự nhận diện đơn hàng và mã SKU sản phẩm.
+        chủ tự nhận diện đơn hàng.
       </div>
 
       <Button

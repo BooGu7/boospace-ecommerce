@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 import { toast } from "sonner";
@@ -25,6 +25,7 @@ export function HeroVideoSection({
   const [submitting, setSubmitting] = React.useState(false);
   const [isClosed, setIsClosed] = React.useState(false);
   const [mounted, setMounted] = React.useState(false);
+  const [videoError, setVideoError] = React.useState(false);
 
   React.useEffect(() => {
     setMounted(true);
@@ -68,6 +69,9 @@ export function HeroVideoSection({
     }
   };
 
+  // Đảm bảo đường dẫn video viết thường chuẩn xác
+  const cleanVideoUrl = heroVideo ? heroVideo.toLowerCase() : "";
+
   return (
     <section
       className="relative min-h-screen w-screen flex items-center overflow-hidden bg-cover bg-center"
@@ -90,39 +94,40 @@ export function HeroVideoSection({
             <h1 className="text-5xl sm:text-7xl font-bold tracking-tight text-white leading-[1.05] font-serif text-drop-shadow">
               Không gian độc bản.
               <br />
-              <span className="text-[#3ECF8E] italic font-medium font-serif">
-                Thân thiện và Tinh tế.
-              </span>
+              <span className="text-[#3ECF8E] italic font-medium font-serif">Thân thiện và Tinh tế.</span>
             </h1>
           </MotionWrapper>
           <MotionWrapper direction="up" delay={300}>
             <p className="text-base sm:text-lg text-neutral-200 leading-relaxed max-w-lg font-sans text-drop-shadow">
-              Định nghĩa lại góc sống bằng những chiếc đèn nghệ thuật và vật
-              dụng in 3D mang ngôn ngữ tối giản. Chất liệu sinh học lành tính
-              giúp dọn dẹp mọi xao nhãng số, trả lại sự ấm áp thuần khiết cho
-              tâm trí.
+              Định nghĩa lại góc sống bằng những chiếc đèn nghệ thuật và vật dụng in 3D mang ngôn ngữ tối giản. Chất
+              liệu sinh học lành tính giúp dọn dẹp mọi xao nhãng số, trả lại sự ấm áp thuần khiết cho tâm trí.
             </p>
           </MotionWrapper>
         </div>
 
         <div className="flex flex-col lg:flex-row items-stretch lg:items-end justify-between gap-8 pt-12">
+          {/* KHUNG VIDEO TỐI ƯU HÓA CHẠY HOÀN HẢO TRÊN VERCEL PRODUCTION */}
           <MotionWrapper direction="right" delay={400}>
             <div className="relative w-48 sm:w-64 aspect-[16/10] rounded-2xl overflow-hidden border-2 border-[#3ECF8E] bg-black/40 group cursor-pointer shadow-lg flex items-center justify-center">
-              {!mounted ? (
-                <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                  <Loader2 className="h-5 w-5 animate-spin text-[#3ECF8E]" />
-                </div>
+              {!mounted || videoError ? (
+                <div
+                  className="absolute inset-0 bg-cover bg-center opacity-80"
+                  style={{ backgroundImage: `url(${heroImage})` }}
+                />
               ) : (
                 <video
-                  key={heroVideo}
-                  src={heroVideo}
+                  key={cleanVideoUrl}
                   autoPlay
                   muted
                   loop
                   playsInline
                   preload="auto"
-                  className="absolute inset-0 w-full h-full object-cover opacity-75 group-hover:scale-102 transition-transform duration-500"
-                />
+                  onError={() => setVideoError(true)}
+                  className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:scale-102 transition-transform duration-500"
+                >
+                  <source src={cleanVideoUrl} type="video/mp4" />
+                  <source src="/images/herovideo.mp4" type="video/mp4" />
+                </video>
               )}
             </div>
           </MotionWrapper>
@@ -139,10 +144,7 @@ export function HeroVideoSection({
                     ✕
                   </button>
                   <div className="space-y-1">
-                    {/* Đã chuyển từ h4 thành p để không nhảy cấp tiêu đề [1.1] */}
-                    <p className="font-bold text-xs text-slate-800 font-sans">
-                      Bản tin Boo Space
-                    </p>
+                    <p className="font-bold text-xs text-slate-800 font-sans">Bản tin Boo Space</p>
                     <p className="text-[9px] text-[#5C564E] font-mono tracking-wider font-semibold">
                       NHẬN CẢM HỨNG KHÔNG GIAN · KHÔNG SPAM
                     </p>
@@ -161,7 +163,6 @@ export function HeroVideoSection({
                       required
                       className="flex-1 bg-transparent px-3 py-2 text-xs font-mono tracking-wider outline-none text-black placeholder:text-slate-400"
                     />
-                    {/* Đã đồng bộ aria-label chứa từ "GET" [1.1] */}
                     <button
                       type="submit"
                       disabled={submitting}
@@ -183,7 +184,7 @@ export function HeroVideoSection({
                 KHÁM PHÁ BỘ SƯU TẬP <ArrowRight className="size-4 text-black" />
               </MagneticButton>
               <p className="text-center text-[10px] text-white/70 font-mono tracking-wider">
-                {"✓"} MIỄN PHÍ VẬN CHUYỂN TOÀN QUỐC TẠI VIỆT NAM
+                {"✓"} MIỄN PHÍ VẬN CHUYỂN NỘI THÀNH TP.HCM
               </p>
             </MotionWrapper>
           </div>

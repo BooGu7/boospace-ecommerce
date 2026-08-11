@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { siteConfig } from "@/lib/config";
-import { brandRepository, categoryRepository, productRepository } from "@/lib/repositories";
+import {
+  brandRepository,
+  categoryRepository,
+  productRepository,
+} from "@/lib/repositories";
 import { BrandView } from "./brand-view";
 import { CategoryView } from "./category-view";
 import { ProductDetailView } from "./product-detail-view";
@@ -10,21 +14,13 @@ interface SlugPageProps {
   params: Promise<{ slug: string }>;
 }
 
-/**
- * ISR
- * Rebuild cache every 60 seconds
- */
 export const revalidate = 600;
-
-/**
- * Allow new products/categories/brands
- * from Supabase without redeploy
- */
 export const dynamicParams = true;
 
-export async function generateMetadata({ params }: SlugPageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: SlugPageProps): Promise<Metadata> {
   const { slug } = await params;
-
   const product = await productRepository.getBySlug(slug);
 
   if (product) {
@@ -33,97 +29,79 @@ export async function generateMetadata({ params }: SlugPageProps): Promise<Metad
     return {
       title: product.name,
       description: product.description,
-      alternates: {
-        canonical: `/${product.slug}`,
-      },
+      alternates: { canonical: `/${product.slug}` },
       openGraph: {
         title: product.name,
         description: product.description,
         type: "website",
         url: `${siteConfig.url}/${product.slug}`,
         images: product.images[0]
-          ? [
-              {
-                url: product.images[0].url,
-                alt: product.images[0].alt,
-              },
-            ]
+          ? [{ url: product.images[0].url, alt: product.images[0].alt }]
           : [],
       },
       other: {
         "product:price:amount": variant ? String(variant.price / 100) : "",
-        "product:price:currency": variant?.currency ?? "USD",
+        "product:price:currency": variant?.currency ?? "VND",
       },
     };
   }
 
   const category = await categoryRepository.getBySlug(slug);
-
   if (category) {
     return {
       title: category.name,
       description: category.description,
-      alternates: {
-        canonical: `/${category.slug}`,
-      },
-      openGraph: {
-        title: category.name,
-        description: category.description,
-        type: "website",
-        url: `${siteConfig.url}/${category.slug}`,
-      },
+      alternates: { canonical: `/${category.slug}` },
     };
   }
 
   const brand = await brandRepository.getBySlug(slug);
-
   if (brand) {
     return {
       title: brand.name,
       description: brand.description,
-      alternates: {
-        canonical: `/${brand.slug}`,
-      },
-      openGraph: {
-        title: brand.name,
-        description: brand.description,
-        type: "website",
-        url: `${siteConfig.url}/${brand.slug}`,
-      },
+      alternates: { canonical: `/${brand.slug}` },
     };
   }
 
-  return {
-    title: "Not Found",
-  };
+  return { title: "Not Found" };
 }
 
 export default async function SlugPage({ params }: SlugPageProps) {
   const { slug } = await params;
 
-  // Product Page
+  // 1. Kiểm tra Trang Sản phẩm
   const product = await productRepository.getBySlug(slug);
 
   if (product) {
-    const productCategories = await Promise.all(product.categoryIds.map((id) => categoryRepository.getById(id)));
+    // Xử lý nạp danh mục an toàn không bị ngắt trang khi ID danh mục/thương hiệu không tồn tại
+    const productCategories = await Promise.all(
+      (product.categoryIds || []).map((id) =>
+        categoryRepository.getById(id).catch(() => null),
+      ),
+    );
 
-    const validCategories = productCategories.filter((c): c is NonNullable<typeof c> => c !== null);
-
-    const primaryCategory = validCategories.find((c) => c.parentId) ?? validCategories[0] ?? null;
+    const validCategories = productCategories.filter(
+      (c): c is NonNullable<typeof c> => c !== null,
+    );
+    const primaryCategory =
+      validCategories.find((c) => c.parentId) ?? validCategories[0] ?? null;
 
     const [relatedProducts, brand, categoryAncestors] = await Promise.all([
       primaryCategory
         ? productRepository
-            .getByCategory(primaryCategory.slug, {
-              page: 1,
-              limit: 5,
-            })
+            .getByCategory(primaryCategory.slug, { page: 1, limit: 5 })
             .then((r) => r.items.filter((p) => p.id !== product.id).slice(0, 4))
+            .catch(() => [])
         : Promise.resolve([]),
 
-      brandRepository.getById(product.brandId),
+      product.brandId
+        ? brandRepository.getById(product.brandId).catch(() => null)
+        : Promise.resolve(null),
 
-      primaryCategory ? categoryRepository.getAncestors(primaryCategory.id) : Promise.resolve([]),
+      primaryCategory
+        ? categoryRepository.getAncestors(primaryCategory.id).catch(() => [])
+        : Promise.resolve([]),
     ]);
 
     return (
@@ -136,18 +114,18 @@ export default async function SlugPage({ params }: SlugPageProps) {
     );
   }
 
-  // Category Page
+  // 2. Kiểm tra Trang Danh mục
   const category = await categoryRepository.getBySlug(slug);
 
   if (category) {
-    const [{ items: products, pagination }, subcategories, ancestors] = await Promise.all([
-      productRepository.getByCategory(slug, {
-        page: 1,
-        limit: 40,
-      }),
-      categoryRepository.getChildren(category.id),
-      categoryRepository.getAncestors(category.id),
-    ]);
+    const [{ items: products, pagination }, subcategories, ancestors] =
+      await Promise.all([
+        productRepository
+          .getByCategory(slug, { page: 1, limit: 40 })
+          .catch(() => ({ items: [], pagination: {} as any })),
+        categoryRepository.getChildren(category.id).catch(() => []),
+        categoryRepository.getAncestors(category.id).catch(() => []),
+      ]);
 
     return (
       <CategoryView
@@ -160,14 +138,18 @@ export default async function SlugPage({ params }: SlugPageProps) {
     );
   }
 
-  // Brand Page
+  // 3. Kiểm tra Trang Thương hiệu
   const brand = await brandRepository.getBySlug(slug);
 
   if (brand) {
-    const { items: products, pagination } = await productRepository.list({ tags: [] }, undefined, {
-      page: 1,
-      limit: 40,
-    });
+    const { items: products, pagination } = await productRepository.list(
+      { tags: [] },
+      undefined,
+      {
+        page: 1,
+        limit: 40,
+      },
+    );
 
     const brandProducts = products.filter((p) => p.brandId === brand.id);
 

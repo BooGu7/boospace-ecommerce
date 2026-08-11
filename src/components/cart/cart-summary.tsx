@@ -9,37 +9,41 @@ interface CartSummaryProps {
 }
 
 export function CartSummary({ subtotal }: CartSummaryProps) {
-  const shipping = subtotal >= siteConfig.freeShippingThreshold ? 0 : 599;
+  const shipping = subtotal >= siteConfig.freeShippingThreshold ? 0 : 30000;
   const tax = Math.round(subtotal * siteConfig.taxRate);
   const total = subtotal + shipping + tax;
 
   return (
-    <div className="space-y-3">
-      <div className="flex justify-between text-sm">
-        <span className="text-muted-foreground">Tạm tính</span>
-        <span>{formatPrice(subtotal)}</span>
+    <div className="space-y-3 font-sans text-left text-xs sm:text-sm">
+      <div className="flex justify-between">
+        <span className="text-[#786F66]">Cộng tạm tính</span>
+        <span className="font-mono font-medium text-black">{formatPrice(subtotal)}</span>
       </div>
 
-      <div className="flex justify-between text-sm">
-        <span className="text-muted-foreground">Phí vận chuyển</span>
-        <span>{shipping === 0 ? "Miễn phí" : formatPrice(shipping)}</span>
+      <div className="flex justify-between">
+        <span className="text-[#786F66]">Phí vận chuyển ước tính</span>
+        <span className="font-mono font-bold text-black">
+          {shipping === 0 ? <span className="text-[#3ECF8E]">Miễn phí</span> : formatPrice(shipping)}
+        </span>
       </div>
 
-      <div className="flex justify-between text-sm">
-        <span className="text-muted-foreground">Thuế ước tính</span>
-        <span>{formatPrice(tax)}</span>
-      </div>
+      {tax > 0 && (
+        <div className="flex justify-between">
+          <span className="text-[#786F66]">Thuế ước tính</span>
+          <span className="font-mono font-medium text-black">{formatPrice(tax)}</span>
+        </div>
+      )}
 
-      <Separator />
+      <Separator className="bg-[#E1DDD5]/60" />
 
-      <div className="flex justify-between font-medium">
+      <div className="flex justify-between font-serif font-bold text-base text-black">
         <span>Tổng cộng</span>
-        <span>{formatPrice(total)}</span>
+        <span className="font-mono text-lg text-[#FF9D00]">{formatPrice(total)}</span>
       </div>
 
       {subtotal > 0 && subtotal < siteConfig.freeShippingThreshold && (
-        <p className="text-xs text-muted-foreground">
-          Thêm {formatPrice(siteConfig.freeShippingThreshold - subtotal)} để được miễn phí vận chuyển
+        <p className="text-[11px] font-mono text-[#786F66]">
+          * Mua thêm {formatPrice(siteConfig.freeShippingThreshold - subtotal)} để được miễn phí vận chuyển.
         </p>
       )}
     </div>

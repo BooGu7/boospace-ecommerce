@@ -1,10 +1,11 @@
 "use client";
 
 import { motion, type Variants } from "framer-motion";
-import { ArrowRight, CalendarDays, Loader2, Package } from "lucide-react";
+import { ArrowRight, CalendarDays, Headphones, Loader2, Package, QrCode } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { VietQRPayment } from "@/components/checkout/vietqr-payment";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { OrderStatusBadge } from "@/components/ui/order-status-badge";
@@ -29,6 +30,7 @@ interface OrderDetail {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   status: any;
   paymentStatus: string;
+  paymentMethod: string;
   items: OrderItem[];
 }
 
@@ -63,13 +65,16 @@ const formatVNDDirect = (amount: number) => {
   }).format(amount);
 };
 
-const formatVNDate = (dateStr: string) => {
+// ĐỊNH DẠNG THỜI GIAN hh:mm DD/MM/YYYY
+const formatVNDateTime = (dateStr: string) => {
   if (!dateStr) return "N/A";
   const date = new Date(dateStr);
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const year = date.getFullYear();
-  return `${day}/${month}/${year}`;
+  return `${hours}:${minutes} ${day}/${month}/${year}`;
 };
 
 export default function OrdersPage() {
@@ -77,8 +82,11 @@ export default function OrdersPage() {
   const [ordersList, setOrdersList] = useState<OrderDetail[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [selectedQROrder, setSelectedQROrder] = useState<OrderDetail | null>(null);
+
   useEffect(() => {
     if (!isReady || !user?.email) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLoading(false);
       return;
     }
@@ -87,7 +95,6 @@ export default function OrdersPage() {
 
     async function fetchDetailedOrders() {
       try {
-        // Chỉ định rõ tên khóa ngoại order_items!fk_order_items_order để giải quyết triệt để lỗi PGRST201
         let query = supabase.from("orders").select(
           `
             id,
@@ -96,6 +103,7 @@ export default function OrdersPage() {
             total,
             order_status,
             payment_status,
+            payment_method,
             order_items!fk_order_items_order (
               id,
               product_id,
@@ -128,7 +136,6 @@ export default function OrdersPage() {
           return;
         }
 
-        // Bước 2: Nạp thông tin sản phẩm từ bảng products
         const productIds = new Set<string>();
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ordersData.forEach((o: any) => {
@@ -157,7 +164,6 @@ export default function OrdersPage() {
           }
         }
 
-        // Bước 3: Ánh xạ dữ liệu hiển thị
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const mapped: OrderDetail[] = ordersData.map((o: any) => ({
           id: o.id,
@@ -166,6 +172,7 @@ export default function OrdersPage() {
           total: Number(o.total ?? 0),
           status: o.order_status || "pending",
           paymentStatus: o.payment_status || "Pending",
+          paymentMethod: o.payment_method || "VietQR",
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           items: (o.order_items || []).map((oi: any, idx: number) => {
             const pInfo = productMap[oi.product_id];
@@ -247,13 +254,14 @@ export default function OrdersPage() {
                       </p>
                       <p className="text-xs text-[#786F66] mt-1 flex items-center gap-1.5 font-mono">
                         <CalendarDays className="size-3.5" />
-                        {formatVNDate(order.createdAt)}
+                        {formatVNDateTime(order.createdAt)}
                       </p>
                     </div>
 
                     <div className="flex items-center gap-3 flex-wrap sm:flex-nowrap">
                       {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                       <OrderStatusBadge status={order.status as any} />
+
                       <span
                         className={`text-[10px] font-mono font-bold px-2.5 py-1 rounded-full border ${
                           order.paymentStatus === "Paid"
@@ -263,6 +271,7 @@ export default function OrdersPage() {
                       >
                         {order.paymentStatus === "Paid" ? "Đã thanh toán" : "Chờ thanh toán"}
                       </span>
+
                       <span className="text-sm sm:text-base font-mono font-bold text-[#FF9D00]">
                         {formatVNDDirect(order.total)}
                       </span>
@@ -275,11 +284,8 @@ export default function OrdersPage() {
                       const imgUrl = item.imageUrl || PLACEHOLDER_IMAGE;
 
                       return (
-                        <div
-                          key={item.id}
-                          className="flex items-center gap-4 text-xs font-sans font-medium animate-in fade-in duration-200"
-                        >
-                          <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-[#E1DDD5] bg-[#EAE5D9]/20 shadow-sm">
+                        <div key={item.id} className="flex items-center gap-4 text-xs font-sans font-medium">
+                          <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-[#E1DDD5] bg-[#EAE5D9]/20 shadow-xs">
                             <Image src={imgUrl} alt={item.name} fill sizes="48px" className="object-cover" />
                           </div>
 
@@ -297,10 +303,54 @@ export default function OrdersPage() {
                       );
                     })}
                   </div>
+
+                  <div className="border-t border-slate-100 pt-4 flex flex-wrap items-center justify-between gap-3">
+                    <a
+                      href="https://zalo.me/0901234567"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs font-mono text-[#786F66] hover:text-black transition-colors"
+                    >
+                      <Headphones className="size-3.5" /> Liên hệ hỗ trợ
+                    </a>
+
+                    {order.paymentStatus !== "Paid" && order.paymentMethod === "VietQR" && (
+                      <button
+                        type="button"
+                        onClick={() => setSelectedQROrder(order)}
+                        className="inline-flex items-center gap-2 rounded-xl bg-[#FF9D00] hover:bg-amber-500 text-black text-xs font-mono font-bold uppercase tracking-wider px-4 py-2 cursor-pointer transition-all shadow-xs"
+                      >
+                        <QrCode className="size-4" /> Tiếp tục thanh toán VietQR
+                      </button>
+                    )}
+                  </div>
                 </Card>
               </motion.div>
             ))}
           </motion.div>
+        )}
+
+        {selectedQROrder && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl p-6 max-w-md w-full relative space-y-4">
+              <button
+                type="button"
+                onClick={() => setSelectedQROrder(null)}
+                className="absolute top-4 right-4 text-xs font-mono text-slate-400 hover:text-black cursor-pointer"
+              >
+                ✕ Đóng
+              </button>
+
+              <VietQRPayment
+                orderId={selectedQROrder.orderNumber}
+                amount={selectedQROrder.total}
+                onSuccess={() => {
+                  setSelectedQROrder(null);
+                  window.location.reload();
+                }}
+              />
+            </div>
+          </div>
         )}
       </div>
     </div>

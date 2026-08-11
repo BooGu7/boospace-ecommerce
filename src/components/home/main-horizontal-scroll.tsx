@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  motion,
-  useScroll,
-  useSpring,
-  useTransform,
-  type Variants,
-} from "framer-motion";
+import { motion, useScroll, useSpring, useTransform, type Variants } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -80,29 +74,24 @@ export function MainHorizontalScroll({
     "Boo Space tin rằng, sức mạnh của tư duy bắt đầu từ sự ngăn nắp trực giác. Một vầng sáng ambient dịu mát hay một góc xanh gọn gàng trên bàn làm việc không đơn thuần là món đồ trang trí, đó là điểm tựa xúc giác neo giữ sự tĩnh lặng của bạn giữa kỷ nguyên số.";
 
   const slide1Tag = config?.slide1_tag || "ÁNH SÁNG KHÚC XẠ";
-  const slide1Title =
-    config?.slide1_title || "Liệu pháp thị giác cho những đêm tư duy sâu";
+  const slide1Title = config?.slide1_title || "Liệu pháp thị giác cho những đêm tư duy sâu";
   const slide1Desc =
     config?.slide1_desc ||
     "Loại bỏ hoàn toàn những nguồn sáng LED trực diện gây căng thẳng thị giác. Chúng tôi ứng dụng cấu trúc hình học nguyên khối để khúc xạ nguồn sáng thô thành vệt sáng ambient êm dịu. Đây là thánh đường ánh sáng bảo vệ đôi mắt và đánh thức khả năng tập trung tối đa của bạn lúc nửa đêm.";
 
   const slide2Tag = config?.slide2_tag || "MẢNG XANH THÔNG MINH";
-  const slide2Title =
-    config?.slide2_title || "Khi thiên nhiên đồng hành cùng sự ngăn nắp";
+  const slide2Title = config?.slide2_title || "Khi thiên nhiên đồng hành cùng sự ngăn nắp";
   const slide2Desc =
     config?.slide2_desc ||
     "Một mầm sống nhỏ trên bàn làm việc là bộ lọc tự nhiên giải tỏa áp lực tinh thần. Dòng chậu cây tối giản tích hợp hệ thống tự tưới và rãnh thoát nước ẩn thông minh, giữ cho mặt bàn của bạn luôn khô ráo tuyệt đối, ngăn nắp và thanh lịch mà không tốn công chăm sóc.";
 
   const slide3Tag = config?.slide3_tag || "VÂN NHÁM KỸ THUẬT";
-  const slide3Title =
-    config?.slide3_title || "Mộc mạc như gốm nung, bền bỉ cùng thời gian";
+  const slide3Title = config?.slide3_title || "Mộc mạc như gốm nung, bền bỉ cùng thời gian";
   const slide3Desc =
     config?.slide3_desc ||
     "Chúng tôi từ bỏ các loại nhựa giòn thông thường để chế tác bằng nhựa CR-PETG cao cấp — sở hữu khả năng chịu nhiệt cao (∼70–80°C) và chống ẩm mốc tuyệt đối. Từng đường in được tinh chỉnh tỉ mỉ để giữ lại vân nhám mịn nguyên bản, mang đến cảm giác chạm mộc mạc nhưng bền bỉ vô hạn.";
 
-  const prefooterTitle =
-    config?.prefooter_title ||
-    '"Mang sự tĩnh lặng và ấm áp về căn phòng của bạn ngay hôm nay."';
+  const prefooterTitle = config?.prefooter_title || '"Mang sự tĩnh lặng và ấm áp về căn phòng của bạn ngay hôm nay."';
   const prefooterNote =
     config?.prefooter_note ||
     "Do được chế tác từ nhựa kỹ thuật CR-PETG cao cấp, sản phẩm của BooSpace chịu nhiệt vượt trội (∼70–80°C) và chống ẩm mốc tuyệt đối. Khuyến cáo tránh để sản phẩm trong ô tô đóng kín cửa dưới trời nắng gắt kéo dài.";
@@ -165,12 +154,8 @@ export function MainHorizontalScroll({
 
         {/* Slide 3: Ánh sáng khúc xạ */}
         <section className="px-6 py-16 space-y-6">
-          <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
-            {slide1Tag}
-          </span>
-          <h2 className="text-3xl font-bold font-serif text-black leading-tight">
-            {slide1Title}
-          </h2>
+          <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">{slide1Tag}</span>
+          <h2 className="text-3xl font-bold font-serif text-black leading-tight">{slide1Title}</h2>
           <p className="text-sm text-[#5C564E] leading-relaxed">{slide1Desc}</p>
           <div className="relative aspect-square w-full rounded-3xl overflow-hidden border border-[#E1DDD5] bg-white">
             <Image
@@ -185,34 +170,18 @@ export function MainHorizontalScroll({
 
         {/* Slide 4: Mảng xanh thông minh */}
         <section className="px-6 py-16 bg-[#1C1A18] text-[#FCFAF2] space-y-6 border-y border-[#E1DDD5]/10">
-          <span className="text-[10px] font-mono text-amber-500 uppercase tracking-widest font-bold">
-            {slide2Tag}
-          </span>
-          <h2 className="text-3xl font-bold font-serif text-white leading-tight">
-            {slide2Title}
-          </h2>
-          <p className="text-sm text-neutral-400 leading-relaxed">
-            {slide2Desc}
-          </p>
+          <span className="text-[10px] font-mono text-amber-500 uppercase tracking-widest font-bold">{slide2Tag}</span>
+          <h2 className="text-3xl font-bold font-serif text-white leading-tight">{slide2Title}</h2>
+          <p className="text-sm text-neutral-400 leading-relaxed">{slide2Desc}</p>
           <div className="relative aspect-square w-full rounded-3xl overflow-hidden border border-white/10 bg-neutral-900">
-            <Image
-              src={config.tech_image}
-              alt={slide2Title}
-              fill
-              sizes="100vw"
-              className="object-cover opacity-90"
-            />
+            <Image src={config.tech_image} alt={slide2Title} fill sizes="100vw" className="object-cover opacity-90" />
           </div>
         </section>
 
         {/* Slide 5: Vân nhám kỹ thuật */}
         <section className="px-6 py-16 space-y-6">
-          <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
-            {slide3Tag}
-          </span>
-          <h2 className="text-3xl font-bold font-serif text-black leading-tight">
-            {slide3Title}
-          </h2>
+          <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">{slide3Tag}</span>
+          <h2 className="text-3xl font-bold font-serif text-black leading-tight">{slide3Title}</h2>
           <p className="text-sm text-[#5C564E] leading-relaxed">{slide3Desc}</p>
           <div className="relative aspect-square w-full rounded-3xl overflow-hidden border border-[#E1DDD5] bg-white">
             <Image
@@ -237,9 +206,7 @@ export function MainHorizontalScroll({
         {/* Slide 7.1: Featured Products */}
         <section className="px-6 py-16 bg-[#F5F1E6] border-y border-[#E1DDD5]">
           <div className="flex justify-between items-end border-b pb-4 border-[#E1DDD5] mb-8">
-            <h2 className="text-3xl font-bold text-black font-serif">
-              Thiết kế nổi bật
-            </h2>
+            <h2 className="text-3xl font-bold text-black font-serif">Thiết kế nổi bật</h2>
             <Link
               href="/shop"
               className="text-xs font-mono uppercase tracking-widest text-[#1E1C1A] hover:text-[#FF9D00]"
@@ -254,9 +221,7 @@ export function MainHorizontalScroll({
         {hasSaleProducts && (
           <section className="px-6 py-16 bg-[#FBF9F4] border-y border-[#E1DDD5] relative overflow-hidden">
             <div className="flex justify-between items-end border-b pb-4 border-[#E1DDD5] mb-8">
-              <h2 className="text-3xl font-bold text-black font-serif">
-                Sản phẩm đang ưu đãi
-              </h2>
+              <h2 className="text-3xl font-bold text-black font-serif">Sản phẩm đang ưu đãi</h2>
               <Link
                 href="/shop?sale=true"
                 className="text-xs font-mono uppercase tracking-widest text-red-600 hover:text-[#FF9D00]"
@@ -281,13 +246,7 @@ export function MainHorizontalScroll({
                 className="group relative aspect-square rounded-3xl overflow-hidden border border-[#E1DDD5] bg-[#EAE5D9]/40 shadow-sm"
               >
                 <Image
-                  src={
-                    idx === 0
-                      ? config.diy_image
-                      : idx === 1
-                        ? config.tech_image
-                        : config.hero_image
-                  }
+                  src={idx === 0 ? config.diy_image : idx === 1 ? config.tech_image : config.hero_image}
                   alt={cat.name}
                   fill
                   sizes="100vw"
@@ -297,9 +256,7 @@ export function MainHorizontalScroll({
                   <span className="text-[10px] font-mono uppercase tracking-widest text-amber-400 font-bold">
                     {cat.name}
                   </span>
-                  <h3 className="text-xl font-bold font-serif mt-1">
-                    {cat.name}
-                  </h3>
+                  <h3 className="text-xl font-bold font-serif mt-1">{cat.name}</h3>
                   <p className="text-xs text-neutral-300 font-sans mt-1 line-clamp-2 leading-relaxed">
                     {cat.description ||
                       (idx === 0
@@ -315,9 +272,7 @@ export function MainHorizontalScroll({
         {/* Slide 9: Journal */}
         <section className="px-6 py-16 bg-[#F9F6ED] border-y border-[#E1DDD5]">
           <div className="flex justify-between items-end border-b pb-4 border-[#E1DDD5] mb-8">
-            <h2 className="text-3xl font-bold text-black font-serif">
-              The Journal
-            </h2>
+            <h2 className="text-3xl font-bold text-black font-serif">The Journal</h2>
             <Link
               href="/blog"
               className="text-xs font-mono uppercase tracking-widest text-[#1E1C1A] hover:text-amber-600"
@@ -327,29 +282,18 @@ export function MainHorizontalScroll({
           </div>
           <div className="grid gap-6 sm:grid-cols-2">
             {blogs?.map((post) => (
-              <Link
-                key={post.id}
-                href={`/blog/${post.slug}`}
-                className="space-y-3"
-              >
+              <Link key={post.id} href={`/blog/${post.slug}`} className="space-y-3">
                 <div className="relative aspect-video rounded-2xl overflow-hidden border border-[#E1DDD5]">
                   <Image
-                    src={
-                      post.coverImage?.url ||
-                      "https://placehold.co/800x400/e2dcd5/7a736e?text=Boospace+Blog"
-                    }
+                    src={post.coverImage?.url || "https://placehold.co/800x400/e2dcd5/7a736e?text=Boospace+Blog"}
                     alt={post.title}
                     fill
                     sizes="100vw"
                     className="object-cover"
                   />
                 </div>
-                <h3 className="font-bold text-lg font-serif text-black">
-                  {post.title}
-                </h3>
-                <p className="text-xs text-slate-500 line-clamp-2">
-                  {post.excerpt}
-                </p>
+                <h3 className="font-bold text-lg font-serif text-black">{post.title}</h3>
+                <p className="text-xs text-slate-500 line-clamp-2">{post.excerpt}</p>
               </Link>
             ))}
           </div>
@@ -358,12 +302,8 @@ export function MainHorizontalScroll({
         {/* Slide 10: Bento */}
         <section className="px-6 py-16">
           <div className="border-b pb-4 border-[#E1DDD5] mb-8">
-            <span className="text-xs font-mono text-[#786F66] uppercase tracking-widest font-bold">
-              CỔNG TƯƠNG TÁC
-            </span>
-            <h2 className="text-3xl font-bold text-black font-serif mt-2">
-              Cổng tương tác
-            </h2>
+            <span className="text-xs font-mono text-[#786F66] uppercase tracking-widest font-bold">CỔNG TƯƠNG TÁC</span>
+            <h2 className="text-3xl font-bold text-black font-serif mt-2">Cổng tương tác</h2>
           </div>
           <BentoPortalGrid />
         </section>
@@ -373,16 +313,13 @@ export function MainHorizontalScroll({
           className="relative text-white py-20 overflow-hidden border-t border-white/5"
           style={{
             backgroundColor: "#151513",
-            backgroundImage:
-              "radial-gradient(circle, #2d2d2a 1px, transparent 1.2px)",
+            backgroundImage: "radial-gradient(circle, #2d2d2a 1px, transparent 1.2px)",
             backgroundSize: "4px 4px",
           }}
         >
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[120%] aspect-square rounded-full bg-gradient-radial from-[#FF8A00]/15 to-transparent blur-3xl -translate-y-[80%]" />
           <div className="px-6 relative z-10 text-center space-y-6">
-            <h3 className="text-xl font-serif italic leading-relaxed text-white/95">
-              {prefooterTitle}
-            </h3>
+            <h3 className="text-xl font-serif italic leading-relaxed text-white/95">{prefooterTitle}</h3>
             <p className="text-[11px] font-sans text-neutral-400 max-w-xl mx-auto leading-relaxed border-t border-white/10 pt-4">
               <strong>Lưu ý bảo quản sản phẩm:</strong> {prefooterNote}
             </p>
@@ -398,22 +335,13 @@ export function MainHorizontalScroll({
       </div>
 
       {/* DESKTOP HORIZONTAL SCROLL */}
-      <motion.div
-        ref={containerRef}
-        className={`hidden md:block relative w-full ${containerHeightClass}`}
-      >
-        <motion.div
-          className="fixed top-0 left-0 right-0 h-[3px] bg-[#FF9D00] origin-left z-50"
-          style={{ scaleX }}
-        />
+      <motion.div ref={containerRef} className={`hidden md:block relative w-full ${containerHeightClass}`}>
+        <motion.div className="fixed top-0 left-0 right-0 h-[3px] bg-[#FF9D00] origin-left z-50" style={{ scaleX }} />
 
         <div className="sticky top-0 h-screen w-full flex items-center overflow-hidden">
           <div className="absolute inset-0 opacity-15 bg-[linear-gradient(to_right,#E1DDD5_1px,transparent_1px),linear-gradient(to_bottom,#E1DDD5_1px,transparent_1px)] bg-[size:4rem_4rem] pointer-events-none" />
 
-          <motion.div
-            style={{ x }}
-            className={`flex h-full items-center ${containerWidthClass}`}
-          >
+          <motion.div style={{ x }} className={`flex h-full items-center ${containerWidthClass}`}>
             {/* SLIDE 1 */}
             <div className="w-[100vw] h-full shrink-0 relative flex items-center justify-center border-r border-[#E1DDD5]/50 bg-[#FCFAF2]">
               <HeroVideoSection
@@ -464,12 +392,8 @@ export function MainHorizontalScroll({
                   <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
                     {slide1Tag}
                   </span>
-                  <h2 className="text-5xl font-bold font-serif text-black leading-tight">
-                    {slide1Title}
-                  </h2>
-                  <p className="text-sm text-[#5C564E] leading-relaxed max-w-md">
-                    {slide1Desc}
-                  </p>
+                  <h2 className="text-5xl font-bold font-serif text-black leading-tight">{slide1Title}</h2>
+                  <p className="text-sm text-[#5C564E] leading-relaxed max-w-md">{slide1Desc}</p>
                 </motion.div>
                 <motion.div
                   variants={imageParallax}
@@ -502,12 +426,8 @@ export function MainHorizontalScroll({
                   <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
                     {slide2Tag}
                   </span>
-                  <h2 className="text-5xl font-bold font-serif text-black leading-tight">
-                    {slide2Title}
-                  </h2>
-                  <p className="text-sm text-[#5C564E] leading-relaxed max-w-md">
-                    {slide2Desc}
-                  </p>
+                  <h2 className="text-5xl font-bold font-serif text-black leading-tight">{slide2Title}</h2>
+                  <p className="text-sm text-[#5C564E] leading-relaxed max-w-md">{slide2Desc}</p>
                 </motion.div>
                 <motion.div
                   variants={imageParallax}
@@ -540,12 +460,8 @@ export function MainHorizontalScroll({
                   <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
                     {slide3Tag}
                   </span>
-                  <h2 className="text-5xl font-bold font-serif text-black leading-tight">
-                    {slide3Title}
-                  </h2>
-                  <p className="text-sm text-[#5C564E] leading-relaxed max-w-md">
-                    {slide3Desc}
-                  </p>
+                  <h2 className="text-5xl font-bold font-serif text-black leading-tight">{slide3Title}</h2>
+                  <p className="text-sm text-[#5C564E] leading-relaxed max-w-md">{slide3Desc}</p>
                 </motion.div>
                 <motion.div
                   variants={imageParallax}
@@ -581,9 +497,7 @@ export function MainHorizontalScroll({
                     <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
                       THE CORE PORTFOLIO
                     </span>
-                    <h2 className="text-3xl sm:text-4xl font-bold text-black font-serif mt-2">
-                      Sản phẩm nổi bật
-                    </h2>
+                    <h2 className="text-3xl sm:text-4xl font-bold text-black font-serif mt-2">Sản phẩm nổi bật</h2>
                   </div>
                   <Link
                     href="/shop"
@@ -630,9 +544,7 @@ export function MainHorizontalScroll({
                   <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
                     COLLECTION
                   </span>
-                  <h2 className="text-4xl font-bold text-black font-serif mt-2">
-                    Bộ sưu tập không gian
-                  </h2>
+                  <h2 className="text-4xl font-bold text-black font-serif mt-2">Bộ sưu tập không gian</h2>
                 </div>
                 <div className="grid gap-6 grid-cols-3 bg-[#FCFAF2]">
                   {categories?.map((cat, idx) => (
@@ -650,13 +562,7 @@ export function MainHorizontalScroll({
                         className="group relative aspect-square rounded-3xl overflow-hidden border border-[#E1DDD5] bg-[#EAE5D9]/40 shadow-sm transition-all hover:border-[#1E1C1A] block"
                       >
                         <Image
-                          src={
-                            idx === 0
-                              ? config.diy_image
-                              : idx === 1
-                                ? config.tech_image
-                                : config.hero_image
-                          }
+                          src={idx === 0 ? config.diy_image : idx === 1 ? config.tech_image : config.hero_image}
                           alt={cat.name}
                           fill
                           sizes="(max-width: 1200px) 33vw, 25vw"
@@ -666,9 +572,7 @@ export function MainHorizontalScroll({
                           <span className="text-[10px] font-mono uppercase tracking-widest text-amber-400 font-bold">
                             {cat.name}
                           </span>
-                          <h3 className="text-2xl font-bold font-serif mt-1">
-                            {cat.name}
-                          </h3>
+                          <h3 className="text-2xl font-bold font-serif mt-1">{cat.name}</h3>
                           <p className="text-xs text-neutral-300 font-sans mt-1.5 line-clamp-2 leading-relaxed">
                             {cat.description ||
                               (idx === 0
@@ -693,9 +597,7 @@ export function MainHorizontalScroll({
                     <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
                       BLOG
                     </span>
-                    <h2 className="text-4xl font-bold text-black font-serif mt-2">
-                      The Journal
-                    </h2>
+                    <h2 className="text-4xl font-bold text-black font-serif mt-2">The Journal</h2>
                   </div>
                   <Link
                     href="/blog"
@@ -718,16 +620,11 @@ export function MainHorizontalScroll({
                         <h3 className="font-bold text-xl text-black group-hover:text-amber-600 font-serif leading-snug transition-colors">
                           {post.title}
                         </h3>
-                        <p className="text-xs text-[#5C564E] line-clamp-2 leading-relaxed font-sans">
-                          {post.excerpt}
-                        </p>
+                        <p className="text-xs text-[#5C564E] line-clamp-2 leading-relaxed font-sans">{post.excerpt}</p>
                       </div>
                       <div className="relative aspect-video rounded-xl overflow-hidden border border-[#E1DDD5] bg-[#EAE5D9]/20">
                         <Image
-                          src={
-                            post.coverImage?.url ||
-                            "https://placehold.co/800x400/e2dcd5/7a736e?text=Boospace+Blog"
-                          }
+                          src={post.coverImage?.url || "https://placehold.co/800x400/e2dcd5/7a736e?text=Boospace+Blog"}
                           alt={post.title}
                           fill
                           sizes="(max-width: 1200px) 33vw, 25vw"
@@ -747,9 +644,7 @@ export function MainHorizontalScroll({
                   <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
                     CỔNG TƯƠNG TÁC
                   </span>
-                  <h2 className="text-4xl font-bold text-black font-serif mt-2">
-                    Cổng tương tác
-                  </h2>
+                  <h2 className="text-4xl font-bold text-black font-serif mt-2">Cổng tương tác</h2>
                 </div>
                 <BentoPortalGrid />
               </div>
@@ -760,8 +655,7 @@ export function MainHorizontalScroll({
               className="w-[100vw] h-full shrink-0 relative flex items-center justify-center overflow-hidden border-l border-white/5"
               style={{
                 backgroundColor: "#151513",
-                backgroundImage:
-                  "radial-gradient(circle, #2d2d2a 1.1px, transparent 1.2px)",
+                backgroundImage: "radial-gradient(circle, #2d2d2a 1.1px, transparent 1.2px)",
                 backgroundSize: "4px 4px",
               }}
             >
@@ -769,10 +663,7 @@ export function MainHorizontalScroll({
 
               <div className="max-w-7xl px-24 relative z-10 w-full flex flex-col lg:flex-row items-center justify-between gap-12">
                 <div className="shrink-0 flex items-center justify-center bg-white/5 border border-white/10 rounded-full p-6 size-24">
-                  <svg
-                    viewBox="0 0 100 100"
-                    className="w-full h-full text-[#3ECF8E]"
-                  >
+                  <svg viewBox="0 0 100 100" className="w-full h-full text-[#3ECF8E]">
                     <circle
                       cx="50"
                       cy="50"
