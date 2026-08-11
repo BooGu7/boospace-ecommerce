@@ -94,6 +94,7 @@ export default function CheckoutPage() {
   const [addonsLoading, setAddonsLoading] = useState(true);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
@@ -103,6 +104,7 @@ export default function CheckoutPage() {
       const defaultAddr =
         userAddresses.find((a) => a.isDefault) || userAddresses[0];
 
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setForm({
         email: user.email || "",
         phone: defaultAddr?.phone || (user as { phone?: string }).phone || "",
@@ -176,6 +178,7 @@ export default function CheckoutPage() {
 
   const subtotal = getSubtotal();
 
+  // CHÍNH SÁCH SHIP: Miễn phí HCM, Tỉnh lẻ 30.000đ
   const isHCM =
     form.city.toLowerCase().includes("hồ chí minh") ||
     form.city.toLowerCase().includes("hcm");
@@ -328,7 +331,6 @@ export default function CheckoutPage() {
       }
     }
 
-    // ĐỒNG BỘ NẠP ĐẦY ĐỦ CẢ CAMELCASE VÀ SNAKE_CASE
     const orderPayload = {
       code: orderId,
       orderNumber: orderId,
@@ -717,38 +719,61 @@ export default function CheckoutPage() {
                     const imgUrl = item.image?.url || PLACEHOLDER_IMAGE;
                     const imgAlt = item.image?.alt || item.name;
 
+                    const hasCustomVariant =
+                      item.variantName &&
+                      item.variantName !== "Default Variant" &&
+                      item.variantName !== "Default" &&
+                      item.variantName !== "Mặc định";
+
                     return (
                       <div
                         key={item.variantId}
-                        className="flex items-center gap-4 pb-3.5 border-b border-[#E1DDD5]/60 last:border-0 last:pb-0 relative group"
+                        className="flex items-start gap-3.5 pb-3.5 border-b border-[#E1DDD5]/60 last:border-0 last:pb-0 relative group"
                       >
-                        <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-[#E1DDD5] bg-[#EAE5D9]/20 shadow-sm">
-                          <Image
-                            src={imgUrl}
-                            alt={imgAlt}
-                            fill
-                            className="object-cover"
-                            sizes="56px"
-                          />
-                          <span className="absolute -top-1 -right-1 h-4 w-4 bg-black text-white text-[9px] font-mono font-bold flex items-center justify-center rounded-full shadow-md">
+                        {/* 1. KHUNG THUMBNAIL HÌNH ẢNH + BADGE SỐ LƯỢNG CHỐNG BỊ BẮT MẤT */}
+                        <div className="relative shrink-0 pt-1">
+                          <div className="relative h-14 w-14 overflow-hidden rounded-xl border border-[#E1DDD5] bg-[#EAE5D9]/20 shadow-xs">
+                            <Image
+                              src={imgUrl}
+                              alt={imgAlt}
+                              fill
+                              className="object-cover"
+                              sizes="56px"
+                            />
+                          </div>
+                          {/* Badge số lượng màu đen nhỏ xinh góc trên bên phải */}
+                          <span className="absolute -top-0.5 -right-1.5 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-black text-[9px] font-mono font-bold text-white shadow-md z-10">
                             {item.quantity}
                           </span>
                         </div>
 
-                        <div className="flex-1 min-w-0 text-left">
+                        {/* 2. HIỂN THỊ TÊN SẢN PHẨM & DÒNG SỐ LƯỢNG x TIẾNG VIỆT */}
+                        <div className="flex-1 min-w-0 text-left space-y-0.5">
                           <p className="text-xs sm:text-sm font-serif font-bold text-black leading-snug truncate">
                             {item.name}
                           </p>
-                          {item.variantName &&
-                            item.variantName !== "Default Variant" && (
-                              <p className="text-[10px] text-[#786F66] font-sans font-medium mt-0.5 truncate">
-                                Phân loại: {item.variantName}
-                              </p>
+                          {hasCustomVariant && (
+                            <p className="text-[10px] text-[#786F66] font-sans font-medium truncate">
+                              Phân loại: {item.variantName}
+                            </p>
+                          )}
+                          {/* BỔ SUNG DÒNG SỐ LƯỢNG VÀ ĐƠN GIÁ MINH BẠCH */}
+                          <p className="text-[11px] font-mono text-[#786F66] pt-0.5">
+                            Số lượng:{" "}
+                            <strong className="text-black font-bold">
+                              x{item.quantity}
+                            </strong>
+                            {item.quantity > 1 && (
+                              <span className="text-[10px] text-slate-400 ml-1">
+                                ({formatVND(item.price / 100)} / món)
+                              </span>
                             )}
+                          </p>
                         </div>
 
-                        <div className="flex flex-col items-end gap-1.5 shrink-0">
-                          <span className="text-xs sm:text-sm font-mono text-medium text-black">
+                        {/* 3. TỔNG TIỀN TỪNG MÓN & NÚT GỠ BỎ */}
+                        <div className="flex flex-col items-end gap-1 shrink-0 pt-0.5">
+                          <span className="text-xs sm:text-sm font-mono font-bold text-black">
                             {formatVND(item.lineTotal / 100)}
                           </span>
 
@@ -800,7 +825,7 @@ export default function CheckoutPage() {
                         Hoàn thiện không gian mộc mạc
                       </h4>
                       <p className="text-[10px] font-mono text-[#786F66] uppercase tracking-wider font-semibold">
-                        Sản phẩm gợi ý cho góc làm việc
+                        SẢN PHẨM GỢI Ý CHO GÓC LÀM VIỆC
                       </p>
                     </div>
 
