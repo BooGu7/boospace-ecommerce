@@ -14,24 +14,6 @@ interface HowItWorksProps {
   tagline?: string;
 }
 
-const DEFAULT_STEPS: StepItem[] = [
-  {
-    num: "01",
-    title: "Chọn Gu & Tinh Chỉnh",
-    desc: "Lựa chọn thiết kế nguyên bản từ Boo Space, tự do cá nhân hóa kích thước và màu sắc nhám mờ (được giới hạn chọn lọc dưới 4 tone màu tối giản).",
-  },
-  {
-    num: "02",
-    title: "Chế Tác Chính Xác",
-    desc: "Hệ thống máy in kỹ thuật cao vận hành liên tục từ 12-24 giờ để dệt nên cấu trúc hình học nguyên khối với độ chuẩn xác cao nhất.",
-  },
-  {
-    num: "03",
-    title: "Đóng Gói Thủ Công",
-    desc: "Sản phẩm được xử lý nguội thủ công tỉ mỉ, làm sạch mọi chi tiết thừa và đóng gói bảo vệ gọn gàng trước khi giao tận tay bạn.",
-  },
-];
-
 const blockVariants: Variants = {
   hidden: { opacity: 0, y: 30, scale: 0.98 },
   visible: {
@@ -42,30 +24,8 @@ const blockVariants: Variants = {
   },
 };
 
-// Bộ lọc tự động làm sạch từ ngữ kỹ thuật sâu bị sót từ Supabase
-function sanitizeStepDesc(desc: string): string {
-  if (!desc) return "";
-  return desc
-    .replace(/Flashforge Creator 5 Pro/gi, "kỹ thuật cao")
-    .replace(
-      /hộp giấy Kraft thân thiện môi trường trước khi gửi qua GHN \/ J&T Express/gi,
-      "bảo vệ gọn gàng trước khi giao tận tay bạn",
-    )
-    .replace(/GHN \/ J&T Express/gi, "đơn vị vận chuyển uy tín")
-    .replace(/BooSpace/g, "Boo Space");
-}
-
-export function HowItWorks({ steps, title, tagline }: HowItWorksProps) {
-  const rawSteps = steps && steps.length > 0 ? steps : DEFAULT_STEPS;
-
-  // Tự động làm sạch dữ liệu cũ
-  const displaySteps = rawSteps.map((s) => ({
-    ...s,
-    desc: sanitizeStepDesc(s.desc),
-  }));
-
-  const displayTitle = title || "Sản phẩm sinh ra khi có bạn";
-  const displayTagline = tagline || "QUY TRÌNH CHẾ TÁC ON-DEMAND";
+export function HowItWorks({ steps = [], title, tagline }: HowItWorksProps) {
+  if (!steps || steps.length === 0) return null;
 
   return (
     <div className="w-[100vw] h-full shrink-0 flex flex-col justify-center bg-[#FCFAF2] px-24 font-sans select-none border-r border-[#E1DDD5]/50">
@@ -76,16 +36,20 @@ export function HowItWorks({ steps, title, tagline }: HowItWorksProps) {
           transition={{ duration: 0.6 }}
           className="mb-12"
         >
-          <span className="text-[10px] font-mono uppercase tracking-widest text-[#786F66] font-bold">
-            {displayTagline}
-          </span>
-          <h2 className="text-3xl md:text-4xl font-serif text-black font-bold mt-2">
-            {displayTitle}
-          </h2>
+          {tagline && (
+            <span className="text-[10px] font-mono uppercase tracking-widest text-[#786F66] font-bold block mb-1">
+              {tagline}
+            </span>
+          )}
+          {title && (
+            <h2 className="text-3xl md:text-4xl font-serif text-black font-bold">
+              {title}
+            </h2>
+          )}
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {displaySteps.map((step, index) => (
+          {steps.map((step, index) => (
             <motion.div
               key={step.num || index}
               variants={blockVariants}

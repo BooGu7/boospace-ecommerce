@@ -1,22 +1,26 @@
 import type { Metadata } from "next";
-// IMPORT COMPONENT ĐIỀU PHỐI TRƯỢT NGANG TOÀN TRANG
 import { MainHorizontalScroll } from "@/components/home/main-horizontal-scroll";
-import { blogRepository, categoryRepository, productRepository } from "@/lib/repositories";
+import { siteConfig } from "@/lib/config";
+import {
+  blogRepository,
+  categoryRepository,
+  productRepository,
+} from "@/lib/repositories";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-// GIỮ NGUYÊN TOÀN BỘ CẤU HÌNH SEO METADATA CHUẨN CỦA BẠN
 export const metadata: Metadata = {
-  title: "Boospace — Custom 3D Printed Workspace & DIY Design Studio",
+  title: `${siteConfig.name} — Custom 3D Printed Workspace & DIY Design Studio`,
   description:
-    "Boospace cung cấp sản phẩm in 3D theo yêu cầu cho workspace và DIY. Thiết kế tùy chỉnh, sản xuất theo ý tưởng riêng và tạo ra các giải pháp không gian làm việc độc đáo bằng công nghệ in 3D.",
+    "Boo Space cung cấp giải pháp chế tác On-Demand cho workspace và góc làm việc tối giản. Thiết kế tùy chỉnh, sản xuất theo ý tưởng riêng bằng chất liệu kỹ thuật cao cấp.",
   alternates: {
-    canonical: "https://boospace.tech/",
+    canonical: `${siteConfig.url}/`,
   },
   openGraph: {
-    title: "Boospace — Custom 3D Printed Workspace",
-    description: "Thiết kế và sản xuất sản phẩm in 3D cho workspace và DIY theo yêu cầu tại Boospace.",
+    title: `${siteConfig.name} — Custom 3D Printed Workspace`,
+    description:
+      "Thiết kế và sản xuất sản phẩm cho workspace và DIY theo yêu cầu tại Boo Space.",
     type: "website",
-    url: "https://boospace.tech/",
+    url: `${siteConfig.url}/`,
   },
   keywords: [
     "3d printed workspace",
@@ -24,20 +28,21 @@ export const metadata: Metadata = {
     "3d printing service",
     "workspace accessories",
     "custom desk setup",
-    "diy 3d print",
-    "boospace",
-    "boospace tech",
+    "boo space",
+    "boo space tech",
   ],
 };
 
-export const revalidate = 600; // Đảm bảo luôn lấy dữ liệu mới nhất từ Supabase khi F5
+export const revalidate = 600;
 
-// BỘ CHUYỂN ĐỔI DỮ LIỆU ĐỂ MAP HÌNH ẢNH SẢN PHẨM KHÔNG BỊ LỖI
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mapDbProductToStorefront(dbProduct: any) {
   if (!dbProduct) return null;
 
   const price = Number(dbProduct.price ?? 0) * 100;
-  const comparePrice = dbProduct.compare_price ? Number(dbProduct.compare_price) * 100 : null;
+  const comparePrice = dbProduct.compare_price
+    ? Number(dbProduct.compare_price) * 100
+    : null;
 
   const defaultVariant = {
     id: `${dbProduct.id}-default`,
@@ -79,22 +84,46 @@ function mapDbProductToStorefront(dbProduct: any) {
 export default async function HomePage() {
   const supabase = createSupabaseServerClient();
 
-  // TRUY VẤN DỮ LIỆU ĐỒNG THỜI TỪ SUPABASE
-  const [categories, featuredProducts, blogsResult, settingsRes, saleProductsRes] = await Promise.all([
+  const [
+    categories,
+    featuredProducts,
+    blogsResult,
+    siteConfigRes,
+    homepageRes,
+    saleProductsRes,
+  ] = await Promise.all([
     categoryRepository.list(),
     productRepository.getFeatured(4),
     blogRepository.list({ page: 1, limit: 3 }),
-    supabase.from("settings").select("value").eq("key", "homepage").maybeSingle(),
-    // TRUY VẤN ĐỘNG: Lấy ra các sản phẩm đang giảm giá thực tế (compare_price không null) [21]
-    supabase.from("products").select("*").not("compare_price", "is", null).eq("published", true).limit(4),
+    supabase
+      .from("settings")
+      .select("value")
+      .eq("key", "site_config")
+      .maybeSingle(),
+    supabase
+      .from("settings")
+      .select("value")
+      .eq("key", "homepage")
+      .maybeSingle(),
+    supabase
+      .from("products")
+      .select("*")
+      .not("compare_price", "is", null)
+      .eq("published", true)
+      .limit(4),
   ]);
 
   const blogs = blogsResult?.items || [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const saleProducts = (saleProductsRes.data || [])
+    .map(mapDbProductToStorefront)
+    .filter((p): p is any => p !== null);
 
-  // Ánh xạ danh sách sản phẩm giảm giá chuẩn cấu hình storefront
-  const saleProducts = (saleProductsRes.data || []).map(mapDbProductToStorefront).filter((p) => p !== null);
+  const homepageVal = homepageRes?.data?.value || {};
+  const siteConfigVal = siteConfigRes?.data?.value || {};
 
-  const config = settingsRes?.data?.value || {
+  // 100% LẤY HÌNH ẢNH MẶC ĐỊNH TỪ SUPABASE STORAGE CỦA DỰ ÁN
+  const fallbackConfig = {
     hero_image:
       "https://amukhgkamrokbbcjgusf.supabase.co/storage/v1/object/public/product-images/assets/hero-desk-setup.jpg",
     diy_image:
@@ -102,16 +131,20 @@ export default async function HomePage() {
     tech_image:
       "https://amukhgkamrokbbcjgusf.supabase.co/storage/v1/object/public/product-images/assets/tech-collection.jpg",
     hero_video:
-      "https://amukhgkamrokbbcjgusf.supabase.co/storage/v1/object/public/product-images/assets/workspace-video.mp4",
-    manifesto_quote:
-      "Boospace hoạt động trên nền tảng chế tác thủ công mộc mạc và mã nguồn mở độc lập, bảo vệ tuyệt đối sự tĩnh lặng và dữ liệu cá nhân của bạn thông qua hạ tầng phi tập trung của Supabase.",
+      "https://amukhgkamrokbbcjgusf.supabase.co/storage/v1/object/public/co-creation-files/hero-ambient.mp4",
+  };
+
+  const config = {
+    ...fallbackConfig,
+    ...homepageVal,
+    ...siteConfigVal,
   };
 
   return (
     <MainHorizontalScroll
       categories={categories}
       featuredProducts={featuredProducts}
-      saleProducts={saleProducts} // Truyền dải sản phẩm giảm giá động xuống client scroller [21]
+      saleProducts={saleProducts}
       blogs={blogs}
       config={config}
     />

@@ -1,6 +1,12 @@
 "use client";
 
-import { ArrowRight, HelpCircle, Loader2, ShoppingBag, Trash2 } from "lucide-react";
+import {
+  ArrowRight,
+  HelpCircle,
+  Loader2,
+  ShoppingBag,
+  Trash2,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -85,9 +91,12 @@ export default function CartPage() {
       <div className="min-h-screen bg-[#FCFAF2] flex items-center justify-center px-4">
         <div className="max-w-md w-full text-center space-y-6">
           <ShoppingBag className="size-16 text-[#786F66] mx-auto stroke-[1.25]" />
-          <h1 className="font-serif text-3xl font-bold text-black">Giỏ hàng của bạn đang trống</h1>
+          <h1 className="font-serif text-3xl font-bold text-black">
+            Giỏ hàng của bạn đang trống
+          </h1>
           <p className="text-xs font-sans text-[#786F66]">
-            Hãy khám phá các thiết kế chế tác mộc mạc và hoàn thiện góc làm việc của bạn nhé ✨
+            Hãy khám phá các thiết kế chế tác mộc mạc và hoàn thiện góc làm việc
+            của bạn nhé ✨
           </p>
           <Button
             asChild
@@ -118,7 +127,9 @@ export default function CartPage() {
       if (data) {
         setDiscountPercent(data.discount_percent);
         setAppliedCoupon(data.code);
-        toast.success(`Áp dụng mã ${data.code} giảm ${data.discount_percent}% thành công! ✨`);
+        toast.success(
+          `Áp dụng mã ${data.code} giảm ${data.discount_percent}% thành công! ✨`,
+        );
       } else {
         toast.error("Mã giảm giá không hợp lệ hoặc đã hết hạn.");
       }
@@ -160,14 +171,17 @@ export default function CartPage() {
     <div className="bg-[#FCFAF2] min-h-screen text-[#1E1C1A] antialiased">
       <div className="mx-auto max-w-[1440px] px-4 py-12 sm:px-6 lg:px-8 border-x border-[#E1DDD5] bg-[#FCFAF2]/50">
         <h1 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-black border-b border-[#E1DDD5] pb-6 text-left">
-          Giỏ hàng của bạn ({items.reduce((a, b) => a + b.quantity, 0)} sản phẩm)
+          Giỏ hàng của bạn ({items.reduce((a, b) => a + b.quantity, 0)} sản
+          phẩm)
         </h1>
 
         <div className="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-12 text-left">
           <div className="lg:col-span-7 space-y-6">
             <Card className="rounded-3xl border border-[#DCD6CC] bg-white p-6 shadow-xs space-y-6">
               <CardHeader className="p-0 pb-4 border-b border-[#E1DDD5]/60">
-                <CardTitle className="font-serif text-lg font-bold text-black">Sản phẩm đã chọn</CardTitle>
+                <CardTitle className="font-serif text-lg font-bold text-black">
+                  Sản phẩm đã chọn
+                </CardTitle>
               </CardHeader>
 
               <CardContent className="p-0 divide-y divide-[#E1DDD5]/60">
@@ -177,9 +191,18 @@ export default function CartPage() {
                   const lineTotal = item.lineTotal / 100;
 
                   return (
-                    <div key={item.variantId} className="py-4 first:pt-0 last:pb-0 flex gap-4 items-center">
+                    <div
+                      key={item.variantId}
+                      className="py-4 first:pt-0 last:pb-0 flex gap-4 items-center"
+                    >
                       <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border border-[#E1DDD5] bg-[#EAE5D9]/20 shadow-xs">
-                        <Image src={imgUrl} alt={item.name} fill sizes="80px" className="object-cover" />
+                        <Image
+                          src={imgUrl}
+                          alt={item.name}
+                          fill
+                          sizes="80px"
+                          className="object-cover"
+                        />
                       </div>
 
                       <div className="flex-1 min-w-0 space-y-1">
@@ -187,22 +210,37 @@ export default function CartPage() {
                           {item.name}
                         </h3>
                         <p className="text-xs font-mono text-[#786F66]">
-                          Đơn giá: <strong className="text-black">{formatVND(unitPrice)}</strong>
+                          Đơn giá:{" "}
+                          <strong className="text-black">
+                            {formatVND(unitPrice)}
+                          </strong>
                         </p>
 
                         <div className="flex items-center gap-3 pt-1">
                           <div className="flex items-center border border-[#CFCABF] rounded-lg bg-[#FCFAF2] overflow-hidden">
                             <button
                               type="button"
-                              onClick={() => updateQuantity(item.variantId, Math.max(1, item.quantity - 1))}
+                              onClick={() =>
+                                updateQuantity(
+                                  item.variantId,
+                                  Math.max(1, item.quantity - 1),
+                                )
+                              }
                               className="px-2.5 py-1 text-xs font-mono font-bold hover:bg-[#EAE5D9]/50 cursor-pointer"
                             >
                               -
                             </button>
-                            <span className="px-3 text-xs font-mono font-bold text-black">{item.quantity}</span>
+                            <span className="px-3 text-xs font-mono font-bold text-black">
+                              {item.quantity}
+                            </span>
                             <button
                               type="button"
-                              onClick={() => updateQuantity(item.variantId, item.quantity + 1)}
+                              onClick={() =>
+                                updateQuantity(
+                                  item.variantId,
+                                  item.quantity + 1,
+                                )
+                              }
                               className="px-2.5 py-1 text-xs font-mono font-bold hover:bg-[#EAE5D9]/50 cursor-pointer"
                             >
                               +
@@ -233,7 +271,7 @@ export default function CartPage() {
               </CardContent>
             </Card>
 
-            {/* UPSELL MUA KÈM HOÀN THIỆN KHÔNG GIAN MỘC MẠC */}
+            {/* UPSELL MUA KÈM CÓ NÚT THÊM */}
             {filteredAddons.length > 0 && (
               <Card className="rounded-3xl border border-[#DCD6CC] bg-white p-6 shadow-xs space-y-4">
                 <CardHeader className="p-0 pb-3 border-b border-[#E1DDD5]/60">
@@ -257,21 +295,28 @@ export default function CartPage() {
                           >
                             <div className="flex items-center gap-3.5 flex-1 min-w-0">
                               <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-[#E1DDD5] bg-white">
-                                <Image src={addonImg} alt={addon.name} fill sizes="48px" className="object-cover" />
+                                <Image
+                                  src={addonImg}
+                                  alt={addon.name}
+                                  fill
+                                  sizes="48px"
+                                  className="object-cover"
+                                />
                               </div>
                               <div className="min-w-0">
-                                <h4 className="font-serif text-xs font-bold text-black truncate">{addon.name}</h4>
+                                <h4 className="font-serif text-xs font-bold text-black truncate">
+                                  {addon.name}
+                                </h4>
                                 <span className="font-mono text-xs font-bold text-amber-600">
                                   {formatVND(addon.price)}
                                 </span>
                               </div>
                             </div>
 
-                            {/* Đổi ADD + -> Thêm */}
                             <button
                               type="button"
                               onClick={() => handleAddAddonToCart(addon)}
-                              className="rounded-lg bg-black hover:bg-[#33302C] text-[10px] font-sans font-bold text-white px-3.5 py-2 uppercase cursor-pointer"
+                              className="rounded-lg bg-black hover:bg-[#33302C] text-[10px] font-sans font-bold text-white px-3.5 py-2 uppercase cursor-pointer transition-colors"
                             >
                               Thêm
                             </button>
@@ -288,7 +333,9 @@ export default function CartPage() {
           <div className="lg:col-span-5">
             <Card className="sticky top-24 rounded-3xl border border-[#DCD6CC] bg-[#FAF5F2]/90 p-6 shadow-md space-y-6">
               <CardHeader className="p-0 pb-3 border-b border-[#E1DDD5]/60">
-                <CardTitle className="font-serif text-lg font-bold text-black">Tóm tắt giỏ hàng</CardTitle>
+                <CardTitle className="font-serif text-lg font-bold text-black">
+                  Tóm tắt giỏ hàng
+                </CardTitle>
               </CardHeader>
 
               <CardContent className="p-0 space-y-4">
@@ -306,7 +353,11 @@ export default function CartPage() {
                     disabled={applying || !couponCode.trim()}
                     className="rounded-lg bg-[#EAE5D9]/40 border border-[#CFCABF] text-black font-mono uppercase text-[10px] font-bold tracking-wider px-5 py-3 cursor-pointer hover:bg-white disabled:opacity-50 transition-colors"
                   >
-                    {applying ? <Loader2 className="size-3 animate-spin text-black" /> : "Áp dụng"}
+                    {applying ? (
+                      <Loader2 className="size-3 animate-spin text-black" />
+                    ) : (
+                      "Áp dụng"
+                    )}
                   </button>
                 </div>
 
@@ -315,7 +366,9 @@ export default function CartPage() {
                 <div className="space-y-3.5 text-xs font-sans">
                   <div className="flex justify-between text-[#5c544d]">
                     <span>Tổng tạm tính</span>
-                    <span className="font-mono font-medium text-black">{formatVND(subtotal / 100)}</span>
+                    <span className="font-mono font-medium text-black">
+                      {formatVND(subtotal / 100)}
+                    </span>
                   </div>
 
                   {discountPercent > 0 && (
@@ -323,7 +376,9 @@ export default function CartPage() {
                       <span>
                         Giảm giá ({appliedCoupon} - {discountPercent}%)
                       </span>
-                      <span className="font-mono font-bold">-{formatVND(discountAmount / 100)}</span>
+                      <span className="font-mono font-bold">
+                        -{formatVND(discountAmount / 100)}
+                      </span>
                     </div>
                   )}
 
@@ -345,7 +400,9 @@ export default function CartPage() {
 
                   <div className="flex justify-between items-center text-sm font-serif font-bold text-black pt-1">
                     <span>Tổng cộng tạm tính</span>
-                    <span className="font-mono text-lg text-[#FF9D00]">{formatVND(total / 100)}</span>
+                    <span className="font-mono text-lg text-[#FF9D00]">
+                      {formatVND(total / 100)}
+                    </span>
                   </div>
                 </div>
 

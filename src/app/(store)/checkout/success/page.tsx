@@ -1,7 +1,16 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { CheckCircle2, FileText, Loader2, MapPin, Package, Phone, ShoppingBag, User } from "lucide-react";
+import {
+  CheckCircle2,
+  FileText,
+  Loader2,
+  MapPin,
+  Package,
+  Phone,
+  ShoppingBag,
+  User,
+} from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
@@ -32,7 +41,9 @@ function CheckoutSuccessFallback() {
     <div className="bg-[#FCFAF2] text-[#1E1C1A] min-h-screen antialiased flex items-center justify-center">
       <div className="text-center space-y-4">
         <Loader2 className="h-8 w-8 animate-spin text-[#FF9D00] mx-auto" />
-        <p className="text-xs font-mono text-[#786F66] uppercase tracking-widest">Đang nạp dữ liệu biên nhận...</p>
+        <p className="text-xs font-mono text-[#786F66] uppercase tracking-widest">
+          Đang nạp dữ liệu biên nhận...
+        </p>
       </div>
     </div>
   );
@@ -52,12 +63,28 @@ function CheckoutSuccessContent() {
       return;
     }
 
+    const targetCode = orderId;
+
     async function fetchOrder() {
       try {
-        const { data } = await supabase.from("orders").select("*, order_items(*)").eq("code", orderId).maybeSingle();
+        // Nạp đơn hàng từ API Server
+        const res = await fetch(
+          `/api/orders?code=${encodeURIComponent(targetCode)}`,
+        );
+        const resData = await res.json();
 
-        if (data) {
-          setOrderDetails(data);
+        if (res.ok && resData.success && resData.order) {
+          setOrderDetails(resData.order);
+        } else {
+          // Dự phòng nếu nạp qua Client
+          const { data } = await supabase
+            .from("orders")
+            .select("*, order_items(*)")
+            .eq("code", targetCode)
+            .maybeSingle();
+          if (data) {
+            setOrderDetails(data);
+          }
         }
       } catch (err) {
         console.error("Lỗi nạp đơn hàng thành công:", err);
@@ -71,8 +98,18 @@ function CheckoutSuccessContent() {
 
   if (loading) return <CheckoutSuccessFallback />;
 
-  const isVietQR = orderDetails?.payment_method === "VietQR" || orderDetails?.paymentMethod === "VietQR";
-  const isPaid = orderDetails?.payment_status === "Paid" || orderDetails?.paymentStatus === "Paid";
+  const rawPM = (
+    orderDetails?.payment_method ||
+    orderDetails?.paymentMethod ||
+    ""
+  )
+    .toString()
+    .toLowerCase();
+  const isVietQR = rawPM.includes("vietqr");
+  const isPaid =
+    (orderDetails?.payment_status || orderDetails?.paymentStatus || "")
+      .toString()
+      .toLowerCase() === "paid";
 
   return (
     <div className="bg-[#FCFAF2] text-[#1E1C1A] min-h-screen antialiased selection:bg-[#EAE5D9]">
@@ -95,19 +132,26 @@ function CheckoutSuccessContent() {
               Cảm ơn bạn đã đặt hàng ✨
             </h1>
             <p className="text-sm text-[#786F66] leading-relaxed max-w-md mx-auto">
-              Đơn hàng của bạn đã được ghi nhận thành công trên hệ thống. Đội ngũ Boo Space sẽ sớm chuẩn bị chế tác và
-              giao tới bạn.
+              Đơn hàng của bạn đã được ghi nhận thành công trên hệ thống. Đội
+              ngũ Boo Space sẽ sớm chuẩn bị chế tác và giao tới bạn.
             </p>
           </div>
 
-          {/* MÃ QR VIETQR NẾU CHƯA THANH TOÁN */}
+          {/* MÃ QR VIETQR HIỂN THỊ TỰ ĐỘNG CHUẨN XÁC */}
           {orderDetails && isVietQR && !isPaid && (
-            <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="w-full">
-              <VietQRPayment orderId={orderDetails.code || orderDetails.id} amount={orderDetails.total} />
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              className="w-full"
+            >
+              <VietQRPayment
+                orderId={orderDetails.code || orderDetails.id}
+                amount={Number(orderDetails.total ?? 0)}
+              />
             </motion.div>
           )}
 
-          {/* KHUNG THÔNG TIN ĐƠN HÀNG VÀ BỔ SUNG CHI TIẾT KHÁCH ĐẶT ĐƠN */}
+          {/* KHUNG THÔNG TIN ĐƠN HÀNG VÀ CHI TIẾT KHÁCH ĐẶT ĐƠN */}
           {orderDetails && (
             <motion.div
               initial={{ y: 30, opacity: 0 }}
@@ -123,19 +167,31 @@ function CheckoutSuccessContent() {
               <Card className="rounded-3xl border border-[#DCD6CC] bg-white p-8 shadow-xs space-y-6">
                 <div className="space-y-3 pb-4 border-b border-[#E1DDD5]/60 text-xs font-sans">
                   <div className="flex justify-between">
-                    <span className="text-[#786F66] font-mono uppercase tracking-wider">Mã số đơn hàng</span>
-                    <span className="font-mono font-bold text-black">#{orderDetails.code || orderDetails.id}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[#786F66] font-mono uppercase tracking-wider">Phương thức thanh toán</span>
-                    <span className="font-bold text-black">
-                      {isVietQR ? "Chuyển khoản VietQR" : "Thanh toán khi nhận hàng (COD)"}
+                    <span className="text-[#786F66] font-mono uppercase tracking-wider">
+                      Mã số đơn hàng
+                    </span>
+                    <span className="font-mono font-bold text-black">
+                      #{orderDetails.code || orderDetails.id}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-[#786F66] font-mono uppercase tracking-wider">Thời gian khởi tạo</span>
+                    <span className="text-[#786F66] font-mono uppercase tracking-wider">
+                      Phương thức thanh toán
+                    </span>
+                    <span className="font-bold text-black">
+                      {isVietQR
+                        ? "Chuyển khoản VietQR"
+                        : "Thanh toán khi nhận hàng (COD)"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[#786F66] font-mono uppercase tracking-wider">
+                      Thời gian khởi tạo
+                    </span>
                     <span className="font-mono font-medium text-black">
-                      {new Date(orderDetails.created_at || Date.now()).toLocaleDateString("vi-VN", {
+                      {new Date(
+                        orderDetails.created_at || Date.now(),
+                      ).toLocaleDateString("vi-VN", {
                         year: "numeric",
                         month: "long",
                         day: "numeric",
@@ -146,7 +202,6 @@ function CheckoutSuccessContent() {
                   </div>
                 </div>
 
-                {/* BỔ SUNG THÔNG TIN KHÁCH HÀNG ĐÃ NHẬP LÚC CHECKOUT */}
                 <div className="border border-[#E1DDD5] rounded-2xl p-5 bg-[#FCFAF2]/60 space-y-3 text-xs font-sans">
                   <h3 className="font-serif text-sm font-bold text-black border-b border-[#E1DDD5]/80 pb-2">
                     Thông tin nhận hàng
@@ -155,26 +210,29 @@ function CheckoutSuccessContent() {
                   <div className="flex items-center gap-2.5 text-black">
                     <User className="size-4 text-[#786F66] shrink-0" />
                     <span>
-                      <strong>Người nhận:</strong> {orderDetails.customer_name || "Khách hàng"}
+                      <strong>Người nhận:</strong>{" "}
+                      {orderDetails.customer_name || "Khách hàng"}
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-2.5 text-black">
+                  <div className="flex items-center gap-2.5 text-[#1E1C1A]">
                     <Phone className="size-4 text-[#786F66] shrink-0" />
                     <span>
-                      <strong>Số điện thoại:</strong> {orderDetails.customer_phone || "N/A"}
+                      <strong>Số điện thoại:</strong>{" "}
+                      {orderDetails.customer_phone || "N/A"}
                     </span>
                   </div>
 
-                  <div className="flex items-start gap-2.5 text-black">
+                  <div className="flex items-start gap-2.5 text-[#1E1C1A]">
                     <MapPin className="size-4 text-[#786F66] shrink-0 mt-0.5" />
                     <span>
-                      <strong>Địa chỉ giao hàng:</strong> {orderDetails.customer_address || "N/A"}
+                      <strong>Địa chỉ giao hàng:</strong>{" "}
+                      {orderDetails.customer_address || "N/A"}
                     </span>
                   </div>
 
                   {orderDetails.notes && (
-                    <div className="flex items-start gap-2.5 text-black pt-1 border-t border-[#E1DDD5]/60">
+                    <div className="flex items-start gap-2.5 text-[#1E1C1A] pt-1 border-t border-[#E1DDD5]/60">
                       <FileText className="size-4 text-[#786F66] shrink-0 mt-0.5" />
                       <span>
                         <strong>Ghi chú đơn hàng:</strong> {orderDetails.notes}
@@ -188,13 +246,17 @@ function CheckoutSuccessContent() {
                 <div className="space-y-3 text-xs font-sans">
                   <div className="flex justify-between">
                     <span className="text-[#786F66]">Tạm tính phụ</span>
-                    <span className="font-mono font-medium text-black">{formatVND(orderDetails.subtotal)}</span>
+                    <span className="font-mono font-medium text-black">
+                      {formatVND(Number(orderDetails.subtotal ?? 0))}
+                    </span>
                   </div>
 
                   <div className="flex justify-between">
                     <span className="text-[#786F66]">Chi phí vận chuyển</span>
                     <span className="font-mono font-semibold text-black">
-                      {Number(orderDetails.shipping) === 0 ? "Miễn phí vận chuyển" : formatVND(orderDetails.shipping)}
+                      {Number(orderDetails.shipping ?? 0) === 0
+                        ? "Miễn phí vận chuyển"
+                        : formatVND(Number(orderDetails.shipping))}
                     </span>
                   </div>
 
@@ -202,7 +264,9 @@ function CheckoutSuccessContent() {
 
                   <div className="flex justify-between text-sm font-serif font-bold text-black pt-1">
                     <span>Tổng cộng hóa đơn</span>
-                    <span className="font-mono text-base text-[#FF9D00]">{formatVND(orderDetails.total)}</span>
+                    <span className="font-mono text-base text-[#FF9D00]">
+                      {formatVND(Number(orderDetails.total ?? 0))}
+                    </span>
                   </div>
                 </div>
               </Card>

@@ -1,7 +1,15 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ChevronDown, Heart, LogOut, Menu, Search, ShoppingBag, User } from "lucide-react";
+import {
+  ChevronDown,
+  Heart,
+  LogOut,
+  Menu,
+  Search,
+  ShoppingBag,
+  User,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -90,15 +98,23 @@ export function Header({ categories = [] }: HeaderProps) {
               <nav className="flex flex-1 flex-col overflow-y-auto px-6 pb-8 text-left">
                 {mobileMenuSections.map((section, sectionIdx) => (
                   <div key={section.label}>
-                    {sectionIdx > 0 && <div className="my-4 border-t border-[#E1DDD5]/60" />}
+                    {sectionIdx > 0 && (
+                      <div className="my-4 border-t border-[#E1DDD5]/60" />
+                    )}
                     <p className="mb-2 mt-4 text-[10px] font-mono font-bold uppercase tracking-widest text-[#786F66]">
                       {section.label}
                     </p>
                     <div className="ml-3">
                       {section.items.map((item) => {
                         const slug = item.href.replace("/", "");
-                        const parentCat = allCategories.find((c) => c.slug === slug);
-                        const subcats = parentCat ? allCategories.filter((c) => c.parentId === parentCat.id) : [];
+                        const parentCat = allCategories.find(
+                          (c) => c.slug === slug,
+                        );
+                        const subcats = parentCat
+                          ? allCategories.filter(
+                              (c) => c.parentId === parentCat.id,
+                            )
+                          : [];
                         const hasSubcats = subcats.length > 0;
                         const isExpanded = expandedCategory === item.name;
 
@@ -115,11 +131,18 @@ export function Header({ categories = [] }: HeaderProps) {
                               {hasSubcats && (
                                 <button
                                   type="button"
-                                  onClick={() => setExpandedCategory(isExpanded ? null : item.name)}
+                                  onClick={() =>
+                                    setExpandedCategory(
+                                      isExpanded ? null : item.name,
+                                    )
+                                  }
                                   className="p-2 text-[#786F66] hover:text-black cursor-pointer"
                                 >
                                   <ChevronDown
-                                    className={cn("h-4 w-4 transition-transform", isExpanded && "rotate-180")}
+                                    className={cn(
+                                      "h-4 w-4 transition-transform",
+                                      isExpanded && "rotate-180",
+                                    )}
                                   />
                                 </button>
                               )}
@@ -148,7 +171,7 @@ export function Header({ categories = [] }: HeaderProps) {
             </SheetContent>
           </Sheet>
 
-          {/* TÊN THƯƠNG HIỆU CHUẨN BOO SPACE */}
+          {/* LOGO CHUẨN BOO SPACE */}
           <Link
             href="/"
             className="font-serif text-xl sm:text-2xl font-bold tracking-tight uppercase text-black hover:text-[#FF9D00] transition-colors leading-none"
@@ -188,7 +211,7 @@ export function Header({ categories = [] }: HeaderProps) {
               </Link>
             </motion.div>
 
-            {/* AVATAR KHẮC PHỤC HOÀN TOÀN LỖI VỠ LAYOUT */}
+            {/* AVATAR KHẮC PHỤC LỖI HÌNH ẢNH */}
             {mounted && isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger
@@ -206,7 +229,9 @@ export function Header({ categories = [] }: HeaderProps) {
                         onError={() => setAvatarError(true)}
                       />
                     ) : (
-                      <span>{user?.firstName?.[0] ?? user?.email?.[0] ?? "U"}</span>
+                      <span>
+                        {user?.firstName?.[0] ?? user?.email?.[0] ?? "U"}
+                      </span>
                     )}
                   </div>
                 </DropdownMenuTrigger>
@@ -218,11 +243,13 @@ export function Header({ categories = [] }: HeaderProps) {
                     <p className="font-sans text-sm font-bold text-black truncate">
                       {user?.firstName} {user?.lastName}
                     </p>
-                    <p className="text-[10px] font-mono text-[#786F66] truncate mt-0.5">{user?.email}</p>
+                    <p className="text-[10px] font-mono text-[#786F66] truncate mt-0.5">
+                      {user?.email}
+                    </p>
                   </div>
                   <DropdownMenuSeparator className="bg-[#E1DDD5]/60" />
 
-                  {/* Đổi tên Bảng điều khiển -> Tài khoản, Ẩn mục Thiết lập tài khoản trùng lặp */}
+                  {/* Đổi tên Bảng điều khiển -> Tài khoản */}
                   <DropdownMenuItem
                     onClick={() => router.push("/account")}
                     className="rounded-lg font-sans text-xs font-semibold py-2 hover:bg-[#EAE5D9]/30 cursor-pointer"
@@ -251,7 +278,10 @@ export function Header({ categories = [] }: HeaderProps) {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <motion.div whileTap={{ scale: 0.95 }} className="hidden lg:block">
+              <motion.div
+                whileTap={{ scale: 0.95 }}
+                className="hidden lg:block"
+              >
                 <Link
                   href="/auth/login"
                   className="inline-flex h-10 w-10 items-center justify-center rounded-xl hover:bg-[#EAE5D9]/40 text-[#786F66] hover:text-black transition-colors"

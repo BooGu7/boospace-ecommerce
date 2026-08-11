@@ -66,7 +66,9 @@ export default function CheckoutPage() {
 
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<"cod" | "vietqr">("vietqr");
+  const [paymentMethod, setPaymentMethod] = useState<"cod" | "vietqr">(
+    "vietqr",
+  );
 
   const [form, setForm] = useState({
     email: "",
@@ -92,16 +94,15 @@ export default function CheckoutPage() {
   const [addonsLoading, setAddonsLoading] = useState(true);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
   useEffect(() => {
     if (mounted && isAuthenticated && user) {
       const userAddresses = (user.addresses || []) as UserAddress[];
-      const defaultAddr = userAddresses.find((a) => a.isDefault) || userAddresses[0];
+      const defaultAddr =
+        userAddresses.find((a) => a.isDefault) || userAddresses[0];
 
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setForm({
         email: user.email || "",
         phone: defaultAddr?.phone || (user as { phone?: string }).phone || "",
@@ -155,9 +156,12 @@ export default function CheckoutPage() {
     return (
       <div className="min-h-screen bg-[#FCFAF2] flex items-center justify-center">
         <div className="mx-auto max-w-3xl px-4 py-32 text-center text-[#1E1C1A] space-y-6">
-          <h1 className="font-serif text-3xl font-bold">Giỏ hàng của bạn đang trống</h1>
+          <h1 className="font-serif text-3xl font-bold">
+            Giỏ hàng của bạn đang trống
+          </h1>
           <p className="text-sm font-sans text-[#786F66]">
-            Vui lòng thêm một vài sản phẩm chế tác custom trước khi thanh toán nhé ✨
+            Vui lòng thêm một vài sản phẩm chế tác custom trước khi thanh toán
+            nhé ✨
           </p>
           <Button
             className="rounded-xl bg-black hover:bg-[#33302C] text-white font-mono uppercase text-xs font-bold tracking-wider py-4 px-6 cursor-pointer"
@@ -172,8 +176,9 @@ export default function CheckoutPage() {
 
   const subtotal = getSubtotal();
 
-  // CHÍNH SÁCH VẬN CHUYỂN MỚI: Miễn phí nội thành HCM, tỉnh khác 30k
-  const isHCM = form.city.toLowerCase().includes("hồ chí minh") || form.city.toLowerCase().includes("hcm");
+  const isHCM =
+    form.city.toLowerCase().includes("hồ chí minh") ||
+    form.city.toLowerCase().includes("hcm");
   const shippingFee = isHCM ? 0 : siteConfig.shipping.standardFee;
 
   const discountAmount = Math.round(subtotal * (discountPercent / 100));
@@ -196,7 +201,9 @@ export default function CheckoutPage() {
       if (data) {
         setDiscountPercent(data.discount_percent);
         setAppliedCoupon(data.code);
-        toast.success(`Áp dụng mã ${data.code} giảm ${data.discount_percent}% thành công! ✨`);
+        toast.success(
+          `Áp dụng mã ${data.code} giảm ${data.discount_percent}% thành công! ✨`,
+        );
       } else {
         toast.error("Mã giảm giá không hợp lệ hoặc đã hết hạn.");
       }
@@ -233,14 +240,24 @@ export default function CheckoutPage() {
     toast.success(`Đã gỡ bỏ ${itemName} ra khỏi đơn hàng`);
   }
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
+  function handleChange(
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    if (!form.email || !form.phone || !form.lastName || !form.line1 || !form.district || !form.city) {
+    const cleanEmail = form.email.trim().toLowerCase();
+    if (
+      !cleanEmail ||
+      !form.phone ||
+      !form.lastName ||
+      !form.line1 ||
+      !form.district ||
+      !form.city
+    ) {
       toast.error("Vui lòng điền đầy đủ thông tin giao hàng bắt buộc.");
       return;
     }
@@ -269,19 +286,23 @@ export default function CheckoutPage() {
 
     if (isAuthenticated && user?.id) {
       try {
-        const { data: dbUser } = await supabase.from("users").select("data").eq("id", user.id).maybeSingle();
+        const { data: dbUser } = await supabase
+          .from("users")
+          .select("data")
+          .eq("id", user.id)
+          .maybeSingle();
 
         const currentData = dbUser?.data || {};
         const currentAddresses = (currentData.addresses || []) as UserAddress[];
 
-        const updatedAddresses = [fullAddressObj, ...currentAddresses.map((a) => ({ ...a, isDefault: false }))].slice(
-          0,
-          5,
-        );
+        const updatedAddresses = [
+          fullAddressObj,
+          ...currentAddresses.map((a) => ({ ...a, isDefault: false })),
+        ].slice(0, 5);
 
         const { error: upsertUserError } = await supabase.from("users").upsert({
           id: user.id,
-          email: form.email.trim().toLowerCase(),
+          email: cleanEmail,
           data: {
             ...currentData,
             firstName: form.firstName || user.firstName || "",
@@ -300,25 +321,32 @@ export default function CheckoutPage() {
           } as unknown as typeof user);
         }
       } catch (err) {
-        console.warn("Chưa thể đồng bộ user vào public.users, khởi tạo dưới dạng đơn vãng lai:", err);
+        console.warn(
+          "Chưa thể đồng bộ user vào public.users, khởi tạo dưới dạng đơn vãng lai:",
+          err,
+        );
       }
     }
 
+    // ĐỒNG BỘ NẠP ĐẦY ĐỦ CẢ CAMELCASE VÀ SNAKE_CASE
     const orderPayload = {
-      id: orderId,
       code: orderId,
       orderNumber: orderId,
       customerId: validCustomerId,
       customer_id: validCustomerId,
+      customerName: `${form.lastName} ${form.firstName}`.trim(),
       customer_name: `${form.lastName} ${form.firstName}`.trim(),
-      customer_email: form.email.trim().toLowerCase(),
-      customer_phone: form.phone,
+      customerEmail: cleanEmail,
+      customer_email: cleanEmail,
+      customerPhone: form.phone.trim(),
+      customer_phone: form.phone.trim(),
       customer_address: formattedAddressStr,
+      shippingAddress: fullAddressObj,
       shipping_address: fullAddressObj,
       paymentMethod: paymentMethod === "vietqr" ? "VietQR" : "COD",
       payment_method: paymentMethod === "vietqr" ? "VietQR" : "COD",
+      couponCode: couponCode.trim(),
       items: items.map((item) => ({
-        id: item.id,
         productId: item.productId,
         product_id: item.productId,
         variantId: item.variantId,
@@ -330,17 +358,10 @@ export default function CheckoutPage() {
         total: item.lineTotal / 100,
         total_price: item.lineTotal / 100,
       })),
-      status: "processing",
-      order_status: "Pending",
-      paymentStatus: "Pending",
-      payment_status: "Pending",
       subtotal: subtotal / 100,
-      tax: tax,
       shipping: shippingFee,
       total: total / 100,
-      notes: form.notes,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      notes: form.notes || "",
     };
 
     try {
@@ -361,7 +382,10 @@ export default function CheckoutPage() {
       toast.success("Đặt hàng thành công ✨");
       router.push(`/checkout/success?order_id=${orderId}`);
     } catch (err: unknown) {
-      const errorMsg = err instanceof Error ? err.message : "Có lỗi xảy ra, vui lòng thử lại sau.";
+      const errorMsg =
+        err instanceof Error
+          ? err.message
+          : "Có lỗi xảy ra, vui lòng thử lại sau.";
       console.error("[CHECKOUT_SUBMIT_ERROR]", err);
       toast.error(errorMsg);
       setLoading(false);
@@ -378,11 +402,16 @@ export default function CheckoutPage() {
           Thanh toán đơn hàng
         </h1>
 
-        <form onSubmit={handleSubmit} className="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-12">
+        <form
+          onSubmit={handleSubmit}
+          className="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-12"
+        >
           <div className="space-y-8 lg:col-span-7">
             <Card className="rounded-3xl border border-[#DCD6CC] bg-white p-6 shadow-xs text-left">
               <CardHeader className="p-0 pb-4 border-b border-[#E1DDD5]/40 mb-4">
-                <CardTitle className="font-serif text-lg font-bold text-black">Thông tin liên hệ</CardTitle>
+                <CardTitle className="font-serif text-lg font-bold text-black">
+                  Thông tin liên hệ
+                </CardTitle>
               </CardHeader>
               <CardContent className="p-0 space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -429,7 +458,9 @@ export default function CheckoutPage() {
 
             <Card className="rounded-3xl border border-[#DCD6CC] bg-white p-6 shadow-xs text-left">
               <CardHeader className="p-0 pb-4 border-b border-[#E1DDD5]/40 mb-4">
-                <CardTitle className="font-serif text-lg font-bold text-black">Địa chỉ giao hàng</CardTitle>
+                <CardTitle className="font-serif text-lg font-bold text-black">
+                  Địa chỉ giao hàng
+                </CardTitle>
               </CardHeader>
 
               <CardContent className="p-0 space-y-4">
@@ -575,7 +606,9 @@ export default function CheckoutPage() {
 
             <Card className="rounded-3xl border border-[#DCD6CC] bg-white p-6 shadow-xs text-left">
               <CardHeader className="p-0 pb-4 border-b border-[#E1DDD5]/40 mb-4">
-                <CardTitle className="font-serif text-lg font-bold text-black">Phương thức thanh toán</CardTitle>
+                <CardTitle className="font-serif text-lg font-bold text-black">
+                  Phương thức thanh toán
+                </CardTitle>
               </CardHeader>
               <CardContent className="p-0 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -589,11 +622,14 @@ export default function CheckoutPage() {
                   >
                     <div className="flex justify-between items-center w-full">
                       <span className="text-xs font-mono font-bold text-[#786F66] flex items-center gap-1.5">
-                        <Banknote className="size-4 text-emerald-600" /> 01 / COD
+                        <Banknote className="size-4 text-emerald-600" /> 01 /
+                        COD
                       </span>
                       <span
                         className={`size-4 rounded-full border-4 ${
-                          paymentMethod === "cod" ? "border-[#FF9D00] bg-white" : "border-[#CFCABF] bg-transparent"
+                          paymentMethod === "cod"
+                            ? "border-[#FF9D00] bg-white"
+                            : "border-[#CFCABF] bg-transparent"
                         }`}
                       />
                     </div>
@@ -602,7 +638,8 @@ export default function CheckoutPage() {
                         Thanh toán khi nhận hàng
                       </h4>
                       <p className="text-[10px] font-sans text-[#786F66] leading-relaxed">
-                        Thanh toán tiền mặt cho shipper ngay khi kiểm tra và nhận hàng thành công.
+                        Thanh toán tiền mặt cho shipper ngay khi kiểm tra và
+                        nhận hàng thành công.
                       </p>
                     </div>
                   </div>
@@ -621,14 +658,19 @@ export default function CheckoutPage() {
                       </span>
                       <span
                         className={`size-4 rounded-full border-4 ${
-                          paymentMethod === "vietqr" ? "border-[#FF9D00] bg-white" : "border-[#CFCABF] bg-transparent"
+                          paymentMethod === "vietqr"
+                            ? "border-[#FF9D00] bg-white"
+                            : "border-[#CFCABF] bg-transparent"
                         }`}
                       />
                     </div>
                     <div className="space-y-1 mt-3">
-                      <h4 className="font-serif text-sm font-bold text-black leading-tight">Chuyển khoản VietQR</h4>
+                      <h4 className="font-serif text-sm font-bold text-black leading-tight">
+                        Chuyển khoản VietQR
+                      </h4>
                       <p className="text-[10px] font-sans text-[#786F66] leading-relaxed">
-                        Quét mã QR tự động qua ứng dụng ngân hàng, xác nhận tức thì 24/7.
+                        Quét mã QR tự động qua ứng dụng ngân hàng, xác nhận tức
+                        thì 24/7.
                       </p>
                     </div>
                   </div>
@@ -638,9 +680,10 @@ export default function CheckoutPage() {
                   <div className="rounded-xl bg-amber-50/60 border border-amber-200/80 p-3.5 text-xs text-amber-900 leading-relaxed flex items-start gap-2.5">
                     <Video className="size-4 text-amber-600 shrink-0 mt-0.5" />
                     <div>
-                      <strong>Lưu ý quan trọng:</strong> Quý khách vui lòng <strong>quay video / chụp hình</strong> quá
-                      trình mở hộp khi nhận hàng từ shipper để làm căn cứ đối soát hỗ trợ đổi trả nếu sản phẩm có sự cố
-                      trong quá trình vận chuyển.
+                      <strong>Lưu ý quan trọng:</strong> Quý khách vui lòng{" "}
+                      <strong>quay video / chụp hình</strong> quá trình mở hộp
+                      khi nhận hàng từ shipper để làm căn cứ đối soát hỗ trợ đổi
+                      trả nếu sản phẩm có sự cố trong quá trình vận chuyển.
                     </div>
                   </div>
                 </div>
@@ -663,7 +706,9 @@ export default function CheckoutPage() {
           <div className="lg:col-span-5">
             <Card className="sticky top-24 rounded-3xl border border-[#DCD6CC] bg-[#FAF5F2]/90 p-6 shadow-md space-y-6">
               <CardHeader className="p-0 pb-3 border-b border-[#E1DDD5]/60">
-                <CardTitle className="font-serif text-lg font-bold text-black text-left">Tóm tắt đơn hàng</CardTitle>
+                <CardTitle className="font-serif text-lg font-bold text-black text-left">
+                  Tóm tắt đơn hàng
+                </CardTitle>
               </CardHeader>
 
               <CardContent className="p-0 space-y-4">
@@ -678,7 +723,13 @@ export default function CheckoutPage() {
                         className="flex items-center gap-4 pb-3.5 border-b border-[#E1DDD5]/60 last:border-0 last:pb-0 relative group"
                       >
                         <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-[#E1DDD5] bg-[#EAE5D9]/20 shadow-sm">
-                          <Image src={imgUrl} alt={imgAlt} fill className="object-cover" sizes="56px" />
+                          <Image
+                            src={imgUrl}
+                            alt={imgAlt}
+                            fill
+                            className="object-cover"
+                            sizes="56px"
+                          />
                           <span className="absolute -top-1 -right-1 h-4 w-4 bg-black text-white text-[9px] font-mono font-bold flex items-center justify-center rounded-full shadow-md">
                             {item.quantity}
                           </span>
@@ -688,11 +739,12 @@ export default function CheckoutPage() {
                           <p className="text-xs sm:text-sm font-serif font-bold text-black leading-snug truncate">
                             {item.name}
                           </p>
-                          {item.variantName && item.variantName !== "Default Variant" && (
-                            <p className="text-[10px] text-[#786F66] font-sans font-medium mt-0.5 truncate">
-                              Phân loại: {item.variantName}
-                            </p>
-                          )}
+                          {item.variantName &&
+                            item.variantName !== "Default Variant" && (
+                              <p className="text-[10px] text-[#786F66] font-sans font-medium mt-0.5 truncate">
+                                Phân loại: {item.variantName}
+                              </p>
+                            )}
                         </div>
 
                         <div className="flex flex-col items-end gap-1.5 shrink-0">
@@ -702,7 +754,9 @@ export default function CheckoutPage() {
 
                           <button
                             type="button"
-                            onClick={() => handleRemoveItem(item.variantId, item.name)}
+                            onClick={() =>
+                              handleRemoveItem(item.variantId, item.name)
+                            }
                             className="text-[10px] font-mono font-bold text-[#786F66] hover:text-red-500 transition-colors uppercase cursor-pointer"
                           >
                             Gỡ bỏ
@@ -715,7 +769,6 @@ export default function CheckoutPage() {
 
                 <Separator className="bg-[#E1DDD5]" />
 
-                {/* ĐỔI PLACEHOLDER THÀNH VÍ DỤ BOOSPACE */}
                 <div className="flex gap-3">
                   <Input
                     type="text"
@@ -730,7 +783,11 @@ export default function CheckoutPage() {
                     disabled={applying || !couponCode.trim()}
                     className="rounded-lg bg-[#EAE5D9]/40 border border-[#CFCABF] text-black font-mono uppercase text-[10px] font-bold tracking-wider px-5 py-3 cursor-pointer hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center min-w-[80px]"
                   >
-                    {applying ? <Loader2 className="h-3 w-3 animate-spin text-black" /> : "Áp dụng"}
+                    {applying ? (
+                      <Loader2 className="h-3 w-3 animate-spin text-black" />
+                    ) : (
+                      "Áp dụng"
+                    )}
                   </button>
                 </div>
 
@@ -739,7 +796,9 @@ export default function CheckoutPage() {
                 {filteredAddons.length > 0 && (
                   <div className="bg-white border border-[#E1DDD5] rounded-3xl p-5 space-y-4 shadow-sm text-left">
                     <div className="space-y-0.5 border-b border-[#E1DDD5]/40 pb-2">
-                      <h4 className="font-serif text-sm font-bold text-black">Hoàn thiện không gian mộc mạc</h4>
+                      <h4 className="font-serif text-sm font-bold text-black">
+                        Hoàn thiện không gian mộc mạc
+                      </h4>
                       <p className="text-[10px] font-mono text-[#786F66] uppercase tracking-wider font-semibold">
                         Sản phẩm gợi ý cho góc làm việc
                       </p>
@@ -753,7 +812,9 @@ export default function CheckoutPage() {
                       <div className="space-y-3">
                         {filteredAddons.slice(0, 3).map((addon) => {
                           const imgUrl = addon.images?.[0] || PLACEHOLDER_IMAGE;
-                          const isAddonSale = Boolean(addon.compare_price) && (addon.compare_price ?? 0) > addon.price;
+                          const isAddonSale =
+                            Boolean(addon.compare_price) &&
+                            (addon.compare_price ?? 0) > addon.price;
 
                           return (
                             <div
@@ -762,14 +823,22 @@ export default function CheckoutPage() {
                             >
                               <div className="flex items-center gap-3 flex-1 min-w-0">
                                 <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-[#E1DDD5] bg-white shadow-inner">
-                                  <Image src={imgUrl} alt={addon.name} fill sizes="44px" className="object-cover" />
+                                  <Image
+                                    src={imgUrl}
+                                    alt={addon.name}
+                                    fill
+                                    sizes="44px"
+                                    className="object-cover"
+                                  />
                                 </div>
                                 <div className="text-left space-y-0.5 min-w-0">
                                   <h5 className="font-serif text-[11px] font-bold text-black truncate max-w-[120px]">
                                     {addon.name}
                                   </h5>
                                   <div className="flex items-baseline gap-1.5 font-mono text-[9px]">
-                                    <span className="font-bold text-black">{formatVND(addon.price)}</span>
+                                    <span className="font-bold text-black">
+                                      {formatVND(addon.price)}
+                                    </span>
                                     {isAddonSale && addon.compare_price && (
                                       <span className="text-[#786F66] line-through opacity-60">
                                         {formatVND(addon.compare_price)}
@@ -779,7 +848,6 @@ export default function CheckoutPage() {
                                 </div>
                               </div>
 
-                              {/* ĐỔI NÚT ADD + THÀNH THÊM */}
                               <button
                                 type="button"
                                 onClick={() => handleAddAddonToCart(addon)}
@@ -800,7 +868,9 @@ export default function CheckoutPage() {
                 <div className="space-y-3.5 text-xs font-sans text-left">
                   <div className="flex justify-between text-[#5c544d]">
                     <span>Tổng phụ</span>
-                    <span className="font-mono font-medium text-black">{formatVND(subtotal / 100)}</span>
+                    <span className="font-mono font-medium text-black">
+                      {formatVND(subtotal / 100)}
+                    </span>
                   </div>
 
                   {discountPercent > 0 && (
@@ -808,21 +878,26 @@ export default function CheckoutPage() {
                       <span>
                         Giảm giá ({appliedCoupon} - {discountPercent}%)
                       </span>
-                      <span className="font-mono font-bold">-{formatVND(discountAmount / 100)}</span>
+                      <span className="font-mono font-bold">
+                        -{formatVND(discountAmount / 100)}
+                      </span>
                     </div>
                   )}
 
-                  {/* CẮT GIẢM SHIP LINH HOẠT THEO KHU VỰC */}
                   <div className="flex justify-between text-[#5c544d]">
                     <span className="flex items-center gap-1.5">
-                      Vận chuyển
+                      Phí vận chuyển
                       <HelpCircle className="h-3.5 w-3.5 text-[#786F66] cursor-help" />
                     </span>
                     <span className="font-mono font-bold tracking-wider">
                       {isHCM ? (
-                        <span className="text-[#3ECF8E]">MIỄN PHÍ VẬN CHUYỂN (HCM)</span>
+                        <span className="text-[#3ECF8E]">
+                          MIỄN PHÍ VẬN CHUYỂN (HCM)
+                        </span>
                       ) : (
-                        <span className="text-black">{formatVND(shippingFee)}</span>
+                        <span className="text-black">
+                          {formatVND(shippingFee)}
+                        </span>
                       )}
                     </span>
                   </div>
@@ -832,8 +907,12 @@ export default function CheckoutPage() {
                   <div className="flex justify-between items-center text-sm font-serif font-bold text-black pt-1">
                     <span>Tổng cộng đơn hàng</span>
                     <div className="flex items-baseline gap-1.5">
-                      <span className="text-[10px] font-mono text-[#786F66] font-normal uppercase">VND</span>
-                      <span className="font-mono text-lg text-[#FF9D00]">{formatVND(total / 100)}</span>
+                      <span className="text-[10px] font-mono text-[#786F66] font-normal uppercase">
+                        VND
+                      </span>
+                      <span className="font-mono text-lg text-[#FF9D00]">
+                        {formatVND(total / 100)}
+                      </span>
                     </div>
                   </div>
                 </div>

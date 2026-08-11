@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 import { toast } from "sonner";
@@ -49,7 +49,7 @@ export function HeroVideoSection({
       const response = await fetch("/api/newsletter", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email: email.trim().toLowerCase() }),
       });
 
       const data = await response.json();
@@ -69,8 +69,10 @@ export function HeroVideoSection({
     }
   };
 
-  // Đảm bảo đường dẫn video viết thường chuẩn xác
-  const cleanVideoUrl = heroVideo ? heroVideo.toLowerCase() : "";
+  const validVideoUrl =
+    heroVideo && heroVideo.trim() !== ""
+      ? heroVideo
+      : "https://amukhgkamrokbbcjgusf.supabase.co/storage/v1/object/public/co-creation-files/hero-ambient.mp4";
 
   return (
     <section
@@ -94,19 +96,22 @@ export function HeroVideoSection({
             <h1 className="text-5xl sm:text-7xl font-bold tracking-tight text-white leading-[1.05] font-serif text-drop-shadow">
               Không gian độc bản.
               <br />
-              <span className="text-[#3ECF8E] italic font-medium font-serif">Thân thiện và Tinh tế.</span>
+              <span className="text-[#3ECF8E] italic font-medium font-serif">
+                Thân thiện và Tinh tế.
+              </span>
             </h1>
           </MotionWrapper>
           <MotionWrapper direction="up" delay={300}>
-            <p className="text-base sm:text-lg text-neutral-200 leading-relaxed max-w-lg font-sans text-drop-shadow">
-              Định nghĩa lại góc sống bằng những chiếc đèn nghệ thuật và vật dụng in 3D mang ngôn ngữ tối giản. Chất
-              liệu sinh học lành tính giúp dọn dẹp mọi xao nhãng số, trả lại sự ấm áp thuần khiết cho tâm trí.
+            <p className="text-base sm:text-lg text-neutral-100 leading-relaxed max-w-lg font-sans text-drop-shadow font-medium">
+              Định nghĩa lại góc sống bằng những chiếc đèn nghệ thuật và vật
+              dụng in 3D mang ngôn ngữ tối giản. Chất liệu sinh học lành tính
+              giúp dọn dẹp mọi xao nhãng số, trả lại sự ấm áp thuần khiết cho
+              tâm trí.
             </p>
           </MotionWrapper>
         </div>
 
         <div className="flex flex-col lg:flex-row items-stretch lg:items-end justify-between gap-8 pt-12">
-          {/* KHUNG VIDEO TỐI ƯU HÓA CHẠY HOÀN HẢO TRÊN VERCEL PRODUCTION */}
           <MotionWrapper direction="right" delay={400}>
             <div className="relative w-48 sm:w-64 aspect-[16/10] rounded-2xl overflow-hidden border-2 border-[#3ECF8E] bg-black/40 group cursor-pointer shadow-lg flex items-center justify-center">
               {!mounted || videoError ? (
@@ -116,7 +121,7 @@ export function HeroVideoSection({
                 />
               ) : (
                 <video
-                  key={cleanVideoUrl}
+                  src={validVideoUrl}
                   autoPlay
                   muted
                   loop
@@ -124,10 +129,7 @@ export function HeroVideoSection({
                   preload="auto"
                   onError={() => setVideoError(true)}
                   className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:scale-102 transition-transform duration-500"
-                >
-                  <source src={cleanVideoUrl} type="video/mp4" />
-                  <source src="/images/herovideo.mp4" type="video/mp4" />
-                </video>
+                />
               )}
             </div>
           </MotionWrapper>
@@ -139,20 +141,23 @@ export function HeroVideoSection({
                   <button
                     onClick={() => setIsClosed(true)}
                     aria-label="Đóng biểu mẫu bản tin"
-                    className="absolute top-3 right-3 text-xs text-slate-400 cursor-pointer hover:text-black transition-colors"
+                    className="absolute top-3 right-3 text-xs text-slate-500 cursor-pointer hover:text-black transition-colors"
                   >
                     ✕
                   </button>
                   <div className="space-y-1">
-                    <p className="font-bold text-xs text-slate-800 font-sans">Bản tin Boo Space</p>
-                    <p className="text-[9px] text-[#5C564E] font-mono tracking-wider font-semibold">
+                    <p className="font-bold text-xs text-black font-sans">
+                      Bản tin Boo Space
+                    </p>
+                    {/* TĂNG ĐỘ TƯƠNG PHẢN CHO CHỮ NHỎ DÒNG SUBTITLE BAN TIN */}
+                    <p className="text-[10px] text-[#2D2A26] font-mono tracking-wider font-bold">
                       NHẬN CẢM HỨNG KHÔNG GIAN · KHÔNG SPAM
                     </p>
                   </div>
 
                   <form
                     onSubmit={handleSubscribe}
-                    className="flex items-center gap-1 bg-slate-100 rounded-xl p-1 border border-slate-200"
+                    className="flex items-center gap-1 bg-slate-100 rounded-xl p-1 border border-slate-300"
                   >
                     <input
                       type="email"
@@ -161,7 +166,7 @@ export function HeroVideoSection({
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="flex-1 bg-transparent px-3 py-2 text-xs font-mono tracking-wider outline-none text-black placeholder:text-slate-400"
+                      className="flex-1 bg-transparent px-3 py-2 text-xs font-mono tracking-wider outline-none text-black placeholder:text-slate-600 font-medium"
                     />
                     <button
                       type="submit"
@@ -183,7 +188,8 @@ export function HeroVideoSection({
               >
                 KHÁM PHÁ BỘ SƯU TẬP <ArrowRight className="size-4 text-black" />
               </MagneticButton>
-              <p className="text-center text-[10px] text-white/70 font-mono tracking-wider">
+              {/* TĂNG ĐỘ TƯƠNG PHẢN CHO DÒNG MIỄN PHÍ VẬN CHUYỂN */}
+              <p className="text-center text-xs text-white font-mono tracking-wider font-semibold">
                 {"✓"} MIỄN PHÍ VẬN CHUYỂN NỘI THÀNH TP.HCM
               </p>
             </MotionWrapper>

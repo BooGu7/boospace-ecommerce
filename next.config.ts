@@ -7,7 +7,6 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 const withToolbar = withVercelToolbar();
 
 const nextConfig: NextConfig = {
-  // GIỚI HẠN 1 WORKER ĐỂ TIẾT KIỆM RAM TRÊN VERCEL
   experimental: {
     cpus: 4,
   },
@@ -22,6 +21,23 @@ const nextConfig: NextConfig = {
         port: "",
         pathname: "/storage/v1/object/public/**",
       },
+      // KHAI BÁO TÊN MIỀN HÌNH ẢNH GOOGLE AVATAR VÀ CÁC NGUỒN NGOẠI
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+      },
+      {
+        protocol: "https",
+        hostname: "lh4.googleusercontent.com",
+      },
+      {
+        protocol: "https",
+        hostname: "lh5.googleusercontent.com",
+      },
+      {
+        protocol: "https",
+        hostname: "avatars.githubusercontent.com",
+      },
       {
         protocol: "https",
         hostname: "placehold.co",
@@ -29,6 +45,10 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "images.unsplash.com",
+      },
+      {
+        protocol: "https",
+        hostname: "img.vietqr.io",
       },
     ],
   },
