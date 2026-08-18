@@ -43,7 +43,7 @@ export const siteConfig = {
   taxRate: 0.0, // Thuế cố định
   shipping: {
     freeCityKeyword: "Hồ Chí Minh",
-    standardFee: 30000,
+    standardFee: 34000,
   },
 
   currency: "VND",

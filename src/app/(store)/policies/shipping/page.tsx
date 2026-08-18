@@ -6,7 +6,7 @@ export const revalidate = 86400; // Cache 24 giờ
 export const metadata: Metadata = {
   title: "Chính sách vận chuyển & giao nhận",
   description:
-    "Thông tin chi tiết về đối tác vận chuyển GHN, J&T Express, thời gian giao hàng, biểu phí và chính sách đồng kiểm của Boo Space.",
+    "Thông tin chi tiết về đối tác vận chuyển GHN, Viettel Post, thời gian giao hàng, biểu phí và chính sách đồng kiểm của Boo Space.",
 };
 
 export default function ShippingPolicyPage() {
@@ -49,7 +49,7 @@ export default function ShippingPolicyPage() {
             <ul className="list-disc pl-6 space-y-2">
               <li>
                 <strong>Đơn vị vận chuyển liên kết chính thức:</strong> Giao
-                Hàng Nhanh (GHN) và J&amp;T Express.
+                Hàng Nhanh (GHN) và Viettel Post.
               </li>
               <li>
                 <strong>Phương thức giao hàng tiêu chuẩn:</strong> Sản phẩm sau
@@ -135,9 +135,9 @@ export default function ShippingPolicyPage() {
               4. Trách nhiệm của đơn vị Logistics trong việc cung cấp thông tin
             </h2>
             <p>
-              Đơn vị dịch vụ vận chuyển (GHN / J&amp;T Express) có trách nhiệm
-              cập nhật liên tục trạng thái hành trình của đơn hàng lên hệ thống
-              để Boo Space và khách hàng có thể đồng thời tra cứu thời gian thực
+              Đơn vị dịch vụ vận chuyển (GHN / Viettel Post) có trách nhiệm cập
+              nhật liên tục trạng thái hành trình của đơn hàng lên hệ thống để
+              Boo Space và khách hàng có thể đồng thời tra cứu thời gian thực
               (Real-time Tracking):
             </p>
             <ol className="list-decimal pl-6 space-y-1.5 font-mono text-xs">
@@ -188,7 +188,7 @@ export default function ShippingPolicyPage() {
             </p>
             <p>
               Email tiếp nhận xử lý:{" "}
-              <strong className="text-black">legal@boospace.tech</strong>
+              <strong className="text-black">support@boospace.tech</strong>
             </p>
             <p>Khung giờ hỗ trợ: 08:00 – 18:00 (Thứ Hai – Thứ Bảy)</p>
           </div>

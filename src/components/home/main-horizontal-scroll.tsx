@@ -12,21 +12,16 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { ProductGrid } from "@/components/products/product-grid";
-import { Button } from "@/components/ui/button";
 import { BentoPortalGrid } from "./bento-portal-grid";
 import { HeroVideoSection } from "./hero-video-section";
 import { HowItWorks } from "./how-it-works";
+import { Button } from "@/components/ui/button";
 
 interface MainHorizontalScrollProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   categories: any[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   featuredProducts: any[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   saleProducts: any[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   blogs: any[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   config: any;
 }
 
@@ -82,17 +77,23 @@ export function MainHorizontalScroll({
   const manifestoHeading = config.manifesto_heading;
   const manifestoDesc = config.manifesto_desc;
 
-  const slide1Tag = config.slide1_tag;
-  const slide1Title = config.slide1_title;
-  const slide1Desc = config.slide1_desc;
+  // Slide 1 (Ánh sáng khúc xạ)
+  const slide1Tag = config.slide1_tag || "ÁNH SÁNG KHÚC XẠ";
+  const slide1Title = config.slide1_title || "";
+  const slide1Desc = config.slide1_desc || "";
+  const slide1Image = config.slide1_image || config.diy_image || "";
 
-  const slide2Tag = config.slide2_tag;
-  const slide2Title = config.slide2_title;
-  const slide2Desc = config.slide2_desc;
+  // Slide 2 (Mảng xanh thông minh)
+  const slide2Tag = config.slide2_tag || "MẢNG XANH THÔNG MINH";
+  const slide2Title = config.slide2_title || "";
+  const slide2Desc = config.slide2_desc || "";
+  const slide2Image = config.slide2_image || config.tech_image || "";
 
-  const slide3Tag = config.slide3_tag;
-  const slide3Title = config.slide3_title;
-  const slide3Desc = config.slide3_desc;
+  // Slide 3 (Vân nhám CR-PETG) - ĐỌC RIÊNG BIỆT KHÓA SLIDE3_IMAGE
+  const slide3Tag = config.slide3_tag || "VÂN NHÁM KỸ THUẬT";
+  const slide3Title = config.slide3_title || "";
+  const slide3Desc = config.slide3_desc || "";
+  const slide3Image = config.slide3_image || "";
 
   const prefooterTitle = config.prefooter_title;
   const prefooterNote = config.prefooter_note;
@@ -128,6 +129,8 @@ export function MainHorizontalScroll({
           heroImage={config.hero_image}
           heroVideo={config.hero_video}
           heroSubtitle={config.hero_subtitle}
+          featuredHeading={config.featured_heading}
+          featuredDesc={config.featured_desc}
           onExploreClick={() => router.push("/shop")}
         />
 
@@ -150,7 +153,83 @@ export function MainHorizontalScroll({
           </section>
         )}
 
-        {/* BỘ SƯU TẬP KHÔNG GIAN (MOBILE - ĐÃ NẠP MÔ TẢ TỪ SUPABASE) */}
+        <section className="px-6 space-y-12">
+          {slide1Title && (
+            <div className="space-y-4 text-left">
+              <span className="text-xs font-mono text-[#786F66] uppercase tracking-widest font-bold">
+                {slide1Tag}
+              </span>
+              <h3 className="text-2xl font-bold font-serif text-black">
+                {slide1Title}
+              </h3>
+              <p className="text-sm text-[#5C564E] leading-relaxed">
+                {slide1Desc}
+              </p>
+              {slide1Image && (
+                <div className="relative aspect-[4/3] rounded-3xl overflow-hidden border border-[#E1DDD5]">
+                  <Image
+                    src={slide1Image}
+                    alt={slide1Title}
+                    fill
+                    sizes="100vw"
+                    className="object-cover"
+                  />
+                </div>
+              )}
+            </div>
+          )}
+
+          {slide2Title && (
+            <div className="space-y-4 text-left">
+              <span className="text-xs font-mono text-[#786F66] uppercase tracking-widest font-bold">
+                {slide2Tag}
+              </span>
+              <h3 className="text-2xl font-bold font-serif text-black">
+                {slide2Title}
+              </h3>
+              <p className="text-sm text-[#5C564E] leading-relaxed">
+                {slide2Desc}
+              </p>
+              {slide2Image && (
+                <div className="relative aspect-[4/3] rounded-3xl overflow-hidden border border-[#E1DDD5]">
+                  <Image
+                    src={slide2Image}
+                    alt={slide2Title}
+                    fill
+                    sizes="100vw"
+                    className="object-cover"
+                  />
+                </div>
+              )}
+            </div>
+          )}
+
+          {slide3Title && (
+            <div className="space-y-4 text-left">
+              <span className="text-xs font-mono text-[#786F66] uppercase tracking-widest font-bold">
+                {slide3Tag}
+              </span>
+              <h3 className="text-2xl font-bold font-serif text-black">
+                {slide3Title}
+              </h3>
+              <p className="text-sm text-[#5C564E] leading-relaxed">
+                {slide3Desc}
+              </p>
+              {slide3Image && (
+                <div className="relative aspect-[4/3] rounded-3xl overflow-hidden border border-[#E1DDD5]">
+                  <Image
+                    src={slide3Image}
+                    alt={slide3Title}
+                    fill
+                    sizes="100vw"
+                    className="object-cover"
+                  />
+                </div>
+              )}
+            </div>
+          )}
+        </section>
+
         <section className="px-6 py-16">
           <h2 className="text-3xl font-bold text-black font-serif border-b pb-4 border-[#E1DDD5] mb-8">
             Bộ sưu tập không gian
@@ -158,35 +237,23 @@ export function MainHorizontalScroll({
           <div className="grid gap-6 sm:grid-cols-2">
             {categories
               ?.filter((c) => c.active !== false)
-              .map((cat, idx) => (
+              .map((cat) => (
                 <Link
                   key={cat.id}
                   href={`/shop?category=${cat.slug}`}
                   className="group relative aspect-square rounded-3xl overflow-hidden border border-[#E1DDD5] bg-[#EAE5D9]/40 shadow-sm"
                 >
                   <Image
-                    src={
-                      cat.image_url ||
-                      cat.imageUrl ||
-                      (idx === 0
-                        ? config.diy_image
-                        : idx === 1
-                          ? config.tech_image
-                          : config.hero_image)
-                    }
+                    src={cat.image_url || cat.imageUrl || slide1Image}
                     alt={cat.name}
                     fill
                     sizes="100vw"
                     className="object-cover mix-blend-multiply opacity-80"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex flex-col justify-end p-6 text-white text-left">
-                    <span className="text-[10px] font-mono uppercase tracking-widest text-amber-400 font-bold">
-                      {cat.name}
-                    </span>
                     <h3 className="text-xl font-bold font-serif mt-1">
                       {cat.name}
                     </h3>
-                    {/* HIỂN THỊ MÔ TẢ TỪ SUPABASE (CÓ FALLBACK NẾU NULL) */}
                     <p className="text-xs text-neutral-200 font-sans mt-1 line-clamp-2 leading-relaxed font-medium">
                       {cat.description ||
                         cat.desc ||
@@ -198,7 +265,6 @@ export function MainHorizontalScroll({
           </div>
         </section>
 
-        {/* NHẬT KÝ HÀNH TRÌNH (MOBILE) */}
         <section className="px-6 py-16 bg-[#F9F6ED] border-y border-[#E1DDD5]">
           <div className="flex justify-between items-end border-b pb-4 border-[#E1DDD5] mb-8">
             <h2 className="text-3xl font-bold text-black font-serif">
@@ -266,16 +332,19 @@ export function MainHorizontalScroll({
             style={{ x }}
             className={`flex h-full items-center ${containerWidthClass}`}
           >
+            {/* SLIDE 1: HERO BANNER & VIDEO (ĐỌC RIÊNG BIỆT CONFIG.HERO_IMAGE) */}
             <div className="w-[100vw] h-full shrink-0 relative flex items-center justify-center border-r border-[#E1DDD5]/50 bg-[#FCFAF2]">
               <HeroVideoSection
                 heroImage={config.hero_image}
                 heroVideo={config.hero_video}
                 heroSubtitle={config.hero_subtitle}
+                featuredHeading={config.featured_heading}
+                featuredDesc={config.featured_desc}
                 onExploreClick={() => router.push("/shop")}
               />
             </div>
 
-            {/* SLIDE 2: TUYÊN NGÔN BOO SPACE */}
+            {/* SLIDE 2: TUYÊN NGÔN THƯƠNG HIỆU */}
             {manifestoHeading && (
               <div className="w-[100vw] h-full shrink-0 relative flex flex-col items-center justify-center px-12 border-r border-[#E1DDD5]/50 bg-[#F7F4EB] overflow-hidden">
                 <div className="dappled-shadow-overlay opacity-30" />
@@ -301,7 +370,7 @@ export function MainHorizontalScroll({
               </div>
             )}
 
-            {/* SLIDE 3 */}
+            {/* SLIDE 3: ÁNH SÁNG KHÚC XẠ */}
             {slide1Title && (
               <div className="w-[100vw] h-full shrink-0 flex items-center justify-center px-24 border-r border-[#E1DDD5]/50 bg-[#FCFAF2]">
                 <div className="mx-auto max-w-7xl w-full grid grid-cols-12 gap-16 items-center">
@@ -312,11 +381,9 @@ export function MainHorizontalScroll({
                     viewport={{ once: true }}
                     className="col-span-6 space-y-6 text-left"
                   >
-                    {slide1Tag && (
-                      <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
-                        {slide1Tag}
-                      </span>
-                    )}
+                    <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
+                      {slide1Tag}
+                    </span>
                     <h2 className="text-5xl font-bold font-serif text-black leading-tight">
                       {slide1Title}
                     </h2>
@@ -333,19 +400,21 @@ export function MainHorizontalScroll({
                     viewport={{ once: true }}
                     className="col-span-6 relative aspect-square w-full rounded-3xl overflow-hidden border border-[#E1DDD5] bg-white shadow-2xl"
                   >
-                    <Image
-                      src={config.diy_image}
-                      alt={slide1Title}
-                      fill
-                      sizes="(max-width: 1200px) 50vw, 33vw"
-                      className="object-cover mix-blend-multiply opacity-95"
-                    />
+                    {slide1Image && (
+                      <Image
+                        src={slide1Image}
+                        alt={slide1Title}
+                        fill
+                        sizes="50vw"
+                        className="object-cover mix-blend-multiply opacity-95"
+                      />
+                    )}
                   </motion.div>
                 </div>
               </div>
             )}
 
-            {/* SLIDE 4 */}
+            {/* SLIDE 4: MẢNG XANH THÔNG MINH */}
             {slide2Title && (
               <div className="w-[100vw] h-full shrink-0 flex items-center justify-center px-24 border-r border-[#E1DDD5]/50 bg-[#FCFAF2]">
                 <div className="mx-auto max-w-7xl w-full grid grid-cols-12 gap-16 items-center">
@@ -356,11 +425,9 @@ export function MainHorizontalScroll({
                     viewport={{ once: true }}
                     className="col-span-6 space-y-6 text-left"
                   >
-                    {slide2Tag && (
-                      <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
-                        {slide2Tag}
-                      </span>
-                    )}
+                    <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
+                      {slide2Tag}
+                    </span>
                     <h2 className="text-5xl font-bold font-serif text-black leading-tight">
                       {slide2Title}
                     </h2>
@@ -377,19 +444,21 @@ export function MainHorizontalScroll({
                     viewport={{ once: true }}
                     className="col-span-6 relative aspect-square w-full rounded-3xl overflow-hidden border border-[#E1DDD5] bg-white shadow-2xl"
                   >
-                    <Image
-                      src={config.tech_image}
-                      alt={slide2Title}
-                      fill
-                      sizes="(max-width: 1200px) 50vw, 33vw"
-                      className="object-cover mix-blend-multiply opacity-95"
-                    />
+                    {slide2Image && (
+                      <Image
+                        src={slide2Image}
+                        alt={slide2Title}
+                        fill
+                        sizes="50vw"
+                        className="object-cover mix-blend-multiply opacity-95"
+                      />
+                    )}
                   </motion.div>
                 </div>
               </div>
             )}
 
-            {/* SLIDE 5 */}
+            {/* SLIDE 5: VÂN NHÁM CR-PETG (ĐỌC RIÊNG BIỆT CONFIG.SLIDE3_IMAGE) */}
             {slide3Title && (
               <div className="w-[100vw] h-full shrink-0 flex items-center justify-center px-24 border-r border-[#E1DDD5]/50 bg-[#FCFAF2]">
                 <div className="mx-auto max-w-7xl w-full grid grid-cols-12 gap-16 items-center">
@@ -400,11 +469,9 @@ export function MainHorizontalScroll({
                     viewport={{ once: true }}
                     className="col-span-6 space-y-6 text-left"
                   >
-                    {slide3Tag && (
-                      <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
-                        {slide3Tag}
-                      </span>
-                    )}
+                    <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
+                      {slide3Tag}
+                    </span>
                     <h2 className="text-5xl font-bold font-serif text-black leading-tight">
                       {slide3Title}
                     </h2>
@@ -421,13 +488,15 @@ export function MainHorizontalScroll({
                     viewport={{ once: true }}
                     className="col-span-6 relative aspect-square w-full rounded-3xl overflow-hidden border border-[#E1DDD5] bg-white shadow-2xl"
                   >
-                    <Image
-                      src={config.hero_image}
-                      alt={slide3Title}
-                      fill
-                      sizes="(max-width: 1200px) 50vw, 33vw"
-                      className="object-cover mix-blend-multiply opacity-95"
-                    />
+                    {slide3Image && (
+                      <Image
+                        src={slide3Image}
+                        alt={slide3Title}
+                        fill
+                        sizes="50vw"
+                        className="object-cover mix-blend-multiply opacity-95"
+                      />
+                    )}
                   </motion.div>
                 </div>
               </div>
@@ -441,8 +510,6 @@ export function MainHorizontalScroll({
 
             {/* SLIDE 7.1 FEATURED PRODUCTS */}
             <div className="w-[100vw] h-full shrink-0 flex items-center justify-center px-24 border-r border-[#E1DDD5]/50 bg-[#F5F1E6] relative overflow-hidden">
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] aspect-square rounded-full bg-gradient-radial from-[#FF8A00]/8 to-transparent blur-3xl pointer-events-none" />
-
               <div className="w-full max-w-7xl relative z-10">
                 <div className="flex justify-between items-end border-b pb-6 border-[#E1DDD5] mb-8 text-left">
                   <div>
@@ -467,8 +534,6 @@ export function MainHorizontalScroll({
             {/* SLIDE 7.2 SALE PRODUCTS */}
             {hasSaleProducts && (
               <div className="w-[100vw] h-full shrink-0 flex items-center justify-center px-24 border-r border-[#E1DDD5]/50 bg-[#FBF9F4] relative overflow-hidden">
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] aspect-square rounded-full bg-gradient-radial from-[#E26E67]/6 to-transparent blur-3xl pointer-events-none" />
-
                 <div className="w-full max-w-7xl relative z-10">
                   <div className="flex justify-between items-end border-b pb-6 border-[#E1DDD5] mb-8 text-left">
                     <div>
@@ -491,7 +556,7 @@ export function MainHorizontalScroll({
               </div>
             )}
 
-            {/* SLIDE 8 COLLECTIONS (DESKTOP - HIỂN THỊ CÂU MÔ TẢ TỪ SUPABASE) */}
+            {/* SLIDE 8 COLLECTIONS */}
             <div className="w-[100vw] h-full shrink-0 flex items-center justify-center px-24 border-r border-[#E1DDD5]/50 bg-[#FCFAF2]">
               <div className="w-full max-w-7xl">
                 <div className="border-b pb-6 border-[#E1DDD5] mb-8 text-left">
@@ -505,35 +570,23 @@ export function MainHorizontalScroll({
                 <div className="grid gap-6 grid-cols-3 bg-[#FCFAF2]">
                   {categories
                     ?.filter((c) => c.active !== false)
-                    .map((cat, idx) => (
+                    .map((cat) => (
                       <motion.div key={cat.id} whileHover={{ y: -8 }}>
                         <Link
                           href={`/shop?category=${cat.slug}`}
                           className="group relative aspect-square rounded-3xl overflow-hidden border border-[#E1DDD5] bg-[#EAE5D9]/40 shadow-sm transition-all hover:border-[#1E1C1A] block"
                         >
                           <Image
-                            src={
-                              cat.image_url ||
-                              cat.imageUrl ||
-                              (idx === 0
-                                ? config.diy_image
-                                : idx === 1
-                                  ? config.tech_image
-                                  : config.hero_image)
-                            }
+                            src={cat.image_url || cat.imageUrl || slide1Image}
                             alt={cat.name}
                             fill
                             sizes="33vw"
                             className="object-cover mix-blend-multiply opacity-80 group-hover:opacity-90"
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex flex-col justify-end p-8 text-white text-left">
-                            {/* <span className="text-[10px] font-mono uppercase tracking-widest text-amber-400 font-bold">
-                              {cat.name}
-                            </span> */}
-                            <h3 className="text-2xl  text-amber-400 font-bold font-serif mt-1">
+                            <h3 className="text-2xl text-amber-400 font-bold font-serif mt-1">
                               {cat.name}
                             </h3>
-                            {/* HIỂN THỊ DÒNG MÔ TẢ DỮ LIỆU TỪ SUPABASE CSDL */}
                             <p className="text-xs text-neutral-200 font-sans mt-1.5 line-clamp-2 leading-relaxed font-medium">
                               {cat.description ||
                                 cat.desc ||
@@ -547,7 +600,7 @@ export function MainHorizontalScroll({
               </div>
             </div>
 
-            {/* SLIDE 9 THE JOURNAL - ĐỔI TIÊU ĐỀ THÀNH "NHẬT KÝ HÀNH TRÌNH" */}
+            {/* SLIDE 9 THE JOURNAL */}
             <div className="w-[100vw] h-full shrink-0 flex items-center justify-center px-24 border-r border-[#E1DDD5]/50 bg-[#F9F6ED]">
               <div className="w-full max-w-7xl">
                 <div className="flex justify-between items-end border-b pb-6 border-[#E1DDD5] mb-8 text-left">
@@ -619,26 +672,7 @@ export function MainHorizontalScroll({
                   backgroundSize: "4px 4px",
                 }}
               >
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[120%] aspect-square rounded-full bg-gradient-radial from-[#FF8A00]/18 to-transparent blur-3xl -translate-y-[80%]" />
-
                 <div className="max-w-7xl px-24 relative z-10 w-full flex flex-col lg:flex-row items-center justify-between gap-12">
-                  <div className="shrink-0 flex items-center justify-center bg-white/5 border border-white/10 rounded-full p-6 size-24">
-                    <svg
-                      viewBox="0 0 100 100"
-                      className="w-full h-full text-[#3ECF8E]"
-                    >
-                      <circle
-                        cx="50"
-                        cy="50"
-                        r="28"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeDasharray="6 4"
-                      />
-                      <circle cx="50" cy="50" r="14" fill="currentColor" />
-                    </svg>
-                  </div>
                   <div className="space-y-4 text-left flex-1 max-w-3xl">
                     <h3 className="text-2xl sm:text-3xl font-serif leading-relaxed italic text-white/95">
                       {prefooterTitle}

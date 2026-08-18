@@ -48,9 +48,9 @@ export default function PrivacyPolicyPage() {
                 chỉ email, địa chỉ giao nhận hàng và ghi chú đơn hàng.
               </li>
               <li>
-                <strong>Mục đích:</strong> Xử lý đơn hàng qua đơn vị GHN/J&amp;T
-                Express, khởi tạo mã VietQR động, hỗ trợ bảo hành chất liệu
-                CR-PETG và đối soát thuế điện tử.
+                <strong>Mục đích:</strong> Xử lý đơn hàng qua đơn vị GHN/Viettel
+                Post, khởi tạo mã VietQR động, hỗ trợ bảo hành chất liệu CR-PETG
+                và đối soát thuế điện tử.
               </li>
             </ul>
           </section>

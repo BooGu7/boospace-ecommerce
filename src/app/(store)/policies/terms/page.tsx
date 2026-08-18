@@ -41,7 +41,7 @@ export default function TermsPage() {
               </li>
               <li>
                 <strong>Thanh toán COD:</strong> Áp dụng cho các đơn hàng tiêu
-                chuẩn trên toàn quốc qua GHN và J&amp;T Express.
+                chuẩn trên toàn quốc qua GHN và Viettel Post.
               </li>
             </ul>
           </section>

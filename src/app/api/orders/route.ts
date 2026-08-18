@@ -10,7 +10,6 @@ interface DbProductItem {
   published: boolean | null;
 }
 
-// 1. HÀM GET LẤY THÔNG TIN ĐƠN HÀNG DỰA VÀO CỘT CODE
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -23,7 +22,6 @@ export async function GET(request: Request) {
       );
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let supabaseAdmin: any;
     try {
       supabaseAdmin = getSupabaseAdmin();
@@ -31,7 +29,6 @@ export async function GET(request: Request) {
       supabaseAdmin = createSupabaseServerClient();
     }
 
-    // Truy vấn đơn hàng theo cột 'code'
     const { data: order, error } = await supabaseAdmin
       .from("orders")
       .select("*, order_items(*)")
@@ -39,28 +36,14 @@ export async function GET(request: Request) {
       .maybeSingle();
 
     if (error || !order) {
-      console.error("[API_GET_ORDER_NOT_FOUND]", error);
       return NextResponse.json(
         { success: false, error: "Không tìm thấy đơn hàng." },
         { status: 404 },
       );
     }
 
-    // Dự phòng nếu quan hệ order_items chưa nạp
-    if (order && (!order.order_items || order.order_items.length === 0)) {
-      const { data: items } = await supabaseAdmin
-        .from("order_items")
-        .select("*")
-        .eq("order_id", order.id);
-      order.order_items = items || [];
-    }
-
-    return NextResponse.json({
-      success: true,
-      order,
-    });
+    return NextResponse.json({ success: true, order });
   } catch (err) {
-    console.error("[API_GET_ORDER_ERROR]", err);
     return NextResponse.json(
       { success: false, error: "Lỗi máy chủ nội bộ." },
       { status: 500 },
@@ -68,38 +51,21 @@ export async function GET(request: Request) {
   }
 }
 
-// 2. HÀM POST TẠO ĐƠN HÀNG MỚI (CHỦ ĐỘNG ĐỂ POSTGRES TỰ SINH UUID CHO CỘT ID)
 export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    const customerEmail = (
-      body.customerEmail ||
-      body.customer_email ||
-      body.email ||
-      ""
-    )
+    const customerEmail = (body.customerEmail || body.customer_email || "")
       .toString()
       .trim()
       .toLowerCase();
-    const customerName = (
-      body.customerName ||
-      body.customer_name ||
-      body.name ||
-      ""
-    )
+    const customerName = (body.customerName || body.customer_name || "")
       .toString()
       .trim();
-    const customerPhone = (
-      body.customerPhone ||
-      body.customer_phone ||
-      body.phone ||
-      ""
-    )
+    const customerPhone = (body.customerPhone || body.customer_phone || "")
       .toString()
       .trim();
 
-    // Đảm bảo customer_id phải là UUID hợp lệ hoặc NULL
     const rawCustomerId = body.customerId || body.customer_id;
     const isUuid =
       typeof rawCustomerId === "string" && rawCustomerId.length === 36;
@@ -127,25 +93,16 @@ export async function POST(request: Request) {
       );
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!customerEmail || !emailRegex.test(customerEmail)) {
-      return NextResponse.json(
-        { success: false, error: "Dữ liệu email nhận thông báo không hợp lệ." },
-        { status: 400 },
-      );
-    }
-
     if (!customerPhone || !customerName) {
       return NextResponse.json(
         {
           success: false,
-          error: "Thiếu thông tin người nhận hàng hoặc số điện thoại.",
+          error: "Thiếu thông tin người nhận hoặc số điện thoại.",
         },
         { status: 400 },
       );
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let supabaseAdmin: any;
     try {
       supabaseAdmin = getSupabaseAdmin();
@@ -153,11 +110,8 @@ export async function POST(request: Request) {
       supabaseAdmin = createSupabaseServerClient();
     }
 
-    // LẤY GIÁ BÁN THỰC TẾ TỪ SUPABASE DATABASE
-    const productIds = items.map(
-      (i: { productId?: string; product_id?: string }) =>
-        i.productId || i.product_id,
-    );
+    // LẤY GIÁ BÁN THỰC TẾ TỪ DATABASE
+    const productIds = items.map((i: any) => i.productId || i.product_id);
     const { data: dbProducts, error: productsError } = await supabaseAdmin
       .from("products")
       .select("id, name, price, published")
@@ -223,12 +177,22 @@ export async function POST(request: Request) {
       calculatedSubtotal * (discountPercent / 100),
     );
 
-    // TÍNH PHÍ VẬN CHUYỂN
-    const city = shippingAddress?.city || "";
+    // TÍNH PHÍ VẬN CHUYỂN SERVER-SIDE
+    const city = (shippingAddress?.city || "").toLowerCase();
     const isHCM =
-      city.toLowerCase().includes("hồ chí minh") ||
-      city.toLowerCase().includes("hcm");
-    const serverShippingFee = isHCM ? 0 : siteConfig.shipping.standardFee;
+      city.includes("hồ chí minh") ||
+      city.includes("hcm") ||
+      city.includes("sài gòn");
+
+    let serverShippingFee = 0;
+    if (
+      isHCM ||
+      calculatedSubtotal >= (siteConfig.freeShippingThreshold || 500000)
+    ) {
+      serverShippingFee = 0;
+    } else {
+      serverShippingFee = Number(body.shipping || 30000);
+    }
 
     const finalTotal = calculatedSubtotal - discountAmount + serverShippingFee;
     const orderCode =
@@ -239,11 +203,11 @@ export async function POST(request: Request) {
       shippingAddress?.formattedAddress ||
       `${shippingAddress?.line1 || ""}, ${shippingAddress?.district || ""}, ${shippingAddress?.city || ""}`;
 
-    // LƯU ĐƠN HÀNG (KHÔNG TRUYỀN ID CỨNG ĐỂ POSTGRES TỰ TẠO UUID HỢP LỆ)
+    // LƯU VÀO BẢNG ORDERS (ẨN TÊN ĐVVC, CHỈ LƯU "Giao hàng tiêu chuẩn")
     const { data: createdOrder, error: orderError } = await supabaseAdmin
       .from("orders")
       .insert({
-        code: orderCode, // Mã dạng chuỗi ORD-...
+        code: orderCode,
         customer_id: customerId,
         customer_name: customerName,
         customer_email: customerEmail,
@@ -253,55 +217,37 @@ export async function POST(request: Request) {
         subtotal: calculatedSubtotal,
         shipping: serverShippingFee,
         total: finalTotal,
-        order_status: "Pending",
+        order_status: "pending",
         payment_status: "Pending",
         payment_method: savedPaymentMethod,
         applied_coupon_id: appliedCouponId,
+        shipping_carrier: "Giao hàng tiêu chuẩn",
         notes: notes || "",
       })
       .select("id, code, total")
       .single();
 
     if (orderError || !createdOrder) {
-      console.error("[SERVER_ORDER_INSERT_ERROR]", orderError);
       return NextResponse.json(
-        {
-          success: false,
-          error: `Không thể tạo đơn hàng: ${orderError?.message}`,
-        },
+        { success: false, error: `Không thể tạo đơn: ${orderError?.message}` },
         { status: 500 },
       );
     }
 
-    // CHÈN SẢN PHẨM VÀO BẢNG ORDER_ITEMS
     const itemsToInsert = verifiedOrderItems.map((item) => ({
-      order_id: createdOrder.id, // Sử dụng UUID thực tế vừa tạo
+      order_id: createdOrder.id,
       ...item,
     }));
 
-    const { error: itemsInsertError } = await supabaseAdmin
-      .from("order_items")
-      .insert(itemsToInsert);
-
-    if (itemsInsertError) {
-      console.error("[SERVER_ITEMS_INSERT_ERROR]", itemsInsertError);
-      await supabaseAdmin.from("orders").delete().eq("id", createdOrder.id);
-      return NextResponse.json(
-        { success: false, error: "Lỗi lưu chi tiết đơn hàng." },
-        { status: 500 },
-      );
-    }
+    await supabaseAdmin.from("order_items").insert(itemsToInsert);
 
     return NextResponse.json({
       success: true,
       orderId: createdOrder.code,
       total: createdOrder.total,
     });
-  } catch (err) {
-    console.error("[API_ORDERS_ERROR]", err);
-    return NextResponse.json(
-      { success: false, error: "Lỗi máy chủ nội bộ." },
-      { status: 500 },
-    );
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Lỗi máy chủ nội bộ";
+    return NextResponse.json({ success: false, error: msg }, { status: 500 });
   }
 }

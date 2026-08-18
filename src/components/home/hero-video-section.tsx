@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 import { toast } from "sonner";
@@ -8,16 +8,20 @@ import { MagneticButton } from "@/components/ui/magnetic-button";
 import { MotionWrapper } from "@/components/ui/motion-wrapper";
 
 interface HeroVideoSectionProps {
-  heroImage: string;
-  heroVideo: string;
-  heroSubtitle: string;
+  heroImage?: string;
+  heroVideo?: string;
+  heroSubtitle?: string;
+  featuredHeading?: string;
+  featuredDesc?: string;
   onExploreClick?: () => void;
 }
 
 export function HeroVideoSection({
   heroImage,
   heroVideo,
-  heroSubtitle: _heroSubtitle,
+  heroSubtitle,
+  featuredHeading,
+  featuredDesc,
   onExploreClick,
 }: HeroVideoSectionProps) {
   const router = useRouter();
@@ -69,15 +73,14 @@ export function HeroVideoSection({
     }
   };
 
-  const validVideoUrl =
-    heroVideo && heroVideo.trim() !== ""
-      ? heroVideo
-      : "https://amukhgkamrokbbcjgusf.supabase.co/storage/v1/object/public/co-creation-files/hero-ambient.mp4";
+  // Sử dụng dữ liệu thực tế từ Supabase
+  const videoUrl = heroVideo || "";
+  const bgImageUrl = heroImage || "";
 
   return (
     <section
       className="relative min-h-screen w-screen flex items-center overflow-hidden bg-cover bg-center"
-      style={{ backgroundImage: `url(${heroImage})` }}
+      style={{ backgroundImage: bgImageUrl ? `url(${bgImageUrl})` : undefined }}
     >
       <div className="absolute inset-0 bg-black/45 z-0" />
 
@@ -91,37 +94,45 @@ export function HeroVideoSection({
           </MotionWrapper>
         </div>
 
+        {/* TIÊU ĐỀ & MÔ TẢ NẠP 100% TỪ SUPABASE */}
         <div className="max-w-3xl space-y-6 pt-16 text-left">
           <MotionWrapper direction="up" delay={200}>
             <h1 className="text-5xl sm:text-7xl font-bold tracking-tight text-white leading-[1.05] font-serif text-drop-shadow">
-              Không gian độc bản.
-              <br />
-              <span className="text-[#3ECF8E] italic font-medium font-serif">
-                Thân thiện và Tinh tế.
-              </span>
+              {featuredHeading ? (
+                featuredHeading
+              ) : (
+                <>
+                  Không gian độc bản.
+                  <br />
+                  <span className="text-[#3ECF8E] italic font-medium font-serif">
+                    Thân thiện và Tinh tế.
+                  </span>
+                </>
+              )}
             </h1>
           </MotionWrapper>
+
           <MotionWrapper direction="up" delay={300}>
             <p className="text-base sm:text-lg text-neutral-100 leading-relaxed max-w-lg font-sans text-drop-shadow font-medium">
-              Định nghĩa lại góc sống bằng những chiếc đèn nghệ thuật và vật
-              dụng in 3D mang ngôn ngữ tối giản. Chất liệu sinh học lành tính
-              giúp dọn dẹp mọi xao nhãng số, trả lại sự ấm áp thuần khiết cho
-              tâm trí.
+              {featuredDesc || heroSubtitle || ""}
             </p>
           </MotionWrapper>
         </div>
 
         <div className="flex flex-col lg:flex-row items-stretch lg:items-end justify-between gap-8 pt-12">
+          {/* KHUNG VIDEO HERO */}
           <MotionWrapper direction="right" delay={400}>
             <div className="relative w-48 sm:w-64 aspect-[16/10] rounded-2xl overflow-hidden border-2 border-[#3ECF8E] bg-black/40 group cursor-pointer shadow-lg flex items-center justify-center">
-              {!mounted || videoError ? (
-                <div
-                  className="absolute inset-0 bg-cover bg-center opacity-80"
-                  style={{ backgroundImage: `url(${heroImage})` }}
-                />
+              {!mounted || videoError || !videoUrl ? (
+                bgImageUrl ? (
+                  <div
+                    className="absolute inset-0 bg-cover bg-center opacity-80"
+                    style={{ backgroundImage: `url(${bgImageUrl})` }}
+                  />
+                ) : null
               ) : (
                 <video
-                  src={validVideoUrl}
+                  src={videoUrl}
                   autoPlay
                   muted
                   loop
@@ -134,6 +145,7 @@ export function HeroVideoSection({
             </div>
           </MotionWrapper>
 
+          {/* KHUNG ĐĂNG KÝ BẢN TIN & NÚT KHÁM PHÁ */}
           <div className="space-y-4 max-w-sm w-full text-left">
             {!isClosed && (
               <MotionWrapper direction="left" delay={450}>
@@ -149,7 +161,6 @@ export function HeroVideoSection({
                     <p className="font-bold text-xs text-black font-sans">
                       Bản tin Boo Space
                     </p>
-                    {/* TĂNG ĐỘ TƯƠNG PHẢN CHO CHỮ NHỎ DÒNG SUBTITLE BAN TIN */}
                     <p className="text-[10px] text-[#2D2A26] font-mono tracking-wider font-bold">
                       NHẬN CẢM HỨNG KHÔNG GIAN · KHÔNG SPAM
                     </p>
@@ -188,9 +199,8 @@ export function HeroVideoSection({
               >
                 KHÁM PHÁ BỘ SƯU TẬP <ArrowRight className="size-4 text-black" />
               </MagneticButton>
-              {/* TĂNG ĐỘ TƯƠNG PHẢN CHO DÒNG MIỄN PHÍ VẬN CHUYỂN */}
               <p className="text-center text-xs text-white font-mono tracking-wider font-semibold">
-                {"✓"} Miễn phí vận chuyển nội thành TP. Hồ Chí Minh
+                ✓ Miễn phí vận chuyển nội thành TP. Hồ Chí Minh
               </p>
             </MotionWrapper>
           </div>

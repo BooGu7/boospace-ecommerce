@@ -1,6 +1,19 @@
 "use client";
 
-import { Banknote, HelpCircle, Loader2, QrCode, Video } from "lucide-react";
+import {
+  Banknote,
+  ChevronDown,
+  HelpCircle,
+  Loader2,
+  MapPin,
+  Package,
+  Phone,
+  QrCode,
+  ShieldCheck,
+  Truck,
+  User,
+  Video,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -33,7 +46,6 @@ interface UserAddress {
   firstName?: string;
   lastName?: string;
   line1?: string;
-  line2?: string;
   district?: string;
   city?: string;
   state?: string;
@@ -43,6 +55,16 @@ interface UserAddress {
   formattedAddress?: string;
 }
 
+interface GHNProvince {
+  ProvinceID: number;
+  ProvinceName: string;
+}
+
+interface GHNDistrict {
+  DistrictID: number;
+  DistrictName: string;
+}
+
 const formatVND = (amount: number) => {
   return new Intl.NumberFormat("vi-VN", {
     style: "currency",
@@ -50,6 +72,20 @@ const formatVND = (amount: number) => {
     maximumFractionDigits: 0,
   }).format(amount);
 };
+
+// HÀM KIỂM TRA TP. HỒ CHÍ MINH CHUẨN XÁC 100% (THEO ID HOẶC TÊN)
+function checkIsHCMC(provinceId: number, cityName: string): boolean {
+  if (provinceId === 202) return true; // Mã ID chính thức của TP.HCM trên GHN
+  const clean = (cityName || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+  return (
+    clean.includes("ho chi minh") ||
+    clean.includes("hcm") ||
+    clean.includes("sai gon")
+  );
+}
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -70,20 +106,27 @@ export default function CheckoutPage() {
     "vietqr",
   );
 
+  // Danh sách Tỉnh / Huyện GHN
+  const [provinces, setProvinces] = useState<GHNProvince[]>([]);
+  const [districts, setDistricts] = useState<GHNDistrict[]>([]);
+  const [selectedProvinceId, setSelectedProvinceId] = useState<number>(202); // 202 = TP.HCM
+  const [selectedDistrictId, setSelectedDistrictId] = useState<number>(1446); // 1446 = Bình Thạnh
+  const [selectedWardCode, _setSelectedWardCode] = useState<string>("20601");
+
   const [form, setForm] = useState({
     email: "",
     phone: "",
     firstName: "",
     lastName: "",
     line1: "",
-    line2: "",
-    district: "",
-    city: "TP. Hồ Chí Minh",
-    state: "Việt Nam",
-    postalCode: "700000",
-    country: "VN",
+    district: "Quận Bình Thạnh",
+    city: "Hồ Chí Minh",
     notes: "",
   });
+
+  // State Cước vận chuyển GHN
+  const [shippingFee, setShippingFee] = useState(0);
+  const [isCalculatingShip, setIsCalculatingShip] = useState(false);
 
   const [couponCode, setCouponCode] = useState("");
   const [applying, setApplying] = useState(false);
@@ -94,34 +137,140 @@ export default function CheckoutPage() {
   const [addonsLoading, setAddonsLoading] = useState(true);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
+  // 1. NẠP DANH SÁCH 63 TỈNH THÀNH GHN
+  useEffect(() => {
+    if (!mounted) return;
+    async function loadProvinces() {
+      try {
+        const res = await fetch("/api/shipping/locations");
+        const data = await res.json();
+        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+          setProvinces(data.data);
+          const hcm = data.data.find(
+            (p: GHNProvince) =>
+              p.ProvinceID === 202 || p.ProvinceName.includes("Hồ Chí Minh"),
+          );
+          if (hcm) {
+            setSelectedProvinceId(hcm.ProvinceID);
+            setForm((prev) => ({ ...prev, city: hcm.ProvinceName }));
+          }
+        }
+      } catch (err) {
+        console.error("Lỗi nạp tỉnh thành GHN:", err);
+      }
+    }
+    loadProvinces();
+  }, [mounted]);
+
+  // 2. NẠP DANH SÁCH QUẬN / HUYỆN KHI ĐỔI TỈNH
+  useEffect(() => {
+    if (!selectedProvinceId) return;
+
+    async function loadDistricts() {
+      try {
+        const res = await fetch(
+          `/api/shipping/locations?provinceId=${selectedProvinceId}`,
+        );
+        const data = await res.json();
+        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+          setDistricts(data.data);
+          const firstDist = data.data[0];
+          setSelectedDistrictId(firstDist.DistrictID);
+          setForm((prev) => ({ ...prev, district: firstDist.DistrictName }));
+        }
+      } catch (err) {
+        console.error("Lỗi nạp quận huyện GHN:", err);
+      }
+    }
+    loadDistricts();
+  }, [selectedProvinceId]);
+
+  // 3. TÍNH TOÁN CƯỚC VẬN CHUYỂN CHUẨN XÁC: MIỄN PHÍ HCM VÀ ĐƠN >= 500K, CÒN LẠI LẤY CƯỚC GHN
+  useEffect(() => {
+    if (!mounted || items.length === 0) return;
+
+    const subtotalCents = getSubtotal();
+    const subtotalVND =
+      (subtotalCents - Math.round(subtotalCents * (discountPercent / 100))) /
+      100;
+    const isHCM = checkIsHCMC(selectedProvinceId, form.city);
+
+    // [QUY TẮC 1 & 2]: Miễn phí nếu ở TP.HCM HOẶC đơn hàng >= 500.000 ₫
+    if (isHCM || subtotalVND >= (siteConfig.freeShippingThreshold || 500000)) {
+      setShippingFee(0);
+      setIsCalculatingShip(false);
+      return;
+    }
+
+    // [QUY TẮC 3]: Ngoại tỉnh < 500k -> Gọi API GHN tính cước thật
+    async function fetchGHNShippingFee() {
+      setIsCalculatingShip(true);
+      try {
+        const res = await fetch("/api/shipping/calculate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            city: form.city,
+            provinceId: selectedProvinceId,
+            districtId: selectedDistrictId,
+            wardCode: selectedWardCode,
+            subtotal: subtotalVND,
+            weightGrams: items.reduce(
+              (sum, item) => sum + item.quantity * 250,
+              100,
+            ),
+          }),
+        });
+        const data = await res.json();
+        if (data.success && typeof data.fee === "number") {
+          setShippingFee(data.fee);
+        } else {
+          setShippingFee(34000);
+        }
+      } catch {
+        setShippingFee(34000);
+      } finally {
+        setIsCalculatingShip(false);
+      }
+    }
+
+    const timer = setTimeout(fetchGHNShippingFee, 150);
+    return () => clearTimeout(timer);
+  }, [
+    mounted,
+    selectedProvinceId,
+    form.city,
+    selectedDistrictId,
+    selectedWardCode,
+    items,
+    discountPercent,
+    getSubtotal,
+  ]);
+
+  // Nạp thông tin tài khoản nếu đã đăng nhập
   useEffect(() => {
     if (mounted && isAuthenticated && user) {
       const userAddresses = (user.addresses || []) as UserAddress[];
       const defaultAddr =
         userAddresses.find((a) => a.isDefault) || userAddresses[0];
 
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setForm({
         email: user.email || "",
         phone: defaultAddr?.phone || (user as { phone?: string }).phone || "",
         firstName: user.firstName || defaultAddr?.firstName || "",
         lastName: user.lastName || defaultAddr?.lastName || "",
         line1: defaultAddr?.line1 || "",
-        line2: defaultAddr?.line2 || "",
-        district: defaultAddr?.district || defaultAddr?.city || "",
-        city: defaultAddr?.city || "TP. Hồ Chí Minh",
-        state: defaultAddr?.state || "Việt Nam",
-        postalCode: defaultAddr?.postalCode || "700000",
-        country: "VN",
+        district: defaultAddr?.district || "Quận Bình Thạnh",
+        city: defaultAddr?.city || "Hồ Chí Minh",
         notes: "",
       });
     }
   }, [mounted, isAuthenticated, user]);
 
+  // Nạp sản phẩm mua kèm
   useEffect(() => {
     if (!mounted) return;
 
@@ -149,21 +298,21 @@ export default function CheckoutPage() {
   if (!mounted) {
     return (
       <div className="min-h-screen bg-[#FCFAF2] flex items-center justify-center">
-        <Loader2 className="size-6 rounded-full border-2 border-[#E1DDD5] border-t-[#FF9D00] animate-spin" />
+        <Loader2 className="size-6 text-[#FF9D00] animate-spin" />
       </div>
     );
   }
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-[#FCFAF2] flex items-center justify-center">
-        <div className="mx-auto max-w-3xl px-4 py-32 text-center text-[#1E1C1A] space-y-6">
-          <h1 className="font-serif text-3xl font-bold">
+      <div className="min-h-screen bg-[#FCFAF2] flex items-center justify-center px-4">
+        <div className="max-w-md w-full text-center space-y-6">
+          <Package className="size-16 text-[#786F66] mx-auto stroke-[1.25]" />
+          <h1 className="font-serif text-3xl font-bold text-black">
             Giỏ hàng của bạn đang trống
           </h1>
-          <p className="text-sm font-sans text-[#786F66]">
-            Vui lòng thêm một vài sản phẩm chế tác custom trước khi thanh toán
-            nhé ✨
+          <p className="text-xs font-sans text-[#786F66]">
+            Vui lòng thêm sản phẩm vào giỏ hàng trước khi thanh toán nhé ✨
           </p>
           <Button
             className="rounded-xl bg-black hover:bg-[#33302C] text-white font-mono uppercase text-xs font-bold tracking-wider py-4 px-6 cursor-pointer"
@@ -177,13 +326,6 @@ export default function CheckoutPage() {
   }
 
   const subtotal = getSubtotal();
-
-  // CHÍNH SÁCH SHIP: Miễn phí HCM, Tỉnh lẻ 30.000đ
-  const isHCM =
-    form.city.toLowerCase().includes("hồ chí minh") ||
-    form.city.toLowerCase().includes("hcm");
-  const shippingFee = isHCM ? 0 : siteConfig.shipping.standardFee;
-
   const discountAmount = Math.round(subtotal * (discountPercent / 100));
   const tax = 0;
   const total = subtotal - discountAmount + shippingFee * 100 + tax;
@@ -244,9 +386,29 @@ export default function CheckoutPage() {
   }
 
   function handleChange(
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+  }
+
+  function handleProvinceChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    const provId = Number(e.target.value);
+    setSelectedProvinceId(provId);
+    const matched = provinces.find((p) => p.ProvinceID === provId);
+    if (matched) {
+      setForm((prev) => ({ ...prev, city: matched.ProvinceName }));
+    }
+  }
+
+  function handleDistrictChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    const distId = Number(e.target.value);
+    setSelectedDistrictId(distId);
+    const matched = districts.find((d) => d.DistrictID === distId);
+    if (matched) {
+      setForm((prev) => ({ ...prev, district: matched.DistrictName }));
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -267,19 +429,17 @@ export default function CheckoutPage() {
 
     setLoading(true);
     const orderId = `ORD-${Date.now().toString(36).toUpperCase()}`;
-
-    const formattedAddressStr = `${form.line1}${form.line2 ? `, ${form.line2}` : ""}, ${form.district}, ${form.city}, ${form.state}`;
+    const formattedAddressStr = `${form.line1}, ${form.district}, ${form.city}, Việt Nam`;
 
     const fullAddressObj: UserAddress = {
       id: `addr-${Date.now()}`,
       firstName: form.firstName || "",
       lastName: form.lastName,
       line1: form.line1,
-      line2: form.line2 || "",
       district: form.district,
       city: form.city,
-      state: form.state || "Việt Nam",
-      postalCode: form.postalCode.trim() || "700000",
+      state: "Việt Nam",
+      postalCode: "700000",
       country: "VN",
       phone: form.phone,
       formattedAddress: formattedAddressStr,
@@ -324,10 +484,7 @@ export default function CheckoutPage() {
           } as unknown as typeof user);
         }
       } catch (err) {
-        console.warn(
-          "Chưa thể đồng bộ user vào public.users, khởi tạo dưới dạng đơn vãng lai:",
-          err,
-        );
+        console.warn("Lỗi lưu địa chỉ tài khoản:", err);
       }
     }
 
@@ -388,7 +545,6 @@ export default function CheckoutPage() {
         err instanceof Error
           ? err.message
           : "Có lỗi xảy ra, vui lòng thử lại sau.";
-      console.error("[CHECKOUT_SUBMIT_ERROR]", err);
       toast.error(errorMsg);
       setLoading(false);
     }
@@ -398,8 +554,9 @@ export default function CheckoutPage() {
   const filteredAddons = addons.filter((a) => !checkoutProductIds.has(a.id));
 
   return (
-    <div className="bg-[#FCFAF2] min-h-screen w-full relative">
+    <div className="bg-[#FCFAF2] min-h-screen w-full relative selection:bg-[#EAE5D9]">
       <div className="mx-auto max-w-[1440px] px-4 py-12 sm:px-6 lg:px-8 border-x border-[#E1DDD5] bg-[#FCFAF2]/50 text-[#1E1C1A]">
+        {/* TIÊU ĐỀ TRANG: FONT SERIF CAO CẤP */}
         <h1 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-black border-b border-[#E1DDD5] pb-6 text-left">
           Thanh toán đơn hàng
         </h1>
@@ -409,10 +566,11 @@ export default function CheckoutPage() {
           className="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-12"
         >
           <div className="space-y-8 lg:col-span-7">
+            {/* THÔNG TIN LIÊN HỆ */}
             <Card className="rounded-3xl border border-[#DCD6CC] bg-white p-6 shadow-xs text-left">
               <CardHeader className="p-0 pb-4 border-b border-[#E1DDD5]/40 mb-4">
-                <CardTitle className="font-serif text-lg font-bold text-black">
-                  Thông tin liên hệ
+                <CardTitle className="font-serif text-lg font-bold text-black flex items-center gap-2">
+                  <User className="size-4.5 text-[#FF9D00]" /> Thông tin liên hệ
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-0 space-y-4">
@@ -422,7 +580,7 @@ export default function CheckoutPage() {
                       htmlFor="email"
                       className="text-[11px] font-mono font-bold text-[#5c544d] uppercase tracking-wider block"
                     >
-                      Địa chỉ Email nhận thông báo
+                      Địa chỉ Email nhận thông báo *
                     </Label>
                     <Input
                       id="email"
@@ -441,7 +599,7 @@ export default function CheckoutPage() {
                       htmlFor="phone"
                       className="text-[11px] font-mono font-bold text-[#5c544d] uppercase tracking-wider block"
                     >
-                      Số điện thoại liên hệ
+                      Số điện thoại nhận hàng *
                     </Label>
                     <Input
                       id="phone"
@@ -458,10 +616,12 @@ export default function CheckoutPage() {
               </CardContent>
             </Card>
 
+            {/* ĐỊA CHỈ GIAO HÀNG (DROPDOWN 63 TỈNH & QUẬN HUYỆN) */}
             <Card className="rounded-3xl border border-[#DCD6CC] bg-white p-6 shadow-xs text-left">
               <CardHeader className="p-0 pb-4 border-b border-[#E1DDD5]/40 mb-4">
-                <CardTitle className="font-serif text-lg font-bold text-black">
-                  Địa chỉ giao hàng
+                <CardTitle className="font-serif text-lg font-bold text-black flex items-center gap-2">
+                  <MapPin className="size-4.5 text-[#3ECF8E]" /> Địa chỉ giao
+                  nhận
                 </CardTitle>
               </CardHeader>
 
@@ -472,7 +632,7 @@ export default function CheckoutPage() {
                       htmlFor="lastName"
                       className="text-[11px] font-mono font-bold text-[#5c544d] uppercase tracking-wider block"
                     >
-                      Họ của bạn
+                      Họ của bạn *
                     </Label>
                     <Input
                       id="lastName"
@@ -490,7 +650,7 @@ export default function CheckoutPage() {
                       htmlFor="firstName"
                       className="text-[11px] font-mono font-bold text-[#5c544d] uppercase tracking-wider block"
                     >
-                      Tên của bạn
+                      Tên của bạn *
                     </Label>
                     <Input
                       id="firstName"
@@ -509,12 +669,12 @@ export default function CheckoutPage() {
                     htmlFor="line1"
                     className="text-[11px] font-mono font-bold text-[#5c544d] uppercase tracking-wider block"
                   >
-                    Địa chỉ nhận hàng (Số nhà, tên đường...)
+                    Địa chỉ chi tiết (Số nhà, tên đường...) *
                   </Label>
                   <Input
                     id="line1"
                     name="line1"
-                    placeholder="Ví dụ: 123 Đường Ba Tháng Hai"
+                    placeholder="Ví dụ: 19/16 Lam Sơn, Phường Đức Nhuận..."
                     value={form.line1}
                     onChange={handleChange}
                     required
@@ -522,90 +682,101 @@ export default function CheckoutPage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-3 gap-4">
+                {/* 2 DROPDOWN LIÊN KẾT: TỈNH / THÀNH PHỐ & QUẬN / HUYỆN */}
+                <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label
-                      htmlFor="district"
-                      className="text-[11px] font-mono font-bold text-[#5c544d] uppercase tracking-wider block"
-                    >
-                      Quận / Huyện
+                    <Label className="text-[11px] font-mono font-bold text-[#5c544d] uppercase tracking-wider block">
+                      Tỉnh / Thành phố *
                     </Label>
-                    <Input
-                      id="district"
-                      name="district"
-                      placeholder="Quận 10"
-                      value={form.district}
-                      onChange={handleChange}
-                      required
-                      className="rounded-xl border-[#CFCABF] focus:border-[#FF9D00] text-sm text-black font-sans font-medium"
-                    />
+                    <div className="relative">
+                      <select
+                        name="city"
+                        value={selectedProvinceId}
+                        onChange={handleProvinceChange}
+                        className="w-full h-10 appearance-none rounded-xl border border-[#CFCABF] bg-white px-3.5 pr-8 text-xs font-sans font-bold text-black outline-none focus:border-[#FF9D00] cursor-pointer"
+                      >
+                        {provinces.length > 0 ? (
+                          provinces.map((p) => (
+                            <option key={p.ProvinceID} value={p.ProvinceID}>
+                              {p.ProvinceName}
+                            </option>
+                          ))
+                        ) : (
+                          <option value={202}>Hồ Chí Minh</option>
+                        )}
+                      </select>
+                      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 size-3.5 text-slate-500" />
+                    </div>
                   </div>
 
                   <div className="space-y-2">
-                    <Label
-                      htmlFor="city"
-                      className="text-[11px] font-mono font-bold text-[#5c544d] uppercase tracking-wider block"
-                    >
-                      Tỉnh / Thành phố
+                    <Label className="text-[11px] font-mono font-bold text-[#5c544d] uppercase tracking-wider block">
+                      Quận / Huyện *
                     </Label>
-                    <Input
-                      id="city"
-                      name="city"
-                      placeholder="TP. Hồ Chí Minh"
-                      value={form.city}
-                      onChange={handleChange}
-                      required
-                      className="rounded-xl border-[#CFCABF] focus:border-[#FF9D00] text-sm text-black font-sans font-medium"
-                    />
+                    <div className="relative">
+                      <select
+                        name="district"
+                        value={selectedDistrictId}
+                        onChange={handleDistrictChange}
+                        className="w-full h-10 appearance-none rounded-xl border border-[#CFCABF] bg-white px-3.5 pr-8 text-xs font-sans font-bold text-black outline-none focus:border-[#FF9D00] cursor-pointer"
+                      >
+                        {districts.length > 0 ? (
+                          districts.map((d) => (
+                            <option key={d.DistrictID} value={d.DistrictID}>
+                              {d.DistrictName}
+                            </option>
+                          ))
+                        ) : (
+                          <option value={1446}>Quận Bình Thạnh</option>
+                        )}
+                      </select>
+                      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 size-3.5 text-slate-500" />
+                    </div>
                   </div>
+                </div>
 
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="postalCode"
-                      className="text-[11px] font-mono font-bold text-[#5c544d] uppercase tracking-wider block"
-                    >
-                      Mã bưu chính
-                    </Label>
-                    <Input
-                      id="postalCode"
-                      name="postalCode"
-                      placeholder="700000"
-                      value={form.postalCode}
-                      onChange={handleChange}
-                      className="rounded-xl border-[#CFCABF] focus:border-[#FF9D00] text-sm text-black font-sans font-medium"
-                    />
+                {/* THÔNG BÁO CƯỚC VẬN CHUYỂN TIÊU CHUẨN */}
+                <div className="p-3.5 rounded-2xl bg-[#FCFAF2] border border-[#E1DDD5] flex items-center justify-between text-xs font-sans">
+                  <div className="flex items-center gap-2">
+                    <Truck className="size-4 text-[#786F66]" />
+                    <span className="text-[#5c544d]">
+                      Hình thức: <strong>Giao hàng tiêu chuẩn</strong>
+                    </span>
                   </div>
+                  <span className="font-mono font-bold text-sm">
+                    {isCalculatingShip ? (
+                      <Loader2 className="size-3.5 animate-spin text-[#FF9D00]" />
+                    ) : shippingFee === 0 ? (
+                      <span className="text-[#3ECF8E]">MIỄN PHÍ</span>
+                    ) : (
+                      formatVND(shippingFee)
+                    )}
+                  </span>
                 </div>
               </CardContent>
             </Card>
 
+            {/* GHI CHÚ ĐƠN HÀNG */}
             <Card className="rounded-3xl border border-[#DCD6CC] bg-white p-6 shadow-xs text-left">
-              <CardHeader className="p-0 pb-4 border-b border-[#E1DDD5]/40 mb-4">
-                <CardTitle className="font-serif text-lg font-bold text-black">
-                  Ghi chú chế tác &amp; Giao hàng
+              <CardHeader className="p-0 pb-3 border-b border-[#E1DDD5]/40 mb-3">
+                <CardTitle className="font-serif text-base font-bold text-black">
+                  Ghi chú đơn hàng
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-0 space-y-4">
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="notes"
-                    className="text-[11px] font-mono font-bold text-[#5c544d] uppercase tracking-wider block"
-                  >
-                    Yêu cầu thêm của bạn (Màu vỏ nhám mờ, kích thước riêng...)
-                  </Label>
-                  <textarea
-                    id="notes"
-                    name="notes"
-                    placeholder="Ví dụ: Đóng gói cẩn thận giúp mình làm quà tặng..."
-                    value={form.notes}
-                    onChange={handleChange}
-                    rows={3}
-                    className="w-full rounded-xl border border-[#CFCABF] focus:border-[#FF9D00] text-sm text-black font-sans font-medium p-3 outline-none resize-none focus-visible:ring-1 focus-visible:ring-[#FF9D00]"
-                  />
-                </div>
+              <CardContent className="p-0">
+                <textarea
+                  id="notes"
+                  name="notes"
+                  placeholder="Ví dụ: Đóng gói cẩn thận giúp mình làm quà tặng, giao giờ hành chính..."
+                  value={form.notes}
+                  onChange={handleChange}
+                  rows={3}
+                  className="w-full rounded-xl border border-[#CFCABF] focus:border-[#FF9D00] text-sm text-black font-sans font-medium p-3 outline-none resize-none"
+                />
               </CardContent>
             </Card>
 
+            {/* PHƯƠNG THỨC THANH TOÁN */}
             <Card className="rounded-3xl border border-[#DCD6CC] bg-white p-6 shadow-xs text-left">
               <CardHeader className="p-0 pb-4 border-b border-[#E1DDD5]/40 mb-4">
                 <CardTitle className="font-serif text-lg font-bold text-black">
@@ -614,17 +785,50 @@ export default function CheckoutPage() {
               </CardHeader>
               <CardContent className="p-0 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* VIETQR */}
+                  <div
+                    onClick={() => setPaymentMethod("vietqr")}
+                    className={`border-2 rounded-2xl p-4 flex flex-col justify-between min-h-[130px] relative cursor-pointer transition-all ${
+                      paymentMethod === "vietqr"
+                        ? "border-[#FF9D00] bg-[#FCFAF2]/50 ring-1 ring-[#FF9D00]"
+                        : "border-[#E1DDD5] bg-white hover:border-[#CFCABF]"
+                    }`}
+                  >
+                    <div className="flex justify-between items-center w-full">
+                      <span className="text-xs font-mono font-bold text-[#FF9D00] flex items-center gap-1.5">
+                        <QrCode className="size-4 text-[#FF9D00]" /> 01 / VIETQR
+                      </span>
+                      <span
+                        className={`size-4 rounded-full border-4 ${
+                          paymentMethod === "vietqr"
+                            ? "border-[#FF9D00] bg-white"
+                            : "border-[#CFCABF] bg-transparent"
+                        }`}
+                      />
+                    </div>
+                    <div className="space-y-1 mt-3">
+                      <h4 className="font-serif text-sm font-bold text-black leading-tight">
+                        Chuyển khoản VietQR tự động
+                      </h4>
+                      <p className="text-[10px] font-sans text-[#786F66] leading-relaxed">
+                        Quét mã QR qua App Ngân hàng, đối soát tự động trong 5
+                        giây.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* COD */}
                   <div
                     onClick={() => setPaymentMethod("cod")}
                     className={`border-2 rounded-2xl p-4 flex flex-col justify-between min-h-[130px] relative cursor-pointer transition-all ${
                       paymentMethod === "cod"
-                        ? "border-[#FF9D00] bg-[#FCFAF2]/40"
+                        ? "border-[#FF9D00] bg-[#FCFAF2]/50 ring-1 ring-[#FF9D00]"
                         : "border-[#E1DDD5] bg-white hover:border-[#CFCABF]"
                     }`}
                   >
                     <div className="flex justify-between items-center w-full">
                       <span className="text-xs font-mono font-bold text-[#786F66] flex items-center gap-1.5">
-                        <Banknote className="size-4 text-emerald-600" /> 01 /
+                        <Banknote className="size-4 text-emerald-600" /> 02 /
                         COD
                       </span>
                       <span
@@ -645,48 +849,14 @@ export default function CheckoutPage() {
                       </p>
                     </div>
                   </div>
-
-                  <div
-                    onClick={() => setPaymentMethod("vietqr")}
-                    className={`border-2 rounded-2xl p-4 flex flex-col justify-between min-h-[130px] relative cursor-pointer transition-all ${
-                      paymentMethod === "vietqr"
-                        ? "border-[#FF9D00] bg-[#FCFAF2]/40"
-                        : "border-[#E1DDD5] bg-white hover:border-[#CFCABF]"
-                    }`}
-                  >
-                    <div className="flex justify-between items-center w-full">
-                      <span className="text-xs font-mono font-bold text-[#FF9D00] flex items-center gap-1.5">
-                        <QrCode className="size-4 text-[#FF9D00]" /> 02 / VIETQR
-                      </span>
-                      <span
-                        className={`size-4 rounded-full border-4 ${
-                          paymentMethod === "vietqr"
-                            ? "border-[#FF9D00] bg-white"
-                            : "border-[#CFCABF] bg-transparent"
-                        }`}
-                      />
-                    </div>
-                    <div className="space-y-1 mt-3">
-                      <h4 className="font-serif text-sm font-bold text-black leading-tight">
-                        Chuyển khoản VietQR
-                      </h4>
-                      <p className="text-[10px] font-sans text-[#786F66] leading-relaxed">
-                        Quét mã QR tự động qua ứng dụng ngân hàng, xác nhận tức
-                        thì 24/7.
-                      </p>
-                    </div>
-                  </div>
                 </div>
 
-                <div className="space-y-4">
-                  <div className="rounded-xl bg-amber-50/60 border border-amber-200/80 p-3.5 text-xs text-amber-900 leading-relaxed flex items-start gap-2.5">
-                    <Video className="size-4 text-amber-600 shrink-0 mt-0.5" />
-                    <div>
-                      <strong>Lưu ý quan trọng:</strong> Quý khách vui lòng{" "}
-                      <strong>quay video / chụp hình</strong> quá trình mở hộp
-                      khi nhận hàng từ shipper để làm căn cứ đối soát hỗ trợ đổi
-                      trả nếu sản phẩm có sự cố trong quá trình vận chuyển.
-                    </div>
+                <div className="rounded-xl bg-amber-50/60 border border-amber-200/80 p-3.5 text-xs text-amber-900 leading-relaxed flex items-start gap-2.5 font-sans">
+                  <Video className="size-4 text-amber-600 shrink-0 mt-0.5" />
+                  <div>
+                    <strong>Lưu ý đồng kiểm:</strong> Quý khách vui lòng quay
+                    video mở hộp khi nhận hàng để được hỗ trợ bảo hành đổi trả
+                    miễn phí trong 30 ngày.
                   </div>
                 </div>
               </CardContent>
@@ -699,7 +869,9 @@ export default function CheckoutPage() {
                 disabled={loading}
                 className="w-full bg-[#FF9D00] hover:bg-[#E68A00] text-black font-mono uppercase text-xs font-bold tracking-wider py-4 rounded-xl cursor-pointer transition-colors shadow-sm"
               >
-                {loading ? "Đang ghi nhận..." : "Thanh toán ngay"}
+                {loading
+                  ? "Đang ghi nhận..."
+                  : `Thanh toán ${formatVND(total / 100)}`}
               </Button>
             </div>
           </div>
@@ -708,71 +880,50 @@ export default function CheckoutPage() {
           <div className="lg:col-span-5">
             <Card className="sticky top-24 rounded-3xl border border-[#DCD6CC] bg-[#FAF5F2]/90 p-6 shadow-md space-y-6">
               <CardHeader className="p-0 pb-3 border-b border-[#E1DDD5]/60">
-                <CardTitle className="font-serif text-lg font-bold text-black text-left">
-                  Tóm tắt đơn hàng
+                <CardTitle className="font-serif text-lg font-bold text-black text-left flex items-center justify-between">
+                  <span>Tóm tắt đơn hàng</span>
+                  <span className="text-xs font-mono font-normal text-[#786F66]">
+                    ({items.reduce((a, b) => a + b.quantity, 0)} món)
+                  </span>
                 </CardTitle>
               </CardHeader>
 
               <CardContent className="p-0 space-y-4">
+                {/* DANH SÁCH MÓN HÀNG */}
                 <div className="space-y-4 max-h-[300px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-[#EAE5D9]">
                   {items.map((item) => {
                     const imgUrl = item.image?.url || PLACEHOLDER_IMAGE;
-                    const imgAlt = item.image?.alt || item.name;
-
-                    const hasCustomVariant =
-                      item.variantName &&
-                      item.variantName !== "Default Variant" &&
-                      item.variantName !== "Default" &&
-                      item.variantName !== "Mặc định";
-
                     return (
                       <div
                         key={item.variantId}
-                        className="flex items-start gap-3.5 pb-3.5 border-b border-[#E1DDD5]/60 last:border-0 last:pb-0 relative group"
+                        className="flex items-start gap-3.5 pb-3.5 border-b border-[#E1DDD5]/60 last:border-0 last:pb-0"
                       >
-                        {/* 1. KHUNG THUMBNAIL HÌNH ẢNH + BADGE SỐ LƯỢNG CHỐNG BỊ BẮT MẤT */}
-                        <div className="relative shrink-0 pt-1">
-                          <div className="relative h-14 w-14 overflow-hidden rounded-xl border border-[#E1DDD5] bg-[#EAE5D9]/20 shadow-xs">
-                            <Image
-                              src={imgUrl}
-                              alt={imgAlt}
-                              fill
-                              className="object-cover"
-                              sizes="56px"
-                            />
-                          </div>
-                          {/* Badge số lượng màu đen nhỏ xinh góc trên bên phải */}
-                          <span className="absolute -top-0.5 -right-1.5 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-black text-[9px] font-mono font-bold text-white shadow-md z-10">
+                        <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-[#E1DDD5] bg-[#EAE5D9]/20">
+                          <Image
+                            src={imgUrl}
+                            alt={item.name}
+                            fill
+                            className="object-cover"
+                            sizes="56px"
+                          />
+                          <span className="absolute -top-0.5 -right-1.5 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-black text-[9px] font-mono font-bold text-white shadow-md">
                             {item.quantity}
                           </span>
                         </div>
 
-                        {/* 2. HIỂN THỊ TÊN SẢN PHẨM & DÒNG SỐ LƯỢNG x TIẾNG VIỆT */}
                         <div className="flex-1 min-w-0 text-left space-y-0.5">
                           <p className="text-xs sm:text-sm font-serif font-bold text-black leading-snug truncate">
                             {item.name}
                           </p>
-                          {hasCustomVariant && (
-                            <p className="text-[10px] text-[#786F66] font-sans font-medium truncate">
-                              Phân loại: {item.variantName}
-                            </p>
-                          )}
-                          {/* BỔ SUNG DÒNG SỐ LƯỢNG VÀ ĐƠN GIÁ MINH BẠCH */}
-                          <p className="text-[11px] font-mono text-[#786F66] pt-0.5">
-                            Số lượng:{" "}
-                            <strong className="text-black font-bold">
-                              x{item.quantity}
+                          <p className="text-[11px] font-mono text-[#786F66]">
+                            Đơn giá:{" "}
+                            <strong className="text-black">
+                              {formatVND(item.price / 100)}
                             </strong>
-                            {item.quantity > 1 && (
-                              <span className="text-[10px] text-slate-400 ml-1">
-                                ({formatVND(item.price / 100)} / món)
-                              </span>
-                            )}
                           </p>
                         </div>
 
-                        {/* 3. TỔNG TIỀN TỪNG MÓN & NÚT GỠ BỎ */}
-                        <div className="flex flex-col items-end gap-1 shrink-0 pt-0.5">
+                        <div className="text-right shrink-0">
                           <span className="text-xs sm:text-sm font-mono font-bold text-black">
                             {formatVND(item.lineTotal / 100)}
                           </span>
@@ -782,7 +933,7 @@ export default function CheckoutPage() {
                             onClick={() =>
                               handleRemoveItem(item.variantId, item.name)
                             }
-                            className="text-[10px] font-mono font-bold text-[#786F66] hover:text-red-500 transition-colors uppercase cursor-pointer"
+                            className="text-[10px] font-mono font-bold text-[#786F66] hover:text-red-500 transition-colors uppercase block mt-1 cursor-pointer"
                           >
                             Gỡ bỏ
                           </button>
@@ -794,6 +945,7 @@ export default function CheckoutPage() {
 
                 <Separator className="bg-[#E1DDD5]" />
 
+                {/* MÃ GIẢM GIÁ */}
                 <div className="flex gap-3">
                   <Input
                     type="text"
@@ -806,10 +958,10 @@ export default function CheckoutPage() {
                     type="button"
                     onClick={handleApplyCoupon}
                     disabled={applying || !couponCode.trim()}
-                    className="rounded-lg bg-[#EAE5D9]/40 border border-[#CFCABF] text-black font-mono uppercase text-[10px] font-bold tracking-wider px-5 py-3 cursor-pointer hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center min-w-[80px]"
+                    className="rounded-lg bg-[#EAE5D9]/40 border border-[#CFCABF] text-black font-mono uppercase text-[10px] font-bold tracking-wider px-5 py-3 cursor-pointer hover:bg-white disabled:opacity-50 transition-colors flex items-center justify-center min-w-[80px]"
                   >
                     {applying ? (
-                      <Loader2 className="h-3 w-3 animate-spin text-black" />
+                      <Loader2 className="size-3 animate-spin text-black" />
                     ) : (
                       "Áp dụng"
                     )}
@@ -818,6 +970,7 @@ export default function CheckoutPage() {
 
                 <Separator className="bg-[#E1DDD5]" />
 
+                {/* UPSELL MUA KÈM */}
                 {filteredAddons.length > 0 && (
                   <div className="bg-white border border-[#E1DDD5] rounded-3xl p-5 space-y-4 shadow-sm text-left">
                     <div className="space-y-0.5 border-b border-[#E1DDD5]/40 pb-2">
@@ -890,6 +1043,7 @@ export default function CheckoutPage() {
 
                 <Separator className="bg-[#E1DDD5]" />
 
+                {/* HẠCH TOÁN CHI PHÍ (MIỄN PHÍ HCM VÀ ĐƠN >= 500K) */}
                 <div className="space-y-3.5 text-xs font-sans text-left">
                   <div className="flex justify-between text-[#5c544d]">
                     <span>Tổng phụ</span>
@@ -901,7 +1055,7 @@ export default function CheckoutPage() {
                   {discountPercent > 0 && (
                     <div className="flex justify-between text-[#E26E67] font-medium">
                       <span>
-                        Giảm giá ({appliedCoupon} - {discountPercent}%)
+                        Giảm giá ({appliedCoupon} - {discountPercent}%):
                       </span>
                       <span className="font-mono font-bold">
                         -{formatVND(discountAmount / 100)}
@@ -915,9 +1069,11 @@ export default function CheckoutPage() {
                       <HelpCircle className="h-3.5 w-3.5 text-[#786F66] cursor-help" />
                     </span>
                     <span className="font-mono font-bold tracking-wider">
-                      {isHCM ? (
+                      {isCalculatingShip ? (
+                        <Loader2 className="size-3 animate-spin text-[#FF9D00] inline" />
+                      ) : shippingFee === 0 ? (
                         <span className="text-[#3ECF8E]">
-                          MIỄN PHÍ VẬN CHUYỂN (HCM)
+                          MIỄN PHÍ VẬN CHUYỂN
                         </span>
                       ) : (
                         <span className="text-black">
@@ -931,14 +1087,9 @@ export default function CheckoutPage() {
 
                   <div className="flex justify-between items-center text-sm font-serif font-bold text-black pt-1">
                     <span>Tổng cộng đơn hàng</span>
-                    <div className="flex items-baseline gap-1.5">
-                      <span className="text-[10px] font-mono text-[#786F66] font-normal uppercase">
-                        VND
-                      </span>
-                      <span className="font-mono text-lg text-[#FF9D00]">
-                        {formatVND(total / 100)}
-                      </span>
-                    </div>
+                    <span className="font-mono text-lg text-[#FF9D00] font-black">
+                      {formatVND(total / 100)}
+                    </span>
                   </div>
                 </div>
 
@@ -949,7 +1100,9 @@ export default function CheckoutPage() {
                     disabled={loading}
                     className="w-full bg-[#FF9D00] hover:bg-[#E68A00] text-black font-mono uppercase text-xs font-bold tracking-wider py-4 rounded-xl cursor-pointer transition-colors shadow-sm"
                   >
-                    {loading ? "Đang ghi nhận..." : "Thanh toán ngay"}
+                    {loading
+                      ? "Đang ghi nhận..."
+                      : `Xác nhận thanh toán (${formatVND(total / 100)})`}
                   </Button>
                 </div>
               </CardContent>

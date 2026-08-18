@@ -14,6 +14,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { FormattedDescription } from "@/components/products/formatted-description";
 import { ProductGallery } from "@/components/products/product-gallery";
 import { ProductGrid } from "@/components/products/product-grid";
 import { QuantitySelector } from "@/components/products/quantity-selector";
@@ -32,7 +33,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
-import { siteConfig } from "@/lib/config"; // Tự động nạp cấu hình hotline/email
+import { siteConfig } from "@/lib/config";
 import { PLACEHOLDER_IMAGE } from "@/lib/constants";
 import { breadcrumbJsonLd } from "@/lib/structured-data";
 import { supabase } from "@/lib/supabase/client";
@@ -113,7 +114,6 @@ export function ProductDetailView({
   );
   if (!selectedVariant) return null;
 
-  // KIỂM TRA SỐ LƯỢNG KHO (STOCK <= 0 HOẶC KHÔNG HỢP LỆ TRONG DATABASE)
   const currentStock =
     (product as { stock?: number }).stock ??
     selectedVariant.inventory.quantity ??
@@ -206,7 +206,6 @@ export function ProductDetailView({
     },
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const attrs = (product as any).attributes || {};
 
   return (
@@ -254,15 +253,11 @@ export function ProductDetailView({
               <StarRating rating={avgRating} reviewCount={reviewCount} />
             </div>
 
-            {/* THẺ TAGS CHUYỂN HƯỚNG VÀ BADGE TRẠNG THÁI HÀNG */}
+            {/* BADGES: ĐÃ ẨN HOÀN TOÀN 'SẴN HÀNG TRONG KHO' */}
             <div className="flex flex-wrap items-center gap-2.5 mt-3 mb-1">
-              {isOutOfStock ? (
+              {isOutOfStock && (
                 <span className="text-[10px] font-mono font-bold text-white bg-slate-800 px-3 py-1 rounded-full uppercase tracking-wider shadow-xs">
                   🚫 HẾT HÀNG TẠM THỜI
-                </span>
-              ) : (
-                <span className="text-[10px] font-mono font-bold text-emerald-800 bg-emerald-100 border border-emerald-300 px-3 py-1 rounded-full uppercase tracking-wider">
-                  ✓ SẴN HÀNG TRONG KHO ({currentStock})
                 </span>
               )}
 
@@ -299,7 +294,7 @@ export function ProductDetailView({
               </Link>
             )}
 
-            {/* STYLE GIÁ BÁN & HUY HIỆU GIẢM GIÁ TƯƠNG PHẢN NỔI BẬT */}
+            {/* GIÁ BÁN */}
             <motion.div
               whileHover={{ scale: 1.01 }}
               className="mt-4 flex items-center gap-3 w-fit select-none"
@@ -327,9 +322,10 @@ export function ProductDetailView({
               )}
             </motion.div>
 
-            <p className="mt-4 text-sm sm:text-base text-[#5C564E] leading-relaxed font-sans">
-              {product.description}
-            </p>
+            {/* PHẦN MÔ TẢ ĐỊNH DẠNG MARKDOWN */}
+            <div className="mt-5 pt-4 border-t border-[#E1DDD5]/60">
+              <FormattedDescription text={product.description} />
+            </div>
 
             {product.variants.length > 1 && (
               <div className="mt-6 mb-6">
@@ -364,7 +360,6 @@ export function ProductDetailView({
                 </Button>
               </div>
 
-              {/* NÚT BẤM TỰ ĐỘNG KHÓA KHI STOCK = 0 */}
               <Button
                 size="lg"
                 className={`w-full sm:flex-1 font-mono uppercase text-xs tracking-wider rounded-xl py-4 flex items-center justify-center gap-2 transition-colors ${
@@ -380,7 +375,6 @@ export function ProductDetailView({
               </Button>
             </div>
 
-            {/* CẢNH BÁO KHI SẢN PHẨM HẾT HÀNG — SỬ DỤNG SỐ ĐIỆN THOẠI TỪ CONFIG */}
             {isOutOfStock && (
               <div className="mt-4 p-3.5 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-2.5 text-xs text-amber-900 font-sans leading-relaxed">
                 <AlertTriangle className="size-4 text-amber-600 shrink-0 mt-0.5" />
@@ -400,7 +394,7 @@ export function ProductDetailView({
               </div>
             )}
 
-            {/* UPSELL MUA KÈM CÓ NÚT "THÊM" TIẾNG VIỆT HOÀN TOÀN */}
+            {/* UPSELL MUA KÈM */}
             {relatedProducts.length > 0 && (
               <div className="mt-8 rounded-3xl p-6 bg-white border border-[#E1DDD5] flex flex-col gap-4 shadow-xs relative overflow-hidden">
                 <div className="space-y-1 relative z-10 text-left">
@@ -476,7 +470,7 @@ export function ProductDetailView({
           </div>
         </div>
 
-        {/* BẢNG THÔNG SỐ TỐI GIẢN */}
+        {/* BẢNG THÔNG SỐ */}
         <div className="py-16 border-b border-[#E1DDD5]/60 text-left">
           <div className="bg-black text-white p-4 rounded-2xl flex items-center max-w-full justify-between select-none mb-10 shadow-xs">
             <span className="font-serif text-lg font-bold pl-2">

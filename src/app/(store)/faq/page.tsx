@@ -52,11 +52,11 @@ const faqSections = [
     items: [
       {
         q: "05. Boo Space tính phí vận chuyển như thế nào? Có được miễn phí không?",
-        a: "• Miễn phí vận chuyển (Free Shipping): Boo Space áp dụng chính sách miễn phí giao hàng duy nhất đối với các đơn hàng tại khu vực nội thành TP. Hồ Chí Minh.\n• Khu vực ngoại thành & tỉnh lẻ: Cước phí vận chuyển được tính toán tự động theo biểu phí thực tế của các đơn vị vận chuyển liên kết (GHN / J&T Express) dựa trên khoảng cách địa lý và kích thước đóng gói của kiện hàng. Mức phí hiển thị minh bạch tại bước checkout.",
+        a: "• Miễn phí vận chuyển (Free Shipping): Boo Space áp dụng chính sách miễn phí giao hàng duy nhất đối với các đơn hàng tại khu vực nội thành TP. Hồ Chí Minh.\n• Khu vực ngoại thành & tỉnh lẻ: Cước phí vận chuyển được tính toán tự động theo biểu phí thực tế của các đơn vị vận chuyển liên kết (GHN / Viettel Post) dựa trên khoảng cách địa lý và kích thước đóng gói của kiện hàng. Mức phí hiển thị minh bạch tại bước checkout.",
       },
       {
         q: "06. Tôi có thể thanh toán đơn hàng bằng những phương thức nào?",
-        a: "Chúng tôi cung cấp hai phương thức giao dịch tối giản và bảo mật tuyệt đối:\n\n1. Chuyển khoản VietQR tự động: Giao diện thanh toán khởi tạo mã VietQR động chứa chính xác số tiền và cú pháp mã đơn hàng (#BSxxx). Hệ thống đối soát ngân hàng tự động xác nhận trạng thái 'Đã thanh toán' trong vài giây.\n2. Thanh toán khi nhận hàng (COD): Áp dụng cho đơn hàng tiêu chuẩn trên toàn quốc. Bạn thanh toán tiền mặt trực tiếp cho nhân viên giao hàng của GHN / J&T Express sau khi kiểm hàng thành công.",
+        a: "Chúng tôi cung cấp hai phương thức giao dịch tối giản và bảo mật tuyệt đối:\n\n1. Chuyển khoản VietQR tự động: Giao diện thanh toán khởi tạo mã VietQR động chứa chính xác số tiền và cú pháp mã đơn hàng (#BSxxx). Hệ thống đối soát ngân hàng tự động xác nhận trạng thái 'Đã thanh toán' trong vài giây.\n2. Thanh toán khi nhận hàng (COD): Áp dụng cho đơn hàng tiêu chuẩn trên toàn quốc. Bạn thanh toán tiền mặt trực tiếp cho nhân viên giao hàng của GHN / Viettel Post sau khi kiểm hàng thành công.",
       },
       {
         q: "07. Tôi có được đồng kiểm (kiểm tra hàng) khi nhận không?",
