@@ -1,5 +1,7 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { siteConfig } from "@/lib/config";
+import { createPayOSPaymentLink } from "@/lib/payos";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -10,29 +12,59 @@ interface DbProductItem {
   published: boolean | null;
 }
 
+interface RequestOrderItem {
+  productId?: string;
+  product_id?: string;
+  quantity?: number;
+}
+
+interface CouponRecord {
+  id: string;
+  code: string;
+  discount_percent: number;
+  active: boolean;
+}
+
+/**
+ * 1. KIỂM TRA TRẠNG THÁI THANH TOÁN (GET)
+ */
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const code = searchParams.get("code");
+    const queryCode =
+      searchParams.get("order_id") ||
+      searchParams.get("code") ||
+      searchParams.get("id");
 
-    if (!code) {
+    if (!queryCode) {
       return NextResponse.json(
         { success: false, error: "Thiếu mã đơn hàng." },
         { status: 400 },
       );
     }
 
-    let supabaseAdmin: any;
+    let supabaseAdmin: SupabaseClient;
     try {
       supabaseAdmin = getSupabaseAdmin();
-    } catch (_err) {
+    } catch {
       supabaseAdmin = createSupabaseServerClient();
     }
 
+    const cleanCode = queryCode.trim();
+    const isUuid =
+      cleanCode.length === 36 &&
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        cleanCode,
+      );
+
+    const strippedCode = cleanCode.replace(/^(ORD|BOO)-?/i, "");
+
     const { data: order, error } = await supabaseAdmin
       .from("orders")
-      .select("*, order_items(*)")
-      .eq("code", code)
+      .select("*, order_items(*, products(id, name, images, weight))")
+      .or(
+        `code.eq.${cleanCode},code.eq.ORD-${strippedCode},code.eq.BOO-${strippedCode},code.eq.${strippedCode},notes.ilike.%${cleanCode}%,id.eq.${isUuid ? cleanCode : "00000000-0000-0000-0000-000000000000"}`,
+      )
       .maybeSingle();
 
     if (error || !order) {
@@ -42,15 +74,22 @@ export async function GET(request: Request) {
       );
     }
 
-    return NextResponse.json({ success: true, order });
-  } catch (err) {
-    return NextResponse.json(
-      { success: false, error: "Lỗi máy chủ nội bộ." },
-      { status: 500 },
-    );
+    return NextResponse.json({
+      success: true,
+      order,
+      isPaid: order.payment_status === "Paid",
+      paymentStatus: order.payment_status,
+      orderStatus: order.order_status,
+    });
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : "Lỗi máy chủ nội bộ.";
+    return NextResponse.json({ success: false, error: msg }, { status: 500 });
   }
 }
 
+/**
+ * 2. TẠO ĐƠN HÀNG VÀ SINH LINK THANH TOÁN PAYOS (POST)
+ */
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -78,13 +117,17 @@ export async function POST(request: Request) {
     )
       .toString()
       .trim();
-    const isVietQR = rawPaymentMethod.toLowerCase().includes("vietqr");
+    const isVietQR =
+      rawPaymentMethod.toLowerCase().includes("vietqr") ||
+      rawPaymentMethod.toLowerCase().includes("payos");
     const savedPaymentMethod = isVietQR ? "VietQR" : "COD";
 
-    const shippingAddress = body.shippingAddress || body.shipping_address || {};
+    const shippingAddress = (body.shippingAddress ||
+      body.shipping_address ||
+      {}) as Record<string, string>;
     const notes = body.notes || "";
     const couponCode = body.couponCode || body.coupon_code || "";
-    const items = body.items || [];
+    const items = (body.items || []) as RequestOrderItem[];
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       return NextResponse.json(
@@ -103,15 +146,18 @@ export async function POST(request: Request) {
       );
     }
 
-    let supabaseAdmin: any;
+    let supabaseAdmin: SupabaseClient;
     try {
       supabaseAdmin = getSupabaseAdmin();
-    } catch (_err) {
+    } catch {
       supabaseAdmin = createSupabaseServerClient();
     }
 
     // LẤY GIÁ BÁN THỰC TẾ TỪ DATABASE
-    const productIds = items.map((i: any) => i.productId || i.product_id);
+    const productIds = items
+      .map((i: RequestOrderItem) => i.productId || i.product_id)
+      .filter(Boolean);
+
     const { data: dbProducts, error: productsError } = await supabaseAdmin
       .from("products")
       .select("id, name, price, published")
@@ -132,7 +178,7 @@ export async function POST(request: Request) {
     const verifiedOrderItems = [];
 
     for (const item of items) {
-      const pId = item.productId || item.product_id;
+      const pId = String(item.productId || item.product_id);
       const dbProd = productMap.get(pId);
       if (!dbProd || dbProd.published === false) {
         return NextResponse.json(
@@ -150,6 +196,7 @@ export async function POST(request: Request) {
       verifiedOrderItems.push({
         product_id: dbProd.id,
         quantity: qty,
+        price: lineTotal,
         unit_price: realUnitPrice,
         total_price: lineTotal,
       });
@@ -167,9 +214,11 @@ export async function POST(request: Request) {
         .eq("active", true)
         .maybeSingle();
 
-      if (couponData) {
-        discountPercent = couponData.discount_percent;
-        appliedCouponId = couponData.id;
+      const coupon = couponData as CouponRecord | null;
+
+      if (coupon) {
+        discountPercent = coupon.discount_percent;
+        appliedCouponId = coupon.id;
       }
     }
 
@@ -177,7 +226,7 @@ export async function POST(request: Request) {
       calculatedSubtotal * (discountPercent / 100),
     );
 
-    // TÍNH PHÍ VẬN CHUYỂN SERVER-SIDE
+    // PHÍ VẬN CHUYỂN SERVER-SIDE
     const city = (shippingAddress?.city || "").toLowerCase();
     const isHCM =
       city.includes("hồ chí minh") ||
@@ -187,7 +236,7 @@ export async function POST(request: Request) {
     let serverShippingFee = 0;
     if (
       isHCM ||
-      calculatedSubtotal >= (siteConfig.freeShippingThreshold || 500000)
+      calculatedSubtotal >= (siteConfig?.freeShippingThreshold || 500000)
     ) {
       serverShippingFee = 0;
     } else {
@@ -195,24 +244,32 @@ export async function POST(request: Request) {
     }
 
     const finalTotal = calculatedSubtotal - discountAmount + serverShippingFee;
+
+    // SINH MÃ SỐ NGUYÊN CHO PAYOS THEO DÕI
+    const payosNumericCode = Math.abs(
+      parseInt(Date.now().toString().slice(-6), 10) +
+        Math.floor(Math.random() * 1000),
+    );
     const orderCode =
-      body.orderNumber ||
-      body.code ||
-      `ORD-${Date.now().toString(36).toUpperCase()}`;
+      body.orderNumber || body.code || `ORD-${payosNumericCode}`;
+
     const formattedAddressStr =
       shippingAddress?.formattedAddress ||
-      `${shippingAddress?.line1 || ""}, ${shippingAddress?.district || ""}, ${shippingAddress?.city || ""}`;
+      `${shippingAddress?.line1 || ""}, ${shippingAddress?.district || ""}, ${shippingAddress?.city || ""}`.replace(
+        /^, |, $/g,
+        "",
+      );
 
-    // LƯU VÀO BẢNG ORDERS (ẨN TÊN ĐVVC, CHỈ LƯU "Giao hàng tiêu chuẩn")
+    // LƯU ĐƠN HÀNG VÀO SUPABASE
     const { data: createdOrder, error: orderError } = await supabaseAdmin
       .from("orders")
       .insert({
         code: orderCode,
         customer_id: customerId,
         customer_name: customerName,
-        customer_email: customerEmail,
+        customer_email: customerEmail || `${customerPhone}@boospace.tech`,
         customer_phone: customerPhone,
-        customer_address: formattedAddressStr,
+        customer_address: formattedAddressStr || "Nhận tại xưởng BooSpace",
         shipping_address: shippingAddress || {},
         subtotal: calculatedSubtotal,
         shipping: serverShippingFee,
@@ -222,7 +279,9 @@ export async function POST(request: Request) {
         payment_method: savedPaymentMethod,
         applied_coupon_id: appliedCouponId,
         shipping_carrier: "Giao hàng tiêu chuẩn",
-        notes: notes || "",
+        notes: `PayOS_Code: ${payosNumericCode} | ${notes || ""}`,
+        packaging_note:
+          "Hàng dễ vỡ. Bọc xốp nổ 3 lớp, đóng thùng carton sóng E, dán tem vỡ niêm phong xưởng",
       })
       .select("id, code, total")
       .single();
@@ -241,13 +300,36 @@ export async function POST(request: Request) {
 
     await supabaseAdmin.from("order_items").insert(itemsToInsert);
 
+    // NẾU CHỌN VIETQR -> TỰ ĐỘNG GỌI PAYOS SINH LINK THANH TOÁN
+    let payosData = null;
+    if (isVietQR) {
+      const payosItems = verifiedOrderItems.map((it) => {
+        const prod = productMap.get(it.product_id);
+        return {
+          name: prod?.name || `Món hàng #${it.product_id}`,
+          quantity: it.quantity,
+          price: it.unit_price,
+        };
+      });
+
+      payosData = await createPayOSPaymentLink({
+        orderCode: payosNumericCode,
+        amount: finalTotal,
+        description: `DH ${orderCode}`,
+        items: payosItems,
+      });
+    }
+
     return NextResponse.json({
       success: true,
       orderId: createdOrder.code,
+      orderCode: createdOrder.code,
+      id: createdOrder.id,
       total: createdOrder.total,
+      payos: payosData,
     });
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : "Lỗi máy chủ nội bộ";
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : "Lỗi máy chủ nội bộ";
     return NextResponse.json({ success: false, error: msg }, { status: 500 });
   }
 }
