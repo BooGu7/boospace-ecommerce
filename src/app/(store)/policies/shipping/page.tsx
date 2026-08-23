@@ -1,5 +1,13 @@
 import type { Metadata } from "next";
-import { Clock, ShieldCheck, Truck } from "lucide-react";
+import {
+  Clock,
+  Headphones,
+  Mail,
+  Phone,
+  ShieldCheck,
+  Truck,
+} from "lucide-react";
+import { siteConfig } from "@/lib/config";
 
 export const revalidate = 86400; // Cache 24 giờ
 
@@ -10,6 +18,8 @@ export const metadata: Metadata = {
 };
 
 export default function ShippingPolicyPage() {
+  const cleanPhoneLink = siteConfig.contact.phone.replace(/[^0-9+]/g, "");
+
   return (
     <div className="bg-[#FCFAF2] min-h-screen text-[#1E1C1A] antialiased selection:bg-[#EAE5D9]">
       <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
@@ -96,8 +106,7 @@ export default function ShippingPolicyPage() {
             </div>
             <p className="text-xs italic text-[#786F66]">
               *Lưu ý: Không tính ngày Chủ nhật và các ngày lễ Tết theo quy định
-              pháp luật. Trong trường hợp phát sinh chậm trễ do sự cố bất khả
-              kháng, Boo Space sẽ chủ động thông báo kịp thời cho khách hàng.
+              pháp luật.
             </p>
           </section>
 
@@ -117,41 +126,25 @@ export default function ShippingPolicyPage() {
                 <strong className="text-[#3ECF8E]">
                   MIỄN PHÍ VẬN CHUYỂN (Free Shipping)
                 </strong>{" "}
-                duy nhất cho các đơn hàng giao tại khu vực nội thành TP. Hồ Chí
-                Minh.
+                cho các đơn hàng giao tại nội thành TP. Hồ Chí Minh hoặc đơn
+                hàng có tổng giá trị từ{" "}
+                <strong>
+                  {siteConfig.freeShippingThreshold.toLocaleString("vi-VN")} ₫
+                </strong>
+                .
               </li>
               <li>
                 <strong>Khu vực ngoại thành và tỉnh lẻ:</strong> Cước phí vận
-                chuyển được tính toán tự động dựa trên khoảng cách địa lý và
-                kích thước kiện hàng theo biểu phí niêm yết của đơn vị logistics
-                tại thời điểm checkout (cố định 30.000đ).
+                chuyển được tính toán tự động dựa trên khoảng cách và kích thước
+                kiện hàng theo biểu phí của GHN / Viettel Post.
               </li>
             </ul>
           </section>
 
           {/* Section 4 */}
           <section className="space-y-4">
-            <h2 className="font-serif text-xl sm:text-2xl font-bold text-black border-b border-[#E1DDD5]/60 pb-2">
-              4. Trách nhiệm của đơn vị Logistics trong việc cung cấp thông tin
-            </h2>
-            <p>
-              Đơn vị dịch vụ vận chuyển (GHN / Viettel Post) có trách nhiệm cập
-              nhật liên tục trạng thái hành trình của đơn hàng lên hệ thống để
-              Boo Space và khách hàng có thể đồng thời tra cứu thời gian thực
-              (Real-time Tracking):
-            </p>
-            <ol className="list-decimal pl-6 space-y-1.5 font-mono text-xs">
-              <li>Đã tiếp nhận hàng từ xưởng Boo Space.</li>
-              <li>Đang trong quá trình trung chuyển/vận chuyển liên tỉnh.</li>
-              <li>Đã đến bưu cục phát và đang giao hàng.</li>
-              <li>Giao hàng thành công (hoặc báo hủy kèm lý do cụ thể).</li>
-            </ol>
-          </section>
-
-          {/* Section 5 */}
-          <section className="space-y-4">
             <h2 className="font-serif text-xl sm:text-2xl font-bold text-black border-b border-[#E1DDD5]/60 pb-2 flex items-center gap-2">
-              <ShieldCheck className="size-5 text-[#3ECF8E]" /> 5. Chính sách
+              <ShieldCheck className="size-5 text-[#3ECF8E]" /> 4. Chính sách
               kiểm hàng (Đồng kiểm)
             </h2>
             <div className="bg-amber-50/60 border border-amber-200 p-5 rounded-2xl space-y-2">
@@ -165,32 +158,63 @@ export default function ShippingPolicyPage() {
                   màu sắc; sản phẩm nguyên vẹn không bị nứt vỡ do va đập).
                 </li>
                 <li>
-                  <strong>Giới hạn:</strong> Không bao gồm dùng thử, vận hành
-                  thử hoặc làm biến dạng cấu trúc sản phẩm.
-                </li>
-                <li>
                   <strong>Xử lý sự cố:</strong> Nếu thấy hư hỏng do vận chuyển,
-                  vui lòng từ chối nhận, lập biên bản với shipper và liên hệ
-                  ngay hotline Boo Space để được gửi sản phẩm thay thế.
+                  vui lòng từ chối nhận và liên hệ ngay hotline Boo Space để
+                  được gửi sản phẩm thay thế miễn phí.
                 </li>
               </ul>
             </div>
           </section>
 
-          {/* Contact Footer Box */}
-          <div className="mt-12 p-6 bg-white border border-[#E1DDD5] rounded-3xl space-y-2 text-xs font-mono text-left">
-            <h4 className="font-serif text-sm font-bold text-black uppercase">
-              Thông tin hỗ trợ vận chuyển
+          {/* 📞 HỘP THÔNG TIN LIÊN HỆ ĐỘNG 100% TỪ CONFIG */}
+          <div className="mt-12 p-6 bg-white border border-[#E1DDD5] rounded-3xl space-y-3 text-xs font-mono text-left shadow-xs">
+            <h4 className="font-serif text-sm font-bold text-black uppercase flex items-center gap-2">
+              <Headphones className="size-4 text-[#FF9D00]" /> Thông tin hỗ trợ
+              vận chuyển
             </h4>
-            <p>
-              Hotline hỗ trợ:{" "}
-              <strong className="text-[#FF9D00]">0913.449.968</strong>
-            </p>
-            <p>
-              Email tiếp nhận xử lý:{" "}
-              <strong className="text-black">support@boospace.tech</strong>
-            </p>
-            <p>Khung giờ hỗ trợ: 08:00 – 18:00 (Thứ Hai – Thứ Bảy)</p>
+            <div className="space-y-1.5 pt-1 text-slate-700">
+              <p className="flex items-center gap-2">
+                <Phone className="size-3.5 text-[#FF9D00]" />
+                <span>
+                  Hotline hỗ trợ:{" "}
+                  <a
+                    href={`tel:${cleanPhoneLink}`}
+                    className="font-bold text-black hover:underline"
+                  >
+                    {siteConfig.contact.phone}
+                  </a>{" "}
+                  (Zalo:{" "}
+                  <a
+                    href={siteConfig.social.zalo}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="font-bold text-[#FF9D00] hover:underline"
+                  >
+                    Tư vấn trực tiếp
+                  </a>
+                  )
+                </span>
+              </p>
+              <p className="flex items-center gap-2">
+                <Mail className="size-3.5 text-[#FF9D00]" />
+                <span>
+                  Email tiếp nhận xử lý:{" "}
+                  <a
+                    href={`mailto:${siteConfig.contact.email}`}
+                    className="font-bold text-black hover:underline"
+                  >
+                    {siteConfig.contact.email}
+                  </a>
+                </span>
+              </p>
+              <p className="flex items-center gap-2">
+                <Clock className="size-3.5 text-[#FF9D00]" />
+                <span>
+                  Khung giờ hỗ trợ:{" "}
+                  <strong>{siteConfig.contact.workingHours}</strong>
+                </span>
+              </p>
+            </div>
           </div>
         </div>
       </div>

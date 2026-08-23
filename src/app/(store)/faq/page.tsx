@@ -7,7 +7,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { siteConfig } from "@/lib/config"; // Tự động nạp thông tin liên hệ động
+import { siteConfig } from "@/lib/config";
 
 export const revalidate = 86400; // Cache 24 giờ
 
@@ -52,15 +52,15 @@ const faqSections = [
     items: [
       {
         q: "05. Boo Space tính phí vận chuyển như thế nào? Có được miễn phí không?",
-        a: "• Miễn phí vận chuyển (Free Shipping): Boo Space áp dụng chính sách miễn phí giao hàng duy nhất đối với các đơn hàng tại khu vực nội thành TP. Hồ Chí Minh.\n• Khu vực ngoại thành & tỉnh lẻ: Cước phí vận chuyển được tính toán tự động theo biểu phí thực tế của các đơn vị vận chuyển liên kết (GHN / Viettel Post) dựa trên khoảng cách địa lý và kích thước đóng gói của kiện hàng. Mức phí hiển thị minh bạch tại bước checkout.",
+        a: "• Miễn phí vận chuyển (Free Shipping): Boo Space áp dụng chính sách miễn phí giao hàng đối với các đơn hàng tại khu vực nội thành TP. Hồ Chí Minh hoặc đơn hàng có tổng giá trị từ 500.000 ₫.\n• Khu vực ngoại thành & tỉnh lẻ: Cước phí vận chuyển được tính toán tự động theo biểu phí thực tế của các đơn vị vận chuyển liên kết (GHN / Viettel Post) dựa trên khoảng cách địa lý và kích thước đóng gói của kiện hàng. Mức phí hiển thị minh bạch tại bước checkout.",
       },
       {
         q: "06. Tôi có thể thanh toán đơn hàng bằng những phương thức nào?",
-        a: "Chúng tôi cung cấp hai phương thức giao dịch tối giản và bảo mật tuyệt đối:\n\n1. Chuyển khoản VietQR tự động: Giao diện thanh toán khởi tạo mã VietQR động chứa chính xác số tiền và cú pháp mã đơn hàng (#BSxxx). Hệ thống đối soát ngân hàng tự động xác nhận trạng thái 'Đã thanh toán' trong vài giây.\n2. Thanh toán khi nhận hàng (COD): Áp dụng cho đơn hàng tiêu chuẩn trên toàn quốc. Bạn thanh toán tiền mặt trực tiếp cho nhân viên giao hàng của GHN / Viettel Post sau khi kiểm hàng thành công.",
+        a: "Chúng tôi cung cấp hai phương thức giao dịch tối giản và bảo mật tuyệt đối:\n\n1. Chuyển khoản VietQR tự động: Giao diện thanh toán khởi tạo mã VietQR động chứa chính xác số tiền và cú pháp mã đơn hàng. Hệ thống PayOS tự động xác nhận trạng thái 'Đã thanh toán' trong vài giây.\n2. Thanh toán khi nhận hàng (COD): Áp dụng cho đơn hàng tiêu chuẩn trên toàn quốc. Bạn thanh toán tiền mặt trực tiếp cho nhân viên giao hàng của GHN / Viettel Post sau khi kiểm hàng thành công.",
       },
       {
         q: "07. Tôi có được đồng kiểm (kiểm tra hàng) khi nhận không?",
-        a: "Có. Boo Space luôn khuyến khích khách hàng đồng kiểm cùng shipper khi nhận hàng. Bạn được quyền mở hộp để kiểm tra ngoại quan sản phẩm (đúng mẫu mã, màu sắc, số lượng, sản phẩm nguyên vẹn không sứt mẻ/nứt vỡ do va đập vận chuyển). Việc kiểm hàng không bao gồm dùng thử hoặc bóc seal vận hành sản phẩm.",
+        a: "Có. Boo Space luôn khuyến khích khách hàng đồng kiểm cùng shipper khi nhận hàng. Bạn được quyền mở hộp để kiểm tra ngoại quan sản phẩm (đúng mẫu mã, màu sắc, số lượng, sản phẩm nguyên vẹn không sứt mẻ/nứt vỡ do va đập vận chuyển).",
       },
     ],
   },
@@ -70,7 +70,7 @@ const faqSections = [
     items: [
       {
         q: "08. Chính sách đổi trả và hoàn tiền của Boo Space quy định thế nào?",
-        a: "Chúng tôi cung cấp lớp bảo hiểm minh bạch để bạn hoàn toàn an tâm khi mua sắm:\n\n• Đổi 1-đổi-1 miễn phí trong 07 ngày: Áp dụng nếu sản phẩm phát sinh lỗi kỹ thuật từ xưởng (nứt vỡ kết cấu, rỗng sợi) hoặc bị hư hỏng do vận chuyển. Boo Space chịu 100% phí ship 2 chiều.\n• Hỗ trợ đổi mẫu/size trong 03 ngày: Áp dụng cho sản phẩm bán sẵn (Standard SKU) còn nguyên vẹn vỏ hộp, tem mác và chưa qua sử dụng, khách hàng chịu chi phí vận chuyển 2 chiều.\n• Ngoại lệ: Chúng tôi không hỗ trợ đổi trả vì lý do đổi ý cá nhân đối với các sản phẩm đặt thiết kế và in Custom riêng theo yêu cầu (do sản phẩm mang tính cá nhân hóa cao không thể tái bán).",
+        a: "Chúng tôi cung cấp lớp bảo hiểm minh bạch để bạn hoàn toàn an tâm khi mua sắm:\n\n• Đổi 1-đổi-1 miễn phí trong 07 ngày: Áp dụng nếu sản phẩm phát sinh lỗi kỹ thuật từ xưởng (nứt vỡ kết cấu, rỗng sợi) hoặc bị hư hỏng do vận chuyển. Boo Space chịu 100% phí ship 2 chiều.\n• Hỗ trợ đổi mẫu/size trong 03 ngày: Áp dụng cho sản phẩm bán sẵn còn nguyên vẹn vỏ hộp, tem mác và chưa qua sử dụng, khách hàng chịu chi phí vận chuyển 2 chiều.\n• Ngoại lệ: Không hỗ trợ đổi trả vì lý do đổi ý cá nhân đối với các sản phẩm đặt thiết kế và in Custom riêng theo yêu cầu.",
       },
     ],
   },
@@ -129,7 +129,7 @@ export default function FAQPage() {
           ))}
         </div>
 
-        {/* SUPPORT CALLOUT BOX — NẠP SỐ ĐIỆN THOẠI VÀ EMAIL ĐỘNG TỪ CONFIG */}
+        {/* SUPPORT CALLOUT BOX — NẠP ĐỘNG TỪ CONFIG */}
         <div className="mt-14 rounded-3xl border border-[#E1DDD5] bg-[#EAE5D9]/30 p-8 text-center space-y-4 shadow-xs">
           <div className="size-12 rounded-full bg-white border border-[#E1DDD5] flex items-center justify-center mx-auto text-[#FF9D00]">
             <Headphones className="size-6" />

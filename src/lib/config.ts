@@ -1,5 +1,5 @@
 // ============================================================================
-// Store Configuration — Single source of truth cho Boo Space
+// Store Configuration — Single source of truth cho Boo Space Studio
 // ============================================================================
 
 export const siteConfig = {
@@ -16,34 +16,38 @@ export const siteConfig = {
 
   url: process.env.NEXT_PUBLIC_BASE_URL ?? "https://www.boospace.tech",
 
-  // Thông tin liên hệ
+  // 📞 THÔNG TIN LIÊN HỆ ĐỒNG BỘ TOÀN HỆ THỐNG
   contact: {
-    email: "boospace7@gmail.com",
-    phone: "0972 306 562",
+    email: "support@boospace.tech",
+    supportEmail: "support@boospace.tech",
+    phone: "0972.306.562",
+    hotline: "0972.306.562",
+    workingHours: "08:00 – 18:00 (Thứ Hai – Thứ Bảy)",
     address: {
-      street: "",
+      street: "19/16 Lam Sơn, Phường Đức Nhuận",
       suite: "",
-      city: "TP. Hồ Chí Minh",
+      city: "Thành phố Thủ Đức, TP. Hồ Chí Minh",
       state: "Hồ Chí Minh",
       zip: "700000",
     },
   },
 
-  // Mạng xã hội
+  // 🌐 MẠNG XÃ HỘI & KÊNH LIÊN HỆ
   social: {
-    twitter: "",
+    zalo: "https://zalo.me/0972306562",
     instagram: "https://www.instagram.com/boospacestudio",
     facebook: "https://www.facebook.com/boospace7",
-    youtube: "",
     tiktok: "https://www.tiktok.com/@boo.space",
+    youtube: "https://www.youtube.com/@boospace",
+    twitter: "",
   },
 
-  // BỔ SUNG CẢ THUỘC TÍNH MỚI VÀ CŨ ĐỂ TƯƠNG THÍCH 100% VỚI CART SUMMARY
+  // CHÍNH SÁCH VẬN CHUYỂN
   freeShippingThreshold: 500000, // Miễn phí vận chuyển cho đơn từ 500.000đ
   taxRate: 0.0, // Thuế cố định
   shipping: {
     freeCityKeyword: "Hồ Chí Minh",
-    standardFee: 34000,
+    standardFee: 30000,
   },
 
   currency: "VND",
