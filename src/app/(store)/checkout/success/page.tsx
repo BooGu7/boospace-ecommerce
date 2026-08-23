@@ -63,7 +63,6 @@ function CheckoutSuccessContent() {
 
     async function fetchOrder() {
       try {
-        // Gọi thẳng qua API Route chuẩn hóa order_id
         const res = await fetch(
           `/api/orders?order_id=${encodeURIComponent(orderId || "")}`,
           { cache: "no-store" },
@@ -94,6 +93,11 @@ function CheckoutSuccessContent() {
       orderDetails?.payment_status || orderDetails?.paymentStatus || "",
     ).toLowerCase() === "paid";
 
+  // LÀM SẠCH GHI CHÚ: Loại bỏ hoàn toàn mã kỹ thuật nếu có
+  const cleanCustomerNotes = String(orderDetails?.notes || "")
+    .replace(/PayOS_Code:\s*\d+\s*\|\s*/gi, "")
+    .trim();
+
   return (
     <div className="bg-[#FCFAF2] text-[#1E1C1A] min-h-screen antialiased selection:bg-[#EAE5D9]">
       <div className="mx-auto max-w-[1440px] px-4 py-16 sm:px-6 lg:px-8 border-x border-[#E1DDD5] bg-[#FCFAF2]/50">
@@ -120,7 +124,7 @@ function CheckoutSuccessContent() {
             </p>
           </div>
 
-          {/* COMPONENT VIETQR PAYOS: TỰ ĐỘNG CHUYỂN XANH KHI PAID */}
+          {/* MÃ QR VIETQR TỰ ĐỘNG BIẾN MẤT KHI PAID */}
           {orderDetails && isVietQR && !isPaid && (
             <motion.div
               initial={{ y: 20, opacity: 0 }}
@@ -238,11 +242,12 @@ function CheckoutSuccessContent() {
                     </span>
                   </div>
 
-                  {orderDetails.notes && (
+                  {/* CHỈ HIỆN KHI KHÁCH HÀNG CÓ NHẬP GHI CHÚ THẬT */}
+                  {cleanCustomerNotes && (
                     <div className="flex items-start gap-2.5 text-[#1E1C1A] pt-1 border-t border-[#E1DDD5]/60">
                       <FileText className="size-4 text-[#786F66] shrink-0 mt-0.5" />
                       <span>
-                        <strong>Ghi chú đơn hàng:</strong> {orderDetails.notes}
+                        <strong>Ghi chú đơn hàng:</strong> {cleanCustomerNotes}
                       </span>
                     </div>
                   )}

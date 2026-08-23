@@ -20,10 +20,11 @@ interface QRPaymentProps {
 }
 
 const formatVND = (amount: number) => {
-  const formatted = new Intl.NumberFormat("en-US", {
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
     maximumFractionDigits: 0,
   }).format(amount);
-  return `${formatted} VNĐ`;
 };
 
 export function VietQRPayment({
@@ -37,18 +38,16 @@ export function VietQRPayment({
   const [timeLeft, setTimeLeft] = useState(600);
   const isPaidRef = useRef(false);
 
-  // CẤU HÌNH NGÂN HÀNG MẶC ĐỊNH
+  // CẤU HÌNH NGÂN HÀNG THỤ HƯỞNG
   const [bankInfo, setBankInfo] = useState({
     bankCode: "ACB",
     accountNumber: "2077867",
     accountName: "TON THAT TRONG",
   });
 
-  // 1. NẠP ĐỘNG CẤU HÌNH NGÂN HÀNG TỪ SUPABASE (ĐỒNG BỘ VỚI ADMIN DASHBOARD)
   useEffect(() => {
     async function loadPaymentGateway() {
       try {
-        // Ưu tiên đọc từ settings tài chính của xưởng
         const { data: settingsData } = await supabase
           .from("settings")
           .select("value")
@@ -62,22 +61,6 @@ export function VietQRPayment({
             accountNumber: cfg.account_number || "2077867",
             accountName: cfg.account_name || "TON THAT TRONG",
           });
-          return;
-        }
-
-        // Fallback đọc từ payment_gateways
-        const { data: gwData } = await supabase
-          .from("payment_gateways")
-          .select("bank_code, account_number, account_name")
-          .eq("is_active", true)
-          .maybeSingle();
-
-        if (gwData) {
-          setBankInfo({
-            bankCode: gwData.bank_code || "ACB",
-            accountNumber: gwData.account_number || "2077867",
-            accountName: gwData.account_name || "TON THAT TRONG",
-          });
         }
       } catch (err) {
         console.error("Lỗi nạp cấu hình cổng thanh toán:", err);
@@ -87,7 +70,6 @@ export function VietQRPayment({
     loadPaymentGateway();
   }, []);
 
-  // 2. ĐẾM NGƯỢC 10 PHÚT
   useEffect(() => {
     if (timeLeft <= 0) return;
     const timer = setInterval(() => {
@@ -103,24 +85,22 @@ export function VietQRPayment({
     return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
   };
 
-  // 3. HÀM KIỂM TRA TRẠNG THÁI THANH TOÁN QUA SERVER API (VƯỢT QUA 100% RLS SUPABASE)
+  // KIỂM TRA TRẠNG THÁI THANH TOÁN QUA SERVER API
   const verifyPaymentStatus = async (showToast = false) => {
     if (isPaidRef.current) return;
 
     try {
-      // Gọi qua API Route Server (có quyền Admin bypass RLS an toàn)
       const res = await fetch(
         `/api/orders?order_id=${encodeURIComponent(orderId)}`,
-        {
-          cache: "no-store",
-        },
+        { cache: "no-store" },
       );
 
       if (res.ok) {
         const result = await res.json();
         if (
           result.success &&
-          (result.isPaid || result.order?.payment_status === "Paid")
+          (result.isPaid ||
+            String(result.order?.payment_status).toLowerCase() === "paid")
         ) {
           isPaidRef.current = true;
           setIsPaid(true);
@@ -145,24 +125,22 @@ export function VietQRPayment({
     return false;
   };
 
-  // 4. CƠ CHẾ POLLING TỰ ĐỘNG MỖI 3.5 GIÂY (CHUYỂN MÀN HÌNH TỰ ĐỘNG KHÔNG CẦN BẤM NÚT)
+  // TỰ ĐỘNG HỎI VÒNG 2.5 GIÂY / LẦN
   useEffect(() => {
     if (isPaid) return;
 
-    // Kiểm tra ngay lần đầu
     verifyPaymentStatus(false);
 
-    // Lặp lại tự động mỗi 3.5 giây
     const pollInterval = setInterval(() => {
       if (!isPaidRef.current && timeLeft > 0) {
         verifyPaymentStatus(false);
       }
-    }, 3500);
+    }, 2500);
 
     return () => clearInterval(pollInterval);
   }, [orderId, isPaid, timeLeft]);
 
-  // 5. LẮNG NGHE SUPABASE REALTIME ĐỒNG THỜI (CHUẨN HÓA BỎ MỌI TIỀN TỐ)
+  // LẮNG NGHE SUPABASE REALTIME
   useEffect(() => {
     const cleanId = orderId.replace(/^(ORD|BOO)-?/i, "").toUpperCase();
 
@@ -185,7 +163,7 @@ export function VietQRPayment({
             (targetCode === cleanId ||
               updatedOrder.id === orderId ||
               updatedOrder.code === orderId) &&
-            updatedOrder.payment_status === "Paid"
+            String(updatedOrder.payment_status).toLowerCase() === "paid"
           ) {
             isPaidRef.current = true;
             setIsPaid(true);
@@ -209,7 +187,6 @@ export function VietQRPayment({
   const template = "compact2";
   const qrImageUrl = `https://img.vietqr.io/image/${bankInfo.bankCode}-${bankInfo.accountNumber}-${template}.png?amount=${amount}&addInfo=${encodeURIComponent(transferMemo)}&accountName=${encodeURIComponent(bankInfo.accountName)}`;
 
-  // GIAO DIỆN KHI ĐÃ THANH TOÁN THÀNH CÔNG (PAID)
   if (isPaid) {
     return (
       <div className="rounded-3xl border border-[#3ECF8E]/30 bg-[#3ECF8E]/5 p-6 text-center space-y-4 max-w-sm mx-auto shadow-sm animate-in fade-in zoom-in duration-300">
@@ -234,7 +211,6 @@ export function VietQRPayment({
     );
   }
 
-  // NÚT KIỂM TRA THỦ CÔNG
   const handleManualCheck = async () => {
     setIsChecking(true);
     await verifyPaymentStatus(true);

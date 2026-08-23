@@ -26,7 +26,7 @@ interface CouponRecord {
 }
 
 /**
- * 1. KIỂM TRA TRẠNG THÁI THANH TOÁN (GET /api/orders?order_id=...)
+ * 1. KIỂM TRA TRẠNG THÁI THANH TOÁN (GET)
  */
 export async function GET(request: Request) {
   try {
@@ -64,7 +64,7 @@ export async function GET(request: Request) {
       .from("orders")
       .select("*, order_items(*)")
       .or(
-        `code.eq.${cleanCode},code.eq.ORD-${strippedCode},code.eq.BOO-${strippedCode},code.eq.${strippedCode},notes.ilike.%${cleanCode}%,notes.ilike.%${strippedCode}%,id.eq.${isUuid ? cleanCode : "00000000-0000-0000-0000-000000000000"}`,
+        `code.eq.${cleanCode},code.eq.ORD-${strippedCode},code.eq.BOO-${strippedCode},code.eq.${strippedCode},shipping_address->>payos_order_code.eq.${cleanCode},id.eq.${isUuid ? cleanCode : "00000000-0000-0000-0000-000000000000"}`,
       )
       .maybeSingle();
 
@@ -125,8 +125,8 @@ export async function POST(request: Request) {
 
     const shippingAddress = (body.shippingAddress ||
       body.shipping_address ||
-      {}) as Record<string, string>;
-    const notes = body.notes || "";
+      {}) as Record<string, any>;
+    const userNotes = (body.notes || "").toString().trim();
     const couponCode = body.couponCode || body.coupon_code || "";
     const items = (body.items || []) as RequestOrderItem[];
 
@@ -154,6 +154,7 @@ export async function POST(request: Request) {
       supabaseAdmin = createSupabaseServerClient();
     }
 
+    // LẤY GIÁ BÁN THỰC TẾ TỪ DATABASE
     const productIds = items
       .map((i: RequestOrderItem) => i.productId || i.product_id)
       .filter(Boolean);
@@ -244,6 +245,7 @@ export async function POST(request: Request) {
 
     const finalTotal = calculatedSubtotal - discountAmount + serverShippingFee;
 
+    // SINH MÃ SỐ NGUYÊN CHO PAYOS (ẨN DƯỚI NỀN)
     const payosNumericCode = Math.abs(
       parseInt(Date.now().toString().slice(-6), 10) +
         Math.floor(Math.random() * 1000),
@@ -260,7 +262,12 @@ export async function POST(request: Request) {
         "",
       );
 
-    // LƯU ĐƠN HÀNG VÀO SUPABASE
+    // LƯU MÃ PAYOS VÀO JSONB ẨN, TRẢ LẠI GHI CHÚ NGUYÊN BẢN CỦA KHÁCH
+    const enhancedShippingAddress = {
+      ...shippingAddress,
+      payos_order_code: payosNumericCode,
+    };
+
     const { data: createdOrder, error: orderError } = await supabaseAdmin
       .from("orders")
       .insert({
@@ -270,7 +277,7 @@ export async function POST(request: Request) {
         customer_email: customerEmail || `${customerPhone}@boospace.tech`,
         customer_phone: customerPhone,
         customer_address: formattedAddressStr || "Nhận tại xưởng BooSpace",
-        shipping_address: shippingAddress || {},
+        shipping_address: enhancedShippingAddress,
         subtotal: calculatedSubtotal,
         shipping: serverShippingFee,
         total: finalTotal,
@@ -279,7 +286,7 @@ export async function POST(request: Request) {
         payment_method: savedPaymentMethod,
         applied_coupon_id: appliedCouponId,
         shipping_carrier: "Giao hàng tiêu chuẩn",
-        notes: `PayOS_Code: ${payosNumericCode} | ${notes || ""}`,
+        notes: userNotes || null, // CHỈ LƯU GHI CHÚ THẬT CỦA KHÁCH HÀNG
         packaging_note:
           "Hàng dễ vỡ. Bọc xốp nổ 3 lớp, đóng thùng carton sóng E, dán tem vỡ niêm phong xưởng",
       })
@@ -315,7 +322,7 @@ export async function POST(request: Request) {
       payosData = await createPayOSPaymentLink({
         orderCode: payosNumericCode,
         amount: finalTotal,
-        description: `DH ${orderCode}`,
+        description: `DH ${orderCode.replace(/^ORD-/, "")}`,
         items: payosItems,
       });
     }

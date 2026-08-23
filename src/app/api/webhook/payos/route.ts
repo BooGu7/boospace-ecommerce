@@ -67,13 +67,13 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // 4. TÌM KIẾM ĐƠN HÀNG ĐA NĂNG (BẮT MỌI TRƯỜNG HỢP)
+    // 4. TÌM KIẾM ĐƠN HÀNG ĐA NĂNG
     const descCodes = extractPossibleCodes(description || "");
     const searchConditions = [
-      `notes.ilike.%${orderCode}%`,
+      `shipping_address->>payos_order_code.eq.${orderCode}`,
       `code.ilike.%${orderCode}%`,
       ...descCodes.map((c) => `code.eq.${c}`),
-      ...descCodes.map((c) => `notes.ilike.%${c}%`),
+      ...descCodes.map((c) => `code.ilike.%${c}%`),
     ].join(",");
 
     const { data: orders } = await supabaseAdmin
