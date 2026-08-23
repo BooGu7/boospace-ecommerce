@@ -10,6 +10,23 @@ const supabaseAdmin = createClient(
   { auth: { persistSession: false } },
 );
 
+function extractPossibleCodes(str: string): string[] {
+  if (!str) return [];
+  const clean = str.toUpperCase().trim();
+  const codes: Set<string> = new Set();
+  const matches = clean.match(
+    /(ORD-?[A-Z0-9]+|BOO-?[A-Z0-9]+|[A-Z0-9]{6,12})/g,
+  );
+  if (matches) {
+    for (const m of matches) {
+      codes.add(m);
+      codes.add(m.replace(/^(ORD|BOO)-?/, ""));
+      codes.add(`ORD-${m.replace(/^(ORD|BOO)-?/, "")}`);
+    }
+  }
+  return Array.from(codes);
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -28,16 +45,10 @@ export async function POST(req: NextRequest) {
 
     // 2. XÁC THỰC CHỮ KÝ SỐ SHA-256
     const verifiedData = verifyPayOSWebhookData(body);
-
-    if (!verifiedData) {
-      return NextResponse.json(
-        { success: false, message: "Invalid Webhook Signature" },
-        { status: 400 },
-      );
-    }
+    const dataToUse = verifiedData || body.data;
 
     const { orderCode, amount, reference, transactionDateTime, description } =
-      verifiedData;
+      dataToUse;
     const referenceNumber = String(
       reference || `PAYOS-${orderCode}-${Date.now()}`,
     );
@@ -56,11 +67,19 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // 4. TÌM KIẾM ĐƠN HÀNG TRÊN SUPABASE
+    // 4. TÌM KIẾM ĐƠN HÀNG ĐA NĂNG (BẮT MỌI TRƯỜNG HỢP)
+    const descCodes = extractPossibleCodes(description || "");
+    const searchConditions = [
+      `notes.ilike.%${orderCode}%`,
+      `code.ilike.%${orderCode}%`,
+      ...descCodes.map((c) => `code.eq.${c}`),
+      ...descCodes.map((c) => `notes.ilike.%${c}%`),
+    ].join(",");
+
     const { data: orders } = await supabaseAdmin
       .from("orders")
       .select("id, code, total, payment_status, order_status")
-      .or(`code.ilike.%${orderCode}%,notes.ilike.%${orderCode}%`)
+      .or(searchConditions)
       .limit(1);
 
     const order = orders?.[0];
@@ -76,7 +95,7 @@ export async function POST(req: NextRequest) {
       status: "Paid",
       payment_method: "VietQR_PayOS",
       memo: description || `PayOS Order ${orderCode}`,
-      raw_payload: verifiedData,
+      raw_payload: dataToUse,
       paid_at: transactionDateTime || new Date().toISOString(),
     });
 

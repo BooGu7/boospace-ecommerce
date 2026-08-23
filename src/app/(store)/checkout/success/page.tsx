@@ -18,7 +18,6 @@ import { VietQRPayment } from "@/components/checkout/vietqr-payment";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { supabase } from "@/lib/supabase/client";
 
 const formatVND = (amount: number) => {
   return new Intl.NumberFormat("vi-VN", {
@@ -51,9 +50,8 @@ function CheckoutSuccessFallback() {
 
 function CheckoutSuccessContent() {
   const searchParams = useSearchParams();
-  const orderId = searchParams.get("order_id");
+  const orderId = searchParams.get("order_id") || searchParams.get("code");
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [orderDetails, setOrderDetails] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -63,28 +61,17 @@ function CheckoutSuccessContent() {
       return;
     }
 
-    const targetCode = orderId;
-
     async function fetchOrder() {
       try {
-        // Nạp đơn hàng từ API Server
+        // Gọi thẳng qua API Route chuẩn hóa order_id
         const res = await fetch(
-          `/api/orders?code=${encodeURIComponent(targetCode)}`,
+          `/api/orders?order_id=${encodeURIComponent(orderId || "")}`,
+          { cache: "no-store" },
         );
         const resData = await res.json();
 
         if (res.ok && resData.success && resData.order) {
           setOrderDetails(resData.order);
-        } else {
-          // Dự phòng nếu nạp qua Client
-          const { data } = await supabase
-            .from("orders")
-            .select("*, order_items(*)")
-            .eq("code", targetCode)
-            .maybeSingle();
-          if (data) {
-            setOrderDetails(data);
-          }
         }
       } catch (err) {
         console.error("Lỗi nạp đơn hàng thành công:", err);
@@ -98,18 +85,14 @@ function CheckoutSuccessContent() {
 
   if (loading) return <CheckoutSuccessFallback />;
 
-  const rawPM = (
-    orderDetails?.payment_method ||
-    orderDetails?.paymentMethod ||
-    ""
-  )
-    .toString()
-    .toLowerCase();
+  const rawPM = String(
+    orderDetails?.payment_method || orderDetails?.paymentMethod || "",
+  ).toLowerCase();
   const isVietQR = rawPM.includes("vietqr");
   const isPaid =
-    (orderDetails?.payment_status || orderDetails?.paymentStatus || "")
-      .toString()
-      .toLowerCase() === "paid";
+    String(
+      orderDetails?.payment_status || orderDetails?.paymentStatus || "",
+    ).toLowerCase() === "paid";
 
   return (
     <div className="bg-[#FCFAF2] text-[#1E1C1A] min-h-screen antialiased selection:bg-[#EAE5D9]">
@@ -137,7 +120,7 @@ function CheckoutSuccessContent() {
             </p>
           </div>
 
-          {/* MÃ QR VIETQR HIỂN THỊ TỰ ĐỘNG CHUẨN XÁC */}
+          {/* COMPONENT VIETQR PAYOS: TỰ ĐỘNG CHUYỂN XANH KHI PAID */}
           {orderDetails && isVietQR && !isPaid && (
             <motion.div
               initial={{ y: 20, opacity: 0 }}
@@ -147,11 +130,17 @@ function CheckoutSuccessContent() {
               <VietQRPayment
                 orderId={orderDetails.code || orderDetails.id}
                 amount={Number(orderDetails.total ?? 0)}
+                onSuccess={() => {
+                  setOrderDetails((prev: any) => ({
+                    ...prev,
+                    payment_status: "Paid",
+                  }));
+                }}
               />
             </motion.div>
           )}
 
-          {/* KHUNG THÔNG TIN ĐƠN HÀNG VÀ CHI TIẾT KHÁCH ĐẶT ĐƠN */}
+          {/* CHI TIẾT ĐƠN HÀNG */}
           {orderDetails && (
             <motion.div
               initial={{ y: 30, opacity: 0 }}
@@ -182,6 +171,24 @@ function CheckoutSuccessContent() {
                       {isVietQR
                         ? "Chuyển khoản VietQR"
                         : "Thanh toán khi nhận hàng (COD)"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[#786F66] font-mono uppercase tracking-wider">
+                      Trạng thái thanh toán
+                    </span>
+                    <span
+                      className={`font-mono font-bold px-2.5 py-0.5 rounded-md ${
+                        String(orderDetails.payment_status).toLowerCase() ===
+                        "paid"
+                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                          : "bg-amber-50 text-amber-700 border border-amber-200"
+                      }`}
+                    >
+                      {String(orderDetails.payment_status).toLowerCase() ===
+                      "paid"
+                        ? "✓ ĐÃ THANH TOÁN"
+                        : "CHỜ CHUYỂN KHOẢN"}
                     </span>
                   </div>
                   <div className="flex justify-between">

@@ -26,7 +26,7 @@ interface CouponRecord {
 }
 
 /**
- * 1. KIỂM TRA TRẠNG THÁI THANH TOÁN (GET)
+ * 1. KIỂM TRA TRẠNG THÁI THANH TOÁN (GET /api/orders?order_id=...)
  */
 export async function GET(request: Request) {
   try {
@@ -59,11 +59,12 @@ export async function GET(request: Request) {
 
     const strippedCode = cleanCode.replace(/^(ORD|BOO)-?/i, "");
 
+    // ĐÃ SỬA: Bỏ ambiguous products(...) trong select để triệt tiêu lỗi HTTP 300
     const { data: order, error } = await supabaseAdmin
       .from("orders")
-      .select("*, order_items(*, products(id, name, images, weight))")
+      .select("*, order_items(*)")
       .or(
-        `code.eq.${cleanCode},code.eq.ORD-${strippedCode},code.eq.BOO-${strippedCode},code.eq.${strippedCode},notes.ilike.%${cleanCode}%,id.eq.${isUuid ? cleanCode : "00000000-0000-0000-0000-000000000000"}`,
+        `code.eq.${cleanCode},code.eq.ORD-${strippedCode},code.eq.BOO-${strippedCode},code.eq.${strippedCode},notes.ilike.%${cleanCode}%,notes.ilike.%${strippedCode}%,id.eq.${isUuid ? cleanCode : "00000000-0000-0000-0000-000000000000"}`,
       )
       .maybeSingle();
 
@@ -77,7 +78,7 @@ export async function GET(request: Request) {
     return NextResponse.json({
       success: true,
       order,
-      isPaid: order.payment_status === "Paid",
+      isPaid: String(order.payment_status || "").toLowerCase() === "paid",
       paymentStatus: order.payment_status,
       orderStatus: order.order_status,
     });
@@ -153,7 +154,6 @@ export async function POST(request: Request) {
       supabaseAdmin = createSupabaseServerClient();
     }
 
-    // LẤY GIÁ BÁN THỰC TẾ TỪ DATABASE
     const productIds = items
       .map((i: RequestOrderItem) => i.productId || i.product_id)
       .filter(Boolean);
@@ -202,7 +202,7 @@ export async function POST(request: Request) {
       });
     }
 
-    // XÁC THỰC MÃ GIẢM GIÁ
+    // XÁC THỰC COUPON
     let discountPercent = 0;
     let appliedCouponId: string | null = null;
 
@@ -215,7 +215,6 @@ export async function POST(request: Request) {
         .maybeSingle();
 
       const coupon = couponData as CouponRecord | null;
-
       if (coupon) {
         discountPercent = coupon.discount_percent;
         appliedCouponId = coupon.id;
@@ -226,7 +225,7 @@ export async function POST(request: Request) {
       calculatedSubtotal * (discountPercent / 100),
     );
 
-    // PHÍ VẬN CHUYỂN SERVER-SIDE
+    // PHÍ VẬN CHUYỂN
     const city = (shippingAddress?.city || "").toLowerCase();
     const isHCM =
       city.includes("hồ chí minh") ||
@@ -245,13 +244,14 @@ export async function POST(request: Request) {
 
     const finalTotal = calculatedSubtotal - discountAmount + serverShippingFee;
 
-    // SINH MÃ SỐ NGUYÊN CHO PAYOS THEO DÕI
     const payosNumericCode = Math.abs(
       parseInt(Date.now().toString().slice(-6), 10) +
         Math.floor(Math.random() * 1000),
     );
     const orderCode =
-      body.orderNumber || body.code || `ORD-${payosNumericCode}`;
+      body.orderNumber ||
+      body.code ||
+      `ORD-${Date.now().toString(36).toUpperCase()}`;
 
     const formattedAddressStr =
       shippingAddress?.formattedAddress ||
@@ -300,7 +300,7 @@ export async function POST(request: Request) {
 
     await supabaseAdmin.from("order_items").insert(itemsToInsert);
 
-    // NẾU CHỌN VIETQR -> TỰ ĐỘNG GỌI PAYOS SINH LINK THANH TOÁN
+    // NẾU LÀ VIETQR -> GỌI PAYOS TẠO PAYMENT LINK
     let payosData = null;
     if (isVietQR) {
       const payosItems = verifiedOrderItems.map((it) => {
