@@ -15,7 +15,11 @@ interface DbProductItem {
 interface RequestOrderItem {
   productId?: string;
   product_id?: string;
+  variantId?: string;
+  variantName?: string;
+  name?: string;
   quantity?: number;
+  price?: number;
 }
 
 interface CouponRecord {
@@ -26,7 +30,7 @@ interface CouponRecord {
 }
 
 /**
- * 1. KIỂM TRA TRẠNG THÁI THANH TOÁN (GET)
+ * 1. KIỂM TRA TRẠNG THÁI THANH TOÁN (GET) - TỰ ĐỘNG ĐỐI SOÁT PAYOS
  */
 export async function GET(request: Request) {
   try {
@@ -117,7 +121,7 @@ export async function GET(request: Request) {
 }
 
 /**
- * 2. TẠO ĐƠN HÀNG VÀ SINH LINK THANH TOÁN PAYOS (POST)
+ * 2. TẠO ĐƠN HÀNG VÀ LƯU CHI TIẾT MÀU PHÔI IN VÀO SUPABASE (POST)
  */
 export async function POST(request: Request) {
   try {
@@ -183,10 +187,12 @@ export async function POST(request: Request) {
       supabaseAdmin = createSupabaseServerClient();
     }
 
+    // TRÍCH XUẤT DANH SÁCH PRODUCT_ID HỢP LỆ
     const productIds = items
       .map((i: RequestOrderItem) => i.productId || i.product_id)
-      .filter(Boolean);
+      .filter((id): id is string => typeof id === "string" && id.length > 0);
 
+    // ĐÃ SỬA: TRUYỀN ĐỦ 2 THAM SỐ "id" VÀ productIds VÀO .in()
     const { data: dbProducts, error: productsError } = await supabaseAdmin
       .from("products")
       .select("id, name, price, published")
@@ -205,6 +211,7 @@ export async function POST(request: Request) {
 
     let calculatedSubtotal = 0;
     const verifiedOrderItems = [];
+    const colorNotesList: string[] = [];
 
     for (const item of items) {
       const pId = String(item.productId || item.product_id);
@@ -229,9 +236,18 @@ export async function POST(request: Request) {
         unit_price: realUnitPrice,
         total_price: lineTotal,
       });
+
+      // BÓC TÁCH MÀU ĐÃ CHỌN ĐỂ LƯU VÀO ĐƠN HÀNG XƯỞNG
+      if (
+        item.variantName &&
+        item.variantName !== "Default Variant" &&
+        item.variantName !== "Mặc định"
+      ) {
+        colorNotesList.push(`${dbProd.name}: ${item.variantName}`);
+      }
     }
 
-    // COUPON
+    // XÁC THỰC COUPON
     let discountPercent = 0;
     let appliedCouponId: string | null = null;
 
@@ -289,7 +305,7 @@ export async function POST(request: Request) {
         "",
       );
 
-    // GỌI PAYOS TẠO LINK THANH TOÁN CHÍNH THỨC
+    // GỌI PAYOS TẠO LINK THANH TOÁN
     let payosData = null;
     if (isVietQR) {
       const payosItems = verifiedOrderItems.map((it) => {
@@ -309,13 +325,27 @@ export async function POST(request: Request) {
       });
     }
 
-    // LƯU CẢ QR CODE VÀ CHECKOUT URL VÀO DATABASE
+    // 🎨 LƯU MÀU VÀO JSONB & PACKAGING_NOTE ĐỂ ADMIN THẤY NGAY
     const enhancedShippingAddress = {
       ...shippingAddress,
       payos_order_code: payosNumericCode,
       payos_checkout_url: payosData?.checkoutUrl || null,
       payos_qr_code: payosData?.qrCode || null,
+      items_detail: items.map((it) => ({
+        product_id: it.productId || it.product_id,
+        name: it.name,
+        variantName: it.variantName || "Mặc định",
+        quantity: it.quantity,
+        price: it.price,
+      })),
     };
+
+    const colorHeader =
+      colorNotesList.length > 0
+        ? `[🎨 Màu phôi in: ${colorNotesList.join(" | ")}] • `
+        : "";
+
+    const fullPackagingNote = `${colorHeader}Hàng dễ vỡ. Bọc xốp nổ 3 lớp, đóng thùng carton sóng E, dán tem vỡ niêm phong xưởng`;
 
     // LƯU ĐƠN HÀNG VÀO SUPABASE
     const { data: createdOrder, error: orderError } = await supabaseAdmin
@@ -337,8 +367,7 @@ export async function POST(request: Request) {
         applied_coupon_id: appliedCouponId,
         shipping_carrier: "Giao hàng tiêu chuẩn",
         notes: userNotes || null,
-        packaging_note:
-          "Hàng dễ vỡ. Bọc xốp nổ 3 lớp, đóng thùng carton sóng E, dán tem vỡ niêm phong xưởng",
+        packaging_note: fullPackagingNote,
       })
       .select("id, code, total")
       .single();

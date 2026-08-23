@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import {
   AlertTriangle,
   Award,
+  Check,
   Cpu,
   Heart,
   Layers,
@@ -43,6 +44,11 @@ import { useRecentlyViewedStore } from "@/store/recently-viewed";
 import { useWishlistStore } from "@/store/wishlist";
 import type { Brand, Category, Product } from "@/types";
 
+interface ColorItem {
+  name: string;
+  hex: string;
+}
+
 interface ProductDetailViewProps {
   product: Product;
   relatedProducts: Product[];
@@ -52,6 +58,41 @@ interface ProductDetailViewProps {
 
 const emptySubscribe = () => () => {};
 
+function extractProductColors(attrs: Record<string, unknown>): ColorItem[] {
+  if (Array.isArray(attrs.colors) && attrs.colors.length > 0) {
+    return attrs.colors as ColorItem[];
+  }
+
+  const rawNames = String(attrs.color_name || "").trim();
+  const rawHexes = String(attrs.color_hex || "").trim();
+
+  if (!rawNames && !rawHexes) return [];
+
+  const names = rawNames
+    .split(/[,;|]/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const hexes = rawHexes
+    .split(/[,;|]/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  if (names.length > 1) {
+    return names.map((name, i) => ({
+      name,
+      hex: hexes[i] || "#334155",
+    }));
+  }
+
+  return [
+    {
+      name: rawNames || "Mặc định",
+      hex: rawHexes || "#334155",
+    },
+  ];
+}
+
+// ĐÃ SỬA: DÙNG NAMED EXPORT ĐỂ KHỚP VỚI import { ProductDetailView } TRONG page.tsx
 export function ProductDetailView({
   product,
   relatedProducts,
@@ -74,7 +115,6 @@ export function ProductDetailView({
   const removeFromWishlist = useWishlistStore((s) => s.removeItem);
   const addRecentlyViewed = useRecentlyViewedStore((s) => s.addItem);
 
-  // SỬ DỤNG HOOK CHUẨN REACT 19 THAY CHO setMounted
   const mounted = useSyncExternalStore(
     emptySubscribe,
     () => true,
@@ -83,6 +123,15 @@ export function ProductDetailView({
 
   const isWishlisted =
     mounted && wishlistItems.some((i) => i.productId === product.id);
+
+  const attrs =
+    (product as unknown as { attributes?: Record<string, unknown> })
+      .attributes || {};
+  const availableColors = extractProductColors(attrs);
+
+  const [selectedColor, setSelectedColor] = useState<ColorItem | null>(
+    availableColors[0] || null,
+  );
 
   useEffect(() => {
     async function fetchDynamicRatings() {
@@ -135,11 +184,17 @@ export function ProductDetailView({
   function handleAddToCart() {
     if (!selectedVariant || isOutOfStock) return;
 
+    const finalVariantName = selectedColor
+      ? `Màu: ${selectedColor.name}`
+      : selectedVariant.name !== "Default Variant"
+        ? selectedVariant.name
+        : "Mặc định";
+
     addToCart({
-      variantId: selectedVariant.id,
+      variantId: `${selectedVariant.id}-${selectedColor?.name || "default"}`,
       productId: product.id,
       name: product.name,
-      variantName: selectedVariant.name,
+      variantName: finalVariantName,
       image: product.images[0] ?? { url: "", alt: product.name },
       slug: product.slug,
       price: selectedVariant.price,
@@ -193,11 +248,6 @@ export function ProductDetailView({
     }
   }
 
-  // ĐÃ SỬA: ÉP KIỂU RECORD CHUẨN XÁC, LOẠI BỎ ANY
-  const attrs =
-    (product as unknown as { attributes?: Record<string, string> })
-      .attributes || {};
-
   return (
     <div className="bg-[#FCFAF2] text-[#1E1C1A] min-h-screen antialiased selection:bg-[#EAE5D9]">
       <div className="mx-auto max-w-[1440px] px-4 py-12 sm:px-6 lg:px-8 border-x border-[#E1DDD5] bg-[#FCFAF2]/50">
@@ -236,9 +286,10 @@ export function ProductDetailView({
               <StarRating rating={avgRating} reviewCount={reviewCount} />
             </div>
 
+            {/* BADGES */}
             <div className="flex flex-wrap items-center gap-2.5 mt-3 mb-1">
               {isOutOfStock && (
-                <span className="text-[10px] font-mono font-bold text-white bg-slate-900 px-3 py-1 rounded-full uppercase tracking-wider shadow-xs">
+                <span className="text-[10px] font-mono font-bold text-white bg-slate-900 px-3 py-1 rounded-full uppercase tracking-wider shadow-xs border border-white/20">
                   🚫 HẾT HÀNG TẠM THỜI
                 </span>
               )}
@@ -276,6 +327,7 @@ export function ProductDetailView({
               </Link>
             )}
 
+            {/* GIÁ BÁN */}
             <motion.div
               whileHover={{ scale: 1.01 }}
               className="mt-4 flex items-center gap-3 w-fit select-none"
@@ -303,32 +355,56 @@ export function ProductDetailView({
               )}
             </motion.div>
 
-            {(attrs.color_name || attrs.color_hex) && (
-              <div className="mt-4 p-3.5 rounded-2xl bg-white border border-[#E1DDD5] flex items-center justify-between shadow-xs">
-                <div className="flex items-center gap-2.5">
-                  <Palette className="size-4 text-[#FF9D00]" />
-                  <span className="text-xs font-mono font-bold text-[#5c544d] uppercase tracking-wider">
-                    Màu sắc phôi:
-                  </span>
+            {/* 🎨 BỘ CHỌN NHIỀU MÀU SẮC TƯƠNG TÁC (CHỈ HIỆN KHI CÓ MÀU TRONG CSDL) */}
+            {availableColors.length > 0 && (
+              <div className="mt-5 p-4 rounded-3xl bg-white border border-[#E1DDD5] space-y-3 shadow-xs">
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    {attrs.color_hex && (
-                      <span
-                        className="size-4.5 rounded-full border-2 border-white shadow-xs inline-block"
-                        style={{ backgroundColor: attrs.color_hex }}
-                        title={attrs.color_name || "Màu sắc"}
-                      />
-                    )}
+                    <Palette className="size-4 text-[#FF9D00]" />
+                    <span className="text-xs font-mono font-bold text-[#5c544d] uppercase tracking-wider">
+                      Tùy chọn màu sắc phôi:
+                    </span>
                     <span className="text-xs font-sans font-bold text-black">
-                      {attrs.color_name || attrs.color_hex}
+                      {selectedColor?.name || "Mặc định"}
                     </span>
                   </div>
+                  <span className="text-[10px] font-mono font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md uppercase">
+                    {String(attrs.material || "CR-PETG")}
+                  </span>
                 </div>
-                <span className="text-[10px] font-mono font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md uppercase">
-                  {attrs.material || "CR-PETG"}
-                </span>
+
+                {/* DANH SÁCH SWATCH MÀU */}
+                <div className="flex flex-wrap items-center gap-2.5 pt-1">
+                  {availableColors.map((col) => {
+                    const isSelected = selectedColor?.name === col.name;
+                    return (
+                      <button
+                        key={col.name}
+                        type="button"
+                        onClick={() => setSelectedColor(col)}
+                        className={`flex items-center gap-2 px-3 py-1.5 rounded-2xl border transition-all cursor-pointer ${
+                          isSelected
+                            ? "border-black bg-slate-900 text-white font-bold shadow-sm ring-2 ring-slate-900/20"
+                            : "border-[#E1DDD5] bg-[#FCFAF2] text-slate-800 hover:border-slate-400"
+                        }`}
+                      >
+                        <span
+                          className="size-3.5 rounded-full border border-white/80 shadow-xs shrink-0 flex items-center justify-center"
+                          style={{ backgroundColor: col.hex }}
+                        >
+                          {isSelected && (
+                            <Check className="size-2 text-white stroke-[3]" />
+                          )}
+                        </span>
+                        <span className="text-xs font-sans">{col.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             )}
 
+            {/* MÔ TẢ ĐỊNH DẠNG */}
             <div className="mt-5 pt-4 border-t border-[#E1DDD5]/60">
               <FormattedDescription text={product.description} />
             </div>
@@ -366,6 +442,7 @@ export function ProductDetailView({
                 </Button>
               </div>
 
+              {/* NÚT THÊM / KHÓA ORDER NẾU HẾT HÀNG */}
               <Button
                 size="lg"
                 className={`w-full sm:flex-1 font-mono uppercase text-xs tracking-wider rounded-xl py-4 flex items-center justify-center gap-2 transition-colors ${
@@ -400,6 +477,7 @@ export function ProductDetailView({
               </div>
             )}
 
+            {/* UPSELL MUA KÈM (ĐÃ KHÓA NÚT NẾU HẾT HÀNG) */}
             {relatedProducts.length > 0 && (
               <div className="mt-8 rounded-3xl p-6 bg-white border border-[#E1DDD5] flex flex-col gap-4 shadow-xs relative overflow-hidden">
                 <div className="space-y-1 relative z-10 text-left">
@@ -491,6 +569,7 @@ export function ProductDetailView({
           </div>
         </div>
 
+        {/* BẢNG THÔNG SỐ */}
         <div className="py-16 border-b border-[#E1DDD5]/60 text-left">
           <div className="bg-black text-white p-4 rounded-2xl flex items-center max-w-full justify-between select-none mb-10 shadow-xs">
             <span className="font-serif text-lg font-bold pl-2">
@@ -509,8 +588,10 @@ export function ProductDetailView({
                   Vật liệu
                 </h3>
                 <p className="text-xs text-[#5C564E] leading-relaxed">
-                  {attrs.material ||
-                    "Nhựa kỹ thuật CR-PETG chịu lực và chịu nhiệt cao (∼70–80°C)."}
+                  {String(
+                    attrs.material ||
+                      "Nhựa kỹ thuật CR-PETG chịu lực và chịu nhiệt cao (∼70–80°C).",
+                  )}
                 </p>
               </div>
             </div>
@@ -572,3 +653,6 @@ export function ProductDetailView({
     </div>
   );
 }
+
+// BỔ SUNG CẢ DEFAULT EXPORT DỰ PHÒNG ĐỂ TƯƠNG THÍCH MỌI CÁCH IMPORT
+export default ProductDetailView;

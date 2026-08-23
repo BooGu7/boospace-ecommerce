@@ -7,6 +7,7 @@ import {
   Loader2,
   MapPin,
   Package,
+  Palette,
   QrCode,
   Truck,
   User,
@@ -100,6 +101,7 @@ export default function CheckoutPage() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const updateProfile = useAuthStore((s) => s.updateProfile);
 
+  // KIỂM TRA HYDRATION CHUẨN REACT 19 (0ms, SẠCH 100% LỖI SET-STATE-IN-EFFECT)
   const mounted = useSyncExternalStore(
     emptySubscribe,
     () => true,
@@ -111,6 +113,7 @@ export default function CheckoutPage() {
     "vietqr",
   );
 
+  // Danh sách Tỉnh / Huyện GHN
   const [provinces, setProvinces] = useState<GHNProvince[]>([]);
   const [districts, setDistricts] = useState<GHNDistrict[]>([]);
   const [selectedProvinceId, setSelectedProvinceId] = useState<number>(202);
@@ -138,6 +141,7 @@ export default function CheckoutPage() {
   const [addons, setAddons] = useState<AddonProduct[]>([]);
   const [addonsLoading, setAddonsLoading] = useState(true);
 
+  // 1. NẠP DANH SÁCH TỈNH THÀNH GHN
   useEffect(() => {
     if (!mounted) return;
     async function loadProvinces() {
@@ -162,6 +166,7 @@ export default function CheckoutPage() {
     loadProvinces();
   }, [mounted]);
 
+  // 2. NẠP DANH SÁCH QUẬN HUYỆN KHI ĐỔI TỈNH
   useEffect(() => {
     if (!selectedProvinceId) return;
 
@@ -184,7 +189,7 @@ export default function CheckoutPage() {
     loadDistricts();
   }, [selectedProvinceId]);
 
-  // ĐÃ SỬA: TÍNH PHÍ VẬN CHUYỂN BẤT ĐỒNG BỘ TRÁNH LỖI set-state-in-effect
+  // 3. TÍNH PHÍ VẬN CHUYỂN BẤT ĐỒNG BỘ (TRÁNH LỖI SET-STATE-IN-EFFECT)
   useEffect(() => {
     if (!mounted || items.length === 0) return;
 
@@ -252,7 +257,7 @@ export default function CheckoutPage() {
     getSubtotal,
   ]);
 
-  // ĐÃ SỬA: NẠP ĐỊA CHỈ QUA HÀM DEFERRED TRÁNH LỖI set-state-in-effect
+  // 4. NẠP THÔNG TIN TÀI KHOẢN KHI ĐĂNG NHẬP (TRÁNH LỖI SET-STATE-IN-EFFECT)
   useEffect(() => {
     if (!mounted || !isAuthenticated || !user) return;
 
@@ -279,6 +284,7 @@ export default function CheckoutPage() {
     return () => clearTimeout(timer);
   }, [mounted, isAuthenticated, user]);
 
+  // 5. NẠP SẢN PHẨM MUA KÈM
   useEffect(() => {
     if (!mounted) return;
 
@@ -578,6 +584,7 @@ export default function CheckoutPage() {
           className="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-12"
         >
           <div className="space-y-8 lg:col-span-7">
+            {/* THÔNG TIN LIÊN HỆ */}
             <Card className="rounded-3xl border border-[#DCD6CC] bg-white p-6 shadow-xs text-left">
               <CardHeader className="p-0 pb-4 border-b border-[#E1DDD5]/40 mb-4">
                 <CardTitle className="font-serif text-lg font-bold text-black flex items-center gap-2">
@@ -627,6 +634,7 @@ export default function CheckoutPage() {
               </CardContent>
             </Card>
 
+            {/* ĐỊA CHỈ GIAO HÀNG (63 TỈNH THÀNH & QUẬN HUYỆN) */}
             <Card className="rounded-3xl border border-[#DCD6CC] bg-white p-6 shadow-xs text-left">
               <CardHeader className="p-0 pb-4 border-b border-[#E1DDD5]/40 mb-4">
                 <CardTitle className="font-serif text-lg font-bold text-black flex items-center gap-2">
@@ -764,6 +772,7 @@ export default function CheckoutPage() {
               </CardContent>
             </Card>
 
+            {/* GHI CHÚ ĐƠN HÀNG */}
             <Card className="rounded-3xl border border-[#DCD6CC] bg-white p-6 shadow-xs text-left">
               <CardHeader className="p-0 pb-3 border-b border-[#E1DDD5]/40 mb-3">
                 <CardTitle className="font-serif text-base font-bold text-black">
@@ -783,6 +792,7 @@ export default function CheckoutPage() {
               </CardContent>
             </Card>
 
+            {/* PHƯƠNG THỨC THANH TOÁN */}
             <Card className="rounded-3xl border border-[#DCD6CC] bg-white p-6 shadow-xs text-left">
               <CardHeader className="p-0 pb-4 border-b border-[#E1DDD5]/40 mb-4">
                 <CardTitle className="font-serif text-lg font-bold text-black">
@@ -880,6 +890,7 @@ export default function CheckoutPage() {
             </div>
           </div>
 
+          {/* CỘT PHẢI - TÓM TẮT ĐƠN HÀNG */}
           <div className="lg:col-span-5">
             <Card className="sticky top-24 rounded-3xl border border-[#DCD6CC] bg-[#FAF5F2]/90 p-6 shadow-md space-y-6">
               <CardHeader className="p-0 pb-3 border-b border-[#E1DDD5]/60">
@@ -892,9 +903,15 @@ export default function CheckoutPage() {
               </CardHeader>
 
               <CardContent className="p-0 space-y-4">
+                {/* DANH SÁCH MÓN HÀNG VÀ HIỂN THỊ MÀU SẮC ĐÃ CHỌN */}
                 <div className="space-y-4 max-h-[300px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-[#EAE5D9]">
                   {items.map((item) => {
                     const imgUrl = item.image?.url || PLACEHOLDER_IMAGE;
+                    const hasCustomVariant =
+                      item.variantName &&
+                      item.variantName !== "Default Variant" &&
+                      item.variantName !== "Mặc định";
+
                     return (
                       <div
                         key={item.variantId}
@@ -913,10 +930,19 @@ export default function CheckoutPage() {
                           </span>
                         </div>
 
-                        <div className="flex-1 min-w-0 text-left space-y-0.5">
+                        <div className="flex-1 min-w-0 text-left space-y-1">
                           <p className="text-xs sm:text-sm font-serif font-bold text-black leading-snug truncate">
                             {item.name}
                           </p>
+
+                          {/* 🎨 HIỂN THỊ HUY HIỆU MÀU SẮC ĐÃ CHỌN TRỰC TIẾP */}
+                          {hasCustomVariant && (
+                            <p className="text-[10px] font-mono font-bold text-amber-800 bg-amber-100/90 px-2 py-0.5 rounded-md border border-amber-300 w-fit inline-flex items-center gap-1">
+                              <Palette className="size-3 text-amber-600" />
+                              {item.variantName}
+                            </p>
+                          )}
+
                           <p className="text-[11px] font-mono text-[#786F66]">
                             Đơn giá:{" "}
                             <strong className="text-black">
@@ -947,6 +973,7 @@ export default function CheckoutPage() {
 
                 <Separator className="bg-[#E1DDD5]" />
 
+                {/* MÃ GIẢM GIÁ */}
                 <div className="flex gap-3">
                   <Input
                     type="text"
@@ -971,6 +998,7 @@ export default function CheckoutPage() {
 
                 <Separator className="bg-[#E1DDD5]" />
 
+                {/* 🔒 UPSELL MUA KÈM (KHÓA NÚT THÊM NẾU HẾT HÀNG) */}
                 {filteredAddons.length > 0 && (
                   <div className="bg-white border border-[#E1DDD5] rounded-3xl p-5 space-y-4 shadow-sm text-left">
                     <div className="space-y-0.5 border-b border-[#E1DDD5]/40 pb-2">
@@ -1039,7 +1067,7 @@ export default function CheckoutPage() {
                                 <button
                                   type="button"
                                   onClick={() => handleAddAddonToCart(addon)}
-                                  className="rounded-lg bg-black hover:bg-[#33302C] text-[9px] font-sans font-bold text-white px-3 py-1.5 uppercase shadow-sm shrink-0 cursor-pointer transition-colors"
+                                  className="rounded-lg bg-black hover:bg-[#33302C] text-[9px] font-sans font-bold text-white px-3.5 py-2 uppercase shadow-sm shrink-0 cursor-pointer transition-colors"
                                 >
                                   Thêm
                                 </button>
@@ -1054,6 +1082,7 @@ export default function CheckoutPage() {
 
                 <Separator className="bg-[#E1DDD5]" />
 
+                {/* HẠCH TOÁN CHI PHÍ */}
                 <div className="space-y-3.5 text-xs font-sans text-left">
                   <div className="flex justify-between text-[#5c544d]">
                     <span>Tổng phụ</span>
