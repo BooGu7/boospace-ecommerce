@@ -4,7 +4,10 @@ import crypto from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+);
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -13,7 +16,11 @@ export async function forgotPassword(email: string) {
     const normalizedEmail = email.trim().toLowerCase();
 
     // Thay đổi sang truy vấn bảng 'users'
-    const { data: user, error } = await supabase.from("users").select("*").eq("email", normalizedEmail).maybeSingle();
+    const { data: user, error } = await supabase
+      .from("users")
+      .select("*")
+      .eq("email", normalizedEmail)
+      .maybeSingle();
 
     if (error) {
       throw new Error(error.message);
@@ -55,7 +62,7 @@ export async function forgotPassword(email: string) {
 
     // Kích hoạt gửi thư khôi phục
     const { data, error: emailError } = await resend.emails.send({
-      from: "Boo Space <support@boospace.tech>",
+      from: "Boo Space Studio<support@boospace.tech>",
       to: normalizedEmail,
       subject: "Đặt lại mật khẩu tài khoản Boo Space",
       html: `
@@ -87,7 +94,11 @@ export async function forgotPassword(email: string) {
     console.log("RESEND SUCCESS:", data);
 
     if (emailError) {
-      throw new Error(typeof emailError === "object" ? JSON.stringify(emailError) : String(emailError));
+      throw new Error(
+        typeof emailError === "object"
+          ? JSON.stringify(emailError)
+          : String(emailError),
+      );
     }
 
     return {
@@ -95,6 +106,8 @@ export async function forgotPassword(email: string) {
     };
   } catch (error) {
     console.error("FORGOT PASSWORD ERROR:", error);
-    throw new Error(error instanceof Error ? error.message : "Không thể gửi email");
+    throw new Error(
+      error instanceof Error ? error.message : "Không thể gửi email",
+    );
   }
 }

@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { siteConfig } from "@/lib/config";
+import { sendOrderConfirmationEmail } from "@/lib/email";
 import { createPayOSPaymentLink, getPayOSPaymentInfo } from "@/lib/payos";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -29,9 +30,6 @@ interface CouponRecord {
   active: boolean;
 }
 
-/**
- * 1. KIỂM TRA TRẠNG THÁI THANH TOÁN (GET) - TỰ ĐỘNG ĐỐI SOÁT PAYOS
- */
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -82,7 +80,6 @@ export async function GET(request: Request) {
     let isPaid = String(order.payment_status || "").toLowerCase() === "paid";
     const payosCode = order.shipping_address?.payos_order_code;
 
-    // TỰ ĐỘNG ĐỐI SOÁT TRỰC TIẾP VỚI PAYOS API
     if (!isPaid && payosCode) {
       const payosCheck = await getPayOSPaymentInfo(Number(payosCode));
       if (payosCheck.success && payosCheck.status === "PAID") {
@@ -120,9 +117,6 @@ export async function GET(request: Request) {
   }
 }
 
-/**
- * 2. TẠO ĐƠN HÀNG VÀ LƯU CHI TIẾT MÀU PHÔI IN VÀO SUPABASE (POST)
- */
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -187,12 +181,10 @@ export async function POST(request: Request) {
       supabaseAdmin = createSupabaseServerClient();
     }
 
-    // TRÍCH XUẤT DANH SÁCH PRODUCT_ID HỢP LỆ
     const productIds = items
       .map((i: RequestOrderItem) => i.productId || i.product_id)
       .filter((id): id is string => typeof id === "string" && id.length > 0);
 
-    // ĐÃ SỬA: TRUYỀN ĐỦ 2 THAM SỐ "id" VÀ productIds VÀO .in()
     const { data: dbProducts, error: productsError } = await supabaseAdmin
       .from("products")
       .select("id, name, price, published")
@@ -237,7 +229,6 @@ export async function POST(request: Request) {
         total_price: lineTotal,
       });
 
-      // BÓC TÁCH MÀU ĐÃ CHỌN ĐỂ LƯU VÀO ĐƠN HÀNG XƯỞNG
       if (
         item.variantName &&
         item.variantName !== "Default Variant" &&
@@ -247,7 +238,7 @@ export async function POST(request: Request) {
       }
     }
 
-    // XÁC THỰC COUPON
+    // COUPON
     let discountPercent = 0;
     let appliedCouponId: string | null = null;
 
@@ -325,7 +316,6 @@ export async function POST(request: Request) {
       });
     }
 
-    // 🎨 LƯU MÀU VÀO JSONB & PACKAGING_NOTE ĐỂ ADMIN THẤY NGAY
     const enhancedShippingAddress = {
       ...shippingAddress,
       payos_order_code: payosNumericCode,
@@ -385,6 +375,42 @@ export async function POST(request: Request) {
     }));
 
     await supabaseAdmin.from("order_items").insert(itemsToInsert);
+
+    // 📧 TỰ ĐỘNG GỬI EMAIL HÓA ĐƠN QUA RESEND TỚI GMAIL KHÁCH HÀNG
+    try {
+      if (customerEmail && !customerEmail.endsWith("@boospace.tech")) {
+        await sendOrderConfirmationEmail({
+          orderCode,
+          customerName,
+          customerEmail,
+          customerPhone,
+          shippingAddress: formattedAddressStr,
+          items: verifiedOrderItems.map((it) => {
+            const prod = productMap.get(it.product_id);
+            const originalItem = items.find(
+              (raw) =>
+                String(raw.productId || raw.product_id) === it.product_id,
+            );
+            return {
+              name: prod?.name || "Sản phẩm chế tác 3D",
+              variantName: originalItem?.variantName || "Mặc định",
+              quantity: it.quantity,
+              price: it.unit_price,
+              total: it.total_price,
+            };
+          }),
+          subtotal: calculatedSubtotal,
+          discountAmount,
+          shippingFee: serverShippingFee,
+          total: finalTotal,
+          paymentMethod: savedPaymentMethod,
+          paymentStatus: "Pending",
+          notes: userNotes,
+        });
+      }
+    } catch (emailErr) {
+      console.warn("[AUTO_EMAIL_SEND_WARN]", emailErr);
+    }
 
     return NextResponse.json({
       success: true,
