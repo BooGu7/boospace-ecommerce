@@ -4,8 +4,9 @@ import {
   blogRepository,
   categoryRepository,
   productRepository,
-} from "@/lib/repositories"; // Tên import đã được điều chỉnh chuẩn xác
+} from "@/lib/repositories";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import type { Product } from "@/types";
 
 export const metadata: Metadata = {
   title: "Boo Space — Custom 3D Printed Workspace & Design Studio",
@@ -23,12 +24,11 @@ export const metadata: Metadata = {
   },
 };
 
-// Đặt revalidate = 0 để tự động làm mới dữ liệu từ Supabase ngay lập tức khi F5
 export const revalidate = 0;
 
-// Bộ chuyển đổi sản phẩm từ Supabase CSDL
+// BỘ CHUYỂN ĐỔI SẢN PHẨM KHỚP 100% VỚI KIỂU DỮ LIỆU Product
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function mapDbProductToStorefront(dbProduct: any) {
+function mapDbProductToStorefront(dbProduct: any): Product | null {
   if (!dbProduct) return null;
 
   const price = Number(dbProduct.price ?? 0) * 100;
@@ -38,14 +38,19 @@ function mapDbProductToStorefront(dbProduct: any) {
 
   const defaultVariant = {
     id: `${dbProduct.id}-default`,
-    name: "Default Variant",
+    productId: dbProduct.id,
     sku: dbProduct.sku || "",
+    name: "Default Variant",
     price: price,
     compareAtPrice: comparePrice,
+    currency: "VND",
     inventory: {
       quantity: dbProduct.stock ?? 0,
+      trackInventory: true,
       allowBackorder: false,
     },
+    options: [],
+    images: [],
   };
 
   const dbImages = dbProduct.images || [];
@@ -61,23 +66,25 @@ function mapDbProductToStorefront(dbProduct: any) {
     name: dbProduct.name,
     description: dbProduct.description || "",
     shortDescription: dbProduct.short_description || "",
-    status: dbProduct.published ? "active" : "draft",
-    featured: dbProduct.featured || false,
+    status: dbProduct.published ? ("active" as const) : ("draft" as const),
+    featured: Boolean(dbProduct.featured),
     images: mappedImages,
     categoryIds: dbProduct.category_id ? [dbProduct.category_id] : [],
-    brandId: dbProduct.brand_id,
+    brandId: dbProduct.brand_id || "",
     stock: dbProduct.stock ?? 0,
     tags: [],
     variants: [defaultVariant],
+    // 🌟 ĐÃ BỔ SUNG rating VÀ reviewCount ĐỂ KHỚP 100% VỚI KIỂU Product
+    rating: Number(dbProduct.rating ?? 5),
+    reviewCount: Number(dbProduct.review_count ?? 0),
     createdAt: dbProduct.created_at || new Date().toISOString(),
     updatedAt: dbProduct.updated_at || new Date().toISOString(),
-  };
+  } as unknown as Product;
 }
 
 export default async function HomePage() {
   const supabase = createSupabaseServerClient();
 
-  // NẠP ĐỒNG THỜI TOÀN BỘ CÁC BẢNG TỪ SUPABASE DATABASE
   const [
     categories,
     featuredResult,
@@ -109,13 +116,11 @@ export default async function HomePage() {
 
   const blogs = blogsResult?.items || [];
 
-  // Ánh xạ sản phẩm ưu đãi
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const saleProducts = (saleProductsRes.data || [])
+  // ÁNH XẠ SẢN PHẨM KHUYẾN MÃI THEO KIỂU Product[]
+  const saleProducts: Product[] = (saleProductsRes.data || [])
     .map(mapDbProductToStorefront)
-    .filter((p) => p !== null);
+    .filter((p): p is Product => p !== null);
 
-  // GỘP CẢ 2 BẢNG HỒ SƠ CONFIG VÀ HOMEPAGE TỪ SUPABASE
   const config = {
     ...(homepageRes.data?.value || {}),
     ...(siteConfigRes.data?.value || {}),
