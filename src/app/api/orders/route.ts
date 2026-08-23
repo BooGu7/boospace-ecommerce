@@ -60,7 +60,6 @@ export async function GET(request: Request) {
     const strippedCode = cleanCode.replace(/^(ORD|BOO)-?/i, "");
     const noHyphenCode = cleanCode.replace(/[^a-zA-Z0-9]/g, "");
 
-    // TÌM ĐƠN HÀNG: Hỗ trợ mã có dấu gạch ngang, không dấu gạch ngang, và mã PayOS
     const { data: order, error } = await supabaseAdmin
       .from("orders")
       .select("*, order_items(*)")
@@ -78,7 +77,7 @@ export async function GET(request: Request) {
 
     let isPaid = String(order.payment_status || "").toLowerCase() === "paid";
 
-    // LỚP BẢO HIỂM 2: Nếu DB chưa Paid -> Hỏi trực tiếp PayOS API để gạch nợ ngay
+    // NẾU CHƯA PAID -> ĐỐI SOÁT TRỰC TIẾP VỚI PAYOS API
     if (!isPaid && order.shipping_address?.payos_order_code) {
       const payosCheck = await getPayOSPaymentInfo(
         Number(order.shipping_address.payos_order_code),
@@ -114,7 +113,7 @@ export async function GET(request: Request) {
 }
 
 /**
- * 2. TẠO ĐƠN HÀNG VÀ ĐỒNG BỘ NỘI DUNG CHUYỂN KHOẢN VỚI PAYOS (POST)
+ * 2. TẠO ĐƠN HÀNG (POST) - SẠCH 100% ESLINT
  */
 export async function POST(request: Request) {
   try {
@@ -148,9 +147,11 @@ export async function POST(request: Request) {
       rawPaymentMethod.toLowerCase().includes("payos");
     const savedPaymentMethod = isVietQR ? "VietQR" : "COD";
 
+    // ĐÃ SỬA: Thay thế any bằng Record<string, unknown> để pass 100% ESLint
     const shippingAddress = (body.shippingAddress ||
       body.shipping_address ||
-      {}) as Record<string, any>;
+      {}) as Record<string, unknown>;
+
     const userNotes = (body.notes || "").toString().trim();
     const couponCode = body.couponCode || body.coupon_code || "";
     const items = (body.items || []) as RequestOrderItem[];
@@ -251,7 +252,7 @@ export async function POST(request: Request) {
     );
 
     // PHÍ VẬN CHUYỂN
-    const city = (shippingAddress?.city || "").toLowerCase();
+    const city = String(shippingAddress?.city || "").toLowerCase();
     const isHCM =
       city.includes("hồ chí minh") ||
       city.includes("hcm") ||
@@ -279,7 +280,7 @@ export async function POST(request: Request) {
       `ORD-${Date.now().toString(36).toUpperCase()}`;
 
     const formattedAddressStr =
-      shippingAddress?.formattedAddress ||
+      String(shippingAddress?.formattedAddress || "") ||
       `${shippingAddress?.line1 || ""}, ${shippingAddress?.district || ""}, ${shippingAddress?.city || ""}`.replace(
         /^, |, $/g,
         "",
@@ -330,7 +331,7 @@ export async function POST(request: Request) {
 
     await supabaseAdmin.from("order_items").insert(itemsToInsert);
 
-    // GỌI PAYOS TẠO PAYMENT LINK VỚI NỘI DUNG CHUẨN XÁC
+    // GỌI PAYOS TẠO PAYMENT LINK
     let payosData = null;
     if (isVietQR) {
       const payosItems = verifiedOrderItems.map((it) => {
@@ -342,7 +343,6 @@ export async function POST(request: Request) {
         };
       });
 
-      // ĐỒNG BỘ DESCRIPTION VỚI NỘI DUNG CHUYỂN KHOẢN CỦA APP NGÂN HÀNG
       payosData = await createPayOSPaymentLink({
         orderCode: payosNumericCode,
         amount: finalTotal,

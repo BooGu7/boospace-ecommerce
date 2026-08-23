@@ -1,6 +1,8 @@
 import crypto from "node:crypto";
 
-const clientId = process.env.PAYOS_CLIENT_ID || "";
+// TỰ ĐỘNG BẮT CẢ 2 KIỂU VIẾT ĐỂ CHỐNG LỖI TYPO
+const clientId =
+  process.env.PAYOS_CLIENT_ID || process.env.PAYOS_ClIENT_ID || "";
 const apiKey = process.env.PAYOS_API_KEY || "";
 const checksumKey = process.env.PAYOS_CHECKSUM_KEY || "";
 
@@ -43,9 +45,6 @@ function createSignature(dataStr: string, key: string): string {
   return crypto.createHmac("sha256", key).update(dataStr).digest("hex");
 }
 
-/**
- * 1. TẠO LINK & MÃ QR THANH TOÁN PAYOS
- */
 export async function createPayOSPaymentLink(params: CreatePayOSLinkParams) {
   try {
     const origin =
@@ -118,9 +117,6 @@ export async function createPayOSPaymentLink(params: CreatePayOSLinkParams) {
   }
 }
 
-/**
- * 2. TRA CỨU TRỰC TIẾP TRẠNG THÁI TỪ PAYOS (LỚP BẢO HIỂM THỜI GIAN THỰC)
- */
 export async function getPayOSPaymentInfo(orderCode: number) {
   try {
     const res = await fetch(
@@ -137,7 +133,7 @@ export async function getPayOSPaymentInfo(orderCode: number) {
     if (result.code === "00" && result.data) {
       return {
         success: true,
-        status: result.data.status, // 'PAID', 'PENDING', 'CANCELLED'
+        status: result.data.status,
         amount: result.data.amount,
       };
     }
@@ -147,9 +143,6 @@ export async function getPayOSPaymentInfo(orderCode: number) {
   }
 }
 
-/**
- * 3. XÁC THỰC CHỮ KÝ WEBHOOK PAYOS
- */
 export function verifyPayOSWebhookData(
   webhookBody: PayOSWebhookPayload,
 ): PayOSWebhookData | null {
