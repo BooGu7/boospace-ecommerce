@@ -11,33 +11,35 @@ const nextConfig: NextConfig = {
     cpus: 4,
   },
 
+  // NGĂN CHẶN LỖI TURBOPACK BUNDLING CHO CÁC THƯ VIỆN BACKEND
+  serverExternalPackages: ["@payos/node", "bcryptjs"],
+
   images: {
     dangerouslyAllowSVG: true,
     contentDispositionType: "attachment",
     remotePatterns: [
+      // 1. SUPABASE STORAGE (HÌNH ẢNH & FILE CHẾ TÁC 3D)
       {
         protocol: "https",
         hostname: "amukhgkamrokbbcjgusf.supabase.co",
-        port: "",
         pathname: "/storage/v1/object/public/**",
       },
-      // KHAI BÁO TÊN MIỀN HÌNH ẢNH GOOGLE AVATAR VÀ CÁC NGUỒN NGOẠI
       {
         protocol: "https",
-        hostname: "lh3.googleusercontent.com",
+        hostname: "**.supabase.co",
       },
+
+      // 2. GOOGLE AVATAR (HỖ TRỢ MỌI SUBDOMAIN LH1 -> LH6)
       {
         protocol: "https",
-        hostname: "lh4.googleusercontent.com",
-      },
-      {
-        protocol: "https",
-        hostname: "lh5.googleusercontent.com",
+        hostname: "**.googleusercontent.com",
       },
       {
         protocol: "https",
         hostname: "avatars.githubusercontent.com",
       },
+
+      // 3. ẢNH MẪU & CDN NGOẠI
       {
         protocol: "https",
         hostname: "placehold.co",
@@ -46,18 +48,32 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "images.unsplash.com",
       },
+
+      // 4. MÃ QR VIETQR & CỔNG THANH TOÁN PAYOS
       {
         protocol: "https",
         hostname: "img.vietqr.io",
+      },
+      {
+        protocol: "https",
+        hostname: "api.qrserver.com",
+      },
+      {
+        protocol: "https",
+        hostname: "**.payos.vn",
       },
     ],
   },
 
   compiler: {
-    removeConsole: process.env.NODE_ENV === "production",
+    // Xóa log debug nhưng giữ lại console.error và console.warn để theo dõi thanh toán
+    removeConsole:
+      process.env.NODE_ENV === "production"
+        ? { exclude: ["error", "warn"] }
+        : false,
   },
 
-  allowedDevOrigins: ["192.168.100.76"],
+  allowedDevOrigins: ["192.168.100.76", "localhost:3000"],
 
   async redirects() {
     return redirectRules;

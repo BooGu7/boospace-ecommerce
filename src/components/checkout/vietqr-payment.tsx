@@ -3,10 +3,13 @@
 import {
   CheckCircle2,
   Clock,
+  ExternalLink,
+  QrCode,
   RefreshCw,
   RotateCcw,
   ShieldCheck,
 } from "lucide-react";
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -15,7 +18,8 @@ import { supabase } from "@/lib/supabase/client";
 interface QRPaymentProps {
   orderId: string;
   amount: number;
-  sku?: string;
+  payosQrCode?: string;
+  payosCheckoutUrl?: string;
   onSuccess?: () => void;
 }
 
@@ -30,7 +34,8 @@ const formatVND = (amount: number) => {
 export function VietQRPayment({
   orderId,
   amount,
-  sku,
+  payosQrCode,
+  payosCheckoutUrl,
   onSuccess,
 }: QRPaymentProps) {
   const [isPaid, setIsPaid] = useState(false);
@@ -38,7 +43,13 @@ export function VietQRPayment({
   const [timeLeft, setTimeLeft] = useState(600);
   const isPaidRef = useRef(false);
 
-  // CẤU HÌNH NGÂN HÀNG THỤ HƯỞNG
+  const [checkoutUrl, setCheckoutUrl] = useState<string | null>(
+    payosCheckoutUrl || null,
+  );
+  const [qrCodeRaw, setQrCodeRaw] = useState<string | null>(
+    payosQrCode || null,
+  );
+
   const [bankInfo, setBankInfo] = useState({
     bankCode: "ACB",
     accountNumber: "2077867",
@@ -46,7 +57,7 @@ export function VietQRPayment({
   });
 
   useEffect(() => {
-    async function loadPaymentGateway() {
+    async function loadGateway() {
       try {
         const { data: settingsData } = await supabase
           .from("settings")
@@ -63,11 +74,11 @@ export function VietQRPayment({
           });
         }
       } catch (err) {
-        console.error("Lỗi nạp cấu hình cổng thanh toán:", err);
+        console.error("Lỗi nạp cấu hình cổng:", err);
       }
     }
 
-    loadPaymentGateway();
+    loadGateway();
   }, []);
 
   useEffect(() => {
@@ -75,7 +86,6 @@ export function VietQRPayment({
     const timer = setInterval(() => {
       setTimeLeft((prev) => prev - 1);
     }, 1000);
-
     return () => clearInterval(timer);
   }, [timeLeft]);
 
@@ -85,7 +95,7 @@ export function VietQRPayment({
     return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
   };
 
-  // KIỂM TRA TRẠNG THÁI THANH TOÁN QUA SERVER API
+  // KIỂM TRA TRẠNG THÁI THANH TOÁN (TỰ ĐỘNG ĐỐI SOÁT PAYOS)
   const verifyPaymentStatus = async (showToast = false) => {
     if (isPaidRef.current) return;
 
@@ -97,6 +107,14 @@ export function VietQRPayment({
 
       if (res.ok) {
         const result = await res.json();
+
+        if (result.payos?.checkoutUrl && !checkoutUrl) {
+          setCheckoutUrl(result.payos.checkoutUrl);
+        }
+        if (result.payos?.qrCode && !qrCodeRaw) {
+          setQrCodeRaw(result.payos.qrCode);
+        }
+
         if (
           result.success &&
           (result.isPaid ||
@@ -105,7 +123,7 @@ export function VietQRPayment({
           isPaidRef.current = true;
           setIsPaid(true);
           toast.success(
-            "Xác nhận thanh toán thành công! Đơn hàng đang được gia công in ✨",
+            "Xác nhận thanh toán PayOS thành công! Đơn hàng đang được gia công in ✨",
           );
           onSuccess?.();
           return true;
@@ -125,7 +143,7 @@ export function VietQRPayment({
     return false;
   };
 
-  // TỰ ĐỘNG HỎI VÒNG 2.5 GIÂY / LẦN
+  // POLLING TỰ ĐỘNG MỖI 2.5 GIÂY
   useEffect(() => {
     if (isPaid) return;
 
@@ -181,12 +199,14 @@ export function VietQRPayment({
     };
   }, [orderId, onSuccess]);
 
-  const cleanSku = sku ? sku.replace(/[^a-zA-Z0-9-]/g, "").toUpperCase() : "";
-  const transferMemo = cleanSku ? `${orderId} ${cleanSku}` : orderId;
+  const transferMemo = orderId.replace(/[^a-zA-Z0-9]/g, "");
 
-  const template = "compact2";
-  const qrImageUrl = `https://img.vietqr.io/image/${bankInfo.bankCode}-${bankInfo.accountNumber}-${template}.png?amount=${amount}&addInfo=${encodeURIComponent(transferMemo)}&accountName=${encodeURIComponent(bankInfo.accountName)}`;
+  // ƯU TIÊN HIỂN THỊ MÃ QR PAYOS VIETQR PRO CHÍNH THỨC
+  const qrDisplayUrl = qrCodeRaw
+    ? `https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=${encodeURIComponent(qrCodeRaw)}`
+    : `https://img.vietqr.io/image/${bankInfo.bankCode}-${bankInfo.accountNumber}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(transferMemo)}&accountName=${encodeURIComponent(bankInfo.accountName)}`;
 
+  // GIAO DIỆN KHI ĐÃ THANH TOÁN THÀNH CÔNG (PAID)
   if (isPaid) {
     return (
       <div className="rounded-3xl border border-[#3ECF8E]/30 bg-[#3ECF8E]/5 p-6 text-center space-y-4 max-w-sm mx-auto shadow-sm animate-in fade-in zoom-in duration-300">
@@ -230,7 +250,7 @@ export function VietQRPayment({
         <div className="space-y-1">
           <h3 className="font-serif text-lg font-bold text-black flex items-center gap-2">
             <ShieldCheck className="size-5 text-[#FF9D00]" />
-            Thanh toán VietQR
+            Thanh toán VietQR (PayOS)
           </h3>
           <p className="text-xs text-[#786F66] font-sans">
             Tài khoản nhận: {bankInfo.bankCode} ({bankInfo.accountNumber})
@@ -252,7 +272,7 @@ export function VietQRPayment({
       <div className="relative aspect-square w-full rounded-2xl border border-[#E1DDD5] bg-[#FCFAF2]/40 overflow-hidden flex items-center justify-center p-3">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={qrImageUrl}
+          src={qrDisplayUrl}
           alt={`Mã VietQR thanh toán đơn hàng ${orderId}`}
           className={`object-contain size-full transition-all duration-300 ${
             isExpired ? "blur-md opacity-30" : ""
@@ -294,9 +314,21 @@ export function VietQRPayment({
 
       <div className="rounded-xl bg-[#FCFAF2] border border-[#E1DDD5] p-3 text-[10px] text-[#5c544d] leading-relaxed">
         💡 <strong>Lưu ý:</strong> Vui lòng giữ nguyên nội dung{" "}
-        <strong>{transferMemo}</strong> khi chuyển khoản để máy chủ tự nhận diện
-        đơn hàng.
+        <strong>{transferMemo}</strong> khi quét mã để hệ thống tự động nhận
+        diện trong 1 giây.
       </div>
+
+      {/* NÚT MỞ CỔNG THANH TOÁN PAYOS CHÍNH THỨC */}
+      {checkoutUrl && (
+        <a
+          href={checkoutUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="w-full h-10 bg-[#FF9D00] hover:bg-[#E68A00] text-black font-mono uppercase text-xs font-bold tracking-wider rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-xs"
+        >
+          <ExternalLink className="size-4" /> Mở trang thanh toán PayOS
+        </a>
+      )}
 
       <Button
         type="button"

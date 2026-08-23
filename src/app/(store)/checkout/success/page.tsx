@@ -53,6 +53,7 @@ function CheckoutSuccessContent() {
   const orderId = searchParams.get("order_id") || searchParams.get("code");
 
   const [orderDetails, setOrderDetails] = useState<any>(null);
+  const [payosData, setPayosData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -71,6 +72,9 @@ function CheckoutSuccessContent() {
 
         if (res.ok && resData.success && resData.order) {
           setOrderDetails(resData.order);
+          if (resData.payos) {
+            setPayosData(resData.payos);
+          }
         }
       } catch (err) {
         console.error("Lỗi nạp đơn hàng thành công:", err);
@@ -93,7 +97,6 @@ function CheckoutSuccessContent() {
       orderDetails?.payment_status || orderDetails?.paymentStatus || "",
     ).toLowerCase() === "paid";
 
-  // LÀM SẠCH GHI CHÚ: Loại bỏ hoàn toàn mã kỹ thuật nếu có
   const cleanCustomerNotes = String(orderDetails?.notes || "")
     .replace(/PayOS_Code:\s*\d+\s*\|\s*/gi, "")
     .trim();
@@ -124,7 +127,7 @@ function CheckoutSuccessContent() {
             </p>
           </div>
 
-          {/* MÃ QR VIETQR TỰ ĐỘNG BIẾN MẤT KHI PAID */}
+          {/* COMPONENT VIETQR PAYOS: HIỂN THỊ MÃ QR PAYOS CHÍNH THỨC */}
           {orderDetails && isVietQR && !isPaid && (
             <motion.div
               initial={{ y: 20, opacity: 0 }}
@@ -134,6 +137,14 @@ function CheckoutSuccessContent() {
               <VietQRPayment
                 orderId={orderDetails.code || orderDetails.id}
                 amount={Number(orderDetails.total ?? 0)}
+                payosQrCode={
+                  payosData?.qrCode ||
+                  orderDetails.shipping_address?.payos_qr_code
+                }
+                payosCheckoutUrl={
+                  payosData?.checkoutUrl ||
+                  orderDetails.shipping_address?.payos_checkout_url
+                }
                 onSuccess={() => {
                   setOrderDetails((prev: any) => ({
                     ...prev,
@@ -242,7 +253,6 @@ function CheckoutSuccessContent() {
                     </span>
                   </div>
 
-                  {/* CHỈ HIỆN KHI KHÁCH HÀNG CÓ NHẬP GHI CHÚ THẬT */}
                   {cleanCustomerNotes && (
                     <div className="flex items-start gap-2.5 text-[#1E1C1A] pt-1 border-t border-[#E1DDD5]/60">
                       <FileText className="size-4 text-[#786F66] shrink-0 mt-0.5" />

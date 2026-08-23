@@ -26,7 +26,7 @@ interface CouponRecord {
 }
 
 /**
- * 1. KIỂM TRA TRẠNG THÁI THANH TOÁN (GET) - TỰ ĐỘNG ĐỐI SOÁT PAYOS
+ * 1. KIỂM TRA TRẠNG THÁI THANH TOÁN (GET)
  */
 export async function GET(request: Request) {
   try {
@@ -76,12 +76,11 @@ export async function GET(request: Request) {
     }
 
     let isPaid = String(order.payment_status || "").toLowerCase() === "paid";
+    const payosCode = order.shipping_address?.payos_order_code;
 
-    // NẾU CHƯA PAID -> ĐỐI SOÁT TRỰC TIẾP VỚI PAYOS API
-    if (!isPaid && order.shipping_address?.payos_order_code) {
-      const payosCheck = await getPayOSPaymentInfo(
-        Number(order.shipping_address.payos_order_code),
-      );
+    // TỰ ĐỘNG ĐỐI SOÁT TRỰC TIẾP VỚI PAYOS API
+    if (!isPaid && payosCode) {
+      const payosCheck = await getPayOSPaymentInfo(Number(payosCode));
       if (payosCheck.success && payosCheck.status === "PAID") {
         await supabaseAdmin
           .from("orders")
@@ -105,6 +104,11 @@ export async function GET(request: Request) {
       isPaid,
       paymentStatus: isPaid ? "Paid" : order.payment_status,
       orderStatus: order.order_status,
+      payos: {
+        orderCode: payosCode,
+        checkoutUrl: order.shipping_address?.payos_checkout_url || null,
+        qrCode: order.shipping_address?.payos_qr_code || null,
+      },
     });
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : "Lỗi máy chủ nội bộ.";
@@ -113,7 +117,7 @@ export async function GET(request: Request) {
 }
 
 /**
- * 2. TẠO ĐƠN HÀNG (POST) - SẠCH 100% ESLINT
+ * 2. TẠO ĐƠN HÀNG VÀ SINH LINK THANH TOÁN PAYOS (POST)
  */
 export async function POST(request: Request) {
   try {
@@ -147,7 +151,6 @@ export async function POST(request: Request) {
       rawPaymentMethod.toLowerCase().includes("payos");
     const savedPaymentMethod = isVietQR ? "VietQR" : "COD";
 
-    // ĐÃ SỬA: Thay thế any bằng Record<string, unknown> để pass 100% ESLint
     const shippingAddress = (body.shippingAddress ||
       body.shipping_address ||
       {}) as Record<string, unknown>;
@@ -286,12 +289,35 @@ export async function POST(request: Request) {
         "",
       );
 
+    // GỌI PAYOS TẠO LINK THANH TOÁN CHÍNH THỨC
+    let payosData = null;
+    if (isVietQR) {
+      const payosItems = verifiedOrderItems.map((it) => {
+        const prod = productMap.get(it.product_id);
+        return {
+          name: prod?.name || `Món hàng #${it.product_id}`,
+          quantity: it.quantity,
+          price: it.unit_price,
+        };
+      });
+
+      payosData = await createPayOSPaymentLink({
+        orderCode: payosNumericCode,
+        amount: finalTotal,
+        description: `${orderCode.replace(/[^a-zA-Z0-9]/g, "")}`.slice(0, 25),
+        items: payosItems,
+      });
+    }
+
+    // LƯU CẢ QR CODE VÀ CHECKOUT URL VÀO DATABASE
     const enhancedShippingAddress = {
       ...shippingAddress,
       payos_order_code: payosNumericCode,
+      payos_checkout_url: payosData?.checkoutUrl || null,
+      payos_qr_code: payosData?.qrCode || null,
     };
 
-    // LƯU ĐƠN HÀNG
+    // LƯU ĐƠN HÀNG VÀO SUPABASE
     const { data: createdOrder, error: orderError } = await supabaseAdmin
       .from("orders")
       .insert({
@@ -330,26 +356,6 @@ export async function POST(request: Request) {
     }));
 
     await supabaseAdmin.from("order_items").insert(itemsToInsert);
-
-    // GỌI PAYOS TẠO PAYMENT LINK
-    let payosData = null;
-    if (isVietQR) {
-      const payosItems = verifiedOrderItems.map((it) => {
-        const prod = productMap.get(it.product_id);
-        return {
-          name: prod?.name || `Món hàng #${it.product_id}`,
-          quantity: it.quantity,
-          price: it.unit_price,
-        };
-      });
-
-      payosData = await createPayOSPaymentLink({
-        orderCode: payosNumericCode,
-        amount: finalTotal,
-        description: `${orderCode.replace(/[^a-zA-Z0-9]/g, "")}`.slice(0, 25),
-        items: payosItems,
-      });
-    }
 
     return NextResponse.json({
       success: true,

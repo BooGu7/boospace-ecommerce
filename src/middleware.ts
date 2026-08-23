@@ -15,15 +15,16 @@ export function middleware(_request: NextRequest) {
 
   const isDev = process.env.NODE_ENV !== "production";
 
-  // ĐÃ SỬA: Bổ sung media-src và cấp quyền tải video từ Supabase Storage
+  // CẤP PHÉP ĐẦY ĐỦ CHO VERCEL, GOOGLE ADS, CLOUDFLARE VÀ SUPABASE MEDIA
   const csp = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://*.google-analytics.com",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://*.google-analytics.com https://googleads.g.doubleclick.net https://www.googleadservices.com https://static.cloudflareinsights.com https://vercel.live",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "img-src 'self' data: blob: https:",
     "media-src 'self' data: blob: https://amukhgkamrokbbcjgusf.supabase.co https:",
     "font-src 'self' https://fonts.gstatic.com https:",
-    "connect-src 'self' https: wss: https://*.supabase.co https://api-merchant.payos.vn",
+    "connect-src 'self' https: wss: https://*.supabase.co https://api-merchant.payos.vn https://*.google-analytics.com https://googleads.g.doubleclick.net https://vercel.live",
+    "frame-src 'self' https://pay.payos.vn https://vercel.live",
     "frame-ancestors 'none'",
   ].join("; ");
 
