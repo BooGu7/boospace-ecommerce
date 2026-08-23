@@ -9,9 +9,8 @@ import {
   X,
 } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
@@ -26,8 +25,20 @@ interface AddonProduct {
   name: string;
   slug: string;
   price: number;
+  stock?: number;
   images: string[];
 }
+
+interface DbProductRow {
+  id: string;
+  name: string;
+  slug: string;
+  price: number | string | null;
+  stock?: number | null;
+  images?: string[] | null;
+}
+
+const emptySubscribe = () => () => {};
 
 export function CartDrawer() {
   const isOpen = useCartStore((s) => s.isOpen);
@@ -37,15 +48,15 @@ export function CartDrawer() {
   const addToCart = useCartStore((s) => s.addItem);
   const router = useRouter();
 
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
+
   const [addons, setAddons] = useState<AddonProduct[]>([]);
   const [addonsLoading, setAddonsLoading] = useState(true);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // NẠP SẢN PHẨM MUA KÈM TỪ SUPABASE
   useEffect(() => {
     if (!mounted || !isOpen) return;
 
@@ -53,19 +64,21 @@ export function CartDrawer() {
       try {
         const { data, error } = await supabase
           .from("products")
-          .select("id, name, slug, price, images")
+          .select("id, name, slug, price, stock, images")
           .eq("published", true)
           .limit(3);
 
         if (!error && data) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const mapped: AddonProduct[] = data.map((item: any) => ({
-            id: item.id,
-            name: item.name,
-            slug: item.slug,
-            price: Number(item.price ?? 0) * 100,
-            images: item.images || [],
-          }));
+          const mapped: AddonProduct[] = (data as DbProductRow[]).map(
+            (item) => ({
+              id: item.id,
+              name: item.name,
+              slug: item.slug,
+              price: Number(item.price ?? 0) * 100,
+              stock: item.stock ?? 0,
+              images: item.images || [],
+            }),
+          );
           setAddons(mapped);
         }
       } catch (err) {
@@ -79,6 +92,11 @@ export function CartDrawer() {
   }, [mounted, isOpen]);
 
   function handleAddAddonToCart(addon: AddonProduct) {
+    if ((addon.stock ?? 0) <= 0) {
+      toast.error("Sản phẩm này hiện đang hết hàng!");
+      return;
+    }
+
     const itemInCart = items.find((i) => i.productId === addon.id);
     if (itemInCart) {
       toast("Sản phẩm này đã nằm trong giỏ hàng của bạn rồi ✨");
@@ -116,7 +134,6 @@ export function CartDrawer() {
         className="w-full sm:max-w-md bg-[#FCFAF2] border-l border-[#E1DDD5] p-0 flex flex-col h-full text-[#1E1C1A] selection:bg-[#EAE5D9] select-none"
         showCloseButton={false}
       >
-        {/* HEADER GIỎ HÀNG */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-[#E1DDD5]/60 bg-white/40">
           <SheetTitle className="font-serif text-lg font-bold text-black flex items-center gap-2">
             <ShoppingBag className="size-5 text-[#FF9D00]" />
@@ -133,7 +150,6 @@ export function CartDrawer() {
           </button>
         </div>
 
-        {/* NỘI DUNG GIỎ HÀNG */}
         <div className="flex-1 overflow-y-auto p-6 space-y-8 scrollbar-thin scrollbar-thumb-[#EAE5D9]">
           {items.length > 0 ? (
             <div className="divide-y divide-[#E1DDD5]/60 border-b border-[#E1DDD5]/60">
@@ -165,7 +181,6 @@ export function CartDrawer() {
             </div>
           )}
 
-          {/* UPSELL SẢN PHẨM MUA KÈM (TIẾNG VIỆT 100%) */}
           {filteredAddons.length > 0 && (
             <div className="bg-white border border-[#E1DDD5] rounded-3xl p-5 space-y-4 shadow-sm text-left">
               <div className="space-y-0.5 border-b border-[#E1DDD5]/40 pb-2">
@@ -185,6 +200,8 @@ export function CartDrawer() {
                 <div className="space-y-3.5">
                   {filteredAddons.slice(0, 3).map((addon) => {
                     const imgUrl = addon.images[0] || PLACEHOLDER_IMAGE;
+                    const isOutOfStock = (addon.stock ?? 0) <= 0;
+
                     return (
                       <div
                         key={addon.id}
@@ -210,14 +227,23 @@ export function CartDrawer() {
                           </div>
                         </div>
 
-                        {/* ĐỔI THÀNH NÚT THÊM TIẾNG VIỆT HOÀN TOÀN */}
-                        <button
-                          type="button"
-                          onClick={() => handleAddAddonToCart(addon)}
-                          className="rounded-lg bg-black hover:bg-[#33302C] text-[9px] font-sans font-bold tracking-widest text-white px-3.5 py-2 uppercase shadow-sm shrink-0 cursor-pointer transition-colors"
-                        >
-                          Thêm
-                        </button>
+                        {isOutOfStock ? (
+                          <button
+                            type="button"
+                            disabled
+                            className="rounded-lg bg-slate-200 text-slate-500 text-[9px] font-sans font-bold uppercase px-3 py-1.5 cursor-not-allowed select-none border border-slate-300"
+                          >
+                            Hết hàng
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => handleAddAddonToCart(addon)}
+                            className="rounded-lg bg-black hover:bg-[#33302C] text-[9px] font-sans font-bold tracking-widest text-white px-3.5 py-2 uppercase shadow-sm shrink-0 cursor-pointer transition-colors"
+                          >
+                            Thêm
+                          </button>
+                        )}
                       </div>
                     );
                   })}
@@ -227,7 +253,6 @@ export function CartDrawer() {
           )}
         </div>
 
-        {/* FOOTER THANH TOÁN TIẾNG VIỆT */}
         <div className="p-6 bg-white border-t border-[#E1DDD5] space-y-4 shadow-[0_-10px_30px_rgba(0,0,0,0.02)]">
           {items.length > 0 && (
             <div className="space-y-4">
@@ -253,7 +278,6 @@ export function CartDrawer() {
             </div>
           )}
 
-          {/* DẢI CAM KẾT VIỆT HÓA 100% */}
           <div className="pt-2 border-t border-dashed border-[#E1DDD5] grid grid-cols-2 gap-4 text-left text-[10px] text-[#786F66]">
             <div className="space-y-1">
               <span className="font-semibold text-black flex items-center gap-1">

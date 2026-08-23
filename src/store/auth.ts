@@ -2,23 +2,25 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { supabase } from "@/lib/supabase/client";
 import type { Address, User } from "@/types";
 
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
-
   login: (email: string, password: string) => boolean;
-  register: (data: { firstName: string; lastName: string; email: string; password: string }) => boolean;
-
-  logout: () => void;
-
-  updateProfile: (data: Partial<Pick<User, "firstName" | "lastName" | "email">>) => void;
-
+  register: (data: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+  }) => boolean;
+  logout: () => Promise<void>;
+  updateProfile: (
+    data: Partial<Pick<User, "firstName" | "lastName" | "email">>,
+  ) => void;
   addAddress: (address: Omit<Address, "id">) => void;
   removeAddress: (id: string) => void;
-
-  // ✅ ADD THIS
   setUser: (user: User) => void;
 }
 
@@ -29,11 +31,19 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
 
       login: () => false,
-
       register: () => false,
 
-      logout: () => {
-        localStorage.removeItem("auth-storage");
+      logout: async () => {
+        try {
+          await supabase.auth.signOut();
+        } catch {
+          // Bỏ qua lỗi mạng
+        }
+
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("auth-storage");
+          sessionStorage.clear();
+        }
 
         set({
           user: null,
@@ -83,7 +93,6 @@ export const useAuthStore = create<AuthState>()(
         });
       },
 
-      // ✅ IMPORTANT FIX
       setUser: (user) =>
         set({
           user: {

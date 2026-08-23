@@ -14,7 +14,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { SearchModal } from "@/components/search/search-modal";
 import {
   DropdownMenu,
@@ -35,6 +35,8 @@ interface HeaderProps {
   categories?: Category[];
 }
 
+const emptySubscribe = () => () => {};
+
 export function Header({ categories = [] }: HeaderProps) {
   const allCategories = categories;
   const t = useTranslations("nav");
@@ -49,14 +51,16 @@ export function Header({ categories = [] }: HeaderProps) {
   const logout = useAuthStore((s) => s.logout);
   const router = useRouter();
 
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
   const [avatarError, setAvatarError] = useState(false);
 
-  useEffect(() => setMounted(true), []);
   const itemCount = mounted ? getItemCount() : 0;
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const userAvatar = (user as any)?.avatar;
+  // ĐÃ SỬA: ÉP KIỂU RECORD CHUẨN XÁC, LOẠI BỎ ANY
+  const userAvatar = (user as unknown as { avatar?: string })?.avatar;
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
@@ -171,7 +175,6 @@ export function Header({ categories = [] }: HeaderProps) {
             </SheetContent>
           </Sheet>
 
-          {/* LOGO CHUẨN BOO SPACE */}
           <Link
             href="/"
             className="font-serif text-xl sm:text-2xl font-bold tracking-tight uppercase text-black hover:text-[#FF9D00] transition-colors leading-none"
@@ -211,7 +214,6 @@ export function Header({ categories = [] }: HeaderProps) {
               </Link>
             </motion.div>
 
-            {/* AVATAR KHẮC PHỤC LỖI HÌNH ẢNH */}
             {mounted && isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger
@@ -249,7 +251,6 @@ export function Header({ categories = [] }: HeaderProps) {
                   </div>
                   <DropdownMenuSeparator className="bg-[#E1DDD5]/60" />
 
-                  {/* Đổi tên Bảng điều khiển -> Tài khoản */}
                   <DropdownMenuItem
                     onClick={() => router.push("/account")}
                     className="rounded-lg font-sans text-xs font-semibold py-2 hover:bg-[#EAE5D9]/30 cursor-pointer"
@@ -266,9 +267,10 @@ export function Header({ categories = [] }: HeaderProps) {
                   <DropdownMenuSeparator className="bg-[#E1DDD5]/60" />
 
                   <DropdownMenuItem
-                    onClick={() => {
-                      logout();
+                    onClick={async () => {
+                      await logout();
                       router.push("/");
+                      router.refresh();
                     }}
                     className="rounded-lg font-sans text-xs font-bold text-red-600 py-2 hover:bg-red-50 focus:bg-red-50 cursor-pointer"
                   >

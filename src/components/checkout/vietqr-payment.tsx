@@ -4,13 +4,11 @@ import {
   CheckCircle2,
   Clock,
   ExternalLink,
-  QrCode,
   RefreshCw,
   RotateCcw,
   ShieldCheck,
 } from "lucide-react";
-import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase/client";
@@ -73,8 +71,8 @@ export function VietQRPayment({
             accountName: cfg.account_name || "TON THAT TRONG",
           });
         }
-      } catch (err) {
-        console.error("Lỗi nạp cấu hình cổng:", err);
+      } catch {
+        // Bỏ qua lỗi
       }
     }
 
@@ -95,59 +93,58 @@ export function VietQRPayment({
     return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
   };
 
-  // KIỂM TRA TRẠNG THÁI THANH TOÁN (TỰ ĐỘNG ĐỐI SOÁT PAYOS)
-  const verifyPaymentStatus = async (showToast = false) => {
-    if (isPaidRef.current) return;
+  const verifyPaymentStatus = useCallback(
+    async (showToast = false) => {
+      if (isPaidRef.current) return false;
 
-    try {
-      const res = await fetch(
-        `/api/orders?order_id=${encodeURIComponent(orderId)}`,
-        { cache: "no-store" },
-      );
-
-      if (res.ok) {
-        const result = await res.json();
-
-        if (result.payos?.checkoutUrl && !checkoutUrl) {
-          setCheckoutUrl(result.payos.checkoutUrl);
-        }
-        if (result.payos?.qrCode && !qrCodeRaw) {
-          setQrCodeRaw(result.payos.qrCode);
-        }
-
-        if (
-          result.success &&
-          (result.isPaid ||
-            String(result.order?.payment_status).toLowerCase() === "paid")
-        ) {
-          isPaidRef.current = true;
-          setIsPaid(true);
-          toast.success(
-            "Xác nhận thanh toán PayOS thành công! Đơn hàng đang được gia công in ✨",
-          );
-          onSuccess?.();
-          return true;
-        }
-      }
-
-      if (showToast) {
-        toast.info(
-          "Hệ thống đang chờ ngân hàng xác nhận giao dịch. Vui lòng đợi trong giây lát ✨",
+      try {
+        const res = await fetch(
+          `/api/orders?order_id=${encodeURIComponent(orderId)}`,
+          { cache: "no-store" },
         );
-      }
-    } catch (_err) {
-      if (showToast) {
-        toast.error("Không thể kết nối máy chủ kiểm tra thanh toán.");
-      }
-    }
-    return false;
-  };
 
-  // POLLING TỰ ĐỘNG MỖI 2.5 GIÂY
+        if (res.ok) {
+          const result = await res.json();
+
+          if (result.payos?.checkoutUrl && !checkoutUrl) {
+            setCheckoutUrl(result.payos.checkoutUrl);
+          }
+          if (result.payos?.qrCode && !qrCodeRaw) {
+            setQrCodeRaw(result.payos.qrCode);
+          }
+
+          if (
+            result.success &&
+            (result.isPaid ||
+              String(result.order?.payment_status).toLowerCase() === "paid")
+          ) {
+            isPaidRef.current = true;
+            setIsPaid(true);
+            toast.success(
+              "Xác nhận thanh toán PayOS thành công! Đơn hàng đang được gia công in ✨",
+            );
+            onSuccess?.();
+            return true;
+          }
+        }
+
+        if (showToast) {
+          toast.info(
+            "Hệ thống đang chờ ngân hàng xác nhận giao dịch. Vui lòng đợi trong giây lát ✨",
+          );
+        }
+      } catch {
+        if (showToast) {
+          toast.error("Không thể kết nối máy chủ kiểm tra thanh toán.");
+        }
+      }
+      return false;
+    },
+    [orderId, checkoutUrl, qrCodeRaw, onSuccess],
+  );
+
   useEffect(() => {
     if (isPaid) return;
-
-    verifyPaymentStatus(false);
 
     const pollInterval = setInterval(() => {
       if (!isPaidRef.current && timeLeft > 0) {
@@ -156,9 +153,8 @@ export function VietQRPayment({
     }, 2500);
 
     return () => clearInterval(pollInterval);
-  }, [orderId, isPaid, timeLeft]);
+  }, [isPaid, timeLeft, verifyPaymentStatus]);
 
-  // LẮNG NGHE SUPABASE REALTIME
   useEffect(() => {
     const cleanId = orderId.replace(/^(ORD|BOO)-?/i, "").toUpperCase();
 
@@ -201,12 +197,10 @@ export function VietQRPayment({
 
   const transferMemo = orderId.replace(/[^a-zA-Z0-9]/g, "");
 
-  // ƯU TIÊN HIỂN THỊ MÃ QR PAYOS VIETQR PRO CHÍNH THỨC
   const qrDisplayUrl = qrCodeRaw
     ? `https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=${encodeURIComponent(qrCodeRaw)}`
     : `https://img.vietqr.io/image/${bankInfo.bankCode}-${bankInfo.accountNumber}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(transferMemo)}&accountName=${encodeURIComponent(bankInfo.accountName)}`;
 
-  // GIAO DIỆN KHI ĐÃ THANH TOÁN THÀNH CÔNG (PAID)
   if (isPaid) {
     return (
       <div className="rounded-3xl border border-[#3ECF8E]/30 bg-[#3ECF8E]/5 p-6 text-center space-y-4 max-w-sm mx-auto shadow-sm animate-in fade-in zoom-in duration-300">
@@ -318,7 +312,6 @@ export function VietQRPayment({
         diện trong 1 giây.
       </div>
 
-      {/* NÚT MỞ CỔNG THANH TOÁN PAYOS CHÍNH THỨC */}
       {checkoutUrl && (
         <a
           href={checkoutUrl}

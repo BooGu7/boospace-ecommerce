@@ -7,9 +7,7 @@ import {
   Loader2,
   MapPin,
   Package,
-  Phone,
   QrCode,
-  ShieldCheck,
   Truck,
   User,
   Video,
@@ -17,7 +15,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -36,6 +34,7 @@ interface AddonProduct {
   name: string;
   slug: string;
   price: number;
+  stock?: number;
   images?: string[];
   compare_price?: number;
 }
@@ -73,9 +72,8 @@ const formatVND = (amount: number) => {
   }).format(amount);
 };
 
-// HÀM KIỂM TRA TP. HỒ CHÍ MINH CHUẨN XÁC 100% (THEO ID HOẶC TÊN)
 function checkIsHCMC(provinceId: number, cityName: string): boolean {
-  if (provinceId === 202) return true; // Mã ID chính thức của TP.HCM trên GHN
+  if (provinceId === 202) return true;
   const clean = (cityName || "")
     .toLowerCase()
     .normalize("NFD")
@@ -86,6 +84,8 @@ function checkIsHCMC(provinceId: number, cityName: string): boolean {
     clean.includes("sai gon")
   );
 }
+
+const emptySubscribe = () => () => {};
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -100,18 +100,21 @@ export default function CheckoutPage() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const updateProfile = useAuthStore((s) => s.updateProfile);
 
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
+
   const [loading, setLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"cod" | "vietqr">(
     "vietqr",
   );
 
-  // Danh sách Tỉnh / Huyện GHN
   const [provinces, setProvinces] = useState<GHNProvince[]>([]);
   const [districts, setDistricts] = useState<GHNDistrict[]>([]);
-  const [selectedProvinceId, setSelectedProvinceId] = useState<number>(202); // 202 = TP.HCM
-  const [selectedDistrictId, setSelectedDistrictId] = useState<number>(1446); // 1446 = Bình Thạnh
-  const [selectedWardCode, _setSelectedWardCode] = useState<string>("20601");
+  const [selectedProvinceId, setSelectedProvinceId] = useState<number>(202);
+  const [selectedDistrictId, setSelectedDistrictId] = useState<number>(1446);
 
   const [form, setForm] = useState({
     email: "",
@@ -124,7 +127,6 @@ export default function CheckoutPage() {
     notes: "",
   });
 
-  // State Cước vận chuyển GHN
   const [shippingFee, setShippingFee] = useState(0);
   const [isCalculatingShip, setIsCalculatingShip] = useState(false);
 
@@ -136,11 +138,6 @@ export default function CheckoutPage() {
   const [addons, setAddons] = useState<AddonProduct[]>([]);
   const [addonsLoading, setAddonsLoading] = useState(true);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // 1. NẠP DANH SÁCH 63 TỈNH THÀNH GHN
   useEffect(() => {
     if (!mounted) return;
     async function loadProvinces() {
@@ -165,7 +162,6 @@ export default function CheckoutPage() {
     loadProvinces();
   }, [mounted]);
 
-  // 2. NẠP DANH SÁCH QUẬN / HUYỆN KHI ĐỔI TỈNH
   useEffect(() => {
     if (!selectedProvinceId) return;
 
@@ -188,7 +184,7 @@ export default function CheckoutPage() {
     loadDistricts();
   }, [selectedProvinceId]);
 
-  // 3. TÍNH TOÁN CƯỚC VẬN CHUYỂN CHUẨN XÁC: MIỄN PHÍ HCM VÀ ĐƠN >= 500K, CÒN LẠI LẤY CƯỚC GHN
+  // ĐÃ SỬA: TÍNH PHÍ VẬN CHUYỂN BẤT ĐỒNG BỘ TRÁNH LỖI set-state-in-effect
   useEffect(() => {
     if (!mounted || items.length === 0) return;
 
@@ -198,16 +194,21 @@ export default function CheckoutPage() {
       100;
     const isHCM = checkIsHCMC(selectedProvinceId, form.city);
 
-    // [QUY TẮC 1 & 2]: Miễn phí nếu ở TP.HCM HOẶC đơn hàng >= 500.000 ₫
-    if (isHCM || subtotalVND >= (siteConfig.freeShippingThreshold || 500000)) {
-      setShippingFee(0);
-      setIsCalculatingShip(false);
-      return;
-    }
+    let isCancelled = false;
 
-    // [QUY TẮC 3]: Ngoại tỉnh < 500k -> Gọi API GHN tính cước thật
-    async function fetchGHNShippingFee() {
-      setIsCalculatingShip(true);
+    async function calculateFee() {
+      if (
+        isHCM ||
+        subtotalVND >= (siteConfig.freeShippingThreshold || 500000)
+      ) {
+        if (!isCancelled) {
+          setShippingFee(0);
+          setIsCalculatingShip(false);
+        }
+        return;
+      }
+
+      if (!isCancelled) setIsCalculatingShip(true);
       try {
         const res = await fetch("/api/shipping/calculate", {
           method: "POST",
@@ -216,7 +217,6 @@ export default function CheckoutPage() {
             city: form.city,
             provinceId: selectedProvinceId,
             districtId: selectedDistrictId,
-            wardCode: selectedWardCode,
             subtotal: subtotalVND,
             weightGrams: items.reduce(
               (sum, item) => sum + item.quantity * 250,
@@ -225,52 +225,60 @@ export default function CheckoutPage() {
           }),
         });
         const data = await res.json();
-        if (data.success && typeof data.fee === "number") {
-          setShippingFee(data.fee);
-        } else {
-          setShippingFee(34000);
+        if (!isCancelled) {
+          setShippingFee(
+            data.success && typeof data.fee === "number" ? data.fee : 34000,
+          );
         }
       } catch {
-        setShippingFee(34000);
+        if (!isCancelled) setShippingFee(34000);
       } finally {
-        setIsCalculatingShip(false);
+        if (!isCancelled) setIsCalculatingShip(false);
       }
     }
 
-    const timer = setTimeout(fetchGHNShippingFee, 150);
-    return () => clearTimeout(timer);
+    const timer = setTimeout(calculateFee, 100);
+    return () => {
+      isCancelled = true;
+      clearTimeout(timer);
+    };
   }, [
     mounted,
     selectedProvinceId,
     form.city,
     selectedDistrictId,
-    selectedWardCode,
     items,
     discountPercent,
     getSubtotal,
   ]);
 
-  // Nạp thông tin tài khoản nếu đã đăng nhập
+  // ĐÃ SỬA: NẠP ĐỊA CHỈ QUA HÀM DEFERRED TRÁNH LỖI set-state-in-effect
   useEffect(() => {
-    if (mounted && isAuthenticated && user) {
-      const userAddresses = (user.addresses || []) as UserAddress[];
-      const defaultAddr =
-        userAddresses.find((a) => a.isDefault) || userAddresses[0];
+    if (!mounted || !isAuthenticated || !user) return;
 
-      setForm({
-        email: user.email || "",
-        phone: defaultAddr?.phone || (user as { phone?: string }).phone || "",
-        firstName: user.firstName || defaultAddr?.firstName || "",
-        lastName: user.lastName || defaultAddr?.lastName || "",
-        line1: defaultAddr?.line1 || "",
-        district: defaultAddr?.district || "Quận Bình Thạnh",
-        city: defaultAddr?.city || "Hồ Chí Minh",
-        notes: "",
-      });
-    }
+    const userAddresses = (user.addresses || []) as UserAddress[];
+    const defaultAddr =
+      userAddresses.find((a) => a.isDefault) || userAddresses[0];
+
+    const timer = setTimeout(() => {
+      setForm((prev) => ({
+        ...prev,
+        email: user.email || prev.email,
+        phone:
+          defaultAddr?.phone ||
+          (user as { phone?: string }).phone ||
+          prev.phone,
+        firstName: user.firstName || defaultAddr?.firstName || prev.firstName,
+        lastName: user.lastName || defaultAddr?.lastName || prev.lastName,
+        line1: defaultAddr?.line1 || prev.line1,
+        district: defaultAddr?.district || prev.district || "Quận Bình Thạnh",
+        city: defaultAddr?.city || prev.city || "Hồ Chí Minh",
+      }));
+    }, 0);
+
+    return () => clearTimeout(timer);
   }, [mounted, isAuthenticated, user]);
 
-  // Nạp sản phẩm mua kèm
   useEffect(() => {
     if (!mounted) return;
 
@@ -278,7 +286,7 @@ export default function CheckoutPage() {
       try {
         const { data, error } = await supabase
           .from("products")
-          .select("id, name, slug, price, images, compare_price")
+          .select("id, name, slug, price, stock, images, compare_price")
           .eq("published", true)
           .limit(3);
 
@@ -361,6 +369,11 @@ export default function CheckoutPage() {
   }
 
   function handleAddAddonToCart(addon: AddonProduct) {
+    if ((addon.stock ?? 0) <= 0) {
+      toast.error("Sản phẩm này hiện đang hết hàng!");
+      return;
+    }
+
     const itemInCart = items.find((i) => i.productId === addon.id);
     if (itemInCart) {
       toast("Sản phẩm này đã nằm trong danh sách mua của bạn rồi ✨");
@@ -556,7 +569,6 @@ export default function CheckoutPage() {
   return (
     <div className="bg-[#FCFAF2] min-h-screen w-full relative selection:bg-[#EAE5D9]">
       <div className="mx-auto max-w-[1440px] px-4 py-12 sm:px-6 lg:px-8 border-x border-[#E1DDD5] bg-[#FCFAF2]/50 text-[#1E1C1A]">
-        {/* TIÊU ĐỀ TRANG: FONT SERIF CAO CẤP */}
         <h1 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-black border-b border-[#E1DDD5] pb-6 text-left">
           Thanh toán đơn hàng
         </h1>
@@ -566,7 +578,6 @@ export default function CheckoutPage() {
           className="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-12"
         >
           <div className="space-y-8 lg:col-span-7">
-            {/* THÔNG TIN LIÊN HỆ */}
             <Card className="rounded-3xl border border-[#DCD6CC] bg-white p-6 shadow-xs text-left">
               <CardHeader className="p-0 pb-4 border-b border-[#E1DDD5]/40 mb-4">
                 <CardTitle className="font-serif text-lg font-bold text-black flex items-center gap-2">
@@ -616,7 +627,6 @@ export default function CheckoutPage() {
               </CardContent>
             </Card>
 
-            {/* ĐỊA CHỈ GIAO HÀNG (DROPDOWN 63 TỈNH & QUẬN HUYỆN) */}
             <Card className="rounded-3xl border border-[#DCD6CC] bg-white p-6 shadow-xs text-left">
               <CardHeader className="p-0 pb-4 border-b border-[#E1DDD5]/40 mb-4">
                 <CardTitle className="font-serif text-lg font-bold text-black flex items-center gap-2">
@@ -682,7 +692,6 @@ export default function CheckoutPage() {
                   />
                 </div>
 
-                {/* 2 DROPDOWN LIÊN KẾT: TỈNH / THÀNH PHỐ & QUẬN / HUYỆN */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label className="text-[11px] font-mono font-bold text-[#5c544d] uppercase tracking-wider block">
@@ -735,7 +744,6 @@ export default function CheckoutPage() {
                   </div>
                 </div>
 
-                {/* THÔNG BÁO CƯỚC VẬN CHUYỂN TIÊU CHUẨN */}
                 <div className="p-3.5 rounded-2xl bg-[#FCFAF2] border border-[#E1DDD5] flex items-center justify-between text-xs font-sans">
                   <div className="flex items-center gap-2">
                     <Truck className="size-4 text-[#786F66]" />
@@ -745,7 +753,7 @@ export default function CheckoutPage() {
                   </div>
                   <span className="font-mono font-bold text-sm">
                     {isCalculatingShip ? (
-                      <Loader2 className="size-3.5 animate-spin text-[#FF9D00]" />
+                      <Loader2 className="size-3 animate-spin text-[#FF9D00]" />
                     ) : shippingFee === 0 ? (
                       <span className="text-[#3ECF8E]">MIỄN PHÍ</span>
                     ) : (
@@ -756,7 +764,6 @@ export default function CheckoutPage() {
               </CardContent>
             </Card>
 
-            {/* GHI CHÚ ĐƠN HÀNG */}
             <Card className="rounded-3xl border border-[#DCD6CC] bg-white p-6 shadow-xs text-left">
               <CardHeader className="p-0 pb-3 border-b border-[#E1DDD5]/40 mb-3">
                 <CardTitle className="font-serif text-base font-bold text-black">
@@ -776,7 +783,6 @@ export default function CheckoutPage() {
               </CardContent>
             </Card>
 
-            {/* PHƯƠNG THỨC THANH TOÁN */}
             <Card className="rounded-3xl border border-[#DCD6CC] bg-white p-6 shadow-xs text-left">
               <CardHeader className="p-0 pb-4 border-b border-[#E1DDD5]/40 mb-4">
                 <CardTitle className="font-serif text-lg font-bold text-black">
@@ -785,7 +791,6 @@ export default function CheckoutPage() {
               </CardHeader>
               <CardContent className="p-0 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* VIETQR */}
                   <div
                     onClick={() => setPaymentMethod("vietqr")}
                     className={`border-2 rounded-2xl p-4 flex flex-col justify-between min-h-[130px] relative cursor-pointer transition-all ${
@@ -817,7 +822,6 @@ export default function CheckoutPage() {
                     </div>
                   </div>
 
-                  {/* COD */}
                   <div
                     onClick={() => setPaymentMethod("cod")}
                     className={`border-2 rounded-2xl p-4 flex flex-col justify-between min-h-[130px] relative cursor-pointer transition-all ${
@@ -876,7 +880,6 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          {/* CỘT PHẢI - TÓM TẮT ĐƠN HÀNG */}
           <div className="lg:col-span-5">
             <Card className="sticky top-24 rounded-3xl border border-[#DCD6CC] bg-[#FAF5F2]/90 p-6 shadow-md space-y-6">
               <CardHeader className="p-0 pb-3 border-b border-[#E1DDD5]/60">
@@ -889,7 +892,6 @@ export default function CheckoutPage() {
               </CardHeader>
 
               <CardContent className="p-0 space-y-4">
-                {/* DANH SÁCH MÓN HÀNG */}
                 <div className="space-y-4 max-h-[300px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-[#EAE5D9]">
                   {items.map((item) => {
                     const imgUrl = item.image?.url || PLACEHOLDER_IMAGE;
@@ -945,7 +947,6 @@ export default function CheckoutPage() {
 
                 <Separator className="bg-[#E1DDD5]" />
 
-                {/* MÃ GIẢM GIÁ */}
                 <div className="flex gap-3">
                   <Input
                     type="text"
@@ -970,7 +971,6 @@ export default function CheckoutPage() {
 
                 <Separator className="bg-[#E1DDD5]" />
 
-                {/* UPSELL MUA KÈM */}
                 {filteredAddons.length > 0 && (
                   <div className="bg-white border border-[#E1DDD5] rounded-3xl p-5 space-y-4 shadow-sm text-left">
                     <div className="space-y-0.5 border-b border-[#E1DDD5]/40 pb-2">
@@ -993,6 +993,7 @@ export default function CheckoutPage() {
                           const isAddonSale =
                             Boolean(addon.compare_price) &&
                             (addon.compare_price ?? 0) > addon.price;
+                          const isOutOfStock = (addon.stock ?? 0) <= 0;
 
                           return (
                             <div
@@ -1026,13 +1027,23 @@ export default function CheckoutPage() {
                                 </div>
                               </div>
 
-                              <button
-                                type="button"
-                                onClick={() => handleAddAddonToCart(addon)}
-                                className="rounded-lg bg-black hover:bg-[#33302C] text-[9px] font-sans font-bold text-white px-3 py-1.5 uppercase shadow-sm shrink-0 cursor-pointer transition-colors"
-                              >
-                                Thêm
-                              </button>
+                              {isOutOfStock ? (
+                                <button
+                                  type="button"
+                                  disabled
+                                  className="rounded-lg bg-slate-200 text-slate-500 text-[9px] font-sans font-bold uppercase px-3 py-1.5 cursor-not-allowed select-none border border-slate-300"
+                                >
+                                  Hết hàng
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => handleAddAddonToCart(addon)}
+                                  className="rounded-lg bg-black hover:bg-[#33302C] text-[9px] font-sans font-bold text-white px-3 py-1.5 uppercase shadow-sm shrink-0 cursor-pointer transition-colors"
+                                >
+                                  Thêm
+                                </button>
+                              )}
                             </div>
                           );
                         })}
@@ -1043,7 +1054,6 @@ export default function CheckoutPage() {
 
                 <Separator className="bg-[#E1DDD5]" />
 
-                {/* HẠCH TOÁN CHI PHÍ (MIỄN PHÍ HCM VÀ ĐƠN >= 500K) */}
                 <div className="space-y-3.5 text-xs font-sans text-left">
                   <div className="flex justify-between text-[#5c544d]">
                     <span>Tổng phụ</span>

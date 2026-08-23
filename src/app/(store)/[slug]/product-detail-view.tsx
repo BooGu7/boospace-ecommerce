@@ -7,12 +7,13 @@ import {
   Cpu,
   Heart,
   Layers,
+  Palette,
   ShoppingBag,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { toast } from "sonner";
 import { FormattedDescription } from "@/components/products/formatted-description";
 import { ProductGallery } from "@/components/products/product-gallery";
@@ -35,7 +36,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { siteConfig } from "@/lib/config";
 import { PLACEHOLDER_IMAGE } from "@/lib/constants";
-import { breadcrumbJsonLd } from "@/lib/structured-data";
 import { supabase } from "@/lib/supabase/client";
 import { formatPrice } from "@/lib/utils";
 import { useCartStore } from "@/store/cart";
@@ -49,6 +49,8 @@ interface ProductDetailViewProps {
   brand: Brand | null;
   categoryAncestors?: Category[];
 }
+
+const emptySubscribe = () => () => {};
 
 export function ProductDetailView({
   product,
@@ -72,8 +74,13 @@ export function ProductDetailView({
   const removeFromWishlist = useWishlistStore((s) => s.removeItem);
   const addRecentlyViewed = useRecentlyViewedStore((s) => s.addItem);
 
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  // SỬ DỤNG HOOK CHUẨN REACT 19 THAY CHO setMounted
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
+
   const isWishlisted =
     mounted && wishlistItems.some((i) => i.productId === product.id);
 
@@ -92,7 +99,7 @@ export function ProductDetailView({
           setReviewCount(total);
         }
       } catch (err) {
-        console.error("Lỗi đồng bộ đánh giá động:", err);
+        console.error("Lỗi nạp đánh giá:", err);
       }
     }
     fetchDynamicRatings();
@@ -142,6 +149,15 @@ export function ProductDetailView({
   }
 
   function handleAddAddonToCart(addon: Product) {
+    const addonStock =
+      (addon as { stock?: number }).stock ??
+      addon.variants?.[0]?.inventory?.quantity ??
+      0;
+    if (addonStock <= 0) {
+      toast.error("Sản phẩm này hiện đang hết hàng!");
+      return;
+    }
+
     const addonVariant = addon.variants?.[0];
     if (addonVariant) {
       addToCart({
@@ -177,47 +193,14 @@ export function ProductDetailView({
     }
   }
 
-  const breadcrumbLd = breadcrumbJsonLd([
-    { name: "Cửa hàng", href: "/shop" },
-    ...categoryAncestors.map((c) => ({ name: c.name, href: `/${c.slug}` })),
-    { name: product.name, href: `/${product.slug}` },
-  ]);
-
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    name: product.name,
-    description: product.description,
-    image: product.images.map((img) => img.url),
-    sku: selectedVariant.sku,
-    brand: brand ? { "@type": "Brand", name: brand.name } : undefined,
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: avgRating,
-      reviewCount: reviewCount,
-    },
-    offers: {
-      "@type": "Offer",
-      price: (selectedVariant.price / 100).toFixed(2),
-      priceCurrency: selectedVariant.currency,
-      availability: !isOutOfStock
-        ? "https://schema.org/InStock"
-        : "https://schema.org/OutOfStock",
-    },
-  };
-
-  const attrs = (product as any).attributes || {};
+  // ĐÃ SỬA: ÉP KIỂU RECORD CHUẨN XÁC, LOẠI BỎ ANY
+  const attrs =
+    (product as unknown as { attributes?: Record<string, string> })
+      .attributes || {};
 
   return (
     <div className="bg-[#FCFAF2] text-[#1E1C1A] min-h-screen antialiased selection:bg-[#EAE5D9]">
       <div className="mx-auto max-w-[1440px] px-4 py-12 sm:px-6 lg:px-8 border-x border-[#E1DDD5] bg-[#FCFAF2]/50">
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify([jsonLd, breadcrumbLd]),
-          }}
-        />
-
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
@@ -253,10 +236,9 @@ export function ProductDetailView({
               <StarRating rating={avgRating} reviewCount={reviewCount} />
             </div>
 
-            {/* BADGES: ĐÃ ẨN HOÀN TOÀN 'SẴN HÀNG TRONG KHO' */}
             <div className="flex flex-wrap items-center gap-2.5 mt-3 mb-1">
               {isOutOfStock && (
-                <span className="text-[10px] font-mono font-bold text-white bg-slate-800 px-3 py-1 rounded-full uppercase tracking-wider shadow-xs">
+                <span className="text-[10px] font-mono font-bold text-white bg-slate-900 px-3 py-1 rounded-full uppercase tracking-wider shadow-xs">
                   🚫 HẾT HÀNG TẠM THỜI
                 </span>
               )}
@@ -294,7 +276,6 @@ export function ProductDetailView({
               </Link>
             )}
 
-            {/* GIÁ BÁN */}
             <motion.div
               whileHover={{ scale: 1.01 }}
               className="mt-4 flex items-center gap-3 w-fit select-none"
@@ -322,7 +303,32 @@ export function ProductDetailView({
               )}
             </motion.div>
 
-            {/* PHẦN MÔ TẢ ĐỊNH DẠNG MARKDOWN */}
+            {(attrs.color_name || attrs.color_hex) && (
+              <div className="mt-4 p-3.5 rounded-2xl bg-white border border-[#E1DDD5] flex items-center justify-between shadow-xs">
+                <div className="flex items-center gap-2.5">
+                  <Palette className="size-4 text-[#FF9D00]" />
+                  <span className="text-xs font-mono font-bold text-[#5c544d] uppercase tracking-wider">
+                    Màu sắc phôi:
+                  </span>
+                  <div className="flex items-center gap-2">
+                    {attrs.color_hex && (
+                      <span
+                        className="size-4.5 rounded-full border-2 border-white shadow-xs inline-block"
+                        style={{ backgroundColor: attrs.color_hex }}
+                        title={attrs.color_name || "Màu sắc"}
+                      />
+                    )}
+                    <span className="text-xs font-sans font-bold text-black">
+                      {attrs.color_name || attrs.color_hex}
+                    </span>
+                  </div>
+                </div>
+                <span className="text-[10px] font-mono font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md uppercase">
+                  {attrs.material || "CR-PETG"}
+                </span>
+              </div>
+            )}
+
             <div className="mt-5 pt-4 border-t border-[#E1DDD5]/60">
               <FormattedDescription text={product.description} />
             </div>
@@ -364,14 +370,14 @@ export function ProductDetailView({
                 size="lg"
                 className={`w-full sm:flex-1 font-mono uppercase text-xs tracking-wider rounded-xl py-4 flex items-center justify-center gap-2 transition-colors ${
                   isOutOfStock
-                    ? "bg-slate-300 text-slate-600 cursor-not-allowed hover:bg-slate-300"
+                    ? "bg-slate-200 text-slate-500 cursor-not-allowed hover:bg-slate-200 border border-slate-300"
                     : "bg-black hover:bg-[#33302C] text-white cursor-pointer"
                 }`}
                 disabled={isOutOfStock}
                 onClick={handleAddToCart}
               >
                 <ShoppingBag className="h-4 w-4" />
-                {isOutOfStock ? "HẾT HÀNG TẠM THỜI" : "THÊM VÀO GIỎ HÀNG"}
+                {isOutOfStock ? "🚫 HẾT HÀNG TẠM THỜI" : "THÊM VÀO GIỎ HÀNG"}
               </Button>
             </div>
 
@@ -394,7 +400,6 @@ export function ProductDetailView({
               </div>
             )}
 
-            {/* UPSELL MUA KÈM */}
             {relatedProducts.length > 0 && (
               <div className="mt-8 rounded-3xl p-6 bg-white border border-[#E1DDD5] flex flex-col gap-4 shadow-xs relative overflow-hidden">
                 <div className="space-y-1 relative z-10 text-left">
@@ -417,6 +422,12 @@ export function ProductDetailView({
                       addonVariant?.compareAtPrice &&
                       addonVariant.compareAtPrice > addonVariant.price,
                     );
+
+                    const addonStock =
+                      (item as { stock?: number }).stock ??
+                      addonVariant?.inventory?.quantity ??
+                      0;
+                    const isAddonOutOfStock = addonStock <= 0;
 
                     return (
                       <div
@@ -452,13 +463,23 @@ export function ProductDetailView({
                           </div>
                         </div>
 
-                        <button
-                          type="button"
-                          onClick={() => handleAddAddonToCart(item)}
-                          className="rounded-lg bg-black hover:bg-[#33302C] text-[10px] font-sans font-bold text-white px-3.5 py-2 uppercase shadow-xs shrink-0 cursor-pointer transition-colors"
-                        >
-                          Thêm
-                        </button>
+                        {isAddonOutOfStock ? (
+                          <button
+                            type="button"
+                            disabled
+                            className="rounded-lg bg-slate-200 text-slate-500 text-[9px] font-sans font-bold uppercase px-3 py-1.5 cursor-not-allowed select-none border border-slate-300"
+                          >
+                            Hết hàng
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => handleAddAddonToCart(item)}
+                            className="rounded-lg bg-black hover:bg-[#33302C] text-[10px] font-sans font-bold text-white px-3.5 py-2 uppercase shadow-xs shrink-0 cursor-pointer transition-colors"
+                          >
+                            Thêm
+                          </button>
+                        )}
                       </div>
                     );
                   })}
@@ -470,7 +491,6 @@ export function ProductDetailView({
           </div>
         </div>
 
-        {/* BẢNG THÔNG SỐ */}
         <div className="py-16 border-b border-[#E1DDD5]/60 text-left">
           <div className="bg-black text-white p-4 rounded-2xl flex items-center max-w-full justify-between select-none mb-10 shadow-xs">
             <span className="font-serif text-lg font-bold pl-2">

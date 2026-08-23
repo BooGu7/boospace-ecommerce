@@ -6,6 +6,7 @@ import {
   categoryRepository,
   productRepository,
 } from "@/lib/repositories";
+import type { PaginationMeta } from "@/types";
 import { BrandView } from "./brand-view";
 import { CategoryView } from "./category-view";
 import { ProductDetailView } from "./product-detail-view";
@@ -74,7 +75,6 @@ export default async function SlugPage({ params }: SlugPageProps) {
   const product = await productRepository.getBySlug(slug);
 
   if (product) {
-    // Xử lý nạp danh mục an toàn không bị ngắt trang khi ID danh mục/thương hiệu không tồn tại
     const productCategories = await Promise.all(
       (product.categoryIds || []).map((id) =>
         categoryRepository.getById(id).catch(() => null),
@@ -114,15 +114,24 @@ export default async function SlugPage({ params }: SlugPageProps) {
     );
   }
 
-  // 2. Kiểm tra Trang Danh mục
+  // 2. Kiểm tra Trang Danh mục (ĐÃ SỬA LỖI ANY THÀNH ĐỐI TƯỢNG CHUẨN)
   const category = await categoryRepository.getBySlug(slug);
 
   if (category) {
+    const defaultPagination: PaginationMeta = {
+      total: 0,
+      page: 1,
+      limit: 40,
+      totalPages: 1,
+      hasNext: false,
+      hasPrev: false,
+    };
+
     const [{ items: products, pagination }, subcategories, ancestors] =
       await Promise.all([
         productRepository
           .getByCategory(slug, { page: 1, limit: 40 })
-          .catch(() => ({ items: [], pagination: {} as any })),
+          .catch(() => ({ items: [], pagination: defaultPagination })),
         categoryRepository.getChildren(category.id).catch(() => []),
         categoryRepository.getAncestors(category.id).catch(() => []),
       ]);
