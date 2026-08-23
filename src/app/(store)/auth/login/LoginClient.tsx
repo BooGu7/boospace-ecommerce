@@ -18,7 +18,12 @@ import { useAuthStore } from "@/store/auth";
 // BIỂU TƯỢNG GOOGLE VECTOR
 function IconGoogle({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+    >
       <path
         d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
         fill="#4285F4"
@@ -68,7 +73,6 @@ export default function LoginClient() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
-  // ĐỒNG BỘ ĐIỀU HƯỚNG CHUẨN XÁC: Tự động chuyển vùng đưa khách về Trang chủ (/) ngay khi đăng nhập thành công
   useEffect(() => {
     if (isAuthenticated) {
       router.push("/");
@@ -82,6 +86,7 @@ export default function LoginClient() {
     }
   }, [searchParams]);
 
+  // GỌI GOOGLE OAUTH VỚI CALLBACK BẢO MẬT
   const handleGoogleLogin = async () => {
     setGoogleLoading(true);
     try {
@@ -89,11 +94,17 @@ export default function LoginClient() {
         provider: "google",
         options: {
           redirectTo: `${window.location.origin}/api/auth/callback`,
+          queryParams: {
+            access_type: "offline",
+            prompt: "consent",
+          },
         },
       });
       if (error) throw error;
-    } catch (err: any) {
-      toast.error(err.message || "Không thể kết nối đến Google.");
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error ? err.message : "Không thể kết nối đến Google.";
+      toast.error(msg);
       setGoogleLoading(false);
     }
   };
@@ -126,7 +137,7 @@ export default function LoginClient() {
 
       setUser(data.user);
       toast.success(`Chào mừng trở lại, ${data.user.firstName} ✨`);
-    } catch (_err) {
+    } catch {
       toast.error("Có lỗi xảy ra trong quá trình kết nối.");
     } finally {
       setLoading(false);
@@ -141,7 +152,12 @@ export default function LoginClient() {
       footerLinkText="Đăng ký tài khoản mới"
       footerLinkHref="/auth/register"
     >
-      <motion.div variants={formContainerVariants} initial="hidden" animate="visible" className="space-y-5">
+      <motion.div
+        variants={formContainerVariants}
+        initial="hidden"
+        animate="visible"
+        className="space-y-5"
+      >
         <motion.div variants={formItemVariants}>
           <Button
             type="button"
@@ -158,7 +174,10 @@ export default function LoginClient() {
           </Button>
         </motion.div>
 
-        <motion.div variants={formItemVariants} className="flex items-center gap-3 py-1">
+        <motion.div
+          variants={formItemVariants}
+          className="flex items-center gap-3 py-1"
+        >
           <Separator className="flex-1 bg-[#E1DDD5]" />
           <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-wider font-semibold">
             Hoặc sử dụng email
