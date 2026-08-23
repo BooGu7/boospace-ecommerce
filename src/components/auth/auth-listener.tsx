@@ -3,54 +3,93 @@
 import { useEffect } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { useAuthStore } from "@/store/auth";
+import type { Address, User, UserRole } from "@/types";
 
 export function AuthListener() {
   const setUser = useAuthStore((s) => s.setUser);
   const logout = useAuthStore((s) => s.logout);
 
   useEffect(() => {
+    // 🧹 TỰ ĐỘNG LÀM SẠCH THANH URL NẾU CÓ ĐUÔI #access_token
+    if (
+      typeof window !== "undefined" &&
+      window.location.hash.includes("access_token")
+    ) {
+      window.history.replaceState(
+        null,
+        "",
+        window.location.pathname + window.location.search,
+      );
+    }
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+        if (
+          typeof window !== "undefined" &&
+          window.location.hash.includes("access_token")
+        ) {
+          window.history.replaceState(
+            null,
+            "",
+            window.location.pathname + window.location.search,
+          );
+        }
+
         if (session?.user) {
           const googleMeta = session.user.user_metadata || {};
-          const fullName = (googleMeta.full_name || googleMeta.name || "").trim();
+          const fullName = String(
+            googleMeta.full_name || googleMeta.name || "",
+          ).trim();
 
-          let googleFirstName = googleMeta.given_name || "";
-          let googleLastName = googleMeta.family_name || "";
-          const googleAvatar = googleMeta.avatar_url || googleMeta.picture || "";
+          let googleFirstName = String(googleMeta.given_name || "");
+          let googleLastName = String(googleMeta.family_name || "");
+          const googleAvatar = String(
+            googleMeta.avatar_url || googleMeta.picture || "",
+          );
 
-          // QUÉT ĐA DIỆN SỐ ĐIỆN THOẠI TRÊN CLIENT SESSION [1.1]
-          const googlePhone =
-            session.user.phone || googleMeta.phone || googleMeta.phone_number || googleMeta.mobile || "";
+          const googlePhone = String(
+            session.user.phone ||
+              googleMeta.phone ||
+              googleMeta.phone_number ||
+              googleMeta.mobile ||
+              "",
+          );
 
-          // Thuật toán tách chữ thông minh (Smart Name Splitter) ở phía Client
           if (!googleFirstName && !googleLastName && fullName) {
             const nameParts = fullName.split(/\s+/);
             if (nameParts.length === 1) {
               googleFirstName = nameParts[0];
               googleLastName = "Boospace";
             } else if (nameParts.length >= 2) {
-              googleLastName = nameParts[0]; // Từ đầu tiên làm Họ
-              googleFirstName = nameParts.slice(1).join(" "); // Các từ còn lại làm Tên
+              googleLastName = nameParts[0];
+              googleFirstName = nameParts.slice(1).join(" ");
             }
           }
 
-          // Kéo dữ liệu hồ sơ cá nhân thực tế từ bảng 'users' của Supabase
-          const { data: dbUser } = await supabase.from("users").select("*").eq("id", session.user.id).maybeSingle();
+          const { data: dbUser } = await supabase
+            .from("users")
+            .select("*")
+            .eq("id", session.user.id)
+            .maybeSingle();
 
           const storefrontUser = {
             id: session.user.id,
             email: session.user.email || dbUser?.email || "",
-            firstName: dbUser?.data?.firstName || googleFirstName || "Khách hàng",
+            firstName:
+              dbUser?.data?.firstName || googleFirstName || "Khách hàng",
             lastName: dbUser?.data?.lastName || googleLastName || "Boospace",
             phone: dbUser?.data?.phone || googlePhone || "",
             avatar: googleAvatar || dbUser?.data?.avatar || "",
-            addresses: dbUser?.data?.addresses || [],
+            addresses: (dbUser?.data?.addresses || []) as Address[],
+            role: (dbUser?.data?.role || "customer") as UserRole,
+            createdAt: dbUser?.created_at || new Date().toISOString(),
+            updatedAt: dbUser?.updated_at || new Date().toISOString(),
           };
 
-          setUser(storefrontUser as any);
+          // 🌟 ĐÃ SỬA: ÉP KIỂU CHUẨN USER, TRIỆT TIÊU HOÀN TOÀN 'any'
+          setUser(storefrontUser as unknown as User);
         }
       } else if (event === "SIGNED_OUT") {
         logout();
