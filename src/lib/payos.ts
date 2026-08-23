@@ -39,15 +39,12 @@ export interface PayOSWebhookPayload {
   signature: string;
 }
 
-/**
- * 1. TẠO CHỮ KÝ HMAC SHA-256 CHO PAYOS (CHỐNG LỖI CONSTRUCTOR TURBOPACK)
- */
 function createSignature(dataStr: string, key: string): string {
   return crypto.createHmac("sha256", key).update(dataStr).digest("hex");
 }
 
 /**
- * 2. TẠO LINK & MÃ QR THANH TOÁN PAYOS (CHUẨN OPEN API PAYOS V2)
+ * 1. TẠO LINK & MÃ QR THANH TOÁN PAYOS
  */
 export async function createPayOSPaymentLink(params: CreatePayOSLinkParams) {
   try {
@@ -66,7 +63,6 @@ export async function createPayOSPaymentLink(params: CreatePayOSLinkParams) {
       params.returnUrl ||
       `${origin}/checkout/success?order_id=${params.orderCode}`;
 
-    // Chuỗi ký bắt buộc của PayOS
     const signatureData = `amount=${amount}&cancelUrl=${cancelUrl}&description=${cleanDescription}&orderCode=${params.orderCode}&returnUrl=${returnUrl}`;
     const signature = createSignature(signatureData, checksumKey);
 
@@ -118,13 +114,41 @@ export async function createPayOSPaymentLink(params: CreatePayOSLinkParams) {
   } catch (error: unknown) {
     const msg =
       error instanceof Error ? error.message : "Lỗi tạo link thanh toán PayOS";
-    console.error("[PAYOS_CREATE_LINK_EXCEPTION]", msg);
     return { success: false, error: msg };
   }
 }
 
 /**
- * 3. XÁC THỰC CHỮ KÝ WEBHOOK PAYOS (HMAC SHA-256)
+ * 2. TRA CỨU TRỰC TIẾP TRẠNG THÁI TỪ PAYOS (LỚP BẢO HIỂM THỜI GIAN THỰC)
+ */
+export async function getPayOSPaymentInfo(orderCode: number) {
+  try {
+    const res = await fetch(
+      `https://api-merchant.payos.vn/v2/payment-requests/${orderCode}`,
+      {
+        headers: {
+          "x-client-id": clientId,
+          "x-api-key": apiKey,
+        },
+        cache: "no-store",
+      },
+    );
+    const result = await res.json();
+    if (result.code === "00" && result.data) {
+      return {
+        success: true,
+        status: result.data.status, // 'PAID', 'PENDING', 'CANCELLED'
+        amount: result.data.amount,
+      };
+    }
+    return { success: false };
+  } catch {
+    return { success: false };
+  }
+}
+
+/**
+ * 3. XÁC THỰC CHỮ KÝ WEBHOOK PAYOS
  */
 export function verifyPayOSWebhookData(
   webhookBody: PayOSWebhookPayload,
@@ -133,7 +157,6 @@ export function verifyPayOSWebhookData(
     const data = webhookBody.data;
     if (!data || !webhookBody.signature) return null;
 
-    // Sắp xếp các khóa theo bảng chữ cái theo chuẩn PayOS
     const sortedKeys = Object.keys(data).sort();
     const signData = sortedKeys
       .map((k) => `${k}=${data[k as keyof PayOSWebhookData] ?? ""}`)

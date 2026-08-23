@@ -14,14 +14,18 @@ function extractPossibleCodes(str: string): string[] {
   if (!str) return [];
   const clean = str.toUpperCase().trim();
   const codes: Set<string> = new Set();
+
+  // Bắt cả dạng ORD-MT59H6D7 và dạng viết liền ORDMT59H6D7
   const matches = clean.match(
     /(ORD-?[A-Z0-9]+|BOO-?[A-Z0-9]+|[A-Z0-9]{6,12})/g,
   );
   if (matches) {
     for (const m of matches) {
       codes.add(m);
-      codes.add(m.replace(/^(ORD|BOO)-?/, ""));
-      codes.add(`ORD-${m.replace(/^(ORD|BOO)-?/, "")}`);
+      const rawCode = m.replace(/^(ORD|BOO)-?/, "");
+      codes.add(rawCode);
+      codes.add(`ORD-${rawCode}`);
+      codes.add(`ORD${rawCode}`);
     }
   }
   return Array.from(codes);
@@ -67,7 +71,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // 4. TÌM KIẾM ĐƠN HÀNG ĐA NĂNG
+    // 4. TÌM KIẾM ĐƠN HÀNG ĐA NĂNG (BẮT CẢ DẠNG VIẾT LIỀN ORDMT59H6D7)
     const descCodes = extractPossibleCodes(description || "");
     const searchConditions = [
       `shipping_address->>payos_order_code.eq.${orderCode}`,

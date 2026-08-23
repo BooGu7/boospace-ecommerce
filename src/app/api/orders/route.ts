@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { siteConfig } from "@/lib/config";
-import { createPayOSPaymentLink } from "@/lib/payos";
+import { createPayOSPaymentLink, getPayOSPaymentInfo } from "@/lib/payos";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -26,7 +26,7 @@ interface CouponRecord {
 }
 
 /**
- * 1. KIỂM TRA TRẠNG THÁI THANH TOÁN (GET)
+ * 1. KIỂM TRA TRẠNG THÁI THANH TOÁN (GET) - TỰ ĐỘNG ĐỐI SOÁT PAYOS
  */
 export async function GET(request: Request) {
   try {
@@ -58,13 +58,14 @@ export async function GET(request: Request) {
       );
 
     const strippedCode = cleanCode.replace(/^(ORD|BOO)-?/i, "");
+    const noHyphenCode = cleanCode.replace(/[^a-zA-Z0-9]/g, "");
 
-    // ĐÃ SỬA: Bỏ ambiguous products(...) trong select để triệt tiêu lỗi HTTP 300
+    // TÌM ĐƠN HÀNG: Hỗ trợ mã có dấu gạch ngang, không dấu gạch ngang, và mã PayOS
     const { data: order, error } = await supabaseAdmin
       .from("orders")
       .select("*, order_items(*)")
       .or(
-        `code.eq.${cleanCode},code.eq.ORD-${strippedCode},code.eq.BOO-${strippedCode},code.eq.${strippedCode},shipping_address->>payos_order_code.eq.${cleanCode},id.eq.${isUuid ? cleanCode : "00000000-0000-0000-0000-000000000000"}`,
+        `code.eq.${cleanCode},code.eq.ORD-${strippedCode},code.eq.${noHyphenCode},code.ilike.%${strippedCode}%,shipping_address->>payos_order_code.eq.${cleanCode},id.eq.${isUuid ? cleanCode : "00000000-0000-0000-0000-000000000000"}`,
       )
       .maybeSingle();
 
@@ -75,11 +76,35 @@ export async function GET(request: Request) {
       );
     }
 
+    let isPaid = String(order.payment_status || "").toLowerCase() === "paid";
+
+    // LỚP BẢO HIỂM 2: Nếu DB chưa Paid -> Hỏi trực tiếp PayOS API để gạch nợ ngay
+    if (!isPaid && order.shipping_address?.payos_order_code) {
+      const payosCheck = await getPayOSPaymentInfo(
+        Number(order.shipping_address.payos_order_code),
+      );
+      if (payosCheck.success && payosCheck.status === "PAID") {
+        await supabaseAdmin
+          .from("orders")
+          .update({
+            payment_status: "Paid",
+            order_status:
+              order.order_status === "pending"
+                ? "confirmed"
+                : order.order_status,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", order.id);
+
+        isPaid = true;
+      }
+    }
+
     return NextResponse.json({
       success: true,
       order,
-      isPaid: String(order.payment_status || "").toLowerCase() === "paid",
-      paymentStatus: order.payment_status,
+      isPaid,
+      paymentStatus: isPaid ? "Paid" : order.payment_status,
       orderStatus: order.order_status,
     });
   } catch (error: unknown) {
@@ -89,7 +114,7 @@ export async function GET(request: Request) {
 }
 
 /**
- * 2. TẠO ĐƠN HÀNG VÀ SINH LINK THANH TOÁN PAYOS (POST)
+ * 2. TẠO ĐƠN HÀNG VÀ ĐỒNG BỘ NỘI DUNG CHUYỂN KHOẢN VỚI PAYOS (POST)
  */
 export async function POST(request: Request) {
   try {
@@ -154,7 +179,6 @@ export async function POST(request: Request) {
       supabaseAdmin = createSupabaseServerClient();
     }
 
-    // LẤY GIÁ BÁN THỰC TẾ TỪ DATABASE
     const productIds = items
       .map((i: RequestOrderItem) => i.productId || i.product_id)
       .filter(Boolean);
@@ -203,7 +227,7 @@ export async function POST(request: Request) {
       });
     }
 
-    // XÁC THỰC COUPON
+    // COUPON
     let discountPercent = 0;
     let appliedCouponId: string | null = null;
 
@@ -245,7 +269,6 @@ export async function POST(request: Request) {
 
     const finalTotal = calculatedSubtotal - discountAmount + serverShippingFee;
 
-    // SINH MÃ SỐ NGUYÊN CHO PAYOS (ẨN DƯỚI NỀN)
     const payosNumericCode = Math.abs(
       parseInt(Date.now().toString().slice(-6), 10) +
         Math.floor(Math.random() * 1000),
@@ -262,12 +285,12 @@ export async function POST(request: Request) {
         "",
       );
 
-    // LƯU MÃ PAYOS VÀO JSONB ẨN, TRẢ LẠI GHI CHÚ NGUYÊN BẢN CỦA KHÁCH
     const enhancedShippingAddress = {
       ...shippingAddress,
       payos_order_code: payosNumericCode,
     };
 
+    // LƯU ĐƠN HÀNG
     const { data: createdOrder, error: orderError } = await supabaseAdmin
       .from("orders")
       .insert({
@@ -286,7 +309,7 @@ export async function POST(request: Request) {
         payment_method: savedPaymentMethod,
         applied_coupon_id: appliedCouponId,
         shipping_carrier: "Giao hàng tiêu chuẩn",
-        notes: userNotes || null, // CHỈ LƯU GHI CHÚ THẬT CỦA KHÁCH HÀNG
+        notes: userNotes || null,
         packaging_note:
           "Hàng dễ vỡ. Bọc xốp nổ 3 lớp, đóng thùng carton sóng E, dán tem vỡ niêm phong xưởng",
       })
@@ -307,7 +330,7 @@ export async function POST(request: Request) {
 
     await supabaseAdmin.from("order_items").insert(itemsToInsert);
 
-    // NẾU LÀ VIETQR -> GỌI PAYOS TẠO PAYMENT LINK
+    // GỌI PAYOS TẠO PAYMENT LINK VỚI NỘI DUNG CHUẨN XÁC
     let payosData = null;
     if (isVietQR) {
       const payosItems = verifiedOrderItems.map((it) => {
@@ -319,10 +342,11 @@ export async function POST(request: Request) {
         };
       });
 
+      // ĐỒNG BỘ DESCRIPTION VỚI NỘI DUNG CHUYỂN KHOẢN CỦA APP NGÂN HÀNG
       payosData = await createPayOSPaymentLink({
         orderCode: payosNumericCode,
         amount: finalTotal,
-        description: `DH ${orderCode.replace(/^ORD-/, "")}`,
+        description: `${orderCode.replace(/[^a-zA-Z0-9]/g, "")}`.slice(0, 25),
         items: payosItems,
       });
     }
