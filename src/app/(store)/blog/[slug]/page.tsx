@@ -1,207 +1,134 @@
-import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import { BlogComments } from "@/components/blog/blog-comments";
-import { Badge } from "@/components/ui/badge";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { siteConfig } from "@/lib/config";
-import { PLACEHOLDER_IMAGE } from "@/lib/constants";
-import { blogRepository } from "@/lib/repositories";
-import { breadcrumbJsonLd } from "@/lib/structured-data";
-import { formatDate } from "@/lib/utils";
+import { Calendar, ChevronRight, User } from "lucide-react";
+import { createClient } from "@supabase/supabase-js";
+import { sanitizeBlogContent } from "@/lib/sanitize-html";
 
-export const revalidate = 3600; // Cache 1 giờ
+export const revalidate = 0; // Luôn nạp bài viết mới nhất
 
-interface PostProps {
+interface Props {
   params: Promise<{ slug: string }>;
 }
 
-// BỘ TẠO THAM SỐ TĨNH: Trả về mảng rỗng chuẩn kiểu Promise<{ slug: string }[]>
-export async function generateStaticParams(): Promise<{ slug: string }[]> {
-  return [];
-}
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+);
 
-export async function generateMetadata({ params }: PostProps): Promise<Metadata> {
+export default async function BlogPostDetailPage({ params }: Props) {
   const { slug } = await params;
-  const post = await blogRepository.getBySlug(slug);
-  if (!post) return { title: "Not Found" };
 
-  return {
-    title: post.title,
-    description: post.excerpt,
-    alternates: { canonical: `/blog/${post.slug}` },
-    openGraph: {
-      title: post.title,
-      description: post.excerpt,
-      type: "article",
-      url: `${siteConfig.url}/blog/${post.slug}`,
-      publishedTime: post.publishedAt,
-      authors: [post.author],
-      tags: post.tags,
-      images: post.coverImage ? [{ url: post.coverImage.url, alt: post.coverImage.alt }] : [],
-    },
-  };
-}
+  // Truy vấn bài viết từ Supabase
+  const { data: post, error } = await supabase
+    .from("blog_posts")
+    .select("*")
+    .eq("slug", slug)
+    .single();
 
-// BỘ TRÍCH XUẤT ĐỘNG CÁC THẺ TIÊU ĐỀ H2
-function extractHeadings(html: string) {
-  const regex = /<h2[^>]*>(.*?)<\/h2>/g;
-  const headings: { text: string; id: string }[] = [];
-  let match: RegExpExecArray | null = regex.exec(html);
-  while (match !== null) {
-    const text = match[1].replace(/<[^>]*>/g, "");
-    const id = text
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9àáảãạâầấẩẫậăằắẳẵặèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ\s]+/g, "")
-      .replace(/\s+/g, "-");
-    headings.push({ text, id });
-    match = regex.exec(html);
+  if (error || !post) {
+    notFound();
   }
-  return headings;
-}
 
-export default async function BlogPostPage({ params }: PostProps) {
-  const { slug } = await params;
-  const post = await blogRepository.getBySlug(slug);
-  if (!post) notFound();
+  // Lọc và làm sạch mã HTML (Đã bao gồm cấp phép nhúng Video & Iframe)
+  const cleanContentHtml = sanitizeBlogContent(post.content || "");
 
-  const headings = extractHeadings(post.body);
-  let processedBody = post.body;
-  headings.forEach((h) => {
-    processedBody = processedBody.replace(`<h2>${h.text}</h2>`, `<h2 id="${h.id}">${h.text}</h2>`);
-  });
-
-  const articleJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    headline: post.title,
-    description: post.excerpt,
-    datePublished: post.publishedAt,
-    dateModified: post.updatedAt ?? post.publishedAt,
-    author: { "@type": "Person", name: post.author },
-    image: post.coverImage?.url,
-    publisher: {
-      "@type": "Organization",
-      name: siteConfig.name,
-      url: siteConfig.url,
-    },
-  };
+  const publishDate = post.created_at
+    ? new Date(post.created_at).toLocaleDateString("vi-VN", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+      })
+    : "Gần đây";
 
   return (
-    <div className="bg-[#FCFAF2] text-[#1E1C1A] min-h-screen antialiased selection:bg-[#EAE5D9]">
-      <div className="mx-auto max-w-[1440px] px-4 py-12 sm:px-6 lg:px-8 border-x border-[#E1DDD5] bg-[#FCFAF2]/50">
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify([
-              articleJsonLd,
-              breadcrumbJsonLd([
-                { name: "Blog", href: "/blog" },
-                { name: post.title, href: `/blog/${post.slug}` },
-              ]),
-            ]),
-          }}
-        />
+    <article className="min-h-screen bg-[#FCFAF2] text-[#2C2825] font-sans antialiased pb-24 selection:bg-[#FF9D00] selection:text-black">
+      {/* BREADCRUMB NAVIGATION */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-8 pb-4">
+        <nav className="flex items-center gap-1.5 text-xs text-stone-500 font-mono">
+          <Link href="/" className="hover:text-stone-900 transition">
+            Trang chủ
+          </Link>
+          <ChevronRight className="size-3" />
+          <Link href="/blog" className="hover:text-stone-900 transition">
+            Nhật ký &amp; Blog
+          </Link>
+          <ChevronRight className="size-3" />
+          <span className="text-stone-800 truncate max-w-[240px] font-bold">
+            {post.title}
+          </span>
+        </nav>
+      </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-12 items-start text-left">
-          <aside className="hidden xl:block xl:col-span-3 sticky top-28 h-fit bg-[#FAF5F2]/60 border border-[#E1DDD5] rounded-3xl p-6 space-y-4">
-            <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold block border-b border-[#E1DDD5]/60 pb-2">
-              Table of Contents
+      {/* HEADER BÀI VIẾT */}
+      <header className="max-w-4xl mx-auto px-4 sm:px-6 py-6 space-y-4">
+        <div className="flex flex-wrap items-center gap-2">
+          {(post.tags || []).map((t: string) => (
+            <span
+              key={t}
+              className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-stone-200/70 text-stone-800 border border-stone-300"
+            >
+              #{t}
             </span>
-            {headings.length > 0 ? (
-              <ul className="space-y-3 font-serif text-sm">
-                {headings.map((h) => (
-                  <li key={h.id}>
-                    <a
-                      href={`#${h.id}`}
-                      className="text-black/75 hover:text-[#FF9D00] hover:underline transition-colors block leading-tight font-medium"
-                    >
-                      {h.text}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-xs text-[#786F66] italic">Nhật ký thô mộc ngắn.</p>
-            )}
-          </aside>
+          ))}
+        </div>
 
-          <div className="xl:col-span-9 max-w-3xl mx-auto w-full space-y-8">
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem>
-                  <BreadcrumbLink render={<Link href="/blog" />}>Blog</BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbPage className="text-black font-medium truncate max-w-[200px] sm:max-w-none">
-                    {post.title}
-                  </BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
+        <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-stone-950 leading-[1.2]">
+          {post.title}
+        </h1>
 
-            <article className="space-y-8">
-              <header className="space-y-4">
-                <div className="flex items-center gap-2 text-xs font-mono text-[#786F66] uppercase font-semibold">
-                  <time dateTime={post.publishedAt}>{formatDate(post.publishedAt)}</time>
-                  <span>·</span>
-                  <span>by {post.author}</span>
-                </div>
-                <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-black font-serif leading-tight">
-                  {post.title}
-                </h1>
-                <p className="text-base sm:text-lg text-[#5C564E] leading-relaxed font-light">{post.excerpt}</p>
-              </header>
+        {post.short_description && (
+          <p className="text-base sm:text-lg text-stone-600 leading-relaxed font-serif italic border-l-2 border-[#FF9D00] pl-4 py-1">
+            {post.short_description}
+          </p>
+        )}
 
-              <div className="relative aspect-[16/10] overflow-hidden rounded-3xl border border-[#E1DDD5] bg-[#EAE5D9]/20 shadow-sm">
-                <Image
-                  src={post.coverImage?.url ?? PLACEHOLDER_IMAGE}
-                  alt={post.coverImage?.alt ?? post.title}
-                  fill
-                  className="object-cover mix-blend-multiply opacity-95"
-                  sizes="(max-width: 768px) 100vw, 768px"
-                  priority
-                />
-              </div>
+        <div className="flex items-center gap-4 text-xs font-mono text-stone-500 pt-2 border-t border-stone-200">
+          <span className="flex items-center gap-1.5 font-semibold text-stone-700">
+            <User className="size-3.5 text-[#FF9D00]" /> Boo Space Studio
+          </span>
+          <span>•</span>
+          <span className="flex items-center gap-1.5">
+            <Calendar className="size-3.5" /> {publishDate}
+          </span>
+        </div>
+      </header>
 
-              <div
-                className="blog-body prose prose-stone max-w-none text-[#1E1C1A] text-sm sm:text-base leading-relaxed space-y-6 scroll-smooth"
-                dangerouslySetInnerHTML={{ __html: processedBody }}
-              />
-
-              {post.tags.length > 0 && (
-                <footer className="border-t border-[#E1DDD5] pt-6 mt-12">
-                  <div className="flex flex-wrap items-center gap-2.5">
-                    <span className="text-xs font-mono text-[#786F66] uppercase tracking-wider font-bold">Tags:</span>
-                    {post.tags.map((tag) => (
-                      <Link key={tag} href={`/blog?tag=${encodeURIComponent(tag)}`}>
-                        <Badge
-                          variant="secondary"
-                          className="text-[10px] rounded-lg px-2.5 py-0.5 font-mono cursor-pointer hover:bg-black hover:text-white transition-colors border border-[#DCD6CC] bg-[#EAE5D9]/40 text-[#786F66]"
-                        >
-                          #{tag}
-                        </Badge>
-                      </Link>
-                    ))}
-                  </div>
-                </footer>
-              )}
-            </article>
-
-            <BlogComments postId={post.id} />
+      {/* ẢNH BÌA HERO (NẾU CÓ) */}
+      {post.cover_image && (
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 my-6">
+          <div className="relative aspect-video w-full overflow-hidden rounded-3xl border border-stone-200 shadow-sm bg-stone-100">
+            <Image
+              src={post.cover_image}
+              alt={post.title}
+              fill
+              priority
+              unoptimized
+              className="object-cover"
+            />
           </div>
         </div>
-      </div>
-    </div>
+      )}
+
+      {/* NỘI DUNG CHI TIẾT (RENDER VIDEO, IFRAME & MARKDOWN HTML CHUẨN) */}
+      <main className="max-w-4xl mx-auto px-4 sm:px-6">
+        <div
+          className="blog-content-body prose prose-stone max-w-none 
+            prose-headings:font-serif prose-headings:font-bold prose-headings:text-stone-950
+            prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4 prose-h2:border-b prose-h2:border-stone-200 prose-h2:pb-2
+            prose-h3:text-xl prose-h3:mt-6 prose-h3:mb-3
+            prose-p:text-stone-700 prose-p:leading-relaxed prose-p:text-base prose-p:my-4
+            prose-strong:text-stone-950 prose-strong:font-bold
+            prose-blockquote:border-l-4 prose-blockquote:border-[#FF9D00] prose-blockquote:bg-stone-100/60 prose-blockquote:p-4 prose-blockquote:rounded-r-2xl prose-blockquote:italic prose-blockquote:my-6
+            prose-img:rounded-2xl prose-img:shadow-md prose-img:border prose-img:border-stone-200 prose-img:my-6
+            prose-table:w-full prose-table:border-collapse prose-table:border prose-table:border-stone-300 prose-table:my-6
+            prose-th:border prose-th:border-stone-300 prose-th:bg-stone-200/60 prose-th:p-2.5 prose-th:text-xs prose-th:font-bold
+            prose-td:border prose-td:border-stone-300 prose-td:p-2.5 prose-td:text-xs
+            prose-a:text-[#FF9D00] prose-a:font-bold prose-a:underline hover:prose-a:text-orange-600
+            [&_.aspect-video]:aspect-video [&_.aspect-video]:w-full [&_.aspect-video]:my-8 [&_.aspect-video]:rounded-2xl [&_.aspect-video]:overflow-hidden [&_.aspect-video]:shadow-md [&_.aspect-video]:border [&_.aspect-video]:border-stone-200 [&_.aspect-video]:bg-black"
+          dangerouslySetInnerHTML={{ __html: cleanContentHtml }}
+        />
+      </main>
+    </article>
   );
 }
