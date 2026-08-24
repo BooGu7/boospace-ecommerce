@@ -244,7 +244,7 @@ export function VietQRPayment({
         <div className="space-y-1">
           <h3 className="font-serif text-lg font-bold text-black flex items-center gap-2">
             <ShieldCheck className="size-5 text-[#FF9D00]" />
-            Thanh toán VietQR (PayOS)
+            Thanh toán chuyển khoản
           </h3>
           <p className="text-xs text-[#786F66] font-sans">
             Tài khoản nhận: {bankInfo.bankCode} ({bankInfo.accountNumber})
