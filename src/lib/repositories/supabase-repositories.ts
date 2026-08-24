@@ -56,7 +56,7 @@ function paginate<T>(
 
 /**
  * =========================================================================
- * BỘ CHUYỂN ĐỔI DỮ LIỆU (ADAPTERS - ĐÃ BỔ SUNG ĐẦY ĐỦ TRƯỜNG DỮ LIỆU)
+ * BỘ CHUYỂN ĐỔI DỮ LIỆU (ADAPTERS - ĐẦY ĐỦ TRƯỜNG DỮ LIỆU)
  * =========================================================================
  */
 
@@ -100,17 +100,17 @@ function mapDbProductToStorefront(dbProduct: any): Product {
     images: mappedImages,
     categoryIds: dbProduct.category_id ? [dbProduct.category_id] : [],
     brandId: dbProduct.brand_id,
-    stock: dbProduct.stock ?? 0, // Bổ sung cột stock quản lý tồn kho
+    stock: dbProduct.stock ?? 0,
     tags: [],
     variants: [defaultVariant],
     attributes: dbProduct.attributes || {},
-
+    rating: Number(dbProduct.rating ?? 5),
+    reviewCount: Number(dbProduct.review_count ?? 0),
     createdAt: dbProduct.created_at || new Date().toISOString(),
     updatedAt: dbProduct.updated_at || new Date().toISOString(),
   } as unknown as Product;
 }
 
-// BỔ SUNG ĐẦY ĐỦ CỘT DESCRIPTION VÀ IMAGE_URL CHO DANH MỤC
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mapDbCategoryToStorefront(dbCategory: any): Category {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -501,12 +501,21 @@ export const supabasePageRepository = {
   },
 };
 
+/**
+ * =========================================================================
+ * BỘ QUẢN TRỊ BÀI VIẾT BLOG (ĐÃ TÍCH HỢP HẸN GIỜ XUẤT BẢN THẬT)
+ * =========================================================================
+ */
 export const supabaseBlogRepository = {
   async list(params?: PaginationParams): Promise<PaginatedResult<BlogPost>> {
     const supabase = createSupabaseServerClient();
+    const nowIso = new Date().toISOString();
+
+    // 🌟 CHỈ TẢI BÀI VIẾT ĐÃ ĐẾN GIỜ XUẤT BẢN (created_at <= now)
     const { data, error } = await supabase
       .from("blog_posts")
       .select("*")
+      .lte("created_at", nowIso)
       .order("created_at", { ascending: false });
 
     if (error) return paginate([], params);
@@ -516,13 +525,17 @@ export const supabaseBlogRepository = {
 
   async getBySlug(slug: string): Promise<BlogPost | null> {
     const supabase = createSupabaseServerClient();
+    const nowIso = new Date().toISOString();
+
+    // 🌟 KHÓA TRUY CẬP TRỰC TIẾP NẾU BÀI VIẾT ĐƯỢC HẸN GIỜ TRONG TƯƠNG LAI
     const { data, error } = await supabase
       .from("blog_posts")
       .select("*")
       .eq("slug", slug)
+      .lte("created_at", nowIso)
       .maybeSingle();
 
-    if (error) return null;
+    if (error || !data) return null;
     return mapDbBlogPostToStorefront(data);
   },
 
