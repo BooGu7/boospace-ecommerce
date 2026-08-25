@@ -10,7 +10,6 @@ import { Toaster } from "sonner";
 import { siteConfig } from "@/lib/config";
 import "./globals.css";
 
-// Tải phông chữ Geist hiện đại, tối giản từ next/font/google
 const sans = Geist({
   variable: "--font-app-sans",
   subsets: ["latin"],
@@ -18,7 +17,6 @@ const sans = Geist({
   display: "swap",
 });
 
-// Instrument_Sans chỉ hỗ trợ subsets ["latin", "latin-ext"]
 const serif = Instrument_Sans({
   variable: "--font-app-serif",
   subsets: ["latin", "latin-ext"],
@@ -67,16 +65,26 @@ export default async function RootLayout({
   const locale = await getLocale();
   const messages = await getMessages();
 
-  const shouldInjectToolbar = process.env.NODE_ENV === "development" || process.env.VERCEL_ENV === "preview";
+  const shouldInjectToolbar =
+    process.env.NODE_ENV === "development" ||
+    process.env.VERCEL_ENV === "preview";
 
   return (
-    <html lang={locale} suppressHydrationWarning className={`${sans.variable} ${serif.variable} h-full antialiased`}>
+    <html
+      lang={locale}
+      suppressHydrationWarning
+      className={`${sans.variable} ${serif.variable} h-full antialiased`}
+    >
       <head />
 
-      <body className="min-h-full flex flex-col bg-background relative" suppressHydrationWarning={true}>
+      <body
+        className="min-h-full flex flex-col bg-background relative"
+        suppressHydrationWarning={true}
+      >
+        {/* TẢI GTM BẰNG CHIẾN LƯỢC LAZY ONLOAD ĐỂ TỐI ƯU TỐC ĐỘ HIỂN THỊ */}
         <Script
           id="gtm-script"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
           dangerouslySetInnerHTML={{
             __html: `
               (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -104,7 +112,9 @@ export default async function RootLayout({
           }}
         />
 
-        <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
+        <NextIntlClientProvider messages={messages}>
+          {children}
+        </NextIntlClientProvider>
 
         <Toaster position="bottom-right" />
 
