@@ -13,12 +13,17 @@ export function formatPrice(priceInCents: number, currency?: string): string {
   }).format(priceInCents / 100);
 }
 
-export function formatDate(date: string | Date): string {
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  }).format(new Date(date));
+export function formatDate(date: string | Date | undefined | null): string {
+  if (!date) return "";
+  try {
+    return new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    }).format(new Date(date));
+  } catch {
+    return "";
+  }
 }
 
 export function truncate(str: string, length: number): string {

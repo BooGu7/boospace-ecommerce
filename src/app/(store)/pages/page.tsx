@@ -18,19 +18,27 @@ export default async function PagesIndex() {
       <PageHeader title="Pages" description={`${pages.length} pages`} />
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {pages.map((page) => (
-          <Link key={page.id} href={`/pages/${page.slug}`}>
-            <Card className="h-full transition-shadow hover:shadow-md">
-              <CardContent className="pt-6">
-                <h2 className="text-lg font-semibold">{page.title}</h2>
-                {page.excerpt && <p className="mt-2 text-sm text-muted-foreground">{page.excerpt}</p>}
-                <p className="mt-4 text-xs text-muted-foreground">
-                  Updated {formatDate(page.updatedAt ?? page.publishedAt)}
-                </p>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
+        {pages.map((page) => {
+          const pageDate =
+            page.updatedAt || page.publishedAt || new Date().toISOString();
+          return (
+            <Link key={page.id} href={`/pages/${page.slug}`}>
+              <Card className="h-full transition-shadow hover:shadow-md">
+                <CardContent className="pt-6">
+                  <h2 className="text-lg font-semibold">{page.title}</h2>
+                  {page.excerpt && (
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      {page.excerpt}
+                    </p>
+                  )}
+                  <p className="mt-4 text-xs text-muted-foreground">
+                    Updated {formatDate(pageDate)}
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
+          );
+        })}
       </div>
     </div>
   );

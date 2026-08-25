@@ -1,10 +1,9 @@
-import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
-export function middleware(_request: NextRequest) {
+export function middleware() {
   const response = NextResponse.next();
 
-  response.headers.set("X-Frame-Options", "DENY");
+  response.headers.set("X-Frame-Options", "SAMEORIGIN");
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   response.headers.set("X-DNS-Prefetch-Control", "on");
@@ -15,16 +14,16 @@ export function middleware(_request: NextRequest) {
 
   const isDev = process.env.NODE_ENV !== "production";
 
-  // CẤP PHÉP ĐẦY ĐỦ CHO VERCEL, GOOGLE ADS, CLOUDFLARE VÀ SUPABASE MEDIA
+  // CẤP PHÉP ĐẦY ĐỦ CHO YOUTUBE EMBED, SUPABASE VÀ GA4
   const csp = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://*.google-analytics.com https://googleads.g.doubleclick.net https://www.googleadservices.com https://static.cloudflareinsights.com https://vercel.live",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://*.google-analytics.com https://googleads.g.doubleclick.net https://www.googleadservices.com https://static.cloudflareinsights.com https://vercel.live https://*.youtube.com",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "img-src 'self' data: blob: https:",
-    "media-src 'self' data: blob: https://amukhgkamrokbbcjgusf.supabase.co https:",
+    "media-src 'self' data: blob: https://amukhgkamrokbbcjgusf.supabase.co https://*.supabase.co https://*.youtube.com https://*.googlevideo.com https:",
     "font-src 'self' https://fonts.gstatic.com https:",
     "connect-src 'self' https: wss: https://*.supabase.co https://api-merchant.payos.vn https://*.google-analytics.com https://googleads.g.doubleclick.net https://vercel.live",
-    "frame-src 'self' https://pay.payos.vn https://vercel.live",
+    "frame-src 'self' https://pay.payos.vn https://vercel.live https://www.youtube.com https://www.youtube-nocookie.com https://youtube.com https://youtu.be https://player.vimeo.com https://amukhgkamrokbbcjgusf.supabase.co https://*.supabase.co",
     "frame-ancestors 'none'",
   ].join("; ");
 
