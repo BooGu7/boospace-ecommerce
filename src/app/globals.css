@@ -316,3 +316,47 @@
 .animate-gradient-shift {
   animation: gradientShift 6s ease infinite;
 }
+
+/* =========================================================================
+   DAYLIGHT CALM AMBIENT MODES (SUNSET & CANDLELIGHT NIGHT)
+   ========================================================================= */
+html {
+  transition: background-color 0.4s ease, color 0.4s ease, filter 0.4s ease;
+}
+
+/* 🌅 HOÀNG HÔN (AMBER SUNSET - DAYLIGHT WARM AMBER VIBE) */
+html[data-ambient-mode="sunset"] {
+  background-color: #F3ECE1 !important;
+  color: #271E18 !important;
+}
+html[data-ambient-mode="sunset"] body {
+  background-color: #F3ECE1 !important;
+  color: #271E18 !important;
+}
+html[data-ambient-mode="sunset"] .bg-\[\#FCFAF2\],
+html[data-ambient-mode="sunset"] .bg-\[\#FCFAF2\]\/50,
+html[data-ambient-mode="sunset"] .bg-\[\#FCFAF2\]\/95 {
+  background-color: #F3ECE1 !important;
+}
+html[data-ambient-mode="sunset"] .bg-\[\#FAF5F2\],
+html[data-ambient-mode="sunset"] .bg-\[\#F7F4EB\],
+html[data-ambient-mode="sunset"] .bg-\[\#FAF5F2\]\/80 {
+  background-color: #ECE1D1 !important;
+}
+html[data-ambient-mode="sunset"] .border-\[\#E1DDD5\],
+html[data-ambient-mode="sunset"] .border-\[\#E1DDD5\]\/80,
+html[data-ambient-mode="sunset"] .border-\[\#E1DDD5\]\/60,
+html[data-ambient-mode="sunset"] .border-\[\#E1DDD5\]\/40 {
+  border-color: #DCCBB9 !important;
+}
+html[data-ambient-mode="sunset"] .text-black,
+html[data-ambient-mode="sunset"] .text-\[\#1E1C1A\] {
+  color: #271E18 !important;
+}
+html[data-ambient-mode="sunset"] .text-\[\#5C564E\],
+html[data-ambient-mode="sunset"] .text-\[\#786F66\] {
+  color: #6E6155 !important;
+}
+
+
+

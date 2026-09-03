@@ -101,7 +101,7 @@ export function BentoPortalGrid() {
         body: JSON.stringify({
           name: "Khách hàng Ý Tưởng Độc Bản",
           email: email,
-          subject: "Yêu cầu báo giá thiết kế in 3D On-Demand từ Bento",
+          subject: "Yêu cầu tư vấn thiết kế độc bản từ Bento",
           message: `SĐT: ${phone}\nÝ tưởng: ${idea}${uploadedFileUrl ? `\nTệp đính kèm: ${uploadedFileUrl}` : ""}`,
         }),
       });
@@ -193,7 +193,7 @@ export function BentoPortalGrid() {
               >
                 <Upload className="h-3.5 w-3.5 text-[#00E19B]" />
                 <span className="text-[10px] font-mono text-[#00E19B] uppercase tracking-wider">
-                  Đính kèm file 3D / Bản phác thảo (Nếu có)
+                  Đính kèm bản phác thảo / ý tưởng (Nếu có)
                 </span>
                 <input
                   type="file"

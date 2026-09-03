@@ -9,16 +9,16 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { Product } from "@/types";
 
 export const metadata: Metadata = {
-  title: "Boo Space — Custom 3D Printed Workspace & Design Studio",
+  title: "Boo Space — Không Gian Sống & Thiết Kế Độc Bản",
   description:
-    "Boo Space cung cấp sản phẩm in 3D theo yêu cầu cho workspace và DIY. Thiết kế tùy chỉnh, sản xuất theo ý tưởng riêng và tạo ra các giải pháp không gian làm việc độc đáo bằng chất liệu CR-PETG cao cấp.",
+    "Boo Space tạo ra những vật thể thiết kế tối giản, ấm áp cho góc làm việc và không gian sống. Đèn ambient khúc xạ ánh sáng, chậu cây tự tưới và phụ kiện bàn làm việc độc bản.",
   alternates: {
     canonical: "https://www.boospace.tech/",
   },
   openGraph: {
-    title: "Boo Space — Custom 3D Printed Workspace",
+    title: "Boo Space — Không Gian Sống & Thiết Kế Độc Bản",
     description:
-      "Thiết kế và sản xuất sản phẩm in 3D cho workspace và DIY theo yêu cầu tại Boo Space.",
+      "Boo Space tạo ra những vật thể thiết kế tối giản, ấm áp cho góc làm việc và không gian sống.",
     type: "website",
     url: "https://www.boospace.tech/",
   },

@@ -18,12 +18,12 @@ export function ProductGallery({ images, productName = "Product" }: ProductGalle
   return (
     <div className="flex flex-col gap-4">
       {/* Main image */}
-      <div className="relative aspect-square overflow-hidden rounded-lg bg-neutral-100">
+      <div className="relative aspect-square overflow-hidden rounded-3xl border border-[#E1DDD5] bg-[#FAF5F2]">
         <Image
           src={currentImage?.url ?? PLACEHOLDER_IMAGE}
           alt={currentImage?.alt ?? productName}
           fill
-          className="object-cover"
+          className="object-cover transition-all duration-300"
           sizes="(max-width: 1024px) 100vw, 50vw"
           priority
         />
@@ -31,14 +31,16 @@ export function ProductGallery({ images, productName = "Product" }: ProductGalle
 
       {/* Thumbnails */}
       {images.length > 1 && (
-        <div className="flex gap-2">
+        <div className="flex gap-2.5 overflow-x-auto pb-1">
           {images.map((image, index) => (
             <button
               key={index}
               onClick={() => setSelectedIndex(index)}
               className={cn(
-                "relative h-16 w-16 overflow-hidden rounded-md border-2 bg-neutral-100 transition-colors",
-                selectedIndex === index ? "border-foreground" : "border-transparent hover:border-neutral-300",
+                "relative h-16 w-16 overflow-hidden rounded-xl border transition-all cursor-pointer shrink-0 bg-[#FAF5F2]",
+                selectedIndex === index
+                  ? "border-black ring-1 ring-black"
+                  : "border-[#E1DDD5] hover:border-[#786F66]",
               )}
               aria-label={`View image ${index + 1}`}
             >

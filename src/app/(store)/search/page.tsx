@@ -107,7 +107,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 Bạn đang tìm kiếm điều gì?
               </h3>
               <p className="text-xs leading-relaxed text-[#786F66] font-sans">
-                Hãy thử nhập tên sản phẩm, chất liệu gỗ sồi tự nhiên, dòng chậu cây in 3D chịu lực hoặc các giải pháp
+                Hãy thử nhập tên sản phẩm, chất liệu mộc mạc, dòng chậu cây tự tưới thông minh hoặc các giải pháp
                 giấu dây gọn gàng cho góc làm việc của bạn.
               </p>
             </div>

@@ -72,7 +72,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const desc =
     post.short_description ||
     post.excerpt ||
-    "Khám phá các cẩm nang thiết kế góc làm việc tối giản và sản phẩm in 3D độc bản tại Boo Space.";
+    "Khám phá các cẩm nang thiết kế góc làm việc tối giản và sản phẩm thủ công độc bản tại Boo Space.";
 
   return {
     title: `${title} | Boo Space Studio`,

@@ -6,7 +6,7 @@ export const revalidate = 86400; // Cache 24 giờ
 export const metadata: Metadata = {
   title: "Chính sách đổi trả & hoàn tiền",
   description:
-    "Quy trình đổi trả 4 bước minh bạch, điều kiện hoàn tiền và chính sách bảo hành sản phẩm chế tác 3D tại Boo Space.",
+    "Quy trình đổi trả 4 bước minh bạch, điều kiện hoàn tiền và chính sách bảo hành sản phẩm chế tác thủ công tinh xảo tại Boo Space.",
 };
 
 export default function ReturnsPolicyPage() {
@@ -56,8 +56,7 @@ export default function ReturnsPolicyPage() {
                   </li>
                   <li>
                     <strong>Lỗi chấp nhận:</strong> Sản phẩm bị vỡ hỏng do vận
-                    chuyển, giao sai mẫu/màu, hoặc lỗi kỹ thuật nghiêm trọng từ
-                    khâu chế tác.
+                    chuyển, giao sai mẫu/màu, hoặc khuyết điểm từ khâu hoàn thiện thủ công.
                   </li>
                   <li>
                     <strong>Chi phí:</strong> Boo Space chịu{" "}
@@ -101,14 +100,14 @@ export default function ReturnsPolicyPage() {
               </p>
               <ul className="list-disc pl-5 space-y-1.5">
                 <li>
-                  <strong>Sản phẩm Custom theo yêu cầu riêng:</strong> Các sản
-                  phẩm in tên riêng, chỉnh kích thước riêng hoặc in từ file
-                  `.STL`/`.3MF` do khách hàng cung cấp.
+                  <strong>Sản phẩm thiết kế theo yêu cầu riêng:</strong> Các sản
+                  phẩm khắc tên riêng, tinh chỉnh kích thước riêng hoặc chế tác
+                  theo bản phác thảo do khách hàng cung cấp.
                 </li>
                 <li>
                   Sản phẩm bị biến dạng do bảo quản sai cách (như để trong cabin
-                  ô tô phơi nắng gắt quá 80°C hoặc dùng dung môi Acetone/xăng
-                  thơm để lau chùi).
+                  ô tô phơi nắng gắt mùa hè hoặc dùng các dung môi hóa chất mạnh như Acetone,
+                  xăng thơm để lau chùi).
                 </li>
                 <li>
                   Gửi yêu cầu quá thời hạn quy định hoặc không cung cấp được

@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { Cpu, FileText, Shield } from "lucide-react";
+import { FileText, Shield, Sparkles } from "lucide-react";
 
 export const revalidate = 86400; // Cache 24 giờ
 
 export const metadata: Metadata = {
-  title: "Điều khoản sử dụng dịch vụ",
+  title: "Điều khoản sử dụng dịch vụ — Boo Space",
   description:
-    "Quy định giao dịch, thanh toán VietQR, quy trình đặt in 3D Custom và lưu ý bảo quản chất liệu CR-PETG tại Boo Space.",
+    "Quy định giao dịch, thanh toán VietQR, quy trình đặt thiết kế riêng và hướng dẫn bảo quản sản phẩm tại Boo Space.",
 };
 
 export default function TermsPage() {
@@ -49,21 +49,14 @@ export default function TermsPage() {
           {/* Section 2 */}
           <section className="space-y-4">
             <h2 className="font-serif text-xl sm:text-2xl font-bold text-black border-b border-[#E1DDD5]/60 pb-2 flex items-center gap-2">
-              <Cpu className="size-5 text-[#FF9D00]" /> 2. Quy trình đặt in
-              Custom (Custom Design)
+              <Sparkles className="size-5 text-[#FF9D00]" /> 2. Quy trình thiết kế &amp; Chế tác riêng (Custom Design)
             </h2>
             <div className="p-5 bg-white border border-[#E1DDD5] rounded-2xl space-y-3 text-xs">
               <p>
-                <strong>Thuật toán COGS Slicer Engine:</strong> Giá chế tác được
-                tính dựa trên{" "}
-                <strong className="text-black">
-                  trọng lượng nhựa CR-PETG thực tế (120đ/g)
-                </strong>{" "}
-                kết hợp tổng số giờ in khấu hao máy.
+                <strong>Báo giá minh bạch:</strong> Chi phí chế tác được tính toán rõ ràng dựa trên kích thước, độ phức tạp của hình khối và thời gian hoàn thiện thủ công của từng tác phẩm.
               </p>
               <p>
-                Đơn hàng Custom chỉ chính thức đưa vào hàng chờ in (Slicer
-                Queue) sau khi chuyển khoản cọc 100% giá trị báo giá.
+                Đơn hàng chế tác riêng sẽ được đưa vào lịch hoàn thiện ngay sau khi hai bên thống nhất phương án thiết kế và nhận chuyển khoản đặt cọc.
               </p>
             </div>
           </section>
@@ -71,23 +64,18 @@ export default function TermsPage() {
           {/* Section 3 */}
           <section className="space-y-4">
             <h2 className="font-serif text-xl sm:text-2xl font-bold text-black border-b border-[#E1DDD5]/60 pb-2 flex items-center gap-2">
-              <Shield className="size-5 text-[#3ECF8E]" /> 3. Cam kết chất liệu
-              &amp; Lưu ý bảo quản CR-PETG
+              <Shield className="size-5 text-[#3ECF8E]" /> 3. Cam kết chất liệu &amp; Hướng dẫn bảo quản
             </h2>
             <div className="p-5 bg-amber-50/60 border border-amber-200 rounded-2xl space-y-2 text-xs text-amber-950">
               <p className="font-bold text-sm text-black">
-                Lưu ý quan trọng khi sử dụng sản phẩm CR-PETG:
+                Lưu ý quan trọng khi sử dụng sản phẩm:
               </p>
               <ul className="list-disc pl-5 space-y-1.5">
                 <li>
-                  <strong>Tránh nhiệt độ cực đoan:</strong> Tuyệt đối không để
-                  sản phẩm trong cabin ô tô đóng kín cửa đỗ lâu dưới nắng gắt
-                  (nơi nhiệt độ vượt quá 80°C gây biến dạng nhựa).
+                  <strong>Tránh nhiệt độ quá cao:</strong> Tránh để sản phẩm trong cabin ô tô đóng kín cửa đỗ lâu dưới trời nắng gắt ngoài trời.
                 </li>
                 <li>
-                  <strong>Vệ sinh đúng cách:</strong> Rửa sạch bằng nước ấm hoặc
-                  khăn mềm. Tuyệt đối không dùng dung môi mạnh như Acetone, xăng
-                  thơm để lau chùi.
+                  <strong>Vệ sinh đúng cách:</strong> Rửa sạch bằng nước ấm hoặc khăn mềm ẩm. Tránh dùng các dung môi tẩy rửa mạnh như Acetone, cồn nồng độ cao hoặc xăng thơm để lau chùi.
                 </li>
               </ul>
             </div>

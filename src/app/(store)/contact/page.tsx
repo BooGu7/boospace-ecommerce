@@ -208,7 +208,7 @@ export default function ContactPage() {
               Liên hệ
             </h1>
             <p className="text-xs sm:text-sm font-mono text-[#786F66] uppercase tracking-wider">
-              Bạn muốn chế tác riêng, in 3D theo yêu cầu, hoặc kết nối hợp tác?
+              Bạn muốn thiết kế độc bản theo yêu cầu, hoặc kết nối hợp tác?
             </p>
           </div>
         </div>
@@ -245,7 +245,7 @@ export default function ContactPage() {
                     rel="noreferrer"
                     className="text-xs text-[#FF9D00] hover:underline font-mono font-bold"
                   >
-                    Nhắn Zalo tư vấn kỹ thuật file in →
+                    Nhắn Zalo trao đổi ý tưởng thiết kế →
                   </a>
                 </CardContent>
               </Card>
@@ -412,7 +412,7 @@ export default function ContactPage() {
                       <Input
                         id="subject"
                         name="subject"
-                        placeholder="In 3D theo yêu cầu / Chế tác thiết kế riêng"
+                        placeholder="Thiết kế độc bản / Chế tác theo ý tưởng riêng"
                         value={form.subject}
                         onChange={handleChange}
                         required
@@ -431,7 +431,7 @@ export default function ContactPage() {
                     <Textarea
                       id="message"
                       name="message"
-                      placeholder="Mô tả chi tiết ý tưởng thiết kế hoặc dán liên kết tệp in của bạn..."
+                      placeholder="Mô tả chi tiết ý tưởng hoặc mong muốn thiết kế không gian của bạn..."
                       rows={5}
                       value={form.message}
                       onChange={handleChange}
@@ -443,7 +443,7 @@ export default function ContactPage() {
                   {/* ĐÍNH KÈM TỆP 3D & BẢN VẼ (TỐI ĐA 5MB) */}
                   <div className="space-y-2 text-left">
                     <Label className="text-[11px] font-mono font-bold text-[#5c544d] uppercase tracking-wider block">
-                      Tệp đính kèm STL / 3MF / DWG / STEP / Bản vẽ phác thảo
+                      Tệp đính kèm bản phác thảo / hình ảnh ý tưởng
                       (Nếu có) (Tối đa 5MB)
                     </Label>
 
@@ -454,7 +454,7 @@ export default function ContactPage() {
                       >
                         <Upload className="h-5 w-5 text-[#786F66] mb-1" />
                         <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-wider">
-                          Đính kèm file in 3D / Bản vẽ CAD
+                          Đính kèm bản phác thảo / ý tưởng thiết kế
                         </span>
                         <input
                           type="file"

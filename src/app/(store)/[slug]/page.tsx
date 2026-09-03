@@ -10,6 +10,7 @@ import type { PaginationMeta } from "@/types";
 import { BrandView } from "./brand-view";
 import { CategoryView } from "./category-view";
 import { ProductDetailView } from "./product-detail-view";
+import { breadcrumbJsonLd, productJsonLd } from "@/lib/structured-data";
 
 interface SlugPageProps {
   params: Promise<{ slug: string }>;
@@ -26,19 +27,33 @@ export async function generateMetadata({
 
   if (product) {
     const variant = product.variants[0];
+    const imageUrl = product.images[0]?.url?.startsWith("http")
+      ? product.images[0].url
+      : product.images[0]?.url
+        ? `${siteConfig.url}${product.images[0].url}`
+        : `${siteConfig.url}/logo.png`;
 
     return {
       title: product.name,
-      description: product.description,
+      description: product.shortDescription || product.description,
       alternates: { canonical: `/${product.slug}` },
       openGraph: {
         title: product.name,
-        description: product.description,
+        description: product.shortDescription || product.description,
         type: "website",
         url: `${siteConfig.url}/${product.slug}`,
-        images: product.images[0]
-          ? [{ url: product.images[0].url, alt: product.images[0].alt }]
-          : [],
+        images: [
+          {
+            url: imageUrl,
+            alt: product.images[0]?.alt || product.name,
+          },
+        ],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: product.name,
+        description: product.shortDescription || product.description,
+        images: [imageUrl],
       },
       other: {
         "product:price:amount": variant ? String(variant.price / 100) : "",
@@ -104,13 +119,30 @@ export default async function SlugPage({ params }: SlugPageProps) {
         : Promise.resolve([]),
     ]);
 
+    const breadcrumbTrail = [
+      { name: "Cửa hàng", href: "/shop" },
+      ...categoryAncestors.map((c) => ({ name: c.name, href: `/${c.slug}` })),
+      { name: product.name, href: `/${product.slug}` },
+    ];
+
     return (
-      <ProductDetailView
-        product={product}
-        relatedProducts={relatedProducts}
-        brand={brand}
-        categoryAncestors={categoryAncestors}
-      />
+      <>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify([
+              productJsonLd(product, brand, primaryCategory),
+              breadcrumbJsonLd(breadcrumbTrail),
+            ]),
+          }}
+        />
+        <ProductDetailView
+          product={product}
+          relatedProducts={relatedProducts}
+          brand={brand}
+          categoryAncestors={categoryAncestors}
+        />
+      </>
     );
   }
 

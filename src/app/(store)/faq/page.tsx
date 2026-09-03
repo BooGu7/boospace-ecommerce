@@ -14,7 +14,7 @@ export const revalidate = 86400; // Cache 24 giờ
 export const metadata: Metadata = {
   title: "Câu hỏi thường gặp — Boo Space FAQ",
   description:
-    "Giải đáp chi tiết về chất liệu nhựa kỹ thuật CR-PETG, quy trình in 3D custom, phí vận chuyển và chính sách bảo hành tại Boo Space ✨",
+    "Giải đáp chi tiết về chất liệu sản phẩm, quy trình đặt thiết kế riêng, phí vận chuyển và chính sách chăm sóc khách hàng tại Boo Space ✨",
 };
 
 const faqSections = [
@@ -24,25 +24,25 @@ const faqSections = [
     items: [
       {
         q: "01. Sản phẩm của Boo Space được chế tác từ chất liệu gì?",
-        a: "Toàn bộ sản phẩm Decor và phụ kiện Workspace của Boo Space đều được chế tác từ dòng nhựa kỹ thuật CR-PETG cao cấp.\n\nKhác biệt hoàn toàn so với các loại nhựa giòn thông thường hoặc nhựa PLA chịu nhiệt kém, CR-PETG sở hữu đặc tính vật lý vượt trội: chịu nhiệt cao (∼70–80°C), kháng nước, chống ẩm mốc tuyệt đối và cực kỳ bền bỉ cùng thời gian. Đặc biệt, bề mặt sản phẩm được tinh chỉnh thủ công để lưu giữ cấu trúc vân nhám mịn mộc mạc như gốm nung.",
+        a: "Toàn bộ sản phẩm Decor và phụ kiện Workspace của Boo Space được chế tác từ chất liệu cao cấp bền nhẹ, sở hữu bề mặt lì mộc mạc như gốm nung.\n\nKhác với các vật liệu thông thường dễ nứt vỡ hay biến dạng, chất liệu tuyển chọn của Boo Space có độ bền cao, kháng nước và chống ẩm mốc tự nhiên. Đặc biệt, bề mặt được tinh chỉnh thủ công để lưu giữ xúc giác nhám mịn ấm áp, tôn lên vẻ đẹp tối giản cho căn phòng.",
       },
       {
-        q: "02. Chất liệu CR-PETG có an toàn cho không gian sống không?",
-        a: "Tuyệt đối an toàn. Nhựa CR-PETG do Boo Space sử dụng là chất liệu kỹ thuật cao cấp, hoàn toàn không mùi, không giải phóng hạt vi nhựa hay chất độc hại trong suốt quá trình sử dụng. Bạn hoàn toàn có thể yên tâm bài trí sản phẩm trong phòng ngủ, góc làm việc kín hoặc môi trường bếp ẩm ướt.",
+        q: "02. Chất liệu có an toàn cho không gian sống không?",
+        a: "Tuyệt đối an toàn. Chất liệu do Boo Space tuyển chọn hoàn toàn không mùi, không giải phóng hóa chất độc hại trong suốt quá trình sử dụng. Bạn hoàn toàn có thể yên tâm bài trí trong phòng ngủ, góc làm việc kín hay môi trường gia đình có trẻ nhỏ.",
       },
       {
-        q: "03. Làm thế nào để vệ sinh và bảo quản sản phẩm in 3D đúng cách?",
-        a: "• Vệ sinh hằng ngày: Bạn có thể dễ dàng lau sạch bụi mịn bằng khăn mềm ẩm hoặc rửa trực tiếp bằng nước ấm và xà phòng nhẹ.\n• Lưu ý nhiệt độ: Mặc dù CR-PETG chịu nhiệt rất tốt, khuyến cáo tránh để sản phẩm bên trong cabin ô tô đóng kín cửa đỗ lâu ngày dưới trời nắng gắt (nơi nhiệt độ có thể tích tụ vượt quá 80°C gây biến dạng kết cấu nhựa).\n• Hóa chất cần tránh: Tuyệt đối không sử dụng các dung môi hòa tan mạnh như Acetone, cồn nồng độ cao hoặc xăng thơm để lau chùi bề mặt sản phẩm.",
+        q: "03. Làm thế nào để vệ sinh và gìn giữ vẻ đẹp sản phẩm?",
+        a: "• Vệ sinh hằng ngày: Bạn có thể dễ dàng lau sạch bụi mịn bằng khăn mềm ẩm hoặc rửa trực tiếp bằng nước ấm và xà phòng nhẹ.\n• Lưu ý nhiệt độ: Tránh để sản phẩm bên trong cabin ô tô đóng kín cửa đỗ lâu ngày dưới trời nắng gắt ngoài trời.\n• Hóa chất cần tránh: Tránh sử dụng các dung môi hòa tan mạnh như Acetone, cồn nồng độ cao hoặc xăng thơm để lau chùi bề mặt.",
       },
     ],
   },
   {
     id: "custom-workflow",
-    title: "II. THIẾT KẾ THEO YÊU CẦU (CUSTOM WORKFLOW)",
+    title: "II. THIẾT KẾ THEO YÊU CẦU (CUSTOM DESIGN)",
     items: [
       {
-        q: "04. Tôi muốn đặt thiết kế và in 3D theo yêu cầu riêng thì làm thế nào?",
-        a: "Boo Space luôn sẵn sàng hiện thực hóa các ý tưởng độc bản của bạn qua 3 bước:\n\n1. Gửi yêu cầu: Bạn chỉ cần điền thông tin vào Form Thiết Kế Theo Yêu Cầu trên website hoặc nhắn tin Zalo hỗ trợ kỹ thuật để gửi mô tả/kích thước hoặc upload file định dạng .STL / .3MF.\n2. Hạch toán chi phí: Hệ thống phần mềm Slicer tính toán chính xác chi phí dựa trên khối lượng nhựa CR-PETG tiêu tốn (120đ/g) và tổng số giờ in thực tế của máy, đảm bảo báo giá minh bạch nhất.\n3. Xác nhận sản xuất: Boo Space sẽ gửi báo giá chi tiết và tiến độ hoàn thiện qua Zalo. Sản phẩm sẽ được đưa vào hàng chờ in ngay sau khi bạn xác nhận cọc/thanh toán.",
+        q: "04. Tôi muốn đặt thiết kế riêng theo ý tưởng cá nhân thì làm thế nào?",
+        a: "Boo Space luôn sẵn sàng hiện thực hóa các ý tưởng độc bản của bạn qua 3 bước:\n\n1. Gửi ý tưởng: Bạn gửi thông tin mô tả, kích thước hoặc bản phác thảo qua mục Liên hệ hoặc Zalo của Boo Space.\n2. Tư vấn & Báo giá: Boo Space lắng nghe ý tưởng, gợi ý giải pháp tối ưu và gửi báo giá chi tiết, rõ ràng nhất.\n3. Chế tác & Giao hàng: Boo Space bắt tay chế tác tỉ mỉ và đóng gói cẩn thận gửi đến tận tay bạn.",
       },
     ],
   },
@@ -70,7 +70,7 @@ const faqSections = [
     items: [
       {
         q: "08. Chính sách đổi trả và hoàn tiền của Boo Space quy định thế nào?",
-        a: "Chúng tôi cung cấp lớp bảo hiểm minh bạch để bạn hoàn toàn an tâm khi mua sắm:\n\n• Đổi 1-đổi-1 miễn phí trong 07 ngày: Áp dụng nếu sản phẩm phát sinh lỗi kỹ thuật từ xưởng (nứt vỡ kết cấu, rỗng sợi) hoặc bị hư hỏng do vận chuyển. Boo Space chịu 100% phí ship 2 chiều.\n• Hỗ trợ đổi mẫu/size trong 03 ngày: Áp dụng cho sản phẩm bán sẵn còn nguyên vẹn vỏ hộp, tem mác và chưa qua sử dụng, khách hàng chịu chi phí vận chuyển 2 chiều.\n• Ngoại lệ: Không hỗ trợ đổi trả vì lý do đổi ý cá nhân đối với các sản phẩm đặt thiết kế và in Custom riêng theo yêu cầu.",
+        a: "Chúng tôi cung cấp lớp bảo hiểm minh bạch để bạn hoàn toàn an tâm khi mua sắm:\n\n• Đổi 1-đổi-1 miễn phí trong 07 ngày: Áp dụng nếu sản phẩm phát sinh khuyết điểm hoàn thiện từ xưởng hoặc bị hư hỏng do vận chuyển. Boo Space chịu 100% phí ship 2 chiều.\n• Hỗ trợ đổi mẫu/size trong 03 ngày: Áp dụng cho sản phẩm bán sẵn còn nguyên vẹn vỏ hộp, tem mác và chưa qua sử dụng, khách hàng chịu chi phí vận chuyển 2 chiều.\n• Ngoại lệ: Không hỗ trợ đổi trả vì lý do đổi ý cá nhân đối với các sản phẩm đặt chế tác riêng theo yêu cầu.",
       },
     ],
   },
@@ -139,8 +139,8 @@ export default function FAQPage() {
               Vẫn còn thắc mắc?
             </h2>
             <p className="text-xs sm:text-sm text-[#5C564E] max-w-md mx-auto leading-relaxed">
-              Không tìm thấy câu trả lời bạn cần? Đội ngũ hỗ trợ kỹ thuật của
-              Boo Space luôn sẵn sàng đồng hành và tư vấn file in cùng bạn.
+              Không tìm thấy câu trả lời bạn cần? Đội ngũ Boo Space luôn sẵn
+              sàng đồng hành, tư vấn và hỗ trợ bạn chăm chút cho không gian sống của mình.
             </p>
           </div>
 

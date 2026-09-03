@@ -7,7 +7,9 @@ import Script from "next/script";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { Toaster } from "sonner";
+import { CalmAmbientSwitcher } from "@/components/ui/calm-ambient-switcher";
 import { siteConfig } from "@/lib/config";
+import { organizationJsonLd, websiteJsonLd } from "@/lib/structured-data";
 import "./globals.css";
 
 const sans = Geist({
@@ -35,25 +37,25 @@ export const metadata: Metadata = {
     type: "website",
     siteName: siteConfig.name,
     locale: siteConfig.locale.replace("-", "_"),
+    title: `${siteConfig.name} — ${siteConfig.tagline}`,
+    description: siteConfig.description,
+    url: siteConfig.url,
   },
-};
-
-const organizationJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  name: siteConfig.name,
-  url: siteConfig.url,
-};
-
-const websiteJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  name: siteConfig.name,
-  url: siteConfig.url,
-  potentialAction: {
-    "@type": "SearchAction",
-    target: `${siteConfig.url}/search?q={search_term_string}`,
-    "query-input": "required name=search_term_string",
+  twitter: {
+    card: "summary_large_image",
+    title: `${siteConfig.name} — ${siteConfig.tagline}`,
+    description: siteConfig.description,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
 };
 
@@ -75,7 +77,12 @@ export default async function RootLayout({
       suppressHydrationWarning
       className={`${sans.variable} ${serif.variable} h-full antialiased`}
     >
-      <head />
+      <head>
+        <link rel="preconnect" href="https://amukhgkamrokbbcjgusf.supabase.co" />
+        <link rel="dns-prefetch" href="https://amukhgkamrokbbcjgusf.supabase.co" />
+        <link rel="preconnect" href="https://img.vietqr.io" />
+        <link rel="dns-prefetch" href="https://img.vietqr.io" />
+      </head>
 
       <body
         className="min-h-full flex flex-col bg-background relative"
@@ -117,6 +124,7 @@ export default async function RootLayout({
         </NextIntlClientProvider>
 
         <Toaster position="bottom-right" />
+        <CalmAmbientSwitcher />
 
         <Analytics />
         <SpeedInsights />

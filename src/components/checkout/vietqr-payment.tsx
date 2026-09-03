@@ -121,7 +121,7 @@ export function VietQRPayment({
             isPaidRef.current = true;
             setIsPaid(true);
             toast.success(
-              "Xác nhận thanh toán PayOS thành công! Đơn hàng đang được gia công in ✨",
+              "Xác nhận thanh toán PayOS thành công! Boo Space đang bắt đầu chuẩn bị vật thể cho bạn ✨",
             );
             onSuccess?.();
             return true;
@@ -182,7 +182,7 @@ export function VietQRPayment({
             isPaidRef.current = true;
             setIsPaid(true);
             toast.success(
-              "Thanh toán thành công! Đơn hàng đang được gia công in ✨",
+              "Thanh toán thành công! Đơn hàng đã được kích hoạt và đang được chuẩn bị ✨",
             );
             onSuccess?.();
           }
@@ -218,7 +218,7 @@ export function VietQRPayment({
             </span>
             . Đơn hàng{" "}
             <strong className="font-mono text-black">{orderId}</strong> đã được
-            kích hoạt và chuyển tới xưởng in 3D BooSpace.
+            kích hoạt và bắt đầu chuẩn bị tại studio Boo Space.
           </p>
         </div>
       </div>

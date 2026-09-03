@@ -5,11 +5,11 @@ import {
   AlertTriangle,
   Award,
   Check,
-  Cpu,
+  Feather,
   Heart,
-  Layers,
   Palette,
   ShoppingBag,
+  Sparkles,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -362,14 +362,14 @@ export function ProductDetailView({
                   <div className="flex items-center gap-2">
                     <Palette className="size-4 text-[#FF9D00]" />
                     <span className="text-xs font-mono font-bold text-[#5c544d] uppercase tracking-wider">
-                      Tùy chọn màu sắc phôi:
+                      Tùy chọn tông màu:
                     </span>
                     <span className="text-xs font-sans font-bold text-black">
                       {selectedColor?.name || "Mặc định"}
                     </span>
                   </div>
                   <span className="text-[10px] font-mono font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md uppercase">
-                    {String(attrs.material || "CR-PETG")}
+                    Thủ công tinh gọn
                   </span>
                 </div>
 
@@ -431,7 +431,7 @@ export function ProductDetailView({
                   variant="outline"
                   size="icon"
                   aria-label={
-                    isWishlisted ? "Remove from wishlist" : "Add to wishlist"
+                    isWishlisted ? "Xóa khỏi danh sách yêu thích" : "Thêm vào danh sách yêu thích"
                   }
                   onClick={handleToggleWishlist}
                   className="rounded-xl border-[#E1DDD5] hover:bg-[#EAE5D9]/20"
@@ -445,6 +445,11 @@ export function ProductDetailView({
               {/* NÚT THÊM / KHÓA ORDER NẾU HẾT HÀNG */}
               <Button
                 size="lg"
+                aria-label={
+                  isOutOfStock
+                    ? "Sản phẩm hiện đang hết hàng tạm thời"
+                    : "Thêm sản phẩm vào giỏ hàng"
+                }
                 className={`w-full sm:flex-1 font-mono uppercase text-xs tracking-wider rounded-xl py-4 flex items-center justify-center gap-2 transition-colors ${
                   isOutOfStock
                     ? "bg-slate-200 text-slate-500 cursor-not-allowed hover:bg-slate-200 border border-slate-300"
@@ -545,6 +550,7 @@ export function ProductDetailView({
                           <button
                             type="button"
                             disabled
+                            aria-label={`${item.name} hiện đang hết hàng`}
                             className="rounded-lg bg-slate-200 text-slate-500 text-[9px] font-sans font-bold uppercase px-3 py-1.5 cursor-not-allowed select-none border border-slate-300"
                           >
                             Hết hàng
@@ -553,6 +559,7 @@ export function ProductDetailView({
                           <button
                             type="button"
                             onClick={() => handleAddAddonToCart(item)}
+                            aria-label={`Thêm ${item.name} vào giỏ hàng`}
                             className="rounded-lg bg-black hover:bg-[#33302C] text-[10px] font-sans font-bold text-white px-3.5 py-2 uppercase shadow-xs shrink-0 cursor-pointer transition-colors"
                           >
                             Thêm
@@ -569,42 +576,38 @@ export function ProductDetailView({
           </div>
         </div>
 
-        {/* BẢNG THÔNG SỐ */}
+        {/* BẢNG ĐẶC ĐIỂM HOÀN THIỆN */}
         <div className="py-16 border-b border-[#E1DDD5]/60 text-left">
           <div className="bg-black text-white p-4 rounded-2xl flex items-center max-w-full justify-between select-none mb-10 shadow-xs">
             <span className="font-serif text-lg font-bold pl-2">
-              Thông số chế tác &amp; Công năng
+              Đặc điểm hoàn thiện &amp; Không gian sống
             </span>
             <span className="text-[10px] font-mono text-white/60 tracking-widest uppercase pr-2">
-              Sản phẩm On-Demand
+              Boo Space Signature
             </span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
             <div className="p-6 bg-[#FAF5F2] border border-[#E1DDD5] rounded-3xl flex flex-col justify-between min-h-[160px]">
-              <Layers className="size-6 text-[#FF9D00]" />
+              <Feather className="size-6 text-[#FF9D00]" />
               <div className="space-y-1.5 mt-4">
                 <h3 className="font-serif text-base font-bold text-black leading-none">
-                  Vật liệu
+                  Chất liệu
                 </h3>
                 <p className="text-xs text-[#5C564E] leading-relaxed">
-                  {String(
-                    attrs.material ||
-                      "Nhựa kỹ thuật CR-PETG chịu lực và chịu nhiệt cao (∼70–80°C).",
-                  )}
+                  Chất liệu cao cấp an toàn, bền nhẹ và mang bề mặt nhám mờ lì mộc mạc tựa gốm nung.
                 </p>
               </div>
             </div>
 
             <div className="p-6 bg-[#FAF5F2] border border-[#E1DDD5] rounded-3xl flex flex-col justify-between min-h-[160px]">
-              <Cpu className="size-6 text-[#FF9D00]" />
+              <Sparkles className="size-6 text-[#FF9D00]" />
               <div className="space-y-1.5 mt-4">
                 <h3 className="font-serif text-base font-bold text-black leading-none">
-                  Đặc tính
+                  Cảm giác sống
                 </h3>
                 <p className="text-xs text-[#5C564E] leading-relaxed">
-                  Không mùi sinh học, chống ẩm mốc tuyệt đối, kháng nước &amp;
-                  bụi mịn.
+                  Không mùi sinh học, chống ẩm mốc tự nhiên, kháng nước &amp; dễ dàng lau sạch.
                 </p>
               </div>
             </div>
@@ -616,8 +619,7 @@ export function ProductDetailView({
                   Công năng
                 </h3>
                 <p className="text-xs text-[#5C564E] leading-relaxed">
-                  Thiết kế nguyên khối, tích hợp rãnh thoát nước ẩn ngầm thông
-                  minh.
+                  Thiết kế nguyên khối tinh xảo, hài hòa cùng ánh sáng và mảng xanh của phòng.
                 </p>
               </div>
             </div>
@@ -649,6 +651,50 @@ export function ProductDetailView({
         )}
 
         <RecentlyViewed excludeProductId={product.id} />
+      </div>
+
+      {/* MOBILE STICKY ADD-TO-CART BAR (LUXURY COZY LEIGH UX) */}
+      <div className="sm:hidden fixed bottom-0 inset-x-0 z-40 bg-[#FCFAF2]/95 backdrop-blur-md border-t border-[#E1DDD5] px-4 py-2.5 flex items-center justify-between gap-3 shadow-lg">
+        <div className="flex items-center gap-2.5 min-w-0 flex-1">
+          {product.images[0]?.url && (
+            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-[#E1DDD5] bg-white">
+              <Image
+                src={product.images[0].url}
+                alt={product.images[0].alt || product.name}
+                fill
+                sizes="40px"
+                className="object-cover"
+              />
+            </div>
+          )}
+          <div className="min-w-0 flex-1 text-left">
+            <p className="text-xs font-serif font-bold text-black truncate leading-tight">
+              {product.name}
+            </p>
+            <p className="text-xs font-mono font-bold text-[#1E1C1A]">
+              {formatPrice(selectedVariant.price, selectedVariant.currency)}
+            </p>
+          </div>
+        </div>
+
+        <Button
+          size="sm"
+          aria-label={
+            isOutOfStock
+              ? "Sản phẩm hiện đang hết hàng tạm thời"
+              : "Thêm sản phẩm vào giỏ hàng"
+          }
+          className={`shrink-0 font-mono uppercase text-[11px] tracking-wider rounded-xl px-4 py-2 flex items-center gap-1.5 transition-colors ${
+            isOutOfStock
+              ? "bg-slate-200 text-slate-500 cursor-not-allowed border border-slate-300"
+              : "bg-black hover:bg-[#33302C] text-white cursor-pointer"
+          }`}
+          disabled={isOutOfStock}
+          onClick={handleAddToCart}
+        >
+          <ShoppingBag className="h-3.5 w-3.5" />
+          {isOutOfStock ? "HẾT HÀNG" : "THÊM"}
+        </Button>
       </div>
     </div>
   );

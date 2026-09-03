@@ -27,8 +27,8 @@ export async function generateMetadata({ searchParams }: ShopPageProps): Promise
   const canonical = page > 1 ? `${siteConfig.url}/shop?page=${page}` : `${siteConfig.url}/shop`;
 
   return {
-    title: "Cửa hàng",
-    description: "Khám phá những món đồ được tuyển chọn kỹ lưỡng, phù hợp với phong cách sống của bạn ✨",
+    title: "Cửa hàng — Boo Space | Vật thể thiết kế không gian sống",
+    description: "Khám phá các thiết kế đèn ambient khúc xạ, chậu cây tự tưới và phụ kiện workspace tối giản, ấm áp tại Boo Space ✨",
     alternates: { canonical },
   };
 }
@@ -38,6 +38,13 @@ const SORT_OPTIONS: Record<string, SortOption> = {
   "price-asc": { field: "price", order: "asc" },
   "price-desc": { field: "price", order: "desc" },
   name: { field: "name", order: "asc" },
+};
+
+const SPACE_ICONS: Record<string, string> = {
+  workspace: "🖥️",
+  "smart-planters": "🪴",
+  "ambient-lights": "🕯️",
+  "home-decor": "🏠",
 };
 
 export default async function ShopPage({ searchParams }: ShopPageProps) {
@@ -70,32 +77,36 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
   return (
     <div className="bg-[#FCFAF2] text-[#1E1C1A] min-h-screen antialiased selection:bg-[#EAE5D9]">
       <div className="mx-auto max-w-[1440px] px-4 py-16 sm:px-6 lg:px-8 border-x border-[#E1DDD5] bg-[#FCFAF2]/50">
-        {/* SECTION 1: HEADER CATALOG */}
+        {/* SECTION 1: HEADER CATALOG - COZY LEIGH X DAYLIGHT STYLE */}
         <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between border-b border-[#E1DDD5] pb-8">
-          <div className="space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#EAE5D9] text-[#786F66] text-xs font-mono uppercase tracking-widest border border-[#DCD6CC] w-fit">
+          <div className="space-y-3.5 max-w-2xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#EAE5D9] text-[#786F66] text-[10px] font-mono uppercase tracking-widest border border-[#DCD6CC] w-fit font-bold">
               <span className="size-1.5 rounded-full bg-amber-500 animate-pulse" />
-              PRODUCTS CATALOG
+              01 / CURATED SPACES • BOO SPACE
             </div>
 
-            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-black font-serif leading-none">
+            <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-black font-serif leading-tight">
               {categorySlug
-                ? (categories.find((c) => c.slug === categorySlug)?.name ?? "Shop")
+                ? (categories.find((c) => c.slug === categorySlug)?.name ?? "Cửa hàng")
                 : searchQuery
                   ? `Kết quả cho "${searchQuery}"`
-                  : "Bộ sưu tập"}
+                  : "Vật Thể Thiết Kế Cho Không Gian Có Hồn"}
             </h1>
 
-            <p className="text-xs sm:text-sm font-mono text-[#786F66] uppercase tracking-wider flex items-center gap-1.5">
+            <p className="text-sm text-[#5C564E] font-sans leading-relaxed">
+              Những tác phẩm tối giản, mộc mạc nuôi dưỡng sự tập trung sâu và mang lại cảm giác bình yên hằng ngày trong căn phòng của bạn.
+            </p>
+
+            <p className="text-xs font-mono text-[#786F66] uppercase tracking-wider flex items-center gap-1.5 pt-1">
               <LayoutGrid className="size-3.5 text-amber-600" />
-              Có {pagination.total} sản phẩm đang có sẵn
+              Có {pagination.total} vật thể đang có sẵn
             </p>
           </div>
 
           {/* Ô Sắp xếp (Sort Dropdown) */}
           <div className="flex items-center gap-3">
             <span className="text-xs font-mono text-[#786F66] uppercase tracking-wider flex items-center gap-1">
-              <SlidersHorizontal className="size-3.5" /> Sort by:
+              <SlidersHorizontal className="size-3.5" /> Sắp xếp:
             </span>
             <Suspense
               fallback={<div className="h-9 w-32 bg-[#EAE5D9]/40 animate-pulse rounded-lg border border-[#E1DDD5]" />}
@@ -105,44 +116,53 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
           </div>
         </div>
 
-        {/* SECTION 2: CATEGORY FILTER PILLS (Lọc động theo tham số ?category=...) [1.1] */}
-        <div className="mt-8 flex flex-wrap gap-2.5 items-center">
+        {/* SECTION 2: 4 KHÔNG GIAN SỐNG FILTER PILLS (COZY LEIGH AESTHETICS) */}
+        <nav
+          aria-label="Lọc theo không gian sống"
+          className="mt-8 flex flex-wrap gap-2.5 items-center"
+        >
           <Link
             href="/shop"
-            className={`rounded-xl border px-4 py-2 text-xs font-mono uppercase tracking-wider transition-all shadow-xs ${
+            aria-current={!categorySlug ? "page" : undefined}
+            className={`rounded-2xl border px-4 py-2.5 text-xs font-mono uppercase tracking-wider transition-all shadow-xs flex items-center gap-1.5 ${
               !categorySlug
-                ? "border-black bg-black text-[#FCFAF2] font-semibold"
-                : "border-[#E1DDD5] bg-[#EAE5D9]/20 text-[#5C564E] hover:border-black"
+                ? "border-black bg-slate-900 text-white font-bold"
+                : "border-[#E1DDD5] bg-white/70 hover:bg-white text-[#5C564E] hover:border-black/40"
             }`}
           >
-            TẤT CẢ SẢN PHẨM
+            <span aria-hidden="true">✨</span>
+            <span>Tất cả không gian</span>
           </Link>
 
-          {categories.map((cat, _idx) => {
+          {categories.map((cat) => {
             const isActive = categorySlug === cat.slug;
+            const icon = SPACE_ICONS[cat.slug] || "✦";
             return (
               <Link
                 key={cat.id}
-                href={`/shop?category=${cat.slug}`} // ĐÃ ĐỒNG BỘ: Sử dụng Query Parameter đúng chuẩn để lọc dữ liệu Supabase [18]
-                className={`rounded-xl border px-4 py-2 text-xs font-mono uppercase tracking-wider transition-all shadow-xs ${
+                href={`/shop?category=${cat.slug}`}
+                aria-current={isActive ? "page" : undefined}
+                className={`rounded-2xl border px-4 py-2.5 text-xs font-mono uppercase tracking-wider transition-all shadow-xs flex items-center gap-1.5 ${
                   isActive
-                    ? "border-black bg-black text-[#FCFAF2] font-semibold"
-                    : "border-[#E1DDD5] bg-[#EAE5D9]/20 text-[#5C564E] hover:border-black"
+                    ? "border-black bg-slate-900 text-white font-bold"
+                    : "border-[#E1DDD5] bg-white/70 hover:bg-white text-[#5C564E] hover:border-black/40"
                 }`}
               >
-                {cat.name}
+                <span aria-hidden="true">{icon}</span>
+                <span>{cat.name}</span>
               </Link>
             );
           })}
-        </div>
+        </nav>
 
-        {/* SECTION 3: PRODUCT GRID (Lưới sản phẩm thô mộc từ Supabase / JSON) [18] */}
+        {/* SECTION 3: PRODUCT GRID */}
         <div className="mt-12 border-t border-[#E1DDD5] pt-12">
           {products.length > 0 ? (
             <ProductGrid products={products} />
           ) : (
-            <div className="py-24 text-center border border-[#E1DDD5] border-dashed rounded-3xl text-sm text-[#786F66] font-mono bg-[#EAE5D9]/10">
-              Không tìm thấy sản phẩm nào phù hợp với bộ lọc hiện tại.
+            <div className="py-24 text-center border border-[#E1DDD5] border-dashed rounded-3xl text-sm text-[#786F66] font-mono bg-[#EAE5D9]/10 space-y-2">
+              <p className="font-serif text-lg text-black font-bold">Không tìm thấy vật thể phù hợp</p>
+              <p className="text-xs text-[#5C564E]">Hãy thử chọn một không gian khác hoặc quay lại khám phá tất cả các sản phẩm.</p>
             </div>
           )}
         </div>

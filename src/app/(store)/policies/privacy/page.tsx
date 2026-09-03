@@ -49,7 +49,7 @@ export default function PrivacyPolicyPage() {
               </li>
               <li>
                 <strong>Mục đích:</strong> Xử lý đơn hàng qua đơn vị GHN/Viettel
-                Post, khởi tạo mã VietQR động, hỗ trợ bảo hành chất liệu CR-PETG
+                Post, khởi tạo mã VietQR động, hỗ trợ bảo hành sản phẩm
                 và đối soát thuế điện tử.
               </li>
             </ul>

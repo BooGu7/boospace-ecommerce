@@ -95,7 +95,7 @@ export default function CartPage() {
             Giỏ hàng của bạn đang trống
           </h1>
           <p className="text-xs font-sans text-[#786F66]">
-            Hãy khám phá các thiết kế chế tác mộc mạc và hoàn thiện góc làm việc
+            Hãy khám phá các thiết kế chế tác mộc mạc và hoàn thiện không gian sống
             của bạn nhé ✨
           </p>
           <Button

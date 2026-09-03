@@ -8,7 +8,7 @@ export const revalidate = 86400; // Cache 24 giờ
 export const metadata: Metadata = {
   title: "Về Boo Space — Studio Chế tác Workspace Độc Bản",
   description:
-    "Boo Space kiến tạo những điểm tựa tĩnh lặng hằng ngày thông qua các thiết kế đèn ambient khúc xạ, chậu cây tự tưới và phụ kiện workspace bằng nhựa CR-PETG cao cấp.",
+    "Boo Space kiến tạo những điểm tựa tĩnh lặng hằng ngày thông qua các thiết kế đèn ambient khúc xạ, chậu cây tự tưới và phụ kiện workspace tinh tế mộc mạc.",
 };
 
 export default function AboutPage() {
@@ -125,17 +125,15 @@ export default function AboutPage() {
 
                 <div className="p-5 bg-white border border-[#E1DDD5] rounded-2xl space-y-1.5 shadow-xs">
                   <h4 className="font-serif font-bold text-black text-base flex items-center gap-2">
-                    <Cpu className="size-4 text-[#FF9D00]" /> Vân nhám kỹ thuật
-                    (CR-PETG Material)
+                    <Sparkles className="size-4 text-[#FF9D00]" /> Bề mặt nhám mộc
+                    (Matte Ceramic Feel)
                   </h4>
                   <p className="text-xs text-[#5C564E] leading-relaxed">
-                    Chúng tôi từ bỏ các loại nhựa giòn thông thường. Toàn bộ sản
-                    phẩm được &quot;vẽ&quot; từ nhựa kỹ thuật{" "}
-                    <strong className="text-black">CR-PETG cao cấp</strong> —
-                    chịu lực tốt, chịu nhiệt vượt trội (∼70–80°C), kháng nước
-                    hoàn toàn và chống ẩm mốc tuyệt đối. Từng đường in được căn
-                    chỉnh tỉ mỉ để giữ lại vân nhám mịn nguyên bản, mang lại cảm
-                    giác chạm mộc mạc như gốm nung.
+                    Chúng tôi từ bỏ các chất liệu công nghiệp bóng bẩy. Toàn bộ sản
+                    phẩm được chế tác từ chất liệu cao cấp bền nhẹ —
+                    chịu lực tốt, kháng nước tự nhiên và chống ẩm mốc bền bỉ.
+                    Từng đường nét được chăm chút tỉ mỉ để lưu giữ vân nhám mịn mộc mạc,
+                    mang lại cảm giác chạm ấm áp như gốm nung.
                   </p>
                 </div>
               </div>
@@ -197,13 +195,13 @@ export default function AboutPage() {
                 4. CAM KẾT CỦA BOO SPACE
               </h3>
               <p className="text-sm text-[#5C564E] leading-relaxed">
-                Chúng tôi vận hành theo mô hình chế tác{" "}
+                Chúng tôi vận hành theo mô hình{" "}
                 <strong className="text-black">
-                  On-Demand (Sản xuất theo yêu cầu)
+                  Chế tác tinh gọn (Made to Order)
                 </strong>
                 . Điều này đồng nghĩa với việc không có sản phẩm nào bị sản xuất
                 đại trà hay lưu kho lãng phí. Mỗi chiếc đèn, mỗi chậu cây chỉ
-                thực sự được hệ thống máy in 3D hiện đại dệt nên khi nhận được
+                thực sự được kiến tạo tỉ mỉ khi nhận được
                 sự đồng điệu và đơn đặt hàng từ bạn.
               </p>
               <div className="p-6 bg-black text-white rounded-3xl space-y-2 text-center shadow-lg">
@@ -218,7 +216,7 @@ export default function AboutPage() {
             </div>
           </div>
 
-          {/* CỘT PHẢI (CHỈ SỐ BẢNG THÔNG SỐ - SPEC SHEET SẢN XUẤT) */}
+          {/* CỘT PHẢI (CHỈ SỐ BẢNG TIÊU CHUẨN HOÀN THIỆN) */}
           <div className="lg:col-span-5 space-y-8 bg-[#FAF5F2]/80 border border-[#E1DDD5] rounded-3xl p-8 shadow-xs text-left">
             <div className="space-y-2 pb-4 border-b border-[#E1DDD5]/60">
               <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-semibold">
@@ -229,30 +227,30 @@ export default function AboutPage() {
               </h3>
             </div>
 
-            {/* Bảng thông số kỹ thuật CR-PETG */}
+            {/* Bảng tiêu chuẩn hoàn thiện */}
             <div className="space-y-4 font-mono text-xs">
               <div className="flex justify-between items-center border-b border-[#E1DDD5]/40 pb-2.5">
-                <span className="text-[#786F66]">Cốt lõi vật liệu</span>
+                <span className="text-[#786F66]">Cốt lõi chất liệu</span>
                 <span className="font-bold text-black uppercase">
-                  Nhựa kỹ thuật CR-PETG
+                  Chất liệu cao cấp &amp; an toàn
                 </span>
               </div>
               <div className="flex justify-between items-center border-b border-[#E1DDD5]/40 pb-2.5">
-                <span className="text-[#786F66]">Khả năng chịu nhiệt</span>
+                <span className="text-[#786F66]">Khả năng thích ứng</span>
                 <span className="font-bold text-[#FF9D00] uppercase">
-                  ∼70°C – 80°C
+                  Bền bỉ, kháng ẩm tự nhiên
                 </span>
               </div>
               <div className="flex justify-between items-center border-b border-[#E1DDD5]/40 pb-2.5">
                 <span className="text-[#786F66]">Mô hình chế tác</span>
                 <span className="font-bold text-black uppercase">
-                  On-Demand (Theo yêu cầu)
+                  Độc bản (Made to Order)
                 </span>
               </div>
               <div className="flex justify-between items-center border-b border-[#E1DDD5]/40 pb-2.5">
                 <span className="text-[#786F66]">Bề mặt hoàn thiện</span>
                 <span className="font-bold text-black uppercase">
-                  Vân nhám mịn gốm nung
+                  Vân nhám mịn gốm mộc
                 </span>
               </div>
               <div className="flex justify-between items-center pb-1">
@@ -268,15 +266,15 @@ export default function AboutPage() {
               <div className="flex gap-3">
                 <Layers className="size-4 text-[#FF9D00] shrink-0" />
                 <p className="leading-tight">
-                  <strong>Kháng nước tuyệt đối:</strong> Không ẩm mốc, dễ dàng
+                  <strong>Kháng nước tự nhiên:</strong> Không ẩm mốc, dễ dàng
                   rửa sạch bằng nước ấm hằng ngày.
                 </p>
               </div>
               <div className="flex gap-3">
                 <ShieldCheck className="size-4 text-[#FF9D00] shrink-0" />
                 <p className="leading-tight">
-                  <strong>An toàn sinh học:</strong> Nhựa CR-PETG hoàn toàn
-                  không mùi độc hại, an toàn trong phòng kín.
+                  <strong>An toàn không gian sống:</strong> Chất liệu an toàn, hoàn toàn
+                  không mùi độc hại, an tâm trong phòng kín.
                 </p>
               </div>
               <div className="flex gap-3">

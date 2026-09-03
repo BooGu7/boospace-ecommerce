@@ -134,7 +134,7 @@ export async function sendOrderConfirmationEmail(
           <div style="background-color: #151513; padding: 32px 28px; text-align: center; color: #ffffff;">
             <h1 style="margin: 0; font-family: serif; font-size: 26px; letter-spacing: 2px; text-transform: uppercase;">BOO SPACE</h1>
             <p style="margin: 6px 0 0; font-size: 10px; font-family: monospace; letter-spacing: 1.5px; color: #ff9d00; text-transform: uppercase; font-weight: bold;">
-              STUDIO CHẾ TÁC WORKSPACE &amp; IN 3D ON-DEMAND
+              STUDIO THIẾT KẾ &amp; CHẾ TÁC KHÔNG GIAN SỐNG
             </p>
           </div>
 

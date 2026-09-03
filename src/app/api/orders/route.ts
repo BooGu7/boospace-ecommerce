@@ -392,7 +392,7 @@ export async function POST(request: Request) {
                 String(raw.productId || raw.product_id) === it.product_id,
             );
             return {
-              name: prod?.name || "Sản phẩm chế tác 3D",
+              name: prod?.name || "Vật thể thiết kế Boo Space",
               variantName: originalItem?.variantName || "Mặc định",
               quantity: it.quantity,
               price: it.unit_price,

@@ -5,14 +5,14 @@
 export const siteConfig = {
   // Branding
   name: "Boo Space",
-  tagline: "STUDIO HIỆN THỰC HÓA Ý TƯỞNG & MAY ĐO GÓC LÀM VIỆC THEO YÊU CẦU.",
+  tagline: "STUDIO THIẾT KẾ VẬT THỂ & KHÔNG GIAN SỐNG CÓ CẢM XÚC.",
   slogan: "Mang sự tĩnh lặng và ấm áp về căn phòng của bạn ngay hôm nay.",
 
   description:
-    "Boo Space là studio thiết kế và chế tác các giải pháp tinh gọn, đa năng, minimal và cozy dành riêng cho góc làm việc của bạn. Chúng tôi hiện thực hóa mọi ý tưởng cá nhân, giải quyết những bất tiện hằng ngày bằng chất liệu kỹ thuật cao cấp.",
+    "Boo Space tạo ra những vật thể thiết kế cho không gian sống có cảm xúc. Kết hợp cảm hứng thiên nhiên, sự ấm áp tối giản và chế tác tỉ mỉ mang lại sự bình yên cho ngôi nhà bạn.",
 
   announcement:
-    "Chào mừng bạn đến với Boo Space — Nơi biến mọi ý tưởng cá nhân thành sản phẩm thực tế ✨",
+    "Chào mừng bạn đến với Boo Space — Những vật thể nhỏ cho không gian sống có cảm xúc ✨",
 
   url: process.env.NEXT_PUBLIC_BASE_URL ?? "https://www.boospace.tech",
 
