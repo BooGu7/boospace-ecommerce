@@ -3,16 +3,20 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useHydrated } from "@/hooks/use-hydrated";
 import { siteConfig } from "@/lib/config";
 
 export function AnnouncementBar() {
   const [dismissed, setDismissed] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useHydrated();
 
   useEffect(() => {
-    setMounted(true);
-    const stored = sessionStorage.getItem("announcement-dismissed");
-    if (stored === "true") setDismissed(true);
+    try {
+      if (sessionStorage.getItem("announcement-dismissed") === "true") {
+        const timer = setTimeout(() => setDismissed(true), 0);
+        return () => clearTimeout(timer);
+      }
+    } catch {}
   }, []);
 
   function handleDismiss() {

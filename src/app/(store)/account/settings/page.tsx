@@ -40,10 +40,14 @@ export default function SettingsPage() {
   useEffect(() => {
     if (!u) return;
 
-    setFirstName(u.firstName || "");
-    setLastName(u.lastName || "");
-    setEmail(u.email || "");
-    setPhone(u.phone || "");
+    const timer = setTimeout(() => {
+      setFirstName((prev) => prev || u.firstName || "");
+      setLastName((prev) => prev || u.lastName || "");
+      setEmail((prev) => prev || u.email || "");
+      setPhone((prev) => prev || u.phone || "");
+    }, 0);
+
+    return () => clearTimeout(timer);
   }, [u]);
 
   if (!isReady) {

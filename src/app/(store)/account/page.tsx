@@ -2,12 +2,14 @@
 
 import { motion, type Variants } from "framer-motion";
 import { Heart, Loader2, LogOut, MapPin, Package, Settings } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useAuthGuard } from "@/hooks/use-auth-guard";
+import { useHydrated } from "@/hooks/use-hydrated";
 import { supabase } from "@/lib/supabase/client"; // Gọi client Supabase để đồng bộ chỉ số thực tế [21]
 import { useAuthStore } from "@/store/auth";
 import { useWishlistStore } from "@/store/wishlist";
@@ -44,15 +46,11 @@ export default function AccountPage() {
   // Đọc dữ liệu danh sách yêu thích
   const wishlistItems = useWishlistStore((s) => s.items);
 
-  const [mounted, setMounted] = useState(false);
+  const mounted = useHydrated();
 
   // State quản lý số lượng đơn hàng thực tế lấy từ Supabase DB [21]
   const [dbOrderCount, setDbOrderCount] = useState(0);
   const [countLoading, setCountLoading] = useState(true);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // ĐỒNG BỘ: Truy vấn lấy chính xác số lượng đơn hàng thực của User từ Supabase [21]
   useEffect(() => {
@@ -83,8 +81,9 @@ export default function AccountPage() {
   if (!isReady) return null;
 
   // Ép kiểu an toàn tránh báo lỗi TypeScript
-  const userPhone = (user as any)?.phone;
-  const userAvatar = (user as any)?.avatar;
+  const extUser = user as (Record<string, unknown> & typeof user) | null;
+  const userPhone = typeof extUser?.phone === "string" ? extUser.phone : undefined;
+  const userAvatar = typeof extUser?.avatar === "string" ? extUser.avatar : undefined;
 
   const wishlistCount = mounted ? wishlistItems.length : 0;
 
@@ -162,7 +161,7 @@ export default function AccountPage() {
               {/* Ảnh đại diện Google Avatar bo tròn sắc nét */}
               <div className="size-16 rounded-full bg-black flex items-center justify-center font-serif text-2xl font-bold text-white border border-[#DCD6CC] shadow-inner select-none uppercase overflow-hidden">
                 {userAvatar ? (
-                  <img src={userAvatar} alt="Google Avatar" className="h-full w-full object-cover" />
+                  <Image src={userAvatar} alt="Google Avatar" width={64} height={64} className="h-full w-full object-cover" unoptimized />
                 ) : (
                   (user?.firstName?.[0] ?? "U")
                 )}

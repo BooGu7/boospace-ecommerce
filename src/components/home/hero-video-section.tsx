@@ -1,11 +1,12 @@
 "use client";
 
-import { ArrowRight, Feather, Heart, Leaf, Sparkles } from "lucide-react";
+import { ArrowRight, Feather, Leaf, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 import { toast } from "sonner";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { MotionWrapper } from "@/components/ui/motion-wrapper";
+import { useHydrated } from "@/hooks/use-hydrated";
 
 interface HeroVideoSectionProps {
   heroImage?: string;
@@ -28,12 +29,8 @@ export function HeroVideoSection({
   const [email, setEmail] = React.useState("");
   const [submitting, setSubmitting] = React.useState(false);
   const [isClosed, setIsClosed] = React.useState(false);
-  const [mounted, setMounted] = React.useState(false);
+  const mounted = useHydrated();
   const [videoError, setVideoError] = React.useState(false);
-
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const handleExplore = (e: React.MouseEvent) => {
     e.preventDefault();

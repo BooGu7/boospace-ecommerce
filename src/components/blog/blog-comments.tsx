@@ -62,7 +62,7 @@ export function BlogComments({ postId }: { postId: string }) {
       } else {
         toast.error(data.error || "Gửi thất bại.");
       }
-    } catch (_err) {
+    } catch {
       toast.error("Lỗi kết nối.");
     } finally {
       setSubmitting(false);

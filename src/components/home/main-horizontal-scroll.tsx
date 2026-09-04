@@ -9,29 +9,16 @@ import {
   type Variants,
 } from "framer-motion";
 import {
-  ArrowRight,
-  Award,
-  CheckCircle2,
-  Compass,
   Droplets,
-  Eye,
   Feather,
-  Flame,
   Heart,
   Home,
   Layers,
   Leaf,
-  Lightbulb,
   Monitor,
   Moon,
-  Palette,
-  ShieldCheck,
-  ShoppingBag,
-  Smile,
   Sparkles,
   Sun,
-  Timer,
-  Truck,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -79,7 +66,7 @@ const imageParallax: Variants = {
   },
 };
 
-const SPACES_MAP: Record<string, { name: string; icon: any; color: string; bg: string; slug: string }> = {
+const SPACES_MAP: Record<string, { name: string; icon: React.ComponentType<{ className?: string }>; color: string; bg: string; slug: string }> = {
   all: { name: "Tất cả", icon: Sparkles, color: "text-amber-700", bg: "bg-amber-100/70", slug: "all" },
   workspace: { name: "Work — Góc Sáng Tạo", icon: Monitor, color: "text-blue-700", bg: "bg-blue-100/70", slug: "workspace" },
   "smart-planters": { name: "Green — Sống Gần Thiên Nhiên", icon: Leaf, color: "text-emerald-700", bg: "bg-emerald-100/70", slug: "smart-planters" },
@@ -137,15 +124,6 @@ export function MainHorizontalScroll({
     "Một mầm sống nhỏ trên bàn làm việc là bộ lọc tự nhiên giải tỏa áp lực tinh thần. Dòng chậu cây tối giản tích hợp ngăn chứa nước thông minh, giữ cho mặt bàn luôn khô ráo, sạch sẽ và thanh lịch mà không đòi hỏi chăm sóc cầu kỳ.";
   const slide2Image =
     (config.slide2_image as string) || (config.tech_image as string) || "https://amukhgkamrokbbcjgusf.supabase.co/storage/v1/object/public/product-images/assets/1787020404841-ug5le.jpg";
-
-  const slide3Tag = (config.slide3_tag as string) || "DIGITAL CRAFT — THỦ CÔNG SỐ";
-  const slide3Title =
-    (config.slide3_title as string) || "Mộc mạc như gốm nung, bền bỉ cùng năm tháng";
-  const slide3Desc =
-    (config.slide3_desc as string) ||
-    "Từng vật thể sở hữu bề mặt nhám mịn nguyên bản tựa gốm sứ mộc mạc. Không chỉ là vật trang trí đơn thuần, đó là những người bạn đồng hành mang lại cảm giác ấm áp, an yên và vẻ đẹp trường tồn cho ngôi nhà bạn.";
-  const slide3Image =
-    (config.slide3_image as string) || "https://amukhgkamrokbbcjgusf.supabase.co/storage/v1/object/public/product-images/assets/3-1787022718232.jpg";
 
   const prefooterTitle =
     typeof config.prefooter_title === "string"

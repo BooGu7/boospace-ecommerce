@@ -92,8 +92,8 @@ export default function RegisterPage() {
         },
       });
       if (error) throw error;
-    } catch (err: any) {
-      toast.error(err.message || "Không thể kết nối đến Google.");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Không thể kết nối đến Google.");
       setGoogleLoading(false);
     }
   };
@@ -113,7 +113,7 @@ export default function RegisterPage() {
         setIsSubmitted(true);
         toast.success("Tạo yêu cầu tài khoản thành công! ✨");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Đăng ký thất bại");
     } finally {
       setLoading(false);

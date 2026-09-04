@@ -48,18 +48,62 @@ function CheckoutSuccessFallback() {
   );
 }
 
+interface OrderRecord {
+  id: string;
+  code?: string;
+  payment_method?: string;
+  paymentMethod?: string;
+  payment_status?: string;
+  paymentStatus?: string;
+  order_status?: string;
+  notes?: string;
+  created_at?: string;
+  total?: number;
+  subtotal?: number;
+  shipping?: number;
+  customer_name?: string;
+  customer_phone?: string;
+  customer_address?: string;
+  shipping_address?: {
+    formattedAddress?: string;
+    line1?: string;
+    district?: string;
+    city?: string;
+    payos_qr_code?: string;
+    payos_checkout_url?: string;
+    items_detail?: {
+      name: string;
+      quantity: number;
+      price: number;
+      variantName?: string;
+    }[];
+  };
+  order_items?: {
+    id: string;
+    name: string;
+    quantity: number;
+    price: number;
+    variant_name?: string;
+  }[];
+}
+
+interface PayosData {
+  qrCode?: string;
+  checkoutUrl?: string;
+}
+
 function CheckoutSuccessContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("order_id") || searchParams.get("code");
 
-  const [orderDetails, setOrderDetails] = useState<any>(null);
-  const [payosData, setPayosData] = useState<any>(null);
+  const [orderDetails, setOrderDetails] = useState<OrderRecord | null>(null);
+  const [payosData, setPayosData] = useState<PayosData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!orderId) {
-      setLoading(false);
-      return;
+      const timer = setTimeout(() => setLoading(false), 0);
+      return () => clearTimeout(timer);
     }
 
     async function fetchOrder() {
@@ -146,10 +190,9 @@ function CheckoutSuccessContent() {
                   orderDetails.shipping_address?.payos_checkout_url
                 }
                 onSuccess={() => {
-                  setOrderDetails((prev: any) => ({
-                    ...prev,
-                    payment_status: "Paid",
-                  }));
+                  setOrderDetails((prev) =>
+                    prev ? { ...prev, payment_status: "Paid" } : null,
+                  );
                 }}
               />
             </motion.div>
@@ -211,15 +254,18 @@ function CheckoutSuccessContent() {
                       Thời gian khởi tạo
                     </span>
                     <span className="font-mono font-medium text-black">
-                      {new Date(
-                        orderDetails.created_at || Date.now(),
-                      ).toLocaleDateString("vi-VN", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
+                      {orderDetails.created_at
+                        ? new Date(orderDetails.created_at).toLocaleDateString(
+                            "vi-VN",
+                            {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            },
+                          )
+                        : "Vừa xong"}
                     </span>
                   </div>
                 </div>

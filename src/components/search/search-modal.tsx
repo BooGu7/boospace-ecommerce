@@ -18,7 +18,7 @@ interface SearchProduct {
   name: string;
   slug: string;
   price: number;
-  images: any[];
+  images: (string | { id?: string; url?: string; alt?: string })[];
 }
 
 // Cấu hình Hoạt ảnh chuyển động mượt mà dẹp ngang (Type-safe Variants)
@@ -91,12 +91,12 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
         if (!error && data) {
           // Ánh xạ kiểu dữ liệu để đồng bộ với UI
-          const mapped: SearchProduct[] = data.map((item: any) => ({
-            id: item.id,
-            name: item.name,
-            slug: item.slug,
+          const mapped: SearchProduct[] = (data as unknown as Record<string, unknown>[]).map((item) => ({
+            id: String(item.id),
+            name: String(item.name || ""),
+            slug: String(item.slug || ""),
             price: Number(item.price ?? 0),
-            images: item.images || [],
+            images: (Array.isArray(item.images) ? item.images : []) as (string | { id?: string; url?: string; alt?: string })[],
           }));
           setSuggestedProducts(mapped);
         }
@@ -140,8 +140,8 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
   useEffect(() => {
     if (query.trim() === "") {
-      setProducts([]);
-      return;
+      const timer = setTimeout(() => setProducts([]), 0);
+      return () => clearTimeout(timer);
     }
 
     const delayDebounce = setTimeout(async () => {

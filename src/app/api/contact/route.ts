@@ -72,10 +72,11 @@ export async function POST(req: Request) {
       success: true,
       message: "Gửi tin nhắn thành công!",
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[CONTACT_API_ERROR]", error);
+    const message = error instanceof Error ? error.message : "Đã xảy ra lỗi";
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: message },
       { status: 500 },
     );
   }

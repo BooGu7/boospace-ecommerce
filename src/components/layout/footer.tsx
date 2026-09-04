@@ -71,7 +71,7 @@ export function Footer() {
       } else {
         toast.error(data.error || "Có lỗi xảy ra, vui lòng thử lại.");
       }
-    } catch (_err) {
+    } catch {
       toast.error("Không thể kết nối đến máy chủ.");
     } finally {
       setSubmitting(false);

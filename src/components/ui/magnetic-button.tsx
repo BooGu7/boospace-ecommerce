@@ -1,15 +1,14 @@
 "use client";
 
+import type { HTMLMotionProps } from "framer-motion";
 import { motion, useMotionValue, useSpring } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import * as React from "react";
 
-interface MagneticButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface MagneticButtonProps extends HTMLMotionProps<"button"> {
   children: React.ReactNode;
   loading?: boolean;
 }
-
-const MotionButton = motion.button as any;
 
 export function MagneticButton({ children, loading = false, className = "", ...props }: MagneticButtonProps) {
   const ref = React.useRef<HTMLButtonElement>(null);
@@ -42,7 +41,7 @@ export function MagneticButton({ children, loading = false, className = "", ...p
   };
 
   return (
-    <MotionButton
+    <motion.button
       ref={ref}
       style={{ x: elasticX, y: elasticY }}
       onMouseMove={handleMouseMove}
@@ -59,6 +58,6 @@ export function MagneticButton({ children, loading = false, className = "", ...p
           <Loader2 className="h-5 w-5 animate-spin text-current" />
         </span>
       )}
-    </MotionButton>
+    </motion.button>
   );
 }

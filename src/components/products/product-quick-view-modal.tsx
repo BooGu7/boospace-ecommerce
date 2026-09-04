@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import {
   ArrowRight,
   Check,
@@ -11,8 +10,6 @@ import {
   ShieldCheck,
   ShoppingBag,
   Sparkles,
-  Star,
-  X,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -85,6 +82,7 @@ export function ProductQuickViewModal({
 }: ProductQuickViewModalProps) {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const [selectedColorState, setSelectedColorState] = useState<ColorItem | null>(null);
 
   const addToCart = useCartStore((s) => s.addItem);
   const openCart = useCartStore((s) => s.openCart);
@@ -102,9 +100,8 @@ export function ProductQuickViewModal({
     (product as unknown as { attributes?: Record<string, unknown> })
       .attributes || {};
   const availableColors = extractProductColors(attrs);
-  const [selectedColor, setSelectedColor] = useState<ColorItem | null>(
-    availableColors[0] || null,
-  );
+  const selectedColor = selectedColorState || availableColors[0] || null;
+  const setSelectedColor = setSelectedColorState;
 
   const currentStock =
     (product as { stock?: number }).stock ??

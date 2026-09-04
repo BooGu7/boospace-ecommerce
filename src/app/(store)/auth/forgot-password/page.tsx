@@ -2,7 +2,6 @@
 
 import { motion, type Variants } from "framer-motion";
 import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { AuthCardLayout } from "@/components/auth/auth-card-layout";
@@ -31,8 +30,6 @@ const formItemVariants: Variants = {
 };
 
 export default function ForgotPasswordPage() {
-  const _router = useRouter();
-
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -42,7 +39,7 @@ export default function ForgotPasswordPage() {
     try {
       setLoading(true);
 
-      const _result = await forgotPassword(email);
+      await forgotPassword(email);
 
       toast.success("Yêu cầu thành công! Chúng tôi đã gửi link đặt lại mật khẩu tới Gmail của bạn.");
 

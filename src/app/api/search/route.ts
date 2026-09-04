@@ -26,8 +26,9 @@ export async function POST(req: Request) {
       success: true,
       method: "text_search_sql", // Phương thức tìm kiếm SQL thuần tốc độ cao
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[SEARCH_API_ERROR]", error);
-    return NextResponse.json({ products: [], success: false, error: error.message }, { status: 500 });
+    const message = error instanceof Error ? error.message : "Đã xảy ra lỗi";
+    return NextResponse.json({ products: [], success: false, error: message }, { status: 500 });
   }
 }

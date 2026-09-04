@@ -21,8 +21,9 @@ export async function GET(req: Request) {
     if (error) throw error;
 
     return NextResponse.json({ success: true, reviews: reviews || [] });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Đã xảy ra lỗi";
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }
 
@@ -53,7 +54,8 @@ export async function POST(req: Request) {
     if (error) throw error;
 
     return NextResponse.json({ success: true, review: data });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Đã xảy ra lỗi";
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }

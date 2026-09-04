@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useHydrated } from "@/hooks/use-hydrated";
 import { supabase } from "@/lib/supabase/client"; // Gọi client Supabase động
 import { useRecentlyViewedStore } from "@/store/recently-viewed";
+import type { Product } from "@/types";
 import { ProductCard } from "./product-card";
 
 interface RecentlyViewedProps {
@@ -11,20 +13,14 @@ interface RecentlyViewedProps {
 
 export function RecentlyViewed({ excludeProductId }: RecentlyViewedProps) {
   const items = useRecentlyViewedStore((s) => s.items);
-  const [mounted, setMounted] = useState(false);
-  const [validProducts, setValidProducts] = useState<any[]>([]);
+  const mounted = useHydrated();
+  const [validProducts, setValidProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // 1. Chỉ render sau khi Hydration kết thúc ở Client
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // 2. KÉO TOÀN BỘ DANH SÁCH SẢN PHẨM HOẠT ĐỘNG THỜI GIAN THỰC TỪ SUPABASE
   // Đối chiếu ID để lọc sạch (purge) các sản phẩm rác cũ khỏi danh sách hiển thị
   useEffect(() => {
     if (!mounted || items.length === 0) {
-      setLoading(false);
       return;
     }
 
@@ -44,7 +40,7 @@ export function RecentlyViewed({ excludeProductId }: RecentlyViewedProps) {
           const validCachedItems = items.filter((cachedItem) => activeIds.has(cachedItem.productId));
 
           // Ánh xạ các sản phẩm hợp lệ thành dạng đối tượng Product hoàn chỉnh để hiển thị mượt mà
-          const mapped: any[] = validCachedItems
+          const mapped = validCachedItems
             .map((cachedItem) => {
               const dbProduct = activeDbProducts.find((p) => p.id === cachedItem.productId);
               if (!dbProduct) return null;
@@ -61,19 +57,27 @@ export function RecentlyViewed({ excludeProductId }: RecentlyViewedProps) {
                 id: dbProduct.id,
                 slug: dbProduct.slug,
                 name: dbProduct.name,
+                description: "",
+                categoryIds: [],
                 images: mappedImages,
-                status: "active",
+                status: "active" as const,
                 variants: [
                   {
                     id: `${dbProduct.id}-default`,
+                    productId: dbProduct.id,
+                    sku: `SKU-${dbProduct.id.slice(0, 6)}`,
+                    name: dbProduct.name,
+                    currency: "VND",
+                    options: [],
+                    images: mappedImages,
                     price: price,
                     compareAtPrice: null,
                     inventory: { quantity: 99, allowBackorder: true },
                   },
                 ],
-              };
+              } as unknown as Product;
             })
-            .filter((p) => p !== null);
+            .filter((p): p is Product => p !== null);
 
           setValidProducts(mapped);
         }

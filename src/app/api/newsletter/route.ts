@@ -29,8 +29,9 @@ export async function POST(req: Request) {
       success: true,
       message: "Chào mừng bạn gia nhập cộng đồng tập trung sâu của Boospace!",
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[NEWSLETTER_API_ERROR]", error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    const message = error instanceof Error ? error.message : "Đã xảy ra lỗi";
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Award, Cpu, Heart, Layers, ShieldCheck, Sparkles } from "lucide-react";
+import { Award, Heart, Layers, ShieldCheck, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const revalidate = 86400; // Cache 24 giờ

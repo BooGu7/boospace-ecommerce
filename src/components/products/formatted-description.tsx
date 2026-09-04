@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Box, Check, Sparkles } from "lucide-react";
+import { Check, Sparkles } from "lucide-react";
 
 interface Props {
   text?: string;

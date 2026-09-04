@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { useHydrated } from "@/hooks/use-hydrated";
 import { PLACEHOLDER_IMAGE } from "@/lib/constants";
 import { supabase } from "@/lib/supabase/client";
 import { useCartStore } from "@/store/cart";
@@ -45,7 +46,7 @@ export default function CartPage() {
   const updateQuantity = useCartStore((s) => s.updateQuantity);
   const addToCart = useCartStore((s) => s.addItem);
 
-  const [mounted, setMounted] = useState(false);
+  const mounted = useHydrated();
   const [couponCode, setCouponCode] = useState("");
   const [discountPercent, setDiscountPercent] = useState(0);
   const [appliedCoupon, setAppliedCoupon] = useState("");
@@ -53,8 +54,6 @@ export default function CartPage() {
 
   const [addons, setAddons] = useState<AddonProduct[]>([]);
   const [addonsLoading, setAddonsLoading] = useState(true);
-
-  useEffect(() => setMounted(true), []);
 
   useEffect(() => {
     if (!mounted) return;

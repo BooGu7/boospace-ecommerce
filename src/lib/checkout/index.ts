@@ -1,4 +1,3 @@
-// Re-export the active checkout provider.
-// To swap to a real provider (e.g. Stripe), change this export.
+// Checkout integration: 100% Real data with PayOS & COD
+export * from "@/lib/payos";
 
-export { demoCheckoutProvider as checkoutProvider } from "./demo-provider";

@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Sparkles, Sun, Sunset } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useHydrated } from "@/hooks/use-hydrated";
 
 export type AmbientMode = "sunlight" | "sunset";
 
@@ -28,20 +29,23 @@ const MODES: {
 
 export function CalmAmbientSwitcher() {
   const [mode, setMode] = useState<AmbientMode>("sunlight");
-  const [mounted, setMounted] = useState(false);
+  const mounted = useHydrated();
   const [showTooltip, setShowTooltip] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-    const saved = localStorage.getItem("boo-ambient-mode") as AmbientMode | null;
-    if (saved && ["sunlight", "sunset"].includes(saved)) {
-      setMode(saved);
-      document.documentElement.setAttribute("data-ambient-mode", saved);
-    } else {
-      setMode("sunlight");
-      document.documentElement.setAttribute("data-ambient-mode", "sunlight");
-      localStorage.setItem("boo-ambient-mode", "sunlight");
-    }
+    try {
+      const saved = localStorage.getItem("boo-ambient-mode") as AmbientMode | null;
+      if (saved && ["sunlight", "sunset"].includes(saved)) {
+        const timer = setTimeout(() => {
+          setMode(saved);
+          document.documentElement.setAttribute("data-ambient-mode", saved);
+        }, 0);
+        return () => clearTimeout(timer);
+      } else {
+        document.documentElement.setAttribute("data-ambient-mode", "sunlight");
+        localStorage.setItem("boo-ambient-mode", "sunlight");
+      }
+    } catch {}
   }, []);
 
   const handleChangeMode = (newMode: AmbientMode) => {

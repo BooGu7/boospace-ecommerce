@@ -116,7 +116,7 @@ export function BentoPortalGrid() {
       } else {
         toast.error(data.error || "Gửi ý tưởng thất bại, vui lòng thử lại.");
       }
-    } catch (_err) {
+    } catch {
       toast.error("Lỗi kết nối đến máy chủ.");
     } finally {
       setSubmitting(false);

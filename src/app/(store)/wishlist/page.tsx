@@ -2,9 +2,9 @@
 
 import { motion, type Variants } from "framer-motion";
 import { Heart } from "lucide-react";
-import { useEffect, useState } from "react";
 import { ProductCard } from "@/components/products/product-card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { useHydrated } from "@/hooks/use-hydrated";
 import { useWishlistStore } from "@/store/wishlist";
 import type { Product } from "@/types";
 
@@ -28,8 +28,7 @@ const itemVariants: Variants = {
 
 export default function WishlistPage() {
   const wishlistItems = useWishlistStore((s) => s.items);
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const mounted = useHydrated();
 
   if (!mounted) {
     return (
