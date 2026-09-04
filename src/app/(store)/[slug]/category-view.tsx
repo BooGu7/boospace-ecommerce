@@ -97,7 +97,7 @@ export function CategoryView({
           )}
 
           <p className="text-xs font-mono text-[#786F66] uppercase tracking-wider pt-1">
-            Có {pagination.total} vật thể trong không gian này
+            Có {pagination.total} tác phẩm trong bộ sưu tập này
           </p>
         </div>
 
@@ -126,7 +126,7 @@ export function CategoryView({
           ) : (
             <div className="py-24 text-center border border-[#E1DDD5] border-dashed rounded-3xl text-sm text-[#786F66] font-mono bg-[#EAE5D9]/10 space-y-2">
               <p className="font-serif text-lg text-black font-bold">Chưa có sản phẩm trong mục này</p>
-              <p className="text-xs text-[#5C564E]">Vui lòng quay lại cửa hàng để khám phá thêm các vật thể khác.</p>
+              <p className="text-xs text-[#5C564E]">Vui lòng quay lại cửa hàng để khám phá thêm các thiết kế khác.</p>
             </div>
           )}
         </div>

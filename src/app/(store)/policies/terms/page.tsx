@@ -35,13 +35,13 @@ export default function TermsPage() {
             </h2>
             <ul className="list-disc pl-6 space-y-2">
               <li>
-                <strong>Thanh toán VietQR tự động:</strong> Khởi tạo mã QR động
-                chứa đúng cú pháp đơn hàng `#BSxxx`, tự động khớp lệnh gạch nợ
-                thành công trong vài giây.
+                <strong>Quét mã QR Ngân hàng (Tự động):</strong> Hệ thống tạo mã
+                QR động chứa đúng số tiền và cú pháp đơn hàng, tự động xác nhận
+                thanh toán thành công tức thì trong vài giây.
               </li>
               <li>
-                <strong>Thanh toán COD:</strong> Áp dụng cho các đơn hàng tiêu
-                chuẩn trên toàn quốc qua GHN và Viettel Post.
+                <strong>Thanh toán khi nhận hàng (COD):</strong> Áp dụng cho các
+                đơn hàng tiêu chuẩn trên toàn quốc qua đối tác giao hàng uy tín.
               </li>
             </ul>
           </section>

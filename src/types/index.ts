@@ -139,6 +139,8 @@ export interface Product {
   created_at?: string;
   updatedAt: string;
   updated_at?: string;
+  thumbnail_url?: string | null;
+  video_url?: string | null;
 }
 
 // --- 4. CART & SHOPPING BAG ---

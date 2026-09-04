@@ -89,14 +89,14 @@ export function HeroVideoSection({
           <MotionWrapper direction="down" delay={100}>
             <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md text-[#FAF5F2] text-xs font-mono uppercase tracking-widest border border-white/20 shadow-lg">
               <span className="size-2 rounded-full bg-amber-400 animate-pulse shadow-[0_0_8px_#fbbf24]" />
-              <span>VẬT THỂ THIẾT KẾ CHO KHÔNG GIAN SỐNG • TP.HCM</span>
+              <span>THIẾT KẾ CHO KHÔNG GIAN SỐNG • TP.HCM</span>
             </div>
           </MotionWrapper>
 
           <MotionWrapper direction="down" delay={150}>
             <div className="hidden sm:inline-flex items-center gap-2 text-xs font-mono text-white/80 bg-black/40 backdrop-blur-md px-3.5 py-1 rounded-full border border-white/10">
               <Sparkles className="size-3.5 text-amber-400" />
-              <span>Warm Minimalist Living Objects</span>
+              <span>Warm Minimalist Living Spaces</span>
             </div>
           </MotionWrapper>
         </div>
@@ -109,7 +109,7 @@ export function HeroVideoSection({
                 featuredHeading
               ) : (
                 <>
-                  Những vật thể nhỏ.
+                  Những thiết kế tinh tế.
                   <br />
                   <span className="bg-gradient-to-r from-amber-300 via-emerald-300 to-amber-200 bg-clip-text text-transparent italic font-serif">
                     Những không gian có cảm xúc.
@@ -123,7 +123,7 @@ export function HeroVideoSection({
             <p className="text-base sm:text-lg text-neutral-100 leading-relaxed max-w-xl font-sans text-drop-shadow font-normal opacity-95">
               {featuredDesc ||
                 heroSubtitle ||
-                "Boo Space tạo ra những vật thể thiết kế cho góc làm việc và không gian sống — ấm áp, tối giản và có chút xanh. Mỗi tác phẩm được hoàn thiện tỉ mỉ để bạn chạm vào và sống cùng với niềm an yên mỗi ngày."}
+                "Boo Space tạo ra những tác phẩm thiết kế cho góc làm việc và không gian sống — ấm áp, tối giản và có chút xanh. Mỗi tác phẩm được hoàn thiện tỉ mỉ để bạn chạm vào và sống cùng với niềm an yên mỗi ngày."}
             </p>
           </MotionWrapper>
 

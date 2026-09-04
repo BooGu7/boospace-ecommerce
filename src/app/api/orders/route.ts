@@ -344,7 +344,7 @@ export async function POST(request: Request) {
         code: orderCode,
         customer_id: customerId,
         customer_name: customerName,
-        customer_email: customerEmail || `${customerPhone}@boospace.tech`,
+        customer_email: customerEmail || `${customerPhone}@${siteConfig.domain}`,
         customer_phone: customerPhone,
         customer_address: formattedAddressStr || "Nhận tại xưởng BooSpace",
         shipping_address: enhancedShippingAddress,
@@ -378,7 +378,7 @@ export async function POST(request: Request) {
 
     // 📧 TỰ ĐỘNG GỬI EMAIL HÓA ĐƠN QUA RESEND TỚI GMAIL KHÁCH HÀNG
     try {
-      if (customerEmail && !customerEmail.endsWith("@boospace.tech")) {
+      if (customerEmail && !customerEmail.endsWith(`@${siteConfig.domain}`)) {
         await sendOrderConfirmationEmail({
           orderCode,
           customerName,
@@ -392,7 +392,7 @@ export async function POST(request: Request) {
                 String(raw.productId || raw.product_id) === it.product_id,
             );
             return {
-              name: prod?.name || "Vật thể thiết kế Boo Space",
+              name: prod?.name || "Tác phẩm thiết kế Boo Space",
               variantName: originalItem?.variantName || "Mặc định",
               quantity: it.quantity,
               price: it.unit_price,

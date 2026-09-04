@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Eye, Heart, ShoppingBag } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useSyncExternalStore } from "react";
+import { useCallback, useRef, useState, useSyncExternalStore } from "react";
 import { toast } from "sonner";
 import { ProductQuickViewModal } from "@/components/products/product-quick-view-modal";
 import { PLACEHOLDER_IMAGE } from "@/lib/constants";
@@ -61,6 +61,27 @@ function extractProductColors(attrs: Record<string, unknown>): ColorItem[] {
 
 export function ProductCard({ product, priority = false }: ProductCardProps) {
   const [quickViewOpen, setQuickViewOpen] = useState(false);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // CozyLight-style: auto-play video on hover
+  const videoUrl = product.video_url;
+
+  const handleMouseEnter = useCallback(() => {
+    if (videoUrl && videoRef.current) {
+      videoRef.current.currentTime = 0;
+      videoRef.current.play().catch(() => {});
+      setIsVideoPlaying(true);
+    }
+  }, [videoUrl]);
+
+  const handleMouseLeave = useCallback(() => {
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+      setIsVideoPlaying(false);
+    }
+  }, []);
 
   const defaultVariant = product.variants?.[0];
 
@@ -161,9 +182,11 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
         whileHover={{ y: -8 }}
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
         className="group relative flex flex-col justify-between h-full text-left bg-white/60 hover:bg-white rounded-[32px] p-3 border border-[#E1DDD5] hover:border-[#C86D51]/40 hover:shadow-xl hover:shadow-[#C86D51]/5 transition-all duration-300"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
         <Link href={`/${product.slug}`} className="block w-full h-full space-y-3.5">
-          {/* Khung chứa ảnh */}
+          {/* Khung chứa ảnh / video */}
           <div className="relative aspect-square w-full overflow-hidden rounded-[26px] border border-[#E1DDD5]/80 bg-[#F5F1E6]/60 shadow-xs">
             <Image
               src={imgUrl}
@@ -171,10 +194,25 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
               fill
               priority={priority}
               sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-              className={`object-cover mix-blend-multiply transition-transform duration-700 group-hover:scale-106 ${
+              className={`object-cover mix-blend-multiply transition-all duration-700 group-hover:scale-106 ${
                 isOutOfStock ? "opacity-50 grayscale-[40%]" : "opacity-95"
-              }`}
+              } ${isVideoPlaying ? "opacity-0" : ""}`}
             />
+
+            {/* CozyLight-style: Video preview khi hover */}
+            {videoUrl && (
+              <video
+                ref={videoRef}
+                src={videoUrl}
+                muted
+                loop
+                playsInline
+                preload="metadata"
+                className={`absolute inset-0 w-full h-full object-cover rounded-[26px] transition-opacity duration-500 ${
+                  isVideoPlaying ? "opacity-100" : "opacity-0"
+                }`}
+              />
+            )}
 
             {/* 🏷️ TAG 1: 🚫 HẾT HÀNG TẠM THỜI */}
             {isOutOfStock && (

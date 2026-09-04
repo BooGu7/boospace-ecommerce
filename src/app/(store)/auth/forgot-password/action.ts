@@ -3,6 +3,7 @@
 import crypto from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
+import { siteConfig } from "@/lib/config";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -62,7 +63,7 @@ export async function forgotPassword(email: string) {
 
     // Kích hoạt gửi thư khôi phục
     const { data, error: emailError } = await resend.emails.send({
-      from: "Boo Space Studio<support@boospace.tech>",
+      from: `Boo Space Studio <${siteConfig.contact.supportEmail}>`,
       to: normalizedEmail,
       subject: "Đặt lại mật khẩu tài khoản Boo Space",
       html: `

@@ -318,44 +318,123 @@
 }
 
 /* =========================================================================
-   DAYLIGHT CALM AMBIENT MODES (SUNSET & CANDLELIGHT NIGHT)
+   CALM AMBIENT MODES (GOLDEN HOUR SUNSET)
    ========================================================================= */
 html {
   transition: background-color 0.4s ease, color 0.4s ease, filter 0.4s ease;
 }
 
-/* 🌅 HOÀNG HÔN (AMBER SUNSET - DAYLIGHT WARM AMBER VIBE) */
+[data-ambient="sunset"] {
+  --background: 30 30% 96%;      /* warm cream */
+  --foreground: 25 30% 15%;      /* rich warm brown */
+  --card: 32 28% 94%;             /* soft peach card */
+  --card-foreground: 25 30% 15%;
+  --popover: 32 28% 94%;
+  --popover-foreground: 25 30% 15%;
+  --primary: 28 80% 52%;          /* golden amber primary */
+  --primary-foreground: 40 50% 97%;
+  --secondary: 35 25% 88%;        /* warm sand */
+  --secondary-foreground: 25 25% 20%;
+  --muted: 33 20% 90%;            /* soft warm muted */
+  --muted-foreground: 25 15% 45%;
+  --accent: 22 70% 55%;           /* burnt orange accent */
+  --accent-foreground: 40 50% 97%;
+  --destructive: 0 72% 51%;
+  --border: 30 20% 85%;           /* warm border */
+  --input: 30 20% 85%;
+  --ring: 28 80% 52%;             /* golden ring */
+}
+
+[data-ambient-mode="sunset"] {
+  --background: 30 30% 96%;
+  --foreground: 25 30% 15%;
+  --card: 32 28% 94%;
+  --card-foreground: 25 30% 15%;
+  --popover: 32 28% 94%;
+  --popover-foreground: 25 30% 15%;
+  --primary: 28 80% 52%;
+  --primary-foreground: 40 50% 97%;
+  --secondary: 35 25% 88%;
+  --secondary-foreground: 25 25% 20%;
+  --muted: 33 20% 90%;
+  --muted-foreground: 25 15% 45%;
+  --accent: 22 70% 55%;
+  --accent-foreground: 40 50% 97%;
+  --destructive: 0 72% 51%;
+  --border: 30 20% 85%;
+  --input: 30 20% 85%;
+  --ring: 28 80% 52%;
+}
+
+/* 🌅 HOÀNG HÔN (GOLDEN HOUR SUNSET) */
+html[data-ambient="sunset"],
 html[data-ambient-mode="sunset"] {
-  background-color: #F3ECE1 !important;
-  color: #271E18 !important;
+  background-color: hsl(30 30% 96%) !important;
+  color: hsl(25 30% 15%) !important;
 }
+
+html[data-ambient="sunset"] body,
 html[data-ambient-mode="sunset"] body {
-  background-color: #F3ECE1 !important;
-  color: #271E18 !important;
+  background-color: hsl(30 30% 96%) !important;
+  color: hsl(25 30% 15%) !important;
 }
+
+/* Subtle warm Golden Hour tint overlay */
+html[data-ambient="sunset"] body::after,
+html[data-ambient-mode="sunset"] body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 998;
+  background: rgba(255, 175, 60, 0.035);
+  mix-blend-mode: multiply;
+}
+
+html[data-ambient="sunset"] .bg-\[\#FCFAF2\],
+html[data-ambient="sunset"] .bg-\[\#FCFAF2\]\/50,
+html[data-ambient="sunset"] .bg-\[\#FCFAF2\]\/95,
 html[data-ambient-mode="sunset"] .bg-\[\#FCFAF2\],
 html[data-ambient-mode="sunset"] .bg-\[\#FCFAF2\]\/50,
 html[data-ambient-mode="sunset"] .bg-\[\#FCFAF2\]\/95 {
-  background-color: #F3ECE1 !important;
+  background-color: hsl(30 30% 96%) !important;
 }
+
+html[data-ambient="sunset"] .bg-\[\#FAF5F2\],
+html[data-ambient="sunset"] .bg-\[\#F7F4EB\],
 html[data-ambient-mode="sunset"] .bg-\[\#FAF5F2\],
-html[data-ambient-mode="sunset"] .bg-\[\#F7F4EB\],
-html[data-ambient-mode="sunset"] .bg-\[\#FAF5F2\]\/80 {
-  background-color: #ECE1D1 !important;
+html[data-ambient-mode="sunset"] .bg-\[\#F7F4EB\] {
+  background-color: hsl(32 28% 94%) !important;
 }
+
+html[data-ambient="sunset"] .bg-\[\#FAF5F2\]\/80,
+html[data-ambient-mode="sunset"] .bg-\[\#FAF5F2\]\/80 {
+  background-color: hsl(35 25% 88%) !important;
+}
+
+html[data-ambient="sunset"] .border-\[\#E1DDD5\],
+html[data-ambient="sunset"] .border-\[\#E1DDD5\]\/80,
+html[data-ambient="sunset"] .border-\[\#E1DDD5\]\/60,
+html[data-ambient="sunset"] .border-\[\#E1DDD5\]\/40,
 html[data-ambient-mode="sunset"] .border-\[\#E1DDD5\],
 html[data-ambient-mode="sunset"] .border-\[\#E1DDD5\]\/80,
 html[data-ambient-mode="sunset"] .border-\[\#E1DDD5\]\/60,
 html[data-ambient-mode="sunset"] .border-\[\#E1DDD5\]\/40 {
-  border-color: #DCCBB9 !important;
+  border-color: hsl(30 20% 85%) !important;
 }
+
+html[data-ambient="sunset"] .text-black,
+html[data-ambient="sunset"] .text-\[\#1E1C1A\],
 html[data-ambient-mode="sunset"] .text-black,
 html[data-ambient-mode="sunset"] .text-\[\#1E1C1A\] {
-  color: #271E18 !important;
+  color: hsl(25 30% 15%) !important;
 }
+
+html[data-ambient="sunset"] .text-\[\#5C564E\],
+html[data-ambient="sunset"] .text-\[\#786F66\],
 html[data-ambient-mode="sunset"] .text-\[\#5C564E\],
 html[data-ambient-mode="sunset"] .text-\[\#786F66\] {
-  color: #6E6155 !important;
+  color: hsl(25 15% 45%) !important;
 }
 
 

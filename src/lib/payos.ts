@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import { siteConfig } from "@/lib/config";
 
 // TỰ ĐỘNG BẮT CẢ 2 KIỂU VIẾT ĐỂ CHỐNG LỖI TYPO
 const clientId =
@@ -47,8 +48,7 @@ function createSignature(dataStr: string, key: string): string {
 
 export async function createPayOSPaymentLink(params: CreatePayOSLinkParams) {
   try {
-    const origin =
-      process.env.NEXT_PUBLIC_SITE_URL || "https://www.boospace.tech";
+    const origin = siteConfig.url;
 
     const cleanDescription = params.description
       .normalize("NFD")

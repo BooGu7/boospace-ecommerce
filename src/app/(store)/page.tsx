@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { MainHorizontalScroll } from "@/components/home/main-horizontal-scroll";
+import { siteConfig } from "@/lib/config";
 import {
   blogRepository,
   categoryRepository,
@@ -11,16 +12,16 @@ import type { Product } from "@/types";
 export const metadata: Metadata = {
   title: "Boo Space — Không Gian Sống & Thiết Kế Độc Bản",
   description:
-    "Boo Space tạo ra những vật thể thiết kế tối giản, ấm áp cho góc làm việc và không gian sống. Đèn ambient khúc xạ ánh sáng, chậu cây tự tưới và phụ kiện bàn làm việc độc bản.",
+    "Boo Space tạo ra những tác phẩm thiết kế tối giản, ấm áp cho góc làm việc và không gian sống. Đèn ambient khúc xạ ánh sáng, chậu cây tự tưới và phụ kiện bàn làm việc độc bản.",
   alternates: {
-    canonical: "https://www.boospace.tech/",
+    canonical: siteConfig.url,
   },
   openGraph: {
     title: "Boo Space — Không Gian Sống & Thiết Kế Độc Bản",
     description:
-      "Boo Space tạo ra những vật thể thiết kế tối giản, ấm áp cho góc làm việc và không gian sống.",
+      "Boo Space tạo ra những tác phẩm thiết kế tối giản, ấm áp cho góc làm việc và không gian sống.",
     type: "website",
-    url: "https://www.boospace.tech/",
+    url: siteConfig.url,
   },
 };
 

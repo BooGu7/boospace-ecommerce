@@ -2,24 +2,31 @@
 // Store Configuration — Single source of truth cho Boo Space Studio
 // ============================================================================
 
+const rawDomain = process.env.NEXT_PUBLIC_SITE_DOMAIN || "boospace.tech";
+const rawBaseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_BASE_URL || `https://www.${rawDomain}`;
+const rawAdminUrl = process.env.NEXT_PUBLIC_ADMIN_URL || `https://admin.${rawDomain}`;
+
 export const siteConfig = {
+  // 🌐 CẤU HÌNH TÊN MIỀN TẬP TRUNG (Dễ dàng thay đổi trong tương lai)
+  domain: rawDomain,
+  url: rawBaseUrl,
+  adminUrl: rawAdminUrl,
+
   // Branding
   name: "Boo Space",
-  tagline: "STUDIO THIẾT KẾ VẬT THỂ & KHÔNG GIAN SỐNG CÓ CẢM XÚC.",
+  tagline: "STUDIO CHẾ TÁC & THIẾT KẾ KHÔNG GIAN SỐNG CÓ CẢM XÚC.",
   slogan: "Mang sự tĩnh lặng và ấm áp về căn phòng của bạn ngay hôm nay.",
 
   description:
-    "Boo Space tạo ra những vật thể thiết kế cho không gian sống có cảm xúc. Kết hợp cảm hứng thiên nhiên, sự ấm áp tối giản và chế tác tỉ mỉ mang lại sự bình yên cho ngôi nhà bạn.",
+    "Boo Space tạo ra những tác phẩm thiết kế cho không gian sống có cảm xúc. Kết hợp cảm hứng thiên nhiên, sự ấm áp tối giản và chế tác tỉ mỉ mang lại sự bình yên cho ngôi nhà bạn.",
 
   announcement:
-    "Chào mừng bạn đến với Boo Space — Những vật thể nhỏ cho không gian sống có cảm xúc ✨",
-
-  url: process.env.NEXT_PUBLIC_BASE_URL ?? "https://www.boospace.tech",
+    "Chào mừng bạn đến với Boo Space — Những thiết kế tinh tế cho không gian sống có cảm xúc ✨",
 
   // 📞 THÔNG TIN LIÊN HỆ ĐỒNG BỘ TOÀN HỆ THỐNG
   contact: {
-    email: "support@boospace.tech",
-    supportEmail: "support@boospace.tech",
+    email: `support@${rawDomain}`,
+    supportEmail: `support@${rawDomain}`,
     phone: "0972.306.562",
     hotline: "0972.306.562",
     workingHours: "08:00 – 18:00 (Thứ Hai – Thứ Bảy)",

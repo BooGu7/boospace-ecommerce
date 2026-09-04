@@ -105,7 +105,7 @@ export function MainHorizontalScroll({
   const manifestoDesc =
     typeof config.manifesto_desc === "string"
       ? config.manifesto_desc
-      : "Một vùng ánh sáng ấm. Một mảng xanh nhỏ. Một chiếc bàn gọn gàng. Một vật thể được đặt đúng chỗ.\n\nNhững điều nhỏ ấy có thể thay đổi cảm giác của cả một không gian sống.\n\nBoo Space tạo ra những vật thể thiết kế cho những khoảnh khắc rất đời thường — làm việc, sáng tạo, nghỉ ngơi và tận hưởng.";
+      : "Một vùng ánh sáng ấm. Một mảng xanh nhỏ. Một chiếc bàn gọn gàng. Một tác phẩm được đặt đúng chỗ.\n\nNhững điều nhỏ ấy có thể thay đổi cảm giác của cả một không gian sống.\n\nBoo Space tạo ra những tác phẩm thiết kế cho những khoảnh khắc rất đời thường — làm việc, sáng tạo, nghỉ ngơi và tận hưởng.";
 
   const slide1Tag = (config.slide1_tag as string) || "REST — KHOẢNH KHẮC THƯ GIÃN";
   const slide1Title =
@@ -166,7 +166,7 @@ export function MainHorizontalScroll({
     {
       num: "02",
       title: "Tạo Hình Liền Khối",
-      desc: "Vật thể được kiến tạo từng đường nét tỉ mỉ, dệt nên hình khối mềm mại, liền mạch và vững chãi.",
+      desc: "Tác phẩm được kiến tạo từng đường nét tỉ mỉ, dệt nên hình khối mềm mại, liền mạch và vững chãi.",
     },
     {
       num: "03",
@@ -191,7 +191,7 @@ export function MainHorizontalScroll({
     {
       title: "Nhẹ Nhàng & Bền Chắc",
       subtitle: "Cấu trúc vi mô vững chãi",
-      desc: "Cấu trúc uốn lượn ẩn sâu bên trong giúp vật thể nhẹ tênh trên bàn tay nhưng vô cùng bền bỉ, không sợ rơi vỡ hay biến dạng qua năm tháng.",
+      desc: "Cấu trúc uốn lượn ẩn sâu bên trong giúp tác phẩm nhẹ tênh trên bàn tay nhưng vô cùng bền bỉ, không sợ rơi vỡ hay biến dạng qua năm tháng.",
       icon: Feather,
       color: "from-amber-500/20 to-amber-700/10",
       badge: "Cấu Trúc",
@@ -215,7 +215,7 @@ export function MainHorizontalScroll({
     {
       title: "Kháng Nước Tự Nhiên",
       subtitle: "Tạo hình liền khối không mối nối",
-      desc: "Thiết kế nguyên khối không khe hở giúp vật thể kháng nước tự nhiên, an tâm tuyệt đối khi tưới cây xanh hay đặt những tách trà nóng.",
+      desc: "Thiết kế nguyên khối không khe hở giúp tác phẩm kháng nước tự nhiên, an tâm tuyệt đối khi tưới cây xanh hay đặt những tách trà nóng.",
       icon: Droplets,
       color: "from-blue-500/20 to-cyan-700/10",
       badge: "Công Năng",
@@ -300,7 +300,7 @@ export function MainHorizontalScroll({
               </div>
               <h3 className="font-serif font-bold text-lg text-black">Hữu ích (Function)</h3>
               <p className="text-xs text-[#5C564E] leading-relaxed font-sans">
-                Các vật thể được thiết kế để giải quyết bài toán không gian thực tế: tổ chức bàn làm việc ngăn nắp, điều phối ánh sáng và mang mảng xanh vào phòng.
+                Các thiết kế được kiến tạo để giải quyết bài toán không gian thực tế: tổ chức bàn làm việc ngăn nắp, điều phối ánh sáng và mang mảng xanh vào phòng.
               </p>
             </div>
 
@@ -365,6 +365,9 @@ export function MainHorizontalScroll({
                     {cat.description ||
                       `Khám phá các thiết kế không gian độc bản thuộc bộ sưu tập ${cat.name}.`}
                   </p>
+                  <span className="mt-3 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/20 hover:bg-[#FF9D00] hover:text-black backdrop-blur-md text-[11px] font-mono font-bold text-white border border-white/30 transition-all w-fit shadow-xs">
+                    Khám phá không gian →
+                  </span>
                 </div>
               </Link>
             ))}
@@ -381,7 +384,7 @@ export function MainHorizontalScroll({
                     FEATURED OBJECTS
                   </span>
                   <h2 className="text-2xl sm:text-3xl font-bold text-black font-serif mt-1">
-                    Vật thể thiết kế nổi bật
+                    Tác phẩm thiết kế nổi bật
                   </h2>
                 </div>
 
@@ -440,7 +443,7 @@ export function MainHorizontalScroll({
               Vẻ đẹp của sự Tinh giản &amp; Bền bỉ
             </h2>
             <p className="text-xs text-[#5C564E] mt-1 font-sans">
-              Những vật thể được tạo tác với sự chăm chút cho cảm giác sống ấm áp mỗi ngày.
+              Những tác phẩm được tạo tác với sự chăm chút cho cảm giác sống ấm áp mỗi ngày.
             </p>
           </div>
 
@@ -483,7 +486,7 @@ export function MainHorizontalScroll({
                 MADE BY BOO
               </span>
               <h2 className="text-2xl sm:text-3xl font-bold text-black font-serif mt-1">
-                Từ ý tưởng số đến vật thể thật
+                Từ bản vẽ ý tưởng đến tác phẩm hiện hữu
               </h2>
             </div>
 
@@ -822,6 +825,9 @@ export function MainHorizontalScroll({
                             {cat.description ||
                               `Khám phá các thiết kế không gian độc bản thuộc bộ sưu tập ${cat.name}.`}
                           </p>
+                          <span className="inline-flex items-center gap-1.5 mt-3 text-[11px] font-mono font-bold text-amber-300 bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/20 w-fit group-hover:bg-amber-400/20 group-hover:border-amber-400/40 transition-all">
+                            Khám phá không gian →
+                          </span>
                         </div>
                       </Link>
                     </motion.div>
@@ -839,7 +845,7 @@ export function MainHorizontalScroll({
                       THE CORE PORTFOLIO
                     </span>
                     <h2 className="text-4xl font-bold text-black font-serif mt-2">
-                      Vật thể thiết kế nổi bật
+                      Tác phẩm thiết kế nổi bật
                     </h2>
                   </div>
 
@@ -872,6 +878,15 @@ export function MainHorizontalScroll({
                     <ProductCard key={prod.id} product={prod} />
                   ))}
                 </div>
+
+                <div className="flex justify-center pt-4">
+                  <Link
+                    href="/shop"
+                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-black text-white text-xs font-mono font-bold uppercase tracking-wider hover:bg-[#33302C] transition-all shadow-md hover:shadow-lg"
+                  >
+                    Xem toàn bộ bộ sưu tập →
+                  </Link>
+                </div>
               </div>
             </div>
 
@@ -886,7 +901,7 @@ export function MainHorizontalScroll({
                     Vẻ đẹp của sự Tinh giản &amp; Bền bỉ
                   </h2>
                   <p className="text-xs text-[#5C564E] font-sans mt-1">
-                    Những vật thể được tạo tác với sự chăm chút cho cảm giác sống ấm áp mỗi ngày.
+                    Những tác phẩm được tạo tác với sự chăm chút cho cảm giác sống ấm áp mỗi ngày.
                   </p>
                 </div>
 
@@ -928,12 +943,12 @@ export function MainHorizontalScroll({
               title={
                 typeof config?.how_it_works_title === "string"
                   ? config.how_it_works_title
-                  : "Từ ý tưởng số đến vật thể thật"
+                  : "Từ ý tưởng đến tác phẩm thật"
               }
               tagline={
                 typeof config?.how_it_works_tagline === "string"
                   ? config.how_it_works_tagline
-                  : "QUY TRÌNH TẠO TÁC VẬT THỂ SỐNG"
+                  : "QUY TRÌNH TẠO TÁC TÁC PHẨM SỐNG"
               }
             />
 
@@ -1051,7 +1066,7 @@ export function MainHorizontalScroll({
                       </p>
                     )}
                     <p className="text-[10px] font-mono text-neutral-400 uppercase tracking-widest mt-2">
-                      BOO SPACE • VẬT THỂ THIẾT KẾ CHO KHÔNG GIAN CÓ CẢM XÚC
+                      BOO SPACE • TÁC PHẨM THIẾT KẾ CHO KHÔNG GIAN CÓ CẢM XÚC
                     </p>
                   </div>
                   <div className="w-72 shrink-0">

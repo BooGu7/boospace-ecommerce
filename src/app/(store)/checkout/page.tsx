@@ -811,7 +811,7 @@ export default function CheckoutPage() {
                   >
                     <div className="flex justify-between items-center w-full">
                       <span className="text-xs font-mono font-bold text-[#FF9D00] flex items-center gap-1.5">
-                        <QrCode className="size-4 text-[#FF9D00]" /> 01 / VIETQR
+                        <QrCode className="size-4 text-[#FF9D00]" /> 01 / QR NGÂN HÀNG
                       </span>
                       <span
                         className={`size-4 rounded-full border-4 ${
@@ -823,11 +823,10 @@ export default function CheckoutPage() {
                     </div>
                     <div className="space-y-1 mt-3">
                       <h4 className="font-serif text-sm font-bold text-black leading-tight">
-                        Chuyển khoản VietQR tự động
+                        Quét mã QR Ngân hàng (Tự động)
                       </h4>
                       <p className="text-[10px] font-sans text-[#786F66] leading-relaxed">
-                        Quét mã QR qua App Ngân hàng, đối soát tự động trong 5
-                        giây.
+                        Mở app ngân hàng quét mã QR, hệ thống tự động xác nhận trong vài giây.
                       </p>
                     </div>
                   </div>
@@ -842,8 +841,7 @@ export default function CheckoutPage() {
                   >
                     <div className="flex justify-between items-center w-full">
                       <span className="text-xs font-mono font-bold text-[#786F66] flex items-center gap-1.5">
-                        <Banknote className="size-4 text-emerald-600" /> 02 /
-                        COD
+                        <Banknote className="size-4 text-emerald-600" /> 02 / COD
                       </span>
                       <span
                         className={`size-4 rounded-full border-4 ${
@@ -855,11 +853,10 @@ export default function CheckoutPage() {
                     </div>
                     <div className="space-y-1 mt-3">
                       <h4 className="font-serif text-sm font-bold text-black leading-tight">
-                        Thanh toán khi nhận hàng
+                        Thanh toán khi nhận hàng (COD)
                       </h4>
                       <p className="text-[10px] font-sans text-[#786F66] leading-relaxed">
-                        Thanh toán tiền mặt cho shipper ngay khi kiểm tra và
-                        nhận hàng thành công.
+                        Kiểm tra kiện hàng và thanh toán tiền mặt trực tiếp khi nhận hàng.
                       </p>
                     </div>
                   </div>

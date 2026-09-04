@@ -121,7 +121,7 @@ export function VietQRPayment({
             isPaidRef.current = true;
             setIsPaid(true);
             toast.success(
-              "Xác nhận thanh toán PayOS thành công! Boo Space đang bắt đầu chuẩn bị vật thể cho bạn ✨",
+              "Thanh toán thành công! Boo Space đang chuẩn bị tác phẩm cho bạn ✨",
             );
             onSuccess?.();
             return true;
@@ -267,7 +267,7 @@ export function VietQRPayment({
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={qrDisplayUrl}
-          alt={`Mã VietQR thanh toán đơn hàng ${orderId}`}
+          alt={`Mã QR thanh toán đơn hàng ${orderId}`}
           className={`object-contain size-full transition-all duration-300 ${
             isExpired ? "blur-md opacity-30" : ""
           }`}
@@ -319,7 +319,7 @@ export function VietQRPayment({
           rel="noreferrer"
           className="w-full h-10 bg-[#FF9D00] hover:bg-[#E68A00] text-black font-mono uppercase text-xs font-bold tracking-wider rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-xs"
         >
-          <ExternalLink className="size-4" /> Mở trang thanh toán PayOS
+          <ExternalLink className="size-4" /> Mở trang thanh toán ngân hàng
         </a>
       )}
 

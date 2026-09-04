@@ -56,7 +56,7 @@ const faqSections = [
       },
       {
         q: "06. Tôi có thể thanh toán đơn hàng bằng những phương thức nào?",
-        a: "Chúng tôi cung cấp hai phương thức giao dịch tối giản và bảo mật tuyệt đối:\n\n1. Chuyển khoản VietQR tự động: Giao diện thanh toán khởi tạo mã VietQR động chứa chính xác số tiền và cú pháp mã đơn hàng. Hệ thống PayOS tự động xác nhận trạng thái 'Đã thanh toán' trong vài giây.\n2. Thanh toán khi nhận hàng (COD): Áp dụng cho đơn hàng tiêu chuẩn trên toàn quốc. Bạn thanh toán tiền mặt trực tiếp cho nhân viên giao hàng của GHN / Viettel Post sau khi kiểm hàng thành công.",
+        a: "Chúng tôi cung cấp hai phương thức giao dịch tối giản và an toàn tuyệt đối:\n\n1. Quét mã QR Ngân hàng (Tự động): Hệ thống tạo mã QR chứa chính xác số tiền và cú pháp đơn hàng. Bạn chỉ cần mở app ngân hàng quét mã, hệ thống tự động xác nhận đã thanh toán trong vài giây mà không cần chụp màn hình.\n2. Thanh toán khi nhận hàng (COD): Áp dụng cho mọi đơn hàng tiêu chuẩn trên toàn quốc. Bạn kiểm tra kiện hàng và thanh toán tiền mặt trực tiếp cho nhân viên giao hàng khi nhận.",
       },
       {
         q: "07. Tôi có được đồng kiểm (kiểm tra hàng) khi nhận không?",

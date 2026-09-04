@@ -1,8 +1,8 @@
 import type { MetadataRoute } from "next";
+import { siteConfig } from "@/lib/config";
 import { brandRepository, categoryRepository, productRepository } from "@/lib/repositories";
 
-// TỰ KHÔI PHỤC ĐƯỜNG DẪN: Ưu tiên đọc biến môi trường, tự động chuyển về tên miền chính thức nếu rỗng
-const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_BASE_URL || "https://www.boospace.tech"; // Mặc định tên miền chính thức của bạn
+const baseUrl = siteConfig.url;
 
 // Các đường dẫn tĩnh công khai
 const STATIC_PATHS = [

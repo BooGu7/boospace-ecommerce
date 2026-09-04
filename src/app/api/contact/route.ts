@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { siteConfig } from "@/lib/config";
 
 export async function POST(req: Request) {
   try {
@@ -20,7 +21,7 @@ export async function POST(req: Request) {
     // 1. Lưu bản ghi liên hệ vào table contact_messages của Supabase
     const { error: dbError } = await supabase
       .from("contact_messages")
-      .insert([{ name, email, subject, message }]);
+      .insert([{ name, email, subject, message, status: "unread" }]);
 
     if (dbError) {
       throw dbError;
@@ -38,7 +39,7 @@ export async function POST(req: Request) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from: "Boo Space Studio <support@boospace.tech>",
+          from: `Boo Space Studio <${siteConfig.contact.supportEmail}>`,
           to: adminEmail,
           subject: `📬 [LIÊN HỆ MỚI] ${subject || "Từ khách hàng"}`,
           html: `

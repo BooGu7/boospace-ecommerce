@@ -27,7 +27,7 @@ export async function generateMetadata({ searchParams }: ShopPageProps): Promise
   const canonical = page > 1 ? `${siteConfig.url}/shop?page=${page}` : `${siteConfig.url}/shop`;
 
   return {
-    title: "Cửa hàng — Boo Space | Vật thể thiết kế không gian sống",
+    title: "Cửa hàng — Boo Space | Tác phẩm thiết kế không gian sống",
     description: "Khám phá các thiết kế đèn ambient khúc xạ, chậu cây tự tưới và phụ kiện workspace tối giản, ấm áp tại Boo Space ✨",
     alternates: { canonical },
   };
@@ -90,7 +90,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
                 ? (categories.find((c) => c.slug === categorySlug)?.name ?? "Cửa hàng")
                 : searchQuery
                   ? `Kết quả cho "${searchQuery}"`
-                  : "Vật Thể Thiết Kế Cho Không Gian Có Hồn"}
+                  : "Tác Phẩm Thiết Kế Cho Không Gian Có Hồn"}
             </h1>
 
             <p className="text-sm text-[#5C564E] font-sans leading-relaxed">
@@ -99,7 +99,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
 
             <p className="text-xs font-mono text-[#786F66] uppercase tracking-wider flex items-center gap-1.5 pt-1">
               <LayoutGrid className="size-3.5 text-amber-600" />
-              Có {pagination.total} vật thể đang có sẵn
+              Có {pagination.total} tác phẩm đang có sẵn
             </p>
           </div>
 
@@ -161,7 +161,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
             <ProductGrid products={products} />
           ) : (
             <div className="py-24 text-center border border-[#E1DDD5] border-dashed rounded-3xl text-sm text-[#786F66] font-mono bg-[#EAE5D9]/10 space-y-2">
-              <p className="font-serif text-lg text-black font-bold">Không tìm thấy vật thể phù hợp</p>
+              <p className="font-serif text-lg text-black font-bold">Không tìm thấy tác phẩm phù hợp</p>
               <p className="text-xs text-[#5C564E]">Hãy thử chọn một không gian khác hoặc quay lại khám phá tất cả các sản phẩm.</p>
             </div>
           )}

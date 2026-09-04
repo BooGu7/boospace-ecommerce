@@ -227,7 +227,7 @@ function CheckoutSuccessContent() {
                     </span>
                     <span className="font-bold text-black">
                       {isVietQR
-                        ? "Chuyển khoản VietQR"
+                        ? "Quét mã QR Ngân hàng"
                         : "Thanh toán khi nhận hàng (COD)"}
                     </span>
                   </div>

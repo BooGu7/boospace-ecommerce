@@ -46,7 +46,7 @@ export async function sendResetEmail(email: string, resetUrl: string) {
   }
 
   const { data, error } = await resend.emails.send({
-    from: "Boo Space <support@boospace.tech>",
+    from: `Boo Space <${siteConfig.contact.supportEmail}>`,
     to: email,
     subject: "✨ Đặt lại mật khẩu tài khoản Boo Space",
     html: `
@@ -200,13 +200,13 @@ export async function sendOrderConfirmationEmail(
               </div>
               <div><strong>Người nhận:</strong> ${customerName} • ${customerPhone}</div>
               <div><strong>Địa chỉ:</strong> ${shippingAddress}</div>
-              <div><strong>Phương thức:</strong> ${paymentMethod === "VietQR" ? "Chuyển khoản VietQR tự động" : "Thanh toán khi nhận hàng (COD)"}</div>
+              <div><strong>Phương thức:</strong> ${paymentMethod === "VietQR" || paymentMethod === "vietqr" ? "Quét mã QR Ngân hàng (Tự động)" : "Thanh toán khi nhận hàng (COD)"}</div>
               ${notes ? `<div><strong>Ghi chú:</strong> <em>${notes}</em></div>` : ""}
             </div>
 
             <!-- Nút xem đơn hàng -->
             <div style="text-align: center; margin-top: 28px;">
-              <a href="https://www.boospace.tech/checkout/success?order_id=${orderCode}" style="background-color: #ff9d00; color: #000000; padding: 12px 28px; text-decoration: none; border-radius: 12px; font-weight: bold; font-family: monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; display: inline-block;">
+              <a href="${siteConfig.url}/checkout/success?order_id=${orderCode}" style="background-color: #ff9d00; color: #000000; padding: 12px 28px; text-decoration: none; border-radius: 12px; font-weight: bold; font-family: monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; display: inline-block;">
                 Tra cứu đơn hàng trực tiếp →
               </a>
             </div>
@@ -224,7 +224,7 @@ export async function sendOrderConfirmationEmail(
 
   try {
     const { data, error } = await resend.emails.send({
-      from: "Boo Space Studio <support@boospace.tech>",
+      from: `Boo Space Studio <${siteConfig.contact.supportEmail}>`,
       to: customerEmail,
       subject: `✨ Xác nhận đơn hàng #${orderCode} tại Boo Space Studio`,
       html: emailHtml,

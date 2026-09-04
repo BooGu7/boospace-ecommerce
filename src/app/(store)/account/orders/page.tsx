@@ -193,7 +193,7 @@ export default function OrdersPage() {
             const pInfo = productMap[oi.product_id];
             return {
               id: oi.id || `${o.id}-item-${idx}`,
-              name: pInfo?.name || "Vật thể thiết kế Boo Space",
+              name: pInfo?.name || "Tác phẩm thiết kế Boo Space",
               variantName: "Mặc định",
               quantity: Number(oi.quantity ?? 1),
               price: Number(oi.unit_price ?? 0),

@@ -1,7 +1,7 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
-import { Sparkles, Sun, Sunset } from "lucide-react";
+import { motion } from "framer-motion";
+import { Sun, Sunset } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useHydrated } from "@/hooks/use-hydrated";
 
@@ -22,7 +22,7 @@ const MODES: {
   {
     id: "sunset",
     label: "Hoàng hôn",
-    sublabel: "Hổ phách dịu mắt (Daylight)",
+    sublabel: "Hổ phách dịu mắt",
     icon: Sunset,
   },
 ];
@@ -30,7 +30,6 @@ const MODES: {
 export function CalmAmbientSwitcher() {
   const [mode, setMode] = useState<AmbientMode>("sunlight");
   const mounted = useHydrated();
-  const [showTooltip, setShowTooltip] = useState(false);
 
   useEffect(() => {
     try {
@@ -38,10 +37,12 @@ export function CalmAmbientSwitcher() {
       if (saved && ["sunlight", "sunset"].includes(saved)) {
         const timer = setTimeout(() => {
           setMode(saved);
+          document.documentElement.setAttribute("data-ambient", saved);
           document.documentElement.setAttribute("data-ambient-mode", saved);
         }, 0);
         return () => clearTimeout(timer);
       } else {
+        document.documentElement.setAttribute("data-ambient", "sunlight");
         document.documentElement.setAttribute("data-ambient-mode", "sunlight");
         localStorage.setItem("boo-ambient-mode", "sunlight");
       }
@@ -51,6 +52,7 @@ export function CalmAmbientSwitcher() {
   const handleChangeMode = (newMode: AmbientMode) => {
     setMode(newMode);
     localStorage.setItem("boo-ambient-mode", newMode);
+    document.documentElement.setAttribute("data-ambient", newMode);
     document.documentElement.setAttribute("data-ambient-mode", newMode);
   };
 
@@ -59,15 +61,13 @@ export function CalmAmbientSwitcher() {
   return (
     <aside
       role="region"
-      aria-label="Bộ chuyển đổi ánh sáng tĩnh lặng (Daylight Ambient Mode)"
+      aria-label="Bộ chuyển đổi ánh sáng tĩnh lặng (Calm Ambient Mode)"
       className="fixed bottom-20 sm:bottom-6 left-4 sm:left-6 z-40 flex items-center select-none"
     >
       <div
         role="radiogroup"
         aria-label="Lựa chọn chế độ ánh sáng"
         className="relative flex items-center bg-[#FCFAF2]/95 backdrop-blur-md border border-[#E1DDD5] rounded-full p-1 shadow-lg shadow-black/5"
-        onMouseEnter={() => setShowTooltip(true)}
-        onMouseLeave={() => setShowTooltip(false)}
       >
         {MODES.map((m) => {
           const Icon = m.icon;
@@ -111,29 +111,6 @@ export function CalmAmbientSwitcher() {
           );
         })}
       </div>
-
-      {/* TOOLTIP GIẢI THÍCH TRIẾT LÝ DAYLIGHT */}
-      <AnimatePresence>
-        {showTooltip && (
-          <motion.div
-            id="calm-ambient-tooltip"
-            role="tooltip"
-            initial={{ opacity: 0, y: 8, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 6, scale: 0.96 }}
-            transition={{ duration: 0.15 }}
-            className="absolute bottom-12 left-0 w-64 p-3 bg-slate-900/95 text-white backdrop-blur-md rounded-2xl shadow-xl border border-white/10 text-left pointer-events-none"
-          >
-            <div className="flex items-center gap-1.5 text-[10px] font-mono text-amber-300 font-bold uppercase tracking-wider mb-1">
-              <Sparkles className="size-3" /> Calm Ambient Mode
-            </div>
-            <p className="text-[11px] font-sans text-neutral-200 leading-relaxed">
-              Lấy cảm hứng từ <em>Daylight Computer</em>: Điều chỉnh tông màu ấm
-              để loại bỏ ánh sáng xanh, bảo vệ mắt và nuôi dưỡng sự tĩnh lặng.
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </aside>
   );
 }
