@@ -279,7 +279,11 @@ export function ProductDetailView({
         </Breadcrumb>
 
         <div className="mt-8 grid gap-8 lg:grid-cols-2 lg:gap-16 items-start pb-16 border-b border-[#E1DDD5]/60">
-          <ProductGallery images={product.images} productName={product.name} />
+          <ProductGallery
+            images={product.images}
+            productName={product.name}
+            videoUrl={product.video_url}
+          />
 
           <div className="flex flex-col text-left">
             <div>

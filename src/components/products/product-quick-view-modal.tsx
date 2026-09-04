@@ -7,6 +7,7 @@ import {
   Feather,
   Heart,
   Palette,
+  Play,
   ShieldCheck,
   ShoppingBag,
   Sparkles,
@@ -175,17 +176,28 @@ export function ProductQuickViewModal({
           {/* CỘT TRÁI: GALLERY ẢNH & THÔNG SỐ VẬT LIỆU */}
           <div className="md:col-span-6 p-6 sm:p-8 bg-[#F7F4EB] border-b md:border-b-0 md:border-r border-[#E1DDD5] flex flex-col justify-between space-y-6">
             <div className="space-y-4">
-              {/* ẢNH CHÍNH */}
+              {/* ẢNH CHÍNH HOẶC VIDEO */}
               <div className="relative aspect-square w-full rounded-3xl overflow-hidden border border-[#E1DDD5] bg-white shadow-sm group">
-                <Image
-                  src={currentImg}
-                  alt={product.name}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  className={`object-cover mix-blend-multiply transition-transform duration-500 group-hover:scale-105 ${
-                    isOutOfStock ? "opacity-60 grayscale-[30%]" : "opacity-95"
-                  }`}
-                />
+                {selectedImageIndex === -1 && product.video_url ? (
+                  <video
+                    src={product.video_url}
+                    controls
+                    autoPlay
+                    loop
+                    playsInline
+                    className="w-full h-full object-cover rounded-3xl"
+                  />
+                ) : (
+                  <Image
+                    src={currentImg}
+                    alt={product.name}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className={`object-cover mix-blend-multiply transition-transform duration-500 group-hover:scale-105 ${
+                      isOutOfStock ? "opacity-60 grayscale-[30%]" : "opacity-95"
+                    }`}
+                  />
+                )}
 
                 {/* BADGE TỒN KHO & SALE */}
                 <div className="absolute top-4 left-4 flex flex-col gap-1.5 z-10">
@@ -215,8 +227,8 @@ export function ProductQuickViewModal({
                 </button>
               </div>
 
-              {/* THUMBNAILS NẾU CÓ NHIỀU ẢNH */}
-              {images.length > 1 && (
+              {/* THUMBNAILS NẾU CÓ NHIỀU ẢNH HOẶC CÓ VIDEO */}
+              {(images.length > 1 || Boolean(product.video_url)) && (
                 <div className="flex items-center gap-3 overflow-x-auto pb-2">
                   {images.map((img, idx) => (
                     <button
@@ -238,6 +250,23 @@ export function ProductQuickViewModal({
                       />
                     </button>
                   ))}
+
+                  {/* NÚT THUMBNAIL VIDEO */}
+                  {product.video_url && (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedImageIndex(-1)}
+                      className={`relative size-16 rounded-2xl overflow-hidden border-2 shrink-0 transition-all cursor-pointer bg-slate-950 text-white flex flex-col items-center justify-center gap-1 ${
+                        selectedImageIndex === -1
+                          ? "border-amber-500 ring-2 ring-amber-500/40"
+                          : "border-slate-800 opacity-80 hover:opacity-100"
+                      }`}
+                      aria-label="Xem video sản phẩm"
+                    >
+                      <Play className="size-4 fill-amber-400 text-amber-400" />
+                      <span className="text-[9px] font-mono uppercase tracking-wider font-bold">Video</span>
+                    </button>
+                  )}
                 </div>
               )}
             </div>
