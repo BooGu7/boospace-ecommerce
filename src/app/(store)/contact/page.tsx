@@ -431,8 +431,13 @@ export default function ContactPage() {
                     <Textarea
                       id="message"
                       name="message"
-                      placeholder="Mô tả chi tiết ý tưởng hoặc mong muốn thiết kế không gian của bạn..."
-                      rows={5}
+                      placeholder={`Để Boo Space hỗ trợ nhanh nhất, bạn hãy cho biết:
+1. Sản phẩm bạn muốn làm là gì?
+2. Kích thước & số lượng dự kiến?
+3. Chất liệu (PLA, Resin, ABS...) & màu sắc/sơn hoàn thiện mong muốn?
+4. Bạn đã có file 3D hay chỉ có hình ảnh/ý tưởng?
+5. Thời gian bạn cần nhận hàng?`}
+                      rows={6}
                       value={form.message}
                       onChange={handleChange}
                       required
@@ -443,8 +448,8 @@ export default function ContactPage() {
                   {/* ĐÍNH KÈM TỆP 3D & BẢN VẼ (TỐI ĐA 5MB) */}
                   <div className="space-y-2 text-left">
                     <Label className="text-[11px] font-mono font-bold text-[#5c544d] uppercase tracking-wider block">
-                      Tệp đính kèm bản phác thảo / hình ảnh ý tưởng
-                      (Nếu có) (Tối đa 5MB)
+                      Tệp đính kèm bản phác thảo / hình ảnh ý tưởng (Nếu có)
+                      (Tối đa 5MB)
                     </Label>
 
                     {!attachedFile ? (

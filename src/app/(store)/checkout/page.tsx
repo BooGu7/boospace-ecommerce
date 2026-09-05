@@ -692,7 +692,7 @@ export default function CheckoutPage() {
                   <Input
                     id="line1"
                     name="line1"
-                    placeholder="Ví dụ: 19/16 Lam Sơn, Phường Đức Nhuận..."
+                    placeholder="Ví dụ: Số nhà, Tên Đường,..."
                     value={form.line1}
                     onChange={handleChange}
                     required
@@ -811,7 +811,8 @@ export default function CheckoutPage() {
                   >
                     <div className="flex justify-between items-center w-full">
                       <span className="text-xs font-mono font-bold text-[#FF9D00] flex items-center gap-1.5">
-                        <QrCode className="size-4 text-[#FF9D00]" /> 01 / QR NGÂN HÀNG
+                        <QrCode className="size-4 text-[#FF9D00]" /> 01 / QR
+                        NGÂN HÀNG
                       </span>
                       <span
                         className={`size-4 rounded-full border-4 ${
@@ -826,7 +827,8 @@ export default function CheckoutPage() {
                         Quét mã QR Ngân hàng (Tự động)
                       </h4>
                       <p className="text-[10px] font-sans text-[#786F66] leading-relaxed">
-                        Mở app ngân hàng quét mã QR, hệ thống tự động xác nhận trong vài giây.
+                        Mở app ngân hàng quét mã QR, hệ thống tự động xác nhận
+                        trong vài giây.
                       </p>
                     </div>
                   </div>
@@ -841,7 +843,8 @@ export default function CheckoutPage() {
                   >
                     <div className="flex justify-between items-center w-full">
                       <span className="text-xs font-mono font-bold text-[#786F66] flex items-center gap-1.5">
-                        <Banknote className="size-4 text-emerald-600" /> 02 / COD
+                        <Banknote className="size-4 text-emerald-600" /> 02 /
+                        COD
                       </span>
                       <span
                         className={`size-4 rounded-full border-4 ${
@@ -856,7 +859,8 @@ export default function CheckoutPage() {
                         Thanh toán khi nhận hàng (COD)
                       </h4>
                       <p className="text-[10px] font-sans text-[#786F66] leading-relaxed">
-                        Kiểm tra kiện hàng và thanh toán tiền mặt trực tiếp khi nhận hàng.
+                        Kiểm tra kiện hàng và thanh toán tiền mặt trực tiếp khi
+                        nhận hàng.
                       </p>
                     </div>
                   </div>

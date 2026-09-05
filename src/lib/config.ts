@@ -3,8 +3,12 @@
 // ============================================================================
 
 const rawDomain = process.env.NEXT_PUBLIC_SITE_DOMAIN || "boospace.tech";
-const rawBaseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_BASE_URL || `https://www.${rawDomain}`;
-const rawAdminUrl = process.env.NEXT_PUBLIC_ADMIN_URL || `https://admin.${rawDomain}`;
+const rawBaseUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  process.env.NEXT_PUBLIC_BASE_URL ||
+  `https://www.${rawDomain}`;
+const rawAdminUrl =
+  process.env.NEXT_PUBLIC_ADMIN_URL || `https://admin.${rawDomain}`;
 
 export const siteConfig = {
   // 🌐 CẤU HÌNH TÊN MIỀN TẬP TRUNG (Dễ dàng thay đổi trong tương lai)
@@ -31,7 +35,7 @@ export const siteConfig = {
     hotline: "0972.306.562",
     workingHours: "08:00 – 18:00 (Thứ Hai – Thứ Bảy)",
     address: {
-      street: "19/16 Lam Sơn, Phường Đức Nhuận",
+      street: "Đường Lam Sơn, Phường Đức Nhuận",
       suite: "",
       city: "Thành phố Thủ Đức, TP. Hồ Chí Minh",
       state: "Hồ Chí Minh",
