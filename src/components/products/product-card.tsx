@@ -63,19 +63,29 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
   const [quickViewOpen, setQuickViewOpen] = useState(false);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const isHoveringRef = useRef(false);
 
   // CozyLight-style: auto-play video on hover
   const videoUrl = product.video_url;
 
   const handleMouseEnter = useCallback(() => {
+    isHoveringRef.current = true;
     if (videoUrl && videoRef.current) {
-      videoRef.current.currentTime = 0;
-      videoRef.current.play().catch(() => {});
-      setIsVideoPlaying(true);
+      const video = videoRef.current;
+      video.currentTime = 0;
+      void video
+        .play()
+        .then(() => {
+          if (isHoveringRef.current && videoRef.current === video) {
+            setIsVideoPlaying(true);
+          }
+        })
+        .catch(() => setIsVideoPlaying(false));
     }
   }, [videoUrl]);
 
   const handleMouseLeave = useCallback(() => {
+    isHoveringRef.current = false;
     if (videoRef.current) {
       videoRef.current.pause();
       videoRef.current.currentTime = 0;
@@ -108,9 +118,10 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
   const isOutOfStock = currentStock <= 0;
 
   const imgUrl =
-    typeof product.images?.[0] === "string"
+    product.thumbnail_url ||
+    (typeof product.images?.[0] === "string"
       ? product.images[0]
-      : (product.images?.[0]?.url ?? PLACEHOLDER_IMAGE);
+      : (product.images?.[0]?.url ?? PLACEHOLDER_IMAGE));
 
   const imgAlt =
     typeof product.images?.[0] === "string"
@@ -208,6 +219,8 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
                 loop
                 playsInline
                 preload="metadata"
+                poster={imgUrl}
+                onError={() => setIsVideoPlaying(false)}
                 className={`absolute inset-0 w-full h-full object-cover rounded-[26px] transition-opacity duration-500 ${
                   isVideoPlaying ? "opacity-100" : "opacity-0"
                 }`}

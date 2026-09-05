@@ -101,6 +101,8 @@ function mapDbProductToStorefront(dbProduct: any): Product {
     categoryIds: dbProduct.category_id ? [dbProduct.category_id] : [],
     brandId: dbProduct.brand_id,
     stock: dbProduct.stock ?? 0,
+    thumbnail_url: dbProduct.thumbnail_url || null,
+    video_url: dbProduct.video_url || null,
     tags: [],
     variants: [defaultVariant],
     attributes: dbProduct.attributes || {},

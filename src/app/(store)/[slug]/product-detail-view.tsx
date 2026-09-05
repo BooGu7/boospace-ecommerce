@@ -283,6 +283,7 @@ export function ProductDetailView({
             images={product.images}
             productName={product.name}
             videoUrl={product.video_url}
+            thumbnailUrl={product.thumbnail_url}
           />
 
           <div className="flex flex-col text-left">

@@ -73,6 +73,8 @@ function mapDbProductToStorefront(dbProduct: any): Product | null {
     categoryIds: dbProduct.category_id ? [dbProduct.category_id] : [],
     brandId: dbProduct.brand_id || "",
     stock: dbProduct.stock ?? 0,
+    thumbnail_url: dbProduct.thumbnail_url || null,
+    video_url: dbProduct.video_url || null,
     tags: [],
     variants: [defaultVariant],
     // 🌟 ĐÃ BỔ SUNG rating VÀ reviewCount ĐỂ KHỚP 100% VỚI KIỂU Product

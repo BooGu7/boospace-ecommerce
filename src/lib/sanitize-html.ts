@@ -85,17 +85,28 @@ export function sanitizeBlogContent(dirtyHtml: string): string {
     },
   );
 
-  // 4. Bọc các iframe/video vào khung tỉ lệ 16:9 (aspect-video) nếu chưa có
-  html = html.replace(
-    /(<iframe\s+[^>]*?src=["']https:\/\/www\.youtube-nocookie\.com\/embed\/[^"']+["'][^>]*?>\s*<\/iframe>)/gi,
-    (match) => {
-      return `<div class="aspect-video w-full my-6 rounded-2xl overflow-hidden shadow-md border border-stone-200 bg-black">${match}</div>`;
-    },
-  );
+  // 4. Bọc iframe YouTube vào khung 16:9, trừ khi nội dung đã có wrapper tương tự.
+  const youtubeIframePattern =
+    /<iframe\b[^>]*\bsrc=["']https:\/\/www\.youtube-nocookie\.com\/embed\/[^"']+["'][^>]*>[\s\S]*?<\/iframe>/gi;
+  html = html.replace(youtubeIframePattern, (iframe, offset, source) => {
+    const parentOpen = source.lastIndexOf("<div", offset);
+    const parentClose = source.lastIndexOf("</div>", offset);
+    const parentTagEnd = parentOpen >= 0 ? source.indexOf(">", parentOpen) : -1;
+    const alreadyWrapped =
+      parentOpen > parentClose &&
+      parentTagEnd >= 0 &&
+      /\bclass=["'][^"']*\baspect-video\b[^"']*["']/i.test(
+        source.slice(parentOpen, parentTagEnd + 1),
+      );
 
-  // 5. Xóa các thẻ iframe rỗng hoặc cú pháp lỗi (src=" class=...)
+    return alreadyWrapped
+      ? iframe
+      : `<div class="aspect-video w-full my-6 rounded-2xl overflow-hidden shadow-md border border-stone-200 bg-black">${iframe}</div>`;
+  });
+
+  // 5. Chỉ xóa iframe có src rỗng, không xóa iframe YouTube hợp lệ.
   html = html.replace(
-    /<iframe\s+src=["']?\s*(?:class=)?["']?[^>]*><\/iframe>/gi,
+    /<iframe\b[^>]*\bsrc\s*=\s*(?:"\s*"|'\s*')[^>]*>\s*<\/iframe>/gi,
     "",
   );
 

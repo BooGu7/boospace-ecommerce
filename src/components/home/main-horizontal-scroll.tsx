@@ -9,6 +9,7 @@ import {
   type Variants,
 } from "framer-motion";
 import {
+  ArrowUpRight,
   Droplets,
   Feather,
   Heart,
@@ -66,14 +67,6 @@ const imageParallax: Variants = {
   },
 };
 
-const SPACES_MAP: Record<string, { name: string; icon: React.ComponentType<{ className?: string }>; color: string; bg: string; slug: string }> = {
-  all: { name: "Tất cả", icon: Sparkles, color: "text-amber-700", bg: "bg-amber-100/70", slug: "all" },
-  workspace: { name: "Work — Góc Sáng Tạo", icon: Monitor, color: "text-blue-700", bg: "bg-blue-100/70", slug: "workspace" },
-  "smart-planters": { name: "Green — Sống Gần Thiên Nhiên", icon: Leaf, color: "text-emerald-700", bg: "bg-emerald-100/70", slug: "smart-planters" },
-  "ambient-lights": { name: "Rest — Khoảnh Khắc Thư Giãn", icon: Moon, color: "text-amber-700", bg: "bg-amber-100/70", slug: "ambient-lights" },
-  "home-decor": { name: "Home — Dấu Ấn Cá Nhân", icon: Home, color: "text-rose-700", bg: "bg-rose-100/70", slug: "home-decor" },
-};
-
 export function MainHorizontalScroll({
   categories = [],
   featuredProducts = [],
@@ -107,23 +100,64 @@ export function MainHorizontalScroll({
       ? config.manifesto_desc
       : "Một vùng ánh sáng ấm. Một mảng xanh nhỏ. Một chiếc bàn gọn gàng. Một tác phẩm được đặt đúng chỗ.\n\nNhững điều nhỏ ấy có thể thay đổi cảm giác của cả một không gian sống.\n\nBoo Space tạo ra những tác phẩm thiết kế cho những khoảnh khắc rất đời thường — làm việc, sáng tạo, nghỉ ngơi và tận hưởng.";
 
-  const slide1Tag = (config.slide1_tag as string) || "REST — KHOẢNH KHẮC THƯ GIÃN";
-  const slide1Title =
-    (config.slide1_title as string) || "Liệu pháp thị giác cho những đêm tư duy sâu";
-  const slide1Desc =
-    (config.slide1_desc as string) ||
-    "Loại bỏ hoàn toàn những nguồn sáng gắt gây căng thẳng thị giác. Chúng tôi ứng dụng cấu trúc tán xạ ánh sáng tự nhiên để biến nguồn sáng thô thành vệt sáng ấm áp, bảo vệ đôi mắt và đem lại sự bình yên trong tâm hồn bạn mỗi đêm.";
-  const slide1Image =
-    (config.slide1_image as string) || (config.diy_image as string) || "https://amukhgkamrokbbcjgusf.supabase.co/storage/v1/object/public/product-images/assets/2-1787021002298.jpg";
+  const readConfig = (key: string, fallback: string) =>
+    typeof config[key] === "string" && config[key] ? (config[key] as string) : fallback;
 
-  const slide2Tag = (config.slide2_tag as string) || "GREEN — SỐNG GẦN THIÊN NHIÊN";
-  const slide2Title =
-    (config.slide2_title as string) || "Khi thiên nhiên đồng hành cùng sự ngăn nắp";
-  const slide2Desc =
-    (config.slide2_desc as string) ||
-    "Một mầm sống nhỏ trên bàn làm việc là bộ lọc tự nhiên giải tỏa áp lực tinh thần. Dòng chậu cây tối giản tích hợp ngăn chứa nước thông minh, giữ cho mặt bàn luôn khô ráo, sạch sẽ và thanh lịch mà không đòi hỏi chăm sóc cầu kỳ.";
-  const slide2Image =
-    (config.slide2_image as string) || (config.tech_image as string) || "https://amukhgkamrokbbcjgusf.supabase.co/storage/v1/object/public/product-images/assets/1787020404841-ug5le.jpg";
+  const livingSpaces = [
+    {
+      key: "work",
+      categorySlug: "workspace",
+      tag: readConfig("space_work_tag", "WORK — GÓC SÁNG TẠO"),
+      title: readConfig("space_work_title", "Kiến tạo trật tự cho dòng chảy sáng tạo"),
+      desc: readConfig("space_work_desc", "Những phụ kiện modular giúp góc làm việc gọn gàng, tập trung và sẵn sàng cho ý tưởng mới."),
+      image: readConfig("space_work_image", readConfig("hero_image", "https://amukhgkamrokbbcjgusf.supabase.co/storage/v1/object/public/product-images/assets/hero-desk-setup.jpg")),
+      href: readConfig("space_work_link", "/shop?category=workspace"),
+      icon: Monitor,
+      surface: "bg-gradient-to-br from-[#FAF7F0] to-[#EAF0F7]",
+    },
+    {
+      key: "green",
+      categorySlug: "smart-planters",
+      tag: readConfig("space_green_tag", readConfig("slide2_tag", "GREEN — SỐNG GẦN THIÊN NHIÊN")),
+      title: readConfig("space_green_title", readConfig("slide2_title", "Khi thiên nhiên đồng hành cùng sự ngăn nắp")),
+      desc: readConfig("space_green_desc", readConfig("slide2_desc", "Một mầm sống nhỏ trên bàn làm việc là bộ lọc tự nhiên giải tỏa áp lực tinh thần.")),
+      image: readConfig("space_green_image", readConfig("slide2_image", readConfig("tech_image", "https://amukhgkamrokbbcjgusf.supabase.co/storage/v1/object/public/product-images/assets/tech-collection.jpg"))),
+      href: readConfig("space_green_link", "/shop?category=smart-planters"),
+      icon: Leaf,
+      surface: "bg-gradient-to-br from-[#FAF7F0] to-[#E8F0E6]",
+    },
+    {
+      key: "rest",
+      categorySlug: "ambient-lights",
+      tag: readConfig("space_rest_tag", readConfig("slide1_tag", "REST — KHOẢNH KHẮC THƯ GIÃN")),
+      title: readConfig("space_rest_title", readConfig("slide1_title", "Liệu pháp thị giác cho những đêm tư duy sâu")),
+      desc: readConfig("space_rest_desc", readConfig("slide1_desc", "Ánh sáng ấm và dịu giúp căn phòng chậm lại, để bạn nghỉ ngơi theo cách riêng.")),
+      image: readConfig("space_rest_image", readConfig("slide1_image", readConfig("diy_image", "https://amukhgkamrokbbcjgusf.supabase.co/storage/v1/object/public/product-images/assets/diy-collection.jpg"))),
+      href: readConfig("space_rest_link", "/shop?category=ambient-lights"),
+      icon: Moon,
+      surface: "bg-gradient-to-br from-[#FAF7F0] to-[#F2EADB]",
+    },
+    {
+      key: "home",
+      categorySlug: "home-decor",
+      tag: readConfig("space_home_tag", "HOME — DẤU ẤN CÁ NHÂN"),
+      title: readConfig("space_home_title", "Biến từng góc nhỏ thành dấu ấn riêng"),
+      desc: readConfig("space_home_desc", "Những vật phẩm được chọn để căn phòng kể câu chuyện của chính bạn."),
+      image: readConfig("space_home_image", readConfig("slide3_image", readConfig("hero_image", "https://amukhgkamrokbbcjgusf.supabase.co/storage/v1/object/public/product-images/assets/hero-desk-setup.jpg"))),
+      href: readConfig("space_home_link", "/shop?category=home-decor"),
+      icon: Home,
+      surface: "bg-gradient-to-br from-[#FAF7F0] to-[#F3E8EA]",
+    },
+  ];
+
+  const spaceFilters = [
+    { key: "all", name: "Tất cả", icon: Sparkles },
+    ...livingSpaces.map((space) => ({
+      key: space.categorySlug,
+      name: space.tag,
+      icon: space.icon,
+    })),
+  ];
 
   const prefooterTitle =
     typeof config.prefooter_title === "string"
@@ -135,9 +169,9 @@ export function MainHorizontalScroll({
       : "Sản phẩm được chế tác tỉ mỉ, bền bỉ cùng thời gian và kháng ẩm tự nhiên. Miễn phí vận chuyển nội thành TP.HCM & đơn hàng từ 500.000 ₫.";
 
   const hasSaleProducts = saleProducts && saleProducts.length > 0;
-  const containerHeightClass = hasSaleProducts ? "h-[1300vh]" : "h-[1200vh]";
-  const containerWidthClass = hasSaleProducts ? "w-[1300vw]" : "w-[1200vw]";
-  const maxTranslateX = hasSaleProducts ? "-92.3%" : "-91.66%";
+  const containerHeightClass = hasSaleProducts ? "h-[1400vh]" : "h-[1300vh]";
+  const containerWidthClass = hasSaleProducts ? "w-[1400vw]" : "w-[1300vw]";
+  const maxTranslateX = hasSaleProducts ? "-92.86%" : "-92.3%";
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -341,15 +375,17 @@ export function MainHorizontalScroll({
           </div>
 
           <div className="grid gap-6 grid-cols-1 sm:grid-cols-2">
-            {categories.map((cat) => (
+            {livingSpaces.map((space) => {
+              const Icon = space.icon;
+              return (
               <Link
-                key={cat.id}
-                href={`/shop?category=${cat.slug}`}
+                key={space.key}
+                href={space.href}
                 className="group relative aspect-square rounded-[32px] overflow-hidden border border-[#E1DDD5] bg-[#EAE5D9]/40 shadow-sm hover:shadow-xl transition-all"
               >
                 <Image
-                  src={cat.image?.url || slide1Image}
-                  alt={cat.name}
+                  src={space.image}
+                  alt={space.title}
                   fill
                   sizes="(max-width: 768px) 100vw, 50vw"
                   className="object-cover mix-blend-multiply opacity-85 group-hover:scale-106 transition-transform duration-700"
@@ -358,19 +394,23 @@ export function MainHorizontalScroll({
                   <span className="text-[10px] font-mono uppercase tracking-widest text-amber-300 font-bold">
                     KHÔNG GIAN
                   </span>
+                  <div className="flex items-center gap-2 text-amber-200">
+                    <Icon className="size-4" />
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-widest">{space.tag}</span>
+                  </div>
                   <h3 className="text-2xl font-bold font-serif mt-1 text-white">
-                    {cat.name}
+                    {space.title}
                   </h3>
                   <p className="text-xs text-neutral-200 font-sans mt-1.5 line-clamp-2 leading-relaxed font-medium">
-                    {cat.description ||
-                      `Khám phá các thiết kế không gian độc bản thuộc bộ sưu tập ${cat.name}.`}
+                    {space.desc}
                   </p>
                   <span className="mt-3 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/20 hover:bg-[#FF9D00] hover:text-black backdrop-blur-md text-[11px] font-mono font-bold text-white border border-white/30 transition-all w-fit shadow-xs">
-                    Khám phá không gian →
+                    Khám phá không gian <ArrowUpRight className="size-3.5" />
                   </span>
                 </div>
               </Link>
-            ))}
+              );
+            })}
           </div>
         </section>
 
@@ -390,14 +430,14 @@ export function MainHorizontalScroll({
 
                 {/* TABS LỌC KHÔNG GIAN */}
                 <div className="flex flex-wrap items-center gap-1.5 bg-[#FAF7F0] p-1.5 rounded-2xl border border-[#E1DDD5]">
-                  {Object.entries(SPACES_MAP).map(([key, space]) => {
-                    const isActive = activeSpaceFilter === key;
+                  {spaceFilters.map((space) => {
+                    const isActive = activeSpaceFilter === space.key;
                     const Icon = space.icon;
                     return (
                       <button
-                        key={key}
-                        type="button"
-                        onClick={() => setActiveSpaceFilter(key)}
+                          key={space.key}
+                          type="button"
+                          onClick={() => setActiveSpaceFilter(space.key)}
                         className={`px-3 py-1.5 rounded-xl text-xs font-sans font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                           isActive
                             ? "bg-black text-white shadow-xs"
@@ -695,146 +735,60 @@ export function MainHorizontalScroll({
               </div>
             </div>
 
-            {/* SLIDE 4: REST - ÁNH SÁNG KHÚC XẠ */}
-            {slide1Title && (
-              <div className="w-[100vw] h-full shrink-0 flex items-center justify-center px-24 border-r border-[#E1DDD5]/50 bg-gradient-to-br from-[#FAF7F0] to-[#F2EADB]">
-                <div className="mx-auto max-w-7xl w-full grid grid-cols-12 gap-16 items-center">
-                  <motion.div
-                    variants={textFadeUp}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true }}
-                    className="col-span-6 space-y-6 text-left"
-                  >
-                    <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
-                      {slide1Tag}
-                    </span>
-                    <h2 className="text-5xl font-bold font-serif text-black leading-tight">
-                      {slide1Title}
-                    </h2>
-                    {slide1Desc && (
+            {/* SLIDE 4-7: BỐN KHÔNG GIAN SỐNG (NỘI DUNG TỪ SUPABASE) */}
+            {livingSpaces.map((space) => {
+              const Icon = space.icon;
+              return (
+                <div
+                  key={space.key}
+                  className={`w-[100vw] h-full shrink-0 flex items-center justify-center px-24 border-r border-[#E1DDD5]/50 ${space.surface}`}
+                >
+                  <div className="mx-auto max-w-7xl w-full grid grid-cols-12 gap-16 items-center">
+                    <motion.div
+                      variants={textFadeUp}
+                      initial="hidden"
+                      whileInView="visible"
+                      viewport={{ once: true }}
+                      className="col-span-6 space-y-6 text-left"
+                    >
+                      <div className="flex items-center gap-2 text-[#786F66]">
+                        <Icon className="size-4" />
+                        <span className="text-[10px] font-mono uppercase tracking-widest font-bold">
+                          {space.tag}
+                        </span>
+                      </div>
+                      <h2 className="text-5xl font-bold font-serif text-black leading-tight">
+                        {space.title}
+                      </h2>
                       <p className="text-base text-[#5C564E] leading-relaxed max-w-md font-sans">
-                        {slide1Desc}
+                        {space.desc}
                       </p>
-                    )}
-                  </motion.div>
-                  <motion.div
-                    variants={imageParallax}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true }}
-                    className="col-span-6 relative aspect-square w-full rounded-[36px] overflow-hidden border border-[#E1DDD5] bg-white shadow-2xl"
-                  >
-                    {slide1Image && (
-                      <Image
-                        src={slide1Image}
-                        alt={slide1Title}
-                        fill
-                        sizes="50vw"
-                        className="object-cover mix-blend-multiply opacity-95"
-                      />
-                    )}
-                  </motion.div>
-                </div>
-              </div>
-            )}
-
-            {/* SLIDE 5: GREEN - MẢNG XANH THÔNG MINH */}
-            {slide2Title && (
-              <div className="w-[100vw] h-full shrink-0 flex items-center justify-center px-24 border-r border-[#E1DDD5]/50 bg-gradient-to-br from-[#FAF7F0] to-[#E8F0E6]">
-                <div className="mx-auto max-w-7xl w-full grid grid-cols-12 gap-16 items-center">
-                  <motion.div
-                    variants={textFadeUp}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true }}
-                    className="col-span-6 space-y-6 text-left"
-                  >
-                    <span className="text-[10px] font-mono text-emerald-800 uppercase tracking-widest font-bold">
-                      {slide2Tag}
-                    </span>
-                    <h2 className="text-5xl font-bold font-serif text-black leading-tight">
-                      {slide2Title}
-                    </h2>
-                    {slide2Desc && (
-                      <p className="text-base text-[#5C564E] leading-relaxed max-w-md font-sans">
-                        {slide2Desc}
-                      </p>
-                    )}
-                  </motion.div>
-                  <motion.div
-                    variants={imageParallax}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true }}
-                    className="col-span-6 relative aspect-square w-full rounded-[36px] overflow-hidden border border-[#E1DDD5] bg-white shadow-2xl"
-                  >
-                    {slide2Image && (
-                      <Image
-                        src={slide2Image}
-                        alt={slide2Title}
-                        fill
-                        sizes="50vw"
-                        className="object-cover mix-blend-multiply opacity-95"
-                      />
-                    )}
-                  </motion.div>
-                </div>
-              </div>
-            )}
-
-            {/* SLIDE 6: 4 KHÔNG GIAN SỐNG (BOO SPACES) */}
-            <div className="w-[100vw] h-full shrink-0 flex items-center justify-center px-24 border-r border-[#E1DDD5]/50 bg-[#FAF7F0]">
-              <div className="w-full max-w-7xl">
-                <div className="border-b pb-6 border-[#E1DDD5] mb-8 text-left flex justify-between items-end">
-                  <div>
-                    <span className="text-[10px] font-mono text-[#786F66] uppercase tracking-widest font-bold">
-                      BOO SPACES
-                    </span>
-                    <h2 className="text-4xl font-bold text-black font-serif mt-2">
-                      4 Không gian sống Boo Space
-                    </h2>
-                    <p className="text-xs text-[#5C564E] font-sans mt-1">
-                      Work — Green — Rest — Home
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid gap-6 grid-cols-4">
-                  {categories.map((cat) => (
-                    <motion.div key={cat.id} whileHover={{ y: -10 }}>
                       <Link
-                        href={`/shop?category=${cat.slug}`}
-                        className="group relative aspect-[3/4] rounded-[32px] overflow-hidden border border-[#E1DDD5] bg-[#EAE5D9]/40 shadow-sm transition-all hover:border-black block hover:shadow-2xl"
+                        href={space.href}
+                        className="inline-flex items-center gap-2 rounded-full border border-black/20 bg-white/40 px-4 py-2.5 text-xs font-mono font-bold text-black backdrop-blur-sm transition-colors hover:bg-black hover:text-white"
                       >
-                        <Image
-                          src={cat.image?.url || slide1Image}
-                          alt={cat.name}
-                          fill
-                          sizes="25vw"
-                          className="object-cover mix-blend-multiply opacity-85 group-hover:opacity-95 group-hover:scale-108 transition-all duration-700"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end p-7 text-white text-left">
-                          <span className="text-[10px] font-mono uppercase tracking-widest text-amber-300 font-bold">
-                            KHÔNG GIAN
-                          </span>
-                          <h3 className="text-2xl text-white font-bold font-serif mt-1">
-                            {cat.name}
-                          </h3>
-                          <p className="text-xs text-neutral-200 font-sans mt-2 line-clamp-2 leading-relaxed font-medium">
-                            {cat.description ||
-                              `Khám phá các thiết kế không gian độc bản thuộc bộ sưu tập ${cat.name}.`}
-                          </p>
-                          <span className="inline-flex items-center gap-1.5 mt-3 text-[11px] font-mono font-bold text-amber-300 bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/20 w-fit group-hover:bg-amber-400/20 group-hover:border-amber-400/40 transition-all">
-                            Khám phá không gian →
-                          </span>
-                        </div>
+                        Khám phá không gian <ArrowUpRight className="size-3.5" />
                       </Link>
                     </motion.div>
-                  ))}
+                    <motion.div
+                      variants={imageParallax}
+                      initial="hidden"
+                      whileInView="visible"
+                      viewport={{ once: true }}
+                      className="col-span-6 relative aspect-square w-full rounded-[36px] overflow-hidden border border-[#E1DDD5] bg-white shadow-2xl"
+                    >
+                      <Image
+                        src={space.image}
+                        alt={space.title}
+                        fill
+                        sizes="50vw"
+                        className="object-cover mix-blend-multiply opacity-95"
+                      />
+                    </motion.div>
+                  </div>
                 </div>
-              </div>
-            </div>
+              );
+            })}
 
             {/* SLIDE 7: SẢN PHẨM NỔI BẬT VỚI BỘ LỌC TƯƠNG TÁC */}
             <div className="w-[100vw] h-full shrink-0 flex items-center justify-center px-24 border-r border-[#E1DDD5]/50 bg-white/60 relative overflow-hidden">
@@ -851,14 +805,14 @@ export function MainHorizontalScroll({
 
                   {/* TABS LỌC KHÔNG GIAN TRÊN DESKTOP */}
                   <div className="flex items-center gap-2 bg-[#FAF7F0] p-1.5 rounded-2xl border border-[#E1DDD5]">
-                    {Object.entries(SPACES_MAP).map(([key, space]) => {
-                      const isActive = activeSpaceFilter === key;
-                      const Icon = space.icon;
-                      return (
-                        <button
-                          key={key}
-                          type="button"
-                          onClick={() => setActiveSpaceFilter(key)}
+                  {spaceFilters.map((space) => {
+                    const isActive = activeSpaceFilter === space.key;
+                    const Icon = space.icon;
+                    return (
+                      <button
+                        key={space.key}
+                        type="button"
+                        onClick={() => setActiveSpaceFilter(space.key)}
                           className={`px-4 py-2 rounded-xl text-xs font-sans font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                             isActive
                               ? "bg-black text-white shadow-sm"

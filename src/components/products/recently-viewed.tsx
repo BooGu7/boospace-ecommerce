@@ -29,7 +29,7 @@ export function RecentlyViewed({ excludeProductId }: RecentlyViewedProps) {
         // Lấy danh sách ID các sản phẩm đang thực sự xuất bản trên Supabase
         const { data: activeDbProducts, error } = await supabase
           .from("products")
-          .select("id, name, slug, price, images, published")
+          .select("id, name, slug, price, images, thumbnail_url, video_url, published")
           .eq("published", true);
 
         if (!error && activeDbProducts) {
@@ -60,6 +60,8 @@ export function RecentlyViewed({ excludeProductId }: RecentlyViewedProps) {
                 description: "",
                 categoryIds: [],
                 images: mappedImages,
+                thumbnail_url: dbProduct.thumbnail_url || null,
+                video_url: dbProduct.video_url || null,
                 status: "active" as const,
                 variants: [
                   {
