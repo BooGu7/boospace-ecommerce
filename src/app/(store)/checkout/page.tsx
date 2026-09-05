@@ -46,6 +46,7 @@ interface UserAddress {
   firstName?: string;
   lastName?: string;
   line1?: string;
+  ward?: string;
   district?: string;
   city?: string;
   state?: string;
@@ -53,6 +54,9 @@ interface UserAddress {
   country?: string;
   isDefault?: boolean;
   formattedAddress?: string;
+  provinceId?: number;
+  districtId?: number;
+  wardCode?: string;
 }
 
 interface GHNProvince {
@@ -63,6 +67,11 @@ interface GHNProvince {
 interface GHNDistrict {
   DistrictID: number;
   DistrictName: string;
+}
+
+interface GHNWard {
+  WardCode: string;
+  WardName: string;
 }
 
 const formatVND = (amount: number) => {
@@ -116,8 +125,10 @@ export default function CheckoutPage() {
   // Danh sách Tỉnh / Huyện GHN
   const [provinces, setProvinces] = useState<GHNProvince[]>([]);
   const [districts, setDistricts] = useState<GHNDistrict[]>([]);
+  const [wards, setWards] = useState<GHNWard[]>([]);
   const [selectedProvinceId, setSelectedProvinceId] = useState<number>(202);
-  const [selectedDistrictId, setSelectedDistrictId] = useState<number>(1446);
+  const [selectedDistrictId, setSelectedDistrictId] = useState<number>(0);
+  const [selectedWardCode, setSelectedWardCode] = useState("");
 
   const [form, setForm] = useState({
     email: "",
@@ -125,7 +136,8 @@ export default function CheckoutPage() {
     firstName: "",
     lastName: "",
     line1: "",
-    district: "Quận Bình Thạnh",
+    district: "",
+    ward: "",
     city: "Hồ Chí Minh",
     notes: "",
   });
@@ -178,9 +190,20 @@ export default function CheckoutPage() {
         const data = await res.json();
         if (data.success && Array.isArray(data.data) && data.data.length > 0) {
           setDistricts(data.data);
-          const firstDist = data.data[0];
-          setSelectedDistrictId(firstDist.DistrictID);
-          setForm((prev) => ({ ...prev, district: firstDist.DistrictName }));
+          setSelectedDistrictId((currentDistrictId) => {
+            const currentDistrictIsValid = data.data.some(
+              (district: GHNDistrict) => district.DistrictID === currentDistrictId,
+            );
+            return currentDistrictIsValid ? currentDistrictId : 0;
+          });
+          setForm((prev) => {
+            const currentDistrictIsValid = data.data.some(
+              (district: GHNDistrict) => district.DistrictName === prev.district,
+            );
+            return currentDistrictIsValid
+              ? prev
+              : { ...prev, district: "", ward: "" };
+          });
         }
       } catch (err) {
         console.error("Lỗi nạp quận huyện GHN:", err);
@@ -189,7 +212,31 @@ export default function CheckoutPage() {
     loadDistricts();
   }, [selectedProvinceId]);
 
-  // 3. TÍNH PHÍ VẬN CHUYỂN BẤT ĐỒNG BỘ (TRÁNH LỖI SET-STATE-IN-EFFECT)
+  // 3. NẠP DANH SÁCH PHƯỜNG / XÃ THEO QUẬN HUYỆN
+  useEffect(() => {
+    if (!selectedDistrictId) return;
+
+    async function loadWards() {
+      try {
+        const res = await fetch(
+          `/api/shipping/locations?districtId=${selectedDistrictId}`,
+        );
+        const data = await res.json();
+        if (data.success && Array.isArray(data.data)) {
+          setWards(data.data);
+        } else {
+          setWards([]);
+        }
+      } catch (err) {
+        console.error("Lỗi nạp phường xã GHN:", err);
+        setWards([]);
+      }
+    }
+
+    loadWards();
+  }, [selectedDistrictId]);
+
+  // 4. TÍNH PHÍ VẬN CHUYỂN BẤT ĐỒNG BỘ (TRÁNH LỖI SET-STATE-IN-EFFECT)
   useEffect(() => {
     if (!mounted || items.length === 0) return;
 
@@ -222,6 +269,7 @@ export default function CheckoutPage() {
             city: form.city,
             provinceId: selectedProvinceId,
             districtId: selectedDistrictId,
+            wardCode: selectedWardCode,
             subtotal: subtotalVND,
             weightGrams: items.reduce(
               (sum, item) => sum + item.quantity * 250,
@@ -252,6 +300,7 @@ export default function CheckoutPage() {
     selectedProvinceId,
     form.city,
     selectedDistrictId,
+    selectedWardCode,
     items,
     discountPercent,
     getSubtotal,
@@ -276,9 +325,13 @@ export default function CheckoutPage() {
         firstName: user.firstName || defaultAddr?.firstName || prev.firstName,
         lastName: user.lastName || defaultAddr?.lastName || prev.lastName,
         line1: defaultAddr?.line1 || prev.line1,
-        district: defaultAddr?.district || prev.district || "Quận Bình Thạnh",
+        ward: defaultAddr?.ward || "",
+        district: defaultAddr?.district || prev.district,
         city: defaultAddr?.city || prev.city || "Hồ Chí Minh",
       }));
+      if (defaultAddr?.provinceId) setSelectedProvinceId(defaultAddr.provinceId);
+      if (defaultAddr?.districtId) setSelectedDistrictId(defaultAddr.districtId);
+      setSelectedWardCode(defaultAddr?.wardCode || "");
     }, 0);
 
     return () => clearTimeout(timer);
@@ -415,6 +468,11 @@ export default function CheckoutPage() {
   function handleProvinceChange(e: React.ChangeEvent<HTMLSelectElement>) {
     const provId = Number(e.target.value);
     setSelectedProvinceId(provId);
+    setSelectedDistrictId(0);
+    setSelectedWardCode("");
+    setDistricts([]);
+    setWards([]);
+    setForm((prev) => ({ ...prev, district: "", ward: "" }));
     const matched = provinces.find((p) => p.ProvinceID === provId);
     if (matched) {
       setForm((prev) => ({ ...prev, city: matched.ProvinceName }));
@@ -424,9 +482,21 @@ export default function CheckoutPage() {
   function handleDistrictChange(e: React.ChangeEvent<HTMLSelectElement>) {
     const distId = Number(e.target.value);
     setSelectedDistrictId(distId);
+    setSelectedWardCode("");
+    setWards([]);
+    setForm((prev) => ({ ...prev, ward: "" }));
     const matched = districts.find((d) => d.DistrictID === distId);
     if (matched) {
       setForm((prev) => ({ ...prev, district: matched.DistrictName }));
+    }
+  }
+
+  function handleWardChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    const wardCode = e.target.value;
+    setSelectedWardCode(wardCode);
+    const matched = wards.find((w) => w.WardCode === wardCode);
+    if (matched) {
+      setForm((prev) => ({ ...prev, ward: matched.WardName }));
     }
   }
 
@@ -439,8 +509,10 @@ export default function CheckoutPage() {
       !form.phone ||
       !form.lastName ||
       !form.line1 ||
+      !form.ward ||
       !form.district ||
-      !form.city
+      !form.city ||
+      !selectedWardCode
     ) {
       toast.error("Vui lòng điền đầy đủ thông tin giao hàng bắt buộc.");
       return;
@@ -448,13 +520,14 @@ export default function CheckoutPage() {
 
     setLoading(true);
     const orderId = `ORD-${Date.now().toString(36).toUpperCase()}`;
-    const formattedAddressStr = `${form.line1}, ${form.district}, ${form.city}, Việt Nam`;
+    const formattedAddressStr = `${form.line1}, ${form.ward}, ${form.district}, ${form.city}, Việt Nam`;
 
     const fullAddressObj: UserAddress = {
       id: `addr-${Date.now()}`,
       firstName: form.firstName || "",
       lastName: form.lastName,
       line1: form.line1,
+      ward: form.ward,
       district: form.district,
       city: form.city,
       state: "Việt Nam",
@@ -462,6 +535,9 @@ export default function CheckoutPage() {
       country: "VN",
       phone: form.phone,
       formattedAddress: formattedAddressStr,
+      provinceId: selectedProvinceId,
+      districtId: selectedDistrictId,
+      wardCode: selectedWardCode,
     };
 
     let validCustomerId: string | null = null;
@@ -644,7 +720,7 @@ export default function CheckoutPage() {
               </CardHeader>
 
               <CardContent className="p-0 space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                   <div className="space-y-2">
                     <Label
                       htmlFor="lastName"
@@ -733,10 +809,13 @@ export default function CheckoutPage() {
                     <div className="relative">
                       <select
                         name="district"
-                        value={selectedDistrictId}
+                        value={selectedDistrictId ? String(selectedDistrictId) : ""}
                         onChange={handleDistrictChange}
                         className="w-full h-10 appearance-none rounded-xl border border-[#CFCABF] bg-white px-3.5 pr-8 text-xs font-sans font-bold text-black outline-none focus:border-[#FF9D00] cursor-pointer"
                       >
+                        <option value="" disabled>
+                          Chọn Quận / Huyện
+                        </option>
                         {districts.length > 0 ? (
                           districts.map((d) => (
                             <option key={d.DistrictID} value={d.DistrictID}>
@@ -744,8 +823,35 @@ export default function CheckoutPage() {
                             </option>
                           ))
                         ) : (
-                          <option value={1446}>Quận Bình Thạnh</option>
+                          <option value="" disabled>
+                            Đang tải...
+                          </option>
                         )}
+                      </select>
+                      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 size-3.5 text-slate-500" />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-[11px] font-mono font-bold text-[#5c544d] uppercase tracking-wider block">
+                      Phường / Xã *
+                    </Label>
+                    <div className="relative">
+                      <select
+                        name="ward"
+                        value={selectedWardCode}
+                        onChange={handleWardChange}
+                        disabled={!selectedDistrictId || wards.length === 0}
+                        className="w-full h-10 appearance-none rounded-xl border border-[#CFCABF] bg-white px-3.5 pr-8 text-xs font-sans font-bold text-black outline-none focus:border-[#FF9D00] cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        <option value="">
+                          {wards.length > 0 ? "Chọn Phường / Xã" : "Đang tải..."}
+                        </option>
+                        {wards.map((w) => (
+                          <option key={w.WardCode} value={w.WardCode}>
+                            {w.WardName}
+                          </option>
+                        ))}
                       </select>
                       <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 size-3.5 text-slate-500" />
                     </div>

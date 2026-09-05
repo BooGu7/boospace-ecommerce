@@ -23,7 +23,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { siteConfig } from "@/lib/config";
 import { mobileMenuSections, shopLinks } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
@@ -89,6 +89,10 @@ export function Header({ categories = [] }: HeaderProps) {
               className="!w-full !gap-0 sm:!w-80 bg-[#FCFAF2] border-r border-[#E1DDD5] text-[#1E1C1A]"
               showCloseButton={false}
             >
+              <SheetTitle className="sr-only">Menu điều hướng Boo Space</SheetTitle>
+              <SheetDescription className="sr-only">
+                Các liên kết chính và danh mục sản phẩm của Boo Space.
+              </SheetDescription>
               <div className="shrink-0 px-6 pt-5 pb-2">
                 <button
                   type="button"

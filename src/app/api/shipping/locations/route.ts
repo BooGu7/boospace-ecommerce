@@ -1,11 +1,17 @@
 import { NextResponse } from "next/server";
 
-const GHN_TOKEN =
-  process.env.GHN_API_TOKEN || "57206f75-cdcf-11ef-ac7c-e6d0c03032ee";
+const GHN_TOKEN = process.env.GHN_API_TOKEN;
 const GHN_BASE_URL = "https://online-gateway.ghn.vn/shiip/public-api";
 
 export async function GET(req: Request) {
   try {
+    if (!GHN_TOKEN) {
+      return NextResponse.json(
+        { success: false, error: "Thiếu GHN_API_TOKEN trong môi trường máy chủ.", data: [] },
+        { status: 500 },
+      );
+    }
+
     const { searchParams } = new URL(req.url);
     const provinceId = searchParams.get("provinceId");
     const districtId = searchParams.get("districtId");

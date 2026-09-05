@@ -13,7 +13,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 import { PLACEHOLDER_IMAGE } from "@/lib/constants";
 import { supabase } from "@/lib/supabase/client";
 import { formatPrice } from "@/lib/utils";
@@ -140,6 +140,9 @@ export function CartDrawer() {
             Giỏ hàng ({items.reduce((sum, item) => sum + item.quantity, 0)} sản
             phẩm)
           </SheetTitle>
+          <SheetDescription className="sr-only">
+            Danh sách sản phẩm trong giỏ hàng và các thao tác thanh toán.
+          </SheetDescription>
           <button
             type="button"
             onClick={closeCart}

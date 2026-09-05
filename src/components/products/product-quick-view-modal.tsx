@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -170,6 +171,9 @@ export function ProductQuickViewModal({
       <DialogContent className="max-w-4xl sm:max-w-4xl p-0 overflow-hidden rounded-[32px] border border-[#E1DDD5] bg-[#FCFAF2] text-[#1E1C1A] shadow-2xl">
         <DialogHeader className="sr-only">
           <DialogTitle>{product.name}</DialogTitle>
+          <DialogDescription>
+            Xem nhanh hình ảnh, thông tin và tùy chọn mua của {product.name}.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="grid grid-cols-1 md:grid-cols-12 max-h-[85vh] overflow-y-auto">

@@ -11,9 +11,13 @@ const HCM_KEYWORDS = [
   "tphcm",
 ];
 
-const GHN_TOKEN =
-  process.env.GHN_API_TOKEN || "57206f75-cdcf-11ef-ac7c-e6d0c03032ee";
-const GHN_SHOP_ID = process.env.GHN_SHOP_ID || "1953208";
+const GHN_TOKEN = process.env.GHN_API_TOKEN;
+const GHN_SHOP_ID = process.env.GHN_SHOP_ID;
+const GHN_WORKSHOP_DISTRICT_ID = Number(
+  process.env.GHN_WORKSHOP_DISTRICT_ID || 1462,
+);
+const GHN_WORKSHOP_WARD_CODE =
+  process.env.GHN_WORKSHOP_WARD_CODE || "21617";
 
 export async function POST(req: Request) {
   try {
@@ -45,9 +49,22 @@ export async function POST(req: Request) {
       });
     }
 
-    // 3. Ngoại tỉnh (< 500k, VD: Gia Lai, Đà Nẵng, Hà Nội...) -> Gọi thẳng GHN API v2
-    const targetDistrict = districtId > 0 ? districtId : 1580; // Mặc định Pleiku nếu chưa chọn
-    const targetWard = wardCode || "420101";
+    // 3. Ngoại tỉnh (< 500k) cần đủ mã GHN để tính cước chính xác.
+    if (!districtId || !wardCode) {
+      return NextResponse.json(
+        { success: false, fee: 0, isFree: false, error: "Thiếu mã quận/huyện hoặc phường/xã GHN." },
+        { status: 400 },
+      );
+    }
+    if (!GHN_TOKEN || !GHN_SHOP_ID) {
+      return NextResponse.json(
+        { success: false, fee: 0, isFree: false, error: "Thiếu cấu hình GHN_API_TOKEN hoặc GHN_SHOP_ID." },
+        { status: 500 },
+      );
+    }
+
+    const targetDistrict = districtId;
+    const targetWard = wardCode;
 
     const ghnRes = await fetch(
       "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee",
@@ -59,8 +76,8 @@ export async function POST(req: Request) {
           ShopId: String(GHN_SHOP_ID),
         },
         body: JSON.stringify({
-          from_district_id: 1446, // Kho Q.Bình Thạnh, TP.HCM
-          from_ward_code: "20601",
+          from_district_id: GHN_WORKSHOP_DISTRICT_ID,
+          from_ward_code: GHN_WORKSHOP_WARD_CODE,
           to_district_id: targetDistrict,
           to_ward_code: targetWard,
           weight: weightGrams,
